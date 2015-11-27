@@ -215,177 +215,187 @@ let mathsText t0=
 
 let skip x=bB (fun env->let w=env.size*.x in [glue w w w])
 
-
 module Format (D:DocumentStructure) = struct
+  module Default = DefaultFormat.Format(D)
 
-  module Default=DefaultFormat.Format(D)
-  include (Default:module type of Default with module Output:=Default.Output)
+  (* Secial page. *)
+  let special_page pages_after contents =
+    let param a b c d e f g line =
+      { (parameters a b c d e f g line) with
+        min_page_before = 0;
+        min_page_after = 1 + pages_after;
+        left_margin = 0.0
+      }
+    in
+    newPar D.structure Complete.normal param contents
 
+  module TableOfContents = Default.TableOfContents
 
+  module Output (M:Driver.OutputDriver) = struct
+    include Default.Output(M)
 
-let postprocess_tree tree=
-  let rec sectionize path numbered=function
-      Node n when List.mem_assoc "structural" n.node_tags ->
-          let numbered'=numbered && List.mem_assoc "numbered" n.node_tags in
-        let section_name=
-          if path=[] then (
-            [C (fun env->
-              let h= -.env.size/.phi in
-              let sz=2.5 in
-
-              let buf=ref [||] in
-              let nbuf=ref 0 in
-              let env'=boxify buf nbuf env n.displayname in
-              let boxes=Array.to_list (Array.sub !buf 0 !nbuf) in
-              let users=
-                List.filter (fun x->match x with
-                    Marker _->true | _->false)
-                  boxes
-              in
-
-              let num=
-                if List.mem_assoc "numbered" n.node_tags then
-                  let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
-                  List.map (RawContent.in_order 1)
-                    (draw {env with size=env.size*.(sz-.h);fontColor=Color.gray }
-                       [tT (String.concat "." (List.map (fun x->string_of_int (x+1))
-                                                 (List.rev (drop 1 b))))])
-                else
-                  []
-              in
-              let x0,x1=if num=[] then 0.,0. else
-                  let x0,_,x1,_=RawContent.bounding_box num in x0,x1
-              in
-              let w=if num=[] then 0. else env.size in
-
-              let text=
-                let dr=try
-                         snd (IntMap.min_binding (
-                           let d,_,_ = (* FIXME: lost Marker(Label ...) ?? *)
-                           OutputDrawing.minipage' {env with hyphenate=(fun _->[||]);
-                             normalLeftMargin=0.;
-                             normalMeasure=env.normalMeasure-.(x1-.x0)/.2.-.w;
-                             size=env.size*.sz}
-                             (DefaultFormat.paragraph n.displayname) in d
-                         ))
-                  with
-                      Not_found->empty_drawing_box
-                in
-                List.map (RawContent.in_order 1)
-                  (dr.drawing_contents dr.drawing_nominal_width)
-              in
-              let dr=drawing (
-                (List.map (RawContent.translate (-.w-.x1) h) num)@
-                  text
-              )
-              in
-              let dr={dr with drawing_contents=(fun w_->
-                List.map (RawContent.translate ((x0-.x1)/.2.) 0.) (dr.drawing_contents w_)
-              )}
-              in
-              bB (fun _->
-                users@
-                  [Marker (Structure path);
-                   Marker AlignmentMark;
-                   Drawing (dr)])::
-                Env(fun _->env')::[]
-            )]
-          ) else (
-            if List.mem_assoc "numbered" n.node_tags  then
-              [C (fun env->
-                let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
-                bB (fun _->[Marker (Structure path)])
-                ::tT (String.concat "." (List.map (fun x->string_of_int (x+1)) (List.rev (drop 1 b))))
-                ::tT " "
-                ::n.displayname
-              )]
-            else
-              bB (fun env->[Marker (Structure path)])::
-                n.displayname
-          )
-        in
-        let par=Paragraph {
-          par_contents=section_name;
-          par_paragraph=(-1);par_states=[];
-          par_env=(fun env->
-                     let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
-
-                     { (envAlternative (Opentype.oldStyleFigures::env.fontFeatures)
-                          (if List.length b>=4 then Regular else Caps) env) with
-                       hyphenate=(fun _->[||]);
-                         size=(if List.length b=1 then sqrt phi else
-                                 if List.length b <= 2 then sqrt (sqrt phi) else
-                                   if List.length b = 3 then sqrt (sqrt (sqrt phi)) else 1.)*.env.size;
-                     });
-          par_post_env=(fun env1 env2 -> { env1 with names=env2.names; counters=env2.counters;
-                                             user_positions=env2.user_positions });
-          par_badness=badness;
-          par_parameters=
-            if path=[] then
-              (fun env a1 a2 a3 a4 a5 a6 line->
-                let p=parameters env a1 a2 a3 a4 a5 a6 line in
-                if not p.absolute && line.lineStart=0 then (
-                  let rec findMark w j=
-                    if j>=line.lineEnd then 0. else
-                      if a1.(line.paragraph).(j) = Marker AlignmentMark then w else
-                        let (_,ww,_)=box_interval a1.(line.paragraph).(j) in
-                        findMark (w+.ww) (j+1)
+    let postprocess_tree tree =
+      let rec sectionize path numbered=function
+          Node n when List.mem_assoc "structural" n.node_tags ->
+              let numbered'=numbered && List.mem_assoc "numbered" n.node_tags in
+            let section_name=
+              if path=[] then (
+                [C (fun env->
+                  let h= -.env.size/.phi in
+                  let sz=2.5 in
+    
+                  let buf=ref [||] in
+                  let nbuf=ref 0 in
+                  let env'=boxify buf nbuf env n.displayname in
+                  let boxes=Array.to_list (Array.sub !buf 0 !nbuf) in
+                  let users=
+                    List.filter (fun x->match x with
+                        Marker _->true | _->false)
+                      boxes
                   in
-                  let w=findMark 0. 0 in
-                  { p with
-                    left_margin=p.left_margin-.w;
-                    min_lines_after=if line.lineEnd>=Array.length a1.(line.paragraph) then 4 else 1;
-                    min_page_before = (
-                      if line.paragraph=0 then 0 else
-                      if path=[] && line.lineStart<=0 then (
-                        let minimal=max p.min_page_before 1 in
-                        minimal+((1+max 0 (layout_page line)+minimal) mod 2)
-                      ) else p.min_page_before
-                    );
-                    measure=p.measure+.w }
-                ) else
-                  p
-              )
-            else
-              (fun a b c d e f g line->
-                let param=parameters a b c d e f g line in
-                { param with
-                  min_page_before = (
-                    if path=[] && line.lineStart<=0 then (
-                      let minimal=max param.min_page_before 1 in
-                      minimal+((layout_page g+minimal) mod 2)
-                    ) else param.min_page_before
-                  );
-                  min_lines_before=2;
-                  min_lines_after=
-                    if path=[] then
-                      if line.lineEnd>=Array.length b.(line.paragraph) then 3 else 0
+    
+                  let num=
+                    if List.mem_assoc "numbered" n.node_tags then
+                      let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
+                      List.map (RawContent.in_order 1)
+                        (draw {env with size=env.size*.(sz-.h);fontColor=Color.gray }
+                           [tT (String.concat "." (List.map (fun x->string_of_int (x+1))
+                                                     (List.rev (drop 1 b))))])
                     else
-                      if line.lineEnd>=Array.length b.(line.paragraph) then 2 else 0;
-                  not_last_line=true }
-              );
-          par_completeLine=Complete.normal }
-        in
-          Node { n with children=
-              IntMap.add
-                (try fst (IntMap.min_binding n.children)-1 with Not_found->0)
-                par
-                (IntMap.mapi (fun k a->sectionize (k::path) numbered' a) n.children)
-               }
-    | Node n->
-       Node { n with children=IntMap.map (sectionize path numbered) n.children }
-    | a->a
-  in
-  match tree with
-  | Node n-> Node { n with children=IntMap.map (sectionize [] true) n.children }
-  | _     -> tree
+                      []
+                  in
+                  let x0,x1=if num=[] then 0.,0. else
+                      let x0,_,x1,_=RawContent.bounding_box num in x0,x1
+                  in
+                  let w=if num=[] then 0. else env.size in
+    
+                  let text=
+                    let dr=try
+                             snd (IntMap.min_binding (
+                               let d,_,_ = (* FIXME: lost Marker(Label ...) ?? *)
+                               OutputDrawing.minipage' {env with hyphenate=(fun _->[||]);
+                                 normalLeftMargin=0.;
+                                 normalMeasure=env.normalMeasure-.(x1-.x0)/.2.-.w;
+                                 size=env.size*.sz}
+                                 (DefaultFormat.paragraph n.displayname) in d
+                             ))
+                      with
+                          Not_found->empty_drawing_box
+                    in
+                    List.map (RawContent.in_order 1)
+                      (dr.drawing_contents dr.drawing_nominal_width)
+                  in
+                  let dr=drawing (
+                    (List.map (RawContent.translate (-.w-.x1) h) num)@
+                      text
+                  )
+                  in
+                  let dr={dr with drawing_contents=(fun w_->
+                    List.map (RawContent.translate ((x0-.x1)/.2.) 0.) (dr.drawing_contents w_)
+                  )}
+                  in
+                  bB (fun _->
+                    users@
+                      [Marker (Structure path);
+                       Marker AlignmentMark;
+                       Drawing (dr)])::
+                    Env(fun _->env')::[]
+                )]
+              ) else (
+                if List.mem_assoc "numbered" n.node_tags  then
+                  [C (fun env->
+                    let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
+                    bB (fun _->[Marker (Structure path)])
+                    ::tT (String.concat "." (List.map (fun x->string_of_int (x+1)) (List.rev (drop 1 b))))
+                    ::tT " "
+                    ::n.displayname
+                  )]
+                else
+                  bB (fun env->[Marker (Structure path)])::
+                    n.displayname
+              )
+            in
+            let par=Paragraph {
+              par_contents=section_name;
+              par_paragraph=(-1);par_states=[];
+              par_env=(fun env->
+                         let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
+    
+                         { (envAlternative (Opentype.oldStyleFigures::env.fontFeatures)
+                              (if List.length b>=4 then Regular else Caps) env) with
+                           hyphenate=(fun _->[||]);
+                             size=(if List.length b=1 then sqrt phi else
+                                     if List.length b <= 2 then sqrt (sqrt phi) else
+                                       if List.length b = 3 then sqrt (sqrt (sqrt phi)) else 1.)*.env.size;
+                         });
+              par_post_env=(fun env1 env2 -> { env1 with names=env2.names; counters=env2.counters;
+                                                 user_positions=env2.user_positions });
+              par_badness=badness;
+              par_parameters=
+                if path=[] then
+                  (fun env a1 a2 a3 a4 a5 a6 line->
+                    let p=parameters env a1 a2 a3 a4 a5 a6 line in
+                    if not p.absolute && line.lineStart=0 then (
+                      let rec findMark w j=
+                        if j>=line.lineEnd then 0. else
+                          if a1.(line.paragraph).(j) = Marker AlignmentMark then w else
+                            let (_,ww,_)=box_interval a1.(line.paragraph).(j) in
+                            findMark (w+.ww) (j+1)
+                      in
+                      let w=findMark 0. 0 in
+                      { p with
+                        left_margin=p.left_margin-.w;
+                        min_lines_after=if line.lineEnd>=Array.length a1.(line.paragraph) then 4 else 1;
+                        min_page_before = (
+                          if line.paragraph=0 then 0 else
+                          if path=[] && line.lineStart<=0 then (
+                            let minimal=max p.min_page_before 1 in
+                            minimal+((1+max 0 (layout_page line)+minimal) mod 2)
+                          ) else p.min_page_before
+                        );
+                        measure=p.measure+.w }
+                    ) else
+                      p
+                  )
+                else
+                  (fun a b c d e f g line->
+                    let param=parameters a b c d e f g line in
+                    { param with
+                      min_page_before = (
+                        if path=[] && line.lineStart<=0 then (
+                          let minimal=max param.min_page_before 1 in
+                          minimal+((layout_page g+minimal) mod 2)
+                        ) else param.min_page_before
+                      );
+                      min_lines_before=2;
+                      min_lines_after=
+                        if path=[] then
+                          if line.lineEnd>=Array.length b.(line.paragraph) then 3 else 0
+                        else
+                          if line.lineEnd>=Array.length b.(line.paragraph) then 2 else 0;
+                      not_last_line=true }
+                  );
+              par_completeLine=Complete.normal }
+            in
+              Node { n with children=
+                  IntMap.add
+                    (try fst (IntMap.min_binding n.children)-1 with Not_found->0)
+                    par
+                    (IntMap.mapi (fun k a->sectionize (k::path) numbered' a) n.children)
+                   }
+        | Node n->
+           Node { n with children=IntMap.map (sectionize path numbered) n.children }
+        | a->a
+      in
+      match tree with
+      | Node n-> Node { n with children=IntMap.map (sectionize [] true) n.children }
+      | _     -> tree
 
-module Output (M:Driver.OutputDriver)=struct
-  module Def=Default.Output(M)
-  include Def
-  let output out_params (structure:Document.tree) (defaultEnv:Document.environment) file=
-    Def.basic_output out_params (postprocess_tree structure) defaultEnv file
-end
+    let output out_params structure defaultEnv file =
+      basic_output out_params (postprocess_tree structure) defaultEnv file
+  end
+
+
 
   let minipage=OutputDrawing.minipage
   let displayedFormula=Default.displayedFormula

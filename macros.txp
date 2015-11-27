@@ -1,15 +1,4 @@
 \Caml(
-
-let special_page pages_after contents =
-  let param a b c d e f g line =
-    { (Patoline_Format.parameters a b c d e f g line) with
-      min_page_before = 0;
-      min_page_after = 1 + pages_after;
-      left_margin = 0.0
-    }
-  in
-  newPar D.structure Complete.normal param contents
-
 let take n l =
   let rec take n l acc =
     match n, l with
