@@ -1,0 +1,105 @@
+\Caml(
+
+let special_page pages_after contents =
+  let param a b c d e f g line =
+    { (Patoline_Format.parameters a b c d e f g line) with
+      min_page_before = 0;
+      min_page_after = 1 + pages_after;
+      left_margin = 0.0
+    }
+  in
+  newPar D.structure Complete.normal param contents
+
+let take n l =
+  let rec take n l acc =
+    match n, l with
+    | 0, l     -> List.rev acc
+    | n, x::xs -> take (n-1) xs (x :: acc)
+    | _        -> l
+  in take n l []
+
+let rec drop n l =
+  match n, l with
+  | 0, l    -> l
+  | n, []   -> l
+  | n, x::l -> drop (n-1) l
+
+let two_cols ls =
+  let l = List.length ls in
+  let h = l / 2 + (l mod 2) in
+  let c1 = take h ls in
+  let c2 = drop h ls in
+  let c2 = if List.length c2 < h then c2 @ [[[];[];[]]] else c2 in
+  let rec zip c1 c2 acc =
+    match c1, c2 with
+    | []    , []     -> List.rev acc
+    | x1::c1, x2::c2 -> zip c1 c2 ((x1 @ x2) :: acc)
+    | _              -> assert false
+  in
+  zip c1 c2 []
+
+let _ =
+  let pnum i = if i < 4 then "" else string_of_int i in
+  DefaultFormat.sprint_page_number := pnum
+
+let defaultEnv =
+  {defaultEnv with hyphenate = DefaultFormat.hyphenate_dict "hyph-fr.hdict"}
+
+module type Env =
+  sig
+    val do_begin_env : unit -> unit
+    val do_end_env : unit -> unit
+  end
+
+let make_theorem : string -> (module Env) = fun name ->
+  let module A =
+    struct
+      let refType = name
+      let counter = name
+      let counterLevel = 0
+      let display num = alternative Bold
+        [tT (name ^ " " ^ num ^ "."); (tT " ")]
+    end
+  in (module Make_theorem( A ))
+
+
+module Env_def = (val make_theorem "Définition")
+module Env_rem = (val make_theorem "Remarque")
+module Env_lem = (val make_theorem "Lemme")
+module Env_thm = (val make_theorem "Théorème")
+module Env_cor = (val make_theorem "Corollaire")
+
+let defRef x = <<\generalRef("Définition")(x)>>
+let remRef x = <<\generalRef("Remarque")(x)>>
+let lemRef x = <<\generalRef("Lemme")(x)>>
+let thmRef x = <<\generalRef("Théorème")(x)>>
+let corRef x = <<\generalRef("Corollaire")(x)>>
+
+module type Arg1 =
+  sig
+    val arg1 : string
+  end
+
+module Env_minisect (M : Arg1) : Env =
+  struct
+    let do_begin_env () =
+      let open UsualMake in
+      let title =
+        let params = Document.do_center Patoline_Format0.parameters in
+        let text = size 6.0 [tT M.arg1] in
+        let text = (*(pagesBefore 2) @*) text @ (linesAfter 2) in
+        new_paragraph Complete.normal params text
+      in
+      let node = Node
+        { (singleton (Paragraph title)) with
+          name = M.arg1
+        ; displayname = [C (fun _ -> env_accessed := true; [tT M.arg1])] 
+        ; node_tags = [("intoc", ""); ("_structure", "")]
+        }
+      in
+      D.structure := newChildAfter !D.structure node
+    let do_end_env () =
+      go_up D.structure
+  end
+
+)

@@ -1,0 +1,108 @@
+Les travaux de thèse présentés ici s'articulent autours d'un but commun~:
+proposer un nouveau langage de programmation combinant un système de type
+expressif (produit dépendant, sous-typage) et rendant accessible la preuve
+de programme. Chacun des aspects du système de type ont été implémentés
+dans un prototype distribué avec ce manuscrit.
+
+-> Un système de type expressif
+
+Notre nouveau langage de programmation s'inspire largement des langages de
+la famille \sc{ml} comme \sc{Caml} ou \sc{sml}. En particulier il contient
+le $λ$-calcul ainsi qu'une forme de type produit (enregistrement) et une
+forme de type somme (variants) qui enrichit un système de type d'ordre
+supérieur standard. Nous adoptons également la syntaxe du $λμ$-calcul pour
+obtenir un accès à la continuation des programmes. On obtient donc des
+opérateurs de contrôle tels que \emph{call/cc} dans le langage \sc{Lisp}.
+
+Du fait de la présence d'opérateurs de contrôle, et donc d'effets de bord,
+il est nécessaire de fixer une stratégie d'évaluation. Comme la plupart
+des langages de la famille \sc{ml}, nous opterons pour l'appel par valeur.
+De ce fait, on doit prendre garde aux problèmes de correction liés à la
+combinaison de l'appel par valeur, des effets de bord et du polymorphisme
+à la \sc{ml}. Une solution classique à ce problème est d'opter pour la
+bien connue «~value restriction~»~: certaines règles de typage sont
+restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques.
+
+Bien qu'étant une solution simple et élégante, la «~value restriction~»
+n'est pas satisfaisante quand on étant le système avec une forme de
+produit dépendant. En effet, l'argument d'une fonction dépendante ne
+peut être qu'une valeur. Pour contourner ce problème il est possible
+d'utiliser des sucres syntaxiques pour garder les arguments des fonctions
+dépendantes, mais nous ne considerons pas cette solution satisfaisante.
+Dans ce travail, nous relaxons la restriction syntaxique, et la remplaçons
+par un restriction sémantique exprimée en terme d'équivalence
+observationnelle. Pour montrer la correction de cette nouvelle approche,
+nous construisons un modèle de réalisabilité surprenant, qui nécessite
+l'ajout d'une instruction à la machine de calcul.
+
+Un des points essentiels pour autoriser la relaxation de la «~value
+restriction~» est d'intégrer une théorie equationnelle du langage au sein
+de son système de type. On peut de ce fait ajouter des constructeurs de
+types pour tirer parti de cet ajout, ce qui augmente l'expressivité des
+spécifications significativement. En particulier, on pourra encoder le
+produit dépendant en utilisant ces noueaux constructeurs.
+
+Globalement, programmer avec notre langage devrait être
+une expérience relativement similaire à programmer en \sc{ml}.
+
+-<
+
+-> Preuve de programme
+
+... (* TODO *)
+
+-<
+
+-> Systèmes similaires
+
+... (* TODO *)
+
+-<
+
+-> Organisation du manuscrit
+
+Au travers de ce manuscrit, nous construisons le système de type de notre
+langage incrémentalement. Le point de départ est un système d'ordre
+supérieur standard (connu sous le nom de \sc{hol}) enrichit avec des types
+somme et produit correspondant aux enregistrements et aux constructeurs.
+Ce système est décrit formèlement dans le chapitre 1, qui
+contient également une introduction détaillée aux concepts et aux
+formalismes de la théorie des types ainsi qu'à ceux de la réalisabilité
+classique de Krivine. Un lecteur familier avec ces théories pourra décider
+de sauter cette partie, et de commencer directement au chapitre 2.
+
+Le chapitre 2 constitue la partie centrale de ce travail de thèse. En
+particulier il contient la définition formèle de notre langage avec sa
+sémantique opérationnelle et la notion d'équivalence observationnelle
+correspondante. En utilisant l'équivalence, une alternative à la «~value
+restriction~» est proposée, ce qui permet d'obtenir un produit dépendant
+utilisable directement. Une alternative pourrait être d'avoir recours à
+des sucres syntaxiques invasifs qui pourraient poser un problème de
+clareté sémantique pour l'utilisateur.
+
+Le chapitre 3 se concentre sur les aspects pratiques de l'équivalence. En
+effet, la notion sémantique d'équivalence ne peut pas être utilisée pour
+une implémentation et ne peut donc pas être appliquée en pratique. Pour
+palier à ce problème, nous dérivons des règles syntaxiques à partir de la
+définition de l'équivalence. Ces dernières correspondrons grossièrement
+aux règles de réduction de notre langage et on pourra les utiliser pour
+implémanter une procédure de pseudo-décision pour l'équivalence.
+
+Le chapitre 4 quant à lui modifie le système défini dans les chapitres 2
+et 3 pour intégrer une notion de sous-typage. En particulier, le sous-typage
+permet d'englober toutes les règles de typage qui n'ont aucun contenu
+algorithmique. En particulier, tout l'indécidabilité du typage de notre
+système sera contenue dans le sous-typage (et donc aussi dans
+l'équivalence). Dans notre cadre, le sous-typage peut également être utilisé
+pour définir plus petits et plus grands points fixes de types. Ceci nous
+permet donc d'obtenir types récursifs et types co-récursifs de manière
+élégante.
+
+Finalement, le chapitre 5 contient une description de certaines parties
+de notre implémantation. Des examples de programmes standard et moins
+standard sont également fournis pour donner au lecteur une idée de
+l'utilisabilité du système en pratique. Les exemples sont également
+distribués avec le code source du prototype, afin que le lecteur puisse
+s'essayer à les utiliser et à les modifier.
+
+-<

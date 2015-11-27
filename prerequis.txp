@@ -1,0 +1,164 @@
+\Caml(open Diagrams)
+\Include{Macros}
+
+Avant d'aborder la construction du modèle et de l'implémentation de notre
+nouveau langage, il est nécessaire de rappeler certains fondamentaux. On
+ne supposera ici aucune connaissance particulière dans les domaines de la
+théorie des types et de la réalisabilité. Les lecteurs avertis pourront
+donc se contenter de parcourir rapidement ce chapitre, voire même de
+l'ignorer.
+
+Dans ce manuscrit, on va s'intéresser à la création d'un nouveau langage de
+programmation semblable aux langages de la famille \sc{ml} (par exemple
+\sc{Caml} ou \sc{sml}). Comme tout langage \emph{fonctionnel}, sa syntaxe
+sera basée sur celle du $λ$-calcul. Il est donc naturel d'en faire notre
+point de départ.
+
+=> Le $λ$-calcul pur
+
+Introduit par Alonzo Church dans les années 1930, le $λ$-calcul est un
+formalisme permettant l'étude des fonctions calculables en général, et
+des fonctions récursives en particulier. En outre, Alan Turing montra en
+1937 que le $λ$-calcul possède la même expressivité que les Machines de
+Turing. Le $λ$-calcul constitue donc un véritable langage de programmation
+dans lequel toutes les fonctions calculables peuvent être exprimées.
+
+\begin{def}
+On suppose donné un alphabet dénombrable $\cal{V}_λ = \{x,y,z, ...\}$ de
+variables. L'ensemble $Λ$ des termes du $λ$-calcul (ou $λ$-termes) est le
+plus petit ensemble contenant $\cal{V}_λ$ et tel que~:
+\begin{itemize}
+\item si $x ∈ \cal{V}_λ$ et si $t ∈ Λ$ alors ${λx t} ∈ Λ$,
+\item si $t ∈ Λ$ et $u ∈ Λ$ alors ${(t) u} ∈ Λ$.
+\end{itemize}
+\end{def}
+De manière équivalente, on peut considérer la grammaire \sc{bnf} (forme de
+Backus-Naur)
+\begin{center}
+$ t,u ::= {x} \| {λx t} \| {(t) u}$
+\end{center}
+et définir $Λ$ comme l'ensemble des termes reconnus par cette dernière.
+La grammaire fait apparaître clairement le fait qu'un terme peut être soit
+une variable (aussi appelée $λ$-variable), soit une $λ$-abstraction (de la
+forme $λx t$), soit une application (de la forme $(t) u$). Dans la suite de
+ce manuscrit, on préfèrera l'utilisation de grammaires \sc{bnf} pour
+définir la syntaxe d'un langage, du fait de leur concision et de leur clarté.
+
+Intuitivement, une $λ$-abstraction $λx t$ forme une fonction en liant la
+variable $x$ dans le terme $t$, ce que l'on note usuellement $x |-> t$. La
+notion de variable liée, et la notion associée de variable libre, jouent
+donc un rôle important.
+\begin{def}
+Étant donné un terme $t$, on note $FV_λ(t)$ l'ensemble de ses $λ$-variables
+libres et $BV_λ(t)$ l'ensemble de ses $λ$-variables liées. Ces ensembles
+sont définis par induction sur la structure du terme $t$.
+\begin{center}
+\diagram(
+let contents = two_cols
+ [ [<$ FV_λ(x) $>    ; <$ = $>; <$ \{x\} $>                   ]
+ ; [<$ FV_λ(λx t) $> ; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
+ ; [<$ FV_λ((t) u) $>; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $>       ]
+ ; [<$ BV_λ(x) $>    ; <$ = $>; <$ ∅ $>                       ]
+ ; [<$ BV_λ(λx t) $> ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $>         ]
+ ; [<$ BV_λ((t) u) $>; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $>       ]
+ ]
+let _ =
+  array [`East; `Main; `West; `East; `Main; `West] contents
+    ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\end{def}
+\begin{rem}
+Rien n'empêche une $λ$-variable d'être à la fois libre et liée dans un
+terme. Dans $t = λx (y) λy (x) y$, la première occurrence de $y$ est libre,
+alors que la seconde est liée. On a en effet $y ∈ FV_λ(t) = \{y\}$ et
+$y ∈ BV_λ(t) = \{x, y\}$.
+\end{rem}
+Lorsqu'une fonction, c'est à dire une $λ$-abstraction est appliquée à un
+argument, on obtient un terme de la forme $(λx t) u$ qu'on appelle un
+$β$-rédex. La réduction de tels $β$-rédex constitue l'essence du calcul,
+c'est à dire de l'évaluation des termes du $λ$-calcul. Intuitivement, la
+réduction du $β$-rédex $(λx t) u$ s'effectuera en remplacent $x$ par $u$
+dans $t$. Cette opération, appelée substitution, est définie formellement
+comme suit.
+\begin{def}
+Soit $t ∈ Λ$ et $u ∈ Λ$ deux termes, et $x ∈ \cal{V}_λ$ une $λ$-variable.
+On dénote $t[x := u]$ le terme $t$ dans lequel toute occurrence libre de
+$x$ a été remplacée par $u$. Cette opération est définie par induction sur
+la structure du terme $t$.
+\begin{center}
+\diagram(
+let contents = two_cols
+ [ [<$ x[x := u] $>        ; <$ = $>; <$ u $>                       ]
+ ; [<$ y[x := u] $>        ; <$ = $>; <$ y $>                       ]
+ ; [<$ (λx t)[x := u] $>   ; <$ = $>; <$ λx t $>                    ]
+ ; [<$ (λy t)[x := u] $>   ; <$ = $>; <$ λy t[x := u] $>            ]
+ ; [<$ ((t₁) t₂)[x := u] $>; <$ = $>; <$ (t₁[x := u]) t₂[x := u] $> ]
+ ]
+let _ =
+  array [`East; `Main; `West; `East; `Main; `West] contents
+    ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\end{def}
+Une subtilité subsiste au niveau de la notion de substitution~: la capture.
+Considérons par exemple le terme $t = λx λy x$ correspondant à une fonction
+avec un argument $x$, et retournant une fonction constante de valeur $x$.
+Appliquons maintenant la substitution $[x := y]$ à $t$. Par cette opération,
+on obtient le terme $λy y$ qui n'est plus une fonction constante, mais la
+fonction identité. Pour remédier à ce problème, il convient de s'assurer
+lors d'une substitution $t[x := u]$ qu'aucune variable libre de $u$ n'est
+liée dans $t$. Bien qu'on ne puisse pas renommer les variables libres de
+$u$, il est tout à fait possible de renommer les variables liées de $t$.
+En effet, il est clair que le choix du nom d'une variable liée n'a pas
+d'importance, de la même manière que l'on considère généralement les sommes
+$\sum_{i=1}^n i$ et $\sum_{j=1}^n j$ identiques bien que $i$ et $j$ soient
+deux noms différents.
+
+(*
+Pour former une fonction de deux argument (ou plus), il est nécessaire de la
+Curryfier~: les arguments de la fonction sont donnés l'un après l'autre et
+non simultanément.
+En effet, le terme $(t) u$ correspondant au calcul de la «~fonction~» $t$ au
+«~point~» $u$ (qui est en général noté $t(u)$) ...
+*)
+
+(* TODO *)
+
+=<
+
+=> Types simples et interprétation BHK
+
+... (* TODO *)
+
+=<
+
+=> Le $λμ$-calcul et la logique classique 
+
+... (* TODO *)
+
+=<
+
+=> Machine de Krivine
+
+... (* TODO *)
+
+=<
+
+=> Types simples et interprétation BHK
+
+... (* TODO *)
+
+=<
+
+=> Logique d'ordre supérieur
+
+... (* TODO *)
+
+=<
+
+=> Sémantique et réalisabilité classique
+
+... (* TODO *)
+
+=<

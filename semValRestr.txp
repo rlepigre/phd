@@ -1,0 +1,1267 @@
+\Caml(
+  open ProofTree
+  open Diagrams
+
+  let tval =
+    let t = Maths.glyphs "val" in
+    [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
+)
+\Include{Macros}
+
+Dans ce chapitre, je définis un modèle de réalisabilité par valeurs, dans le
+style de Krivine. Dans un tel model, chaque type $A$ est interprété par trois
+ensembles liés par orthogonalité~: un ensemble de valeurs $⟦A⟧$ appelé
+\emph{sémantique brute}, un ensemble de piles $||A||$ appelé \emph{valeur de
+fausseté} et un ensemble de termes $|A|$ appelé \emph{valeur de vérité}. Dans
+tout modèle, la propriété $$⟦A⟧ ⊆ |A|$$ est une conséquence directe de cette
+relation. On obtient donc une justification sémantique à la règle de typage
+$$ \unaryRN{{val}_\downarrow}{Γ ⊢_\tval v : A}{Γ ⊢ v : A} $$
+qui permet la coercion d'un jugement impliquant une valeur en un jugement
+impliquant un terme.
+
+La particularité du modéle présenté ici est d'offir une propriété plus forte,
+limitant les valeurs de $|A|$ à celles de $⟦A⟧$. On aura donc
+$$|A| ∩ Λ_v = ⟦A⟧$$ pour tout type $A$. Dans notre cadre, cette propriété est
+nécessaire pour obtenir la correction de la règle de typage
+$$ \unaryRN{{val}_\uparrow}{Γ ⊢ v : A}{Γ ⊢_\tval v : A} $$
+qui permet de transformer un jugement de typage d'un terme en jugement de
+typage d'une valeur, si le terme se trouve être une valeur.
+
+La règle ${val}_\uparrow$ par elle-même n'apporte que peu, sinon aucune,
+expressivité à un système logique. Cepandant, une fois couplée à une relation
+d'équivalence sur les termes, elle peut être utilisée pour lever la
+restriction syntaxique usuelle imposée aux systèmes classiques en appel par
+valeurs. En effet, dans de tel systèmes, certaines règles logiques ne sont
+applicables que si une ou plusieurs de leurs prémisses concernent des valeurs.
+La règle d'élimination pour la quantification universelle
+$$ \binaryR{Γ ⊢ t : A}{α \notin FV(Γ)}{Γ ⊢ t : ∀α A} $$
+ne peut pas être prouvée correcte et doit être remplacée par la règle
+$$ \binaryRN{∀_e'}{Γ ⊢_\tval v : A}{α \notin FV(Γ)}{Γ ⊢_\tval v : ∀α A} $$
+portant sur des jugements impliquant des valeurs. Dans le système présenté
+ici, on pourra utiliser la règle
+$$ \binaryRN{∀_e}{Γ, t ≡ v ⊢ t : A}{α \notin FV(Γ)}{Γ, t ≡ v ⊢ t : ∀α A} $$
+dans le cas ou il existe une valeur $v$ équivalente au terme $t$. Cette règle
+est en effet dérivable à partir de la précédente règle de la manière suivante.
+$$
+\proofTree{
+  \unaryN{≡}{Γ, t ≡ v ⊢ t : ∀α A}{
+    \unaryN{{val}_\downarrow}{Γ, t ≡ v ⊢ v : ∀α A}{
+      \binaryN{∀_e'}{Γ, t ≡ v ⊢_\tval v : ∀α A}{
+        \unaryN{{val}_\uparrow}{Γ, t ≡ v ⊢_\tval v : A}{
+          \unaryN{≡}{Γ, t ≡ v ⊢ v : A}{
+            \hyp{Γ, t ≡ v ⊢ t : A}
+          }
+        }
+      }{
+        \hyp{α \notin FV(Γ)}
+      }
+    }
+  }
+}
+$$
+En raisonant de manière similaire sur chacune des règles, on obtient un
+système de type qui ne contient qu'un seul type de jugements. Il n'est en
+effet plus nécessaire de faire apparaître les jugements spécifiques aux
+valeurs. Ils sont en fait des cas particuliers d'application des nouvelles
+règles. En particulier, cette technique nous permet d'ajouter une forme de
+produit dépendant à notre système.
+
+Nous vérons dans la suite que l'expressivité du système obtenu dépend en
+grande partie de la finesse de la relation d'équivalence. En
+effet, si on choisit l'équivalence trivialle définie comme l'égalité
+syntaxique sur les termes, le système obtenu est exactement aussi expressif
+que le système de départ avec restriction syntaxique. Le model présenté ici
+prend tout son sens quand l'équivalence choisie est extentionnelle, ce qui
+demande bien plus d'efforts sur le plan technique.
+
+=> Machine de Krivine par valeur
+
+La première étape pour la construction d'un modèle de réalisabilité est la
+définition d'un cadre formel pour l'exécution des programmes. En effet, la
+réalisabilité identifie les programmes corrects en fonction de leur
+comportement à l'exécution, et non seulement de leur syntaxe comme pour le
+typage. Dans le cadre de la réalisabilité classique, les programmes sont en
+général exécutés dans une Machine de Krivine. Cette machine abstraite a été
+créée dans les années 80 par Jean-Louis Krivine, et a été largument utilisée
+depuis dans la communauté du $λ$-calcul et de la théorie des types.
+
+Dans sa version la plus répendue, l'exécution des programmes (appelés
+processus) s'effectue en appel par nom. Il en existe cependant une version
+en appel par valeur plus méconnue, bien qu'assez facile à obtenir en
+distinguant la sytaxe des valeurs de celle des termes.
+
+L'avantage principal de la Machine de Krivine est la représentation de
+l'environement d'exécution des programmes (sous la forme d'une pile). Elle
+est de ce fait très bien adaptée à l'étude des langages avec opérateurs de
+contrôle comme \emph{call/cc}. Nous utiliserons ici la syntaxe du $λμ$-calcul
+qui s'intègre très naturelement à la machine.
+
+\begin{def}
+Dans notre syntax nous allons utiliser trois sortes de variables provenant
+d'ensembles dénombrables distincts :
+\begin{itemize}
+\item $\cal{V}_λ = \{x,y,z ...\}$ un ensemble de $λ$-variables,
+\item $\cal{V}_μ = \{α,β,γ ...\}$ un ensemble de $μ$-variables (ou variables
+de pile) et
+\item $\cal{V}_ι = \{a,b,c ...\}$ un ensemble de variables de termes.
+\end{itemize}
+Les variables de termes pourront être considérées comme des « trous », et ne
+seront pas liées dans les termes.
+
+On aura également besoin d'un ensemble dénombrable $\cal{L}=\{l,l₁,l₂ ...\}$
+de labels pour les champs des enregistrements, et d'un ensemble dénombrables
+$\cal{C}=\{C,C₁,C₂ ...\}$ de constructeurs.
+\end{def}
+
+\begin{def}
+La syntaxe de notre langage est donnée par quatre grammaires mutuellement
+récursives définissant valeurs, termes, piles et processus. Les ensembles
+correspondants (notés $Λ_v$, $Λ$, $Π$ et $Λ∗Π$ respectivement) sont générés
+par les grammaires \emph{BNF} suivantes.
+\begin{center}
+\diagram(
+let _ = array [`East ; `East ; `West] [
+  [<$v,w$>; <$::=$>; <$ x \| λx t \| C[v] \| \{l_i = v_i\}_{i∈I} $>];
+  [<$t,u$>; <$::=$>; <$ a \| v \| t u \| μα t \| p \|  Y(t,v) \| v.l \|
+  {case_v [C_i[x] → t_i]_{i∈I}} \| δ_{v,w}$>];
+  [<$π,ρ$>; <$::=$>; <$ α \| {v ⋅ π} \| {[t] π} $>];
+  [<$p,s$>; <$::=$>; <$ {t ∗ π} $>]
+])
+\end{center}
+\end{def}
+
+Les valeurs contiennent les habituelles $λ$-variables et $λ$-abstraction
+auquelles sont ajoutés des constructeur (ou variant) appliqué à exactement un
+argument, ainsi que des enregistrements. Un enregistrement est similaire à un
+tuple et contient une liste de valeurs identifiées par un label unique.
+
+Un term peut être formé en utilisant une variable de terme, une valeur, une
+application, une $μ$-abstraction, un processus, le combinateur de pointfixe
+$Y$, une projection, une analyse par cas, ou l'instruction $δ$. Cette dernière
+est appliquée à deux valeurs et sera utiliser pour internaliser au langage
+une notion d'équivalence sur les programmes.
+
+Une pile est formée par une liste de valeurs et de terms terminée par une
+$μ$-variable. Intuitivement, une pile sera utilisée pour stoquer les arguments
+des fonctions en cours d'évaluation. Comme nous sommes en appel par valeur,
+les arguments des fonctions sont calculés avant d'être effectivement appliqués.
+C'est pourquoi il est nécessaire de pouvoir stoquer des fonctions non-évaluées
+(sous forme de termes) dans les piles, jusqu'à ce que leurs arguments aient
+été calculés.
+
+Un processus est construit en couplant un terme à une pile formant son
+contexte d'exécution. En particulier, un processus sera utilisé pour conserver
+l'état de la machine. Il sera ensuite transformé en suivant les règles de
+réduction de cette dernière.
+
+\begin{rem}
+Pour simplifier le langage, la syntaxe interdit l'utilisation de termes dans
+les constructeurs ainsi que dans les champs des enregistrements. L'application
+d'une projection et d'une analyse par cas est aussi limitée aux seules
+valeures. Ces limitations n'ont pas de conséquences sur l'expressivité du
+langage. On peut en outre définir les sucres syntaxiques suivant.
+\begin{center}
+\diagram(
+let _ = array [`East ; `East ; `West] [
+  [<$\{l₁ = t₁ ; … ; l_n = t_n\}$>; <$:=$>;
+     <$(λx₁ … λx_n \{l₁ = x₁ ; … ; l_n = x_n\}) t₁ … t_n$>];
+  [<$C[t]$>       ; <$:=$>; <$(λx C[x]) t$>];
+  [<$t.l$>        ; <$:=$>; <$(λx x.l) t$>];
+  [<$case t of B$>; <$:=$>; <$(λx case x of B) t$>];
+])
+\end{center}
+\end{rem}
+
+\begin{rem}
+Dans la suite nous suivrons les conventions usuelles de notation. En
+particulier l'application est associative à gauche et les $λ$-abstraction et
+$μ$-abstraction ont la précédence la plus élevée. En suivant ces conventions
+le terme $λx t u v$ doit être interprété comme $λx ((t u) v)$.
+\end{rem}
+
+\begin{def}
+Étant donnée une valeur, un terme, une pile ou un processus $ψ$, on note :
+\begin{itemize}
+\item $FV_λ(ψ)$ l'ensemble des $λ$-variables libres de $ψ$,
+\item $FV_μ(ψ)$ l'ensemble de ses $μ$-variable libres, et
+\item $TV(ψ)$ l'ensemble de ses variables de terme.
+\end{itemize}
+On dira que $ψ$ est clos si $FV_λ(ψ) = ∅$, $FV_μ(ψ) = ∅$ and $TV(ψ) = ∅$.
+\end{def}
+\begin{rem}
+Par définition, une pile (et donc un processus) contient au moins une
+$μ$-variable, elle ne peut donc jamais être close.
+\end{rem}
+
+Nous allons maintenant donner la sémantique opérationnelle de notre machine
+abstraite, sous la forme d'une relation de réduction $({\succ})$. On considère
+ici seulement les règles de réduction usuelles. En particulier, les processus
+de la forme $δ_{v,w} ∗ π$ ne seront pas réduits.
+
+\begin{def}
+$({\succ}) ⊆ Λ∗Π × Λ∗Π$ est la plus petite relation satisfaisant les règles
+suivantes.
+\begin{center}
+\diagram(let m,ms = array [`East ; `Main ; `West] [
+  [<$(t u) ∗ π$>;      <$\succ$>; <$u ∗ [t] π$>];
+  [<$v ∗ [t] π$>;      <$\succ$>; <$t ∗ v ⋅ π$>];
+  [<$(λx t) ∗ v ⋅ π$>; <$\succ$>; <$t[x ← v] ∗ π$>];
+  [<$(μα t) ∗ π$>;     <$\succ$>; <$t[α ← π] ∗ π$>];
+  [<$p ∗ π$>;          <$\succ$>; <$p$>];
+  [<$Y(t,v) ∗ π$>;     <$\succ$>; <$t ∗ v ⋅ λx Y(t,x) ⋅ π$>];
+  [<$case_{C_k[v]} of [C_i[x] → t_i]_{i∈I} ∗ π$>;
+                              <$\succ$>; <$t_k[x ← v] ∗ π$>];
+  [<$\{l_i = v_i\}_{i∈I}.l_k ∗ π $>;
+                              <$\succ$>; <$ v_k ∗ π $>];
+])
+\end{center}
+On notera $({≻^{+}})$ sa cloture transitive, $({≻*})$ sa cloture reflexive et
+transitive, et $({≻^{k}})$ son application $k$ fois (pour $k ∈ \bbN$).
+\end{def}
+Les trois premières règles sont en charge de la $β$-réduction en appel par
+valeur. Lorsque le processus considéré contient une application, la fonction
+est stoquée dans une stack frame, et on continue avec le calcul de l'argument.
+Quand l'argument a été réduit en une valeur, le terme correspondant à la
+fonction est replacé en tête, et la valeur est placée sur la pile. Une fois
+la fonction évaluée en une $λ$-abstraction, l'application est effectuée
+effectivement à l'aide d'une substitution sans capture.
+
+Les deux règles suivantes permettent de manipuler l'environement des
+programmes, c'est à dire les piles. Quand le terme considéré est une
+$μ$-abstraction, la pile courante est substituée à la variable correspondante
+dans le terme. Lorsqu'un processus est ateint, on oublie simplement la pile
+courante, et on continue en exécutant ce processus. On peut ainsi reprendre
+le calcul dans un état atteint précédement, comme la pile du processus donné
+pourra avoir été substitué lors d'une $μ$-abstraction.
+
+Les dernières trois règles prennent soin de réduire l'application du
+combinateur de point-fixe $Y$ ainsi que les analyses par cas et les
+enregistrements.
+
+\begin{lem}\label("redcompat1")
+La relation de réduction $({≻})$ est compatible avec les substitution de
+toutes sortes de variables. Si $p$ et $q$ sont deux processus tels que
+$p ≻ q$, alors~:
+\begin{itemize}
+\item $∀x∈\cal{V}_λ, ∀v∈Λ_v, p[x ← v] ≻ q[x ← v]$,
+\item $∀α∈\cal{V}_μ, ∀π∈Π, p[α ← π] ≻ q[α ← π]$,
+\item $∀a∈\cal{V}, ∀t∈Λ, p[a ← t] ≻ q[a ← t]$.
+\end{itemize}
+Par conséquence, si $p ≻* q$ (respectivement $p ≻^{+} q$ ou $p ≻^{k} q$ pour
+$k ∈ \bbN$) et si $σ$ est une substitution pour des variables de tout types,
+alors $pσ ≻* qσ$ (respectivement $pσ ≻^{+} qσ$ ou $pσ ≻^{k} qσ$).
+\begin{proof}
+Analyse par cas immédiate sur les règles de réduction.
+\end{proof}
+\end{lem}
+
+On va maintenant avoir besoin d'un vocabulaire spécifique pour décrire
+certaines classes de terms. En particulier, on veut pouvoir identifier les
+processus qu'on considèrera comme de bons états de fin de la machine, et ceux
+que l'on considérera comme des erreurs.
+\begin{def}
+Un processus $p ∈ Λ\times Π$ est dit~:
+\begin{itemize}
+\item \emph{final} si il existe une valeur $v ∈ Λ_v$ et $α ∈ \cal{V}_μ$ tels
+  que $p = v ∗ α$,
+\item \emph{$δ$-similaire} si il existe $v, w ∈ Λ_v$ et $π ∈ Π$ tels que
+  $p = δ_{v,w} ∗ π$,
+\item \emph{bloqué} si n'existe aucun processus $q ∈ Λ \times Π$ tels que
+  $p \succ q$,
+\item \emph{coincé} si il n'est ni final, ni $δ$-similaire, et que pour toute
+  substitution $σ$, $pσ$ est bloqué.
+\item \emph{non-terminant} si il n'existe aucun processus bloqué
+  $q ∈ Λ \times Π$ tel que $p ≻* q$.
+\end{itemize}
+\end{def}
+
+\begin{lem}\label("redstable")
+Soit $p ∈ Λ \times Π$ un processus et $σ$ une substitution arbitraire. Si
+$p$ est $δ$-similaire (respectivement coincé ou non-terminant) alors $pσ$
+est également $δ$-similaire (respectivement coincé ou non-terminant).
+\begin{proof}
+  Immédiat par définition.
+\end{proof}
+\end{lem}
+
+\begin{lem}\label("remark")
+Un processus coincé est d'une des formes
+$$ {C[v].l ∗ π} \hspace(2.) {(λx t).l ∗ π}
+   \hspace(2.) {C[v] ∗ w.π} \hspace(2.) {\{ ... \} ∗ v.π} $$
+$$ {{case_{λx t} B} ∗ π} \hspace(2.) {{case_{\{ ... \}} B} ∗ π} $$
+ou de la forme ${case_{C[v]} B} ∗ π$ avec $C$ non présent dans $B$, ou de la
+forme $\{ ... \}.l ∗ π$ avec $l$ non présent dans l'enregistrement.
+\begin{proof}
+  Simple analyse par cas.
+\end{proof}
+\end{lem}
+
+\begin{lem}\label("possibilities")
+Un processus bloqué $p ∈ Λ \times Π$ est soit coincé, final, $δ$-similaire,
+ou d'une des formes~:
+$$ {x.l ∗ π} \hspace(2.) {x ∗ v.π} \hspace(2.) {{case_x B} ∗ π}
+   \hspace(2.) {a ∗ π} $$
+où $x ∈ \cal{V}_λ$, $l ∈ \cal{L}$, $a ∈ \cal{V}_ι$, $v ∈ Λ_v$, $π ∈ Π$ et $B$
+est le corps d'une analyse par cas.
+\begin{proof}
+  Simple analyse par cas en utilisant le lemme \lemRef("remark"). Ce résultat
+  a été vérifié en utilisant le système de vérification d'exhaustivité des
+  patterns d'OCaml.
+\end{proof}
+\end{lem}
+
+=<
+
+=> Reduction de $δ_{v,x}$ et équivalence
+
+Je vais maintenant définir une notion d'équivalence observationnelle sur les
+terms à l'aide d'une relation $({≡})$. La relation de réduction pourra ensuite
+être étendue avec une règle de la forme
+$$ δ_{v,w} ∗ π \succ v ∗ π \hspace(2.) if \hspace(2.) v \nequiv w $$
+s'appliquant uniquement dans le cas où les valeurs $v$ et $w$ ne sont pas
+équivalentes. Dans le cas contraire, le processus sera bloqué.
+
+Avec une telle règle, la relation de réduction et la relation d'équivalence
+deviennent interdépendantes. En effet, pour définir une équivalence
+observationnelle on doit pouvoir observer le comportement de deux termes
+durant leur exécution pour pouvoir les comparer.
+
+\begin{def}
+Soit $R ⊆ {Λ \times Π} \times {Λ \times Π}$ une relation de réduction et
+$p ∈ Λ \times Π$ un processus. On dit que $p$ $R$-converge (ou simplement
+converge si il n'y a pas d'ambigüité) si il existe un état final
+$q ∈ Λ \times Π$ tel que $p R^{*} q$ (où $R^{*}$ est la cloture
+reflexive-transitive de $R$). Si $p$ $R$-converge on notera $p {\converge}_R$,
+et dans le cas contraire on dira que $p$ $R$-diverge (ou simplement diverge)
+et on écrira $p {\diverge}_R$. On utilisera les notations $p {\converge}_i$ et
+$p {\diverge}_i$ quand nous travaillerons avec des relations indicées comme
+$({\epi}_i)$.
+\end{def}
+
+\begin{def}
+Pour tout $i ∈ \bbN$ on définit une relation de réduction $({\epi}_i)$ et une
+relation d'équivalence $({≡}_i)$ dont la négation sera dénotée
+$({\nequiv}_i)$.
+$$({\epi}_i) = ({≻}) ∪ \{(δ_{v,w} ∗ π, v ∗ π) \st ∃ j < i, {v \nequiv w}_j\}$$
+$$({≡}_i) = \{(t,u) \st ∀ j ≤ i, ∀ π ∈ Π, ∀ σ,
+  {{tσ ∗ π} {\converge}_j} ⇔ {{uσ ∗ π} {\converge}_j}\}$$
+\end{def}
+
+En particulier, on voit immédiatement que $({\epi}_0) = ({≻})$. Pour tout
+$i ∈ \bbN$, la relation $({≡})$ est trivialement une relation d'équivalence
+car elle peut être vue comme une intersection de relations d'équivalence. On
+peux exprimer sa négation directement comme suit.
+$$ ({\nequiv}_i) = \{(t,u), (u,t) \st ∃ j ≤ i, ∃ π ∈ Π, ∃ σ,
+  {{tσ ∗ π} {\converge}_j} \land {{uσ ∗ π} {\diverge}_j}\} $$
+
+\begin{def}
+On définit une relation d'équivalence $({\epi})$ et une relation d'équivalence
+$({≡})$ dont la négation sera notée $({\nequiv})$.
+$$({\epi}) = \bigcup_{i ∈ \bbN}{({\epi}_i)} \hspace(2.)
+  ({≡}) = \bigcap_{i ∈ \bbN}{({≡}_i)} $$
+\end{def}
+Ces deux relations peuvent être exprimées dirrectement (c'est à dire sans
+union ou intersection) de la manière suivante.
+$$({≡}) = \{(t,u) \st ∀ i ∈ \bbN, ∀ π ∈ Π, ∀ σ,
+  {{tσ ∗ π} {\converge}_i} ⇔ {{uσ ∗ π} {\converge}_i}\}$$
+$$({\nequiv}) = \{(t,u), (u,t) \st ∃ i ∈ \bbN, ∃ π ∈ Π, ∃ σ,
+  {{tσ ∗ π} {\converge}_i} \land {{uσ ∗ π} {\diverge}_i}\} $$
+$$({\epi}) = ({≻}) ∪ \{(δ_{v,w} ∗ π, v ∗ π) \st v \nequiv w\}$$
+
+\begin{rem}
+Il est évident que $({->>_i}) ⊆ ({->>_{i+1}})$ et que $({≡_{i+1}}) ⊆ ({≡_i})$.
+La construction des suites de relations $({->>_i})_{i∈\bbN}$ et
+$({≡_i})_{i∈\bbN}$ converge. En fait, $({->>})$ et $({≡})$ forment un point
+fixe à l'ordinal $\omega$.
+\end{rem}
+
+\begin{thm}\label("equivpole")
+Soient $t$ et $u$ deux termes. Si $t ≡ u$ alors pour toute pile $π ∈ Π$ et
+pour toute substitution $σ$ on a
+${{tσ ∗ π} {\converge}_{->>}} ⇔ {{uσ ∗ π} {\converge}_{->>}}$.
+\begin{proof}
+On suppose que $t ≡ u$ et on prend $π₀ ∈ Π$ et une substitution $σ₀$. Par
+symétrie, on peut supposer que ${tσ₀ ∗ π₀} {\converge}_{->>}$ et montrer
+que ${uσ₀ ∗ π₀} {\converge}_{->>}$. Par définition, il existe $i₀ ∈ \bbN$
+tel que ${tσ₀ ∗ π₀} {\converge}_{i₀}$. Comme $t ≡ u$ on sait que pour tout
+entier $i ∈ \bbN$, pile $π ∈ Π$ et substitution $σ$, on a
+${{tσ ∗ π} {\converge}_i} ⇔ {{uσ ∗ π} {\converge}_i}$. C'est vrai en
+particulier pour $i = i₀$, $π = π₀$ et $σ = σ₀$. On obtient donc
+${uσ₀ ∗ π₀} {\converge}_{i₀}$, ce qui nous donne
+${uσ₀ ∗ π₀} {\converge}_{->>}$.
+\end{proof}
+\end{thm}
+\begin{rem}
+L'implication converse n'est pas vraie en général. On obtient un
+contre-exemple en prenant $t = δ_{λx x,\{\id([])\}}$ et $u = λx x$. Plus
+généralement, ${p{\converge}_{->>}} ⇔ {q{\converge}_{->>}}$ n'implique pas
+nécessairement ${p{\converge}_i} ⇔ {q{\converge}_i}$ pour tout entier
+$i ∈ \bbN$.
+\end{rem}
+\begin{cor}\label("eqconvconv")
+Soient $t$ et $u$ deux termes et soit $π$ une pile. Si $t ≡ u$ et
+${t ∗ π} {\converge}_{->>}$ alors ${u ∗ π} {\converge}_{->>}$.
+\begin{proof}
+Conséquence directe du théorème \thmRef("equivpole") using $π$ and an empty
+substitution.
+\end{proof}
+\end{cor}
+
+=<
+
+=> Extensionalité du langage
+
+Dans notre cadre, nous avons besoin d'une relation d'équivalence
+extensionnelle. Nous devons donc pouvoir replacer n'importe quel terme
+par un autre terme équivalent, sans modifier le comportement observable d'un
+programme. Formèlement, cette propriété est donnée par les deux
+théorèmes suivants.
+
+\begin{thm}\label("extval")
+Soient $v$ et $w$ deux valeurs, $E$ un terme et $x$ une $λ$-variable. Si
+$v ≡ w$ alors $E[x := v] ≡ E[x := w]$.
+\begin{proof}
+Nous allons montrer la contraposée~: on suppose que
+$E[x := v] \nequiv E[x := w]$ et on montre que $v \nequiv w$. Par définition
+il existe un entier $i$, une pile $π$ et une substitution $σ$ tels que
+${E[x := v]σ ∗ π} {\converge}_i$ et ${E[x := w]σ ∗ π} {\diverge}_i$ (à
+symétrie près). Comme on peut renomer $x$ pour qu'il n'apparaisse pas dans
+$dom(σ)$, on peut supposer que ${Eσ[x := vσ] ∗ π} {\converge}_i$ et que
+${Eσ[x := wσ] ∗ π} {\diverge}_i$. Pour montrer que $v \nequiv w$ il suffit
+de trouver un entier $i₀$, une pile $π₀$ et une substitution $σ₀$ tels que
+${vσ₀ ∗ π₀} {\converge}_{i₀}$ et ${wσ₀ ∗ π₀} {\diverge}_{i₀}$ (à symétrie
+près). On peut prendre $i₀ = i$, $π₀ = [λx Eσ]π$ et $σ₀ = σ$ car on a
+${{{vσ₀ ∗ π₀} \epi {{Eσ[x := vσ] ∗ π} {\converge}_{i₀}}}_{i₀}^2}$ et
+${{{wσ₀ ∗ π₀} \epi {{Eσ[x := wσ] ∗ π} {\diverge}_{i₀}}}_{i₀}^2}$.
+\end{proof}
+\end{thm}
+
+\begin{lem}\label("aposs")
+Soit $s$ un processus, $t$ un terme, $a$ une variable de terme et $k$ un
+entier naturel. Si ${s[a := t]} {\converge}_k$ alors il existe un processus
+bloqué $p$ tel que ${s ≻ p}*$. De plus, les trois possibilités suivantes
+s'excluent mutuellement~:
+\begin{itemize}
+\item $p = v ∗ α$ avec $v$ une valeur et $α$ une variable de pile ($p$ est
+  donc final),
+\item $p = a ∗ π$ avec $π$ une pile,
+\item $k > 0$ et $p = δ_{v,w} ∗ π$ avec $v$ et $w$ deux valeurs et $π$ une
+  pile tels qu'il existe un entier naturel $j < k$ tel que
+  ${v[a := t] \nequiv w[a := t]}_j$.
+\end{itemize}
+\begin{proof}
+On dénote $σ_a$ la substitution $[a := t]$. Commencons par supposer que
+$s$ est non-terminant. D'après le lemme \lemRef("redstable"), on en déduit
+que le processus $sσ_a$ est également non-terminant, ce qui contredit le
+fait que ${sσ_a} {\converge}_k$. Il existe donc nécessairement un processus
+bloqué $p$ tel que ${s ≻ p}*$ comme $({≻}) ⊆ ({\epi}_k)$.
+
+D'après le lemme \lemRef("redcompat1") on a ${sσ_a ≻ pσ_a}*$ et donc
+${sσ_a \epi pσ_a}_k*$. De ce fait, le processus $p$ ne peut pas être coincé,
+sinon $pσ_a$ serait également coincé d'après le lemme \lemRef("redstable"),
+ce qui contredirait ${sσ_a} {\converge}_k$.
+
+Supposons mainteant que $p = δ_{v,w} ∗ π$ avec $v$ et $w$ deux valeurs et
+$π$ une pile. Comme ${δ_{vσ_a,wσ_a} ∗ πσ_a} {\converge}_k$, il existe
+nécessairement un entier $j < k$ tel que ${vσ_α \nequiv wσ_a}_j$. Dans le
+cas contraire, le fait que ${δ_{vσ,wσ} ∗ π} {\converge}_k$ serait contredit.
+Il est également clair qu'on doit avoir $k > 0$, sinon il n'existe pas de
+candidat pour $j$.
+
+D'après le lemme \lemRef("possibilities"), il nous reste à montrer que $p$
+n'a pas une des formes~: $x.l ∗ π$, $x ∗ v.π$, $case_x B ∗ π$ et $b ∗ π$
+si $b ≠ a$. Si c'était le cas, la substitution $σ_a$ ne pourrait pas
+débloquer la réduction de $p$, ce qui contredirait encore une fois 
+${pσ_a} {\converge}_k$.
+\end{proof}
+\end{lem}
+
+\begin{lem}\label("aextlem")
+Soient $t₁$, $t₂$ et $E$ trois termes et $a$ une variable de terme. Pour tout
+entier naturel $k$, si ${t₁ ≡ t₂}_k$ alors ${E[a := t₁] ≡ E[a := t₂]}_k$.
+\begin{proof}
+Soit $k$ un entier tel que ${t₁ ≡ t₂}_k$. Pour montrer
+${E[a := t₁] ≡ E[a := t₁]}_k$ on peut supposer (par symétrie) qu'on a un
+entier $i < k$, une pile $π$ et une substitution $σ$ tels que
+${(E[a := t₁])σ ∗ π} {\converge}_i$, et montrer
+${(E[a := t₂])σ ∗ π} {\converge}_i$. Comme on est libre de renomer $a$, on
+supposer que $a \notin {dom(σ) ∪ TV(π) ∪ TV(t₁) ∪ TV(t₂)}$. Pour aléger les
+notations, on définit $E' = Eσ$, $σ₁ = [a := t₁σ]$ et $σ₂ = [a := t₂σ]$. En
+résumé, avec ces nouvelles notations, on suppose ${E'σ₁ ∗ π} {\converge}_i$
+et on doit montrer ${E'σ₂ ∗ π} {\converge}_i$.
+
+On va maintenant construire une quite $(E_i,π_i,l_i)_{i ∈ I}$ de telle
+manière à ce qu'on ait ${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k*$ en $l_i$
+étapes de réduction pour tout $i ∈ I$. De plus, on demandera à ce que la
+suite $(l_i)_{i ∈ I}$ soit croissante et admette une sous-suite strictement
+croissante. Sous ces conditions notre suite sera nécessairement finie. Si
+elle état infinie, le nombre d'étapes de réductions pouvant être prises à
+partir de $E'σ₁ ∗ π$ ne serait pas borné, ce qui contredirait le fait que
+${E'σ₁ ∗ π} {\converge}_i$. On notera donc maintenant notre suite
+$(E_i,π_i,l_i)_{i ≤ n}$ où $n$ est un certain entier. Pour montrer que
+$(l_i)_{i ≤ n}$ a une sous-suite strictement croissante, on garantira par
+construction que trois valeurs consécutives ne peuvent pas être égales.
+Plus formèlement, on demandera que si $0 < i < n$ et $l_{i-1} = l_i$ alors
+$l_{i+1} > l_i$.
+
+Pour définir $(E₀,π₀,l₀)$ on considère la réduction de $E' ∗ π$. Comme on
+sait que $(E' ∗ π)σ₁ = {E'σ₁ ∗ π} {\converge}_i$ on peut utiliser le lemme
+\lemRef("aposs") pour obtenir un processus bloqué $p$ tel que
+${{E' ∗ π} ≻ p}^j$. On prend donc $E₀ ∗ π₀ = p$ et $l₀ = j$. Par le lemme
+\lemRef("redcompat1") on sait que ${(E' ∗ π)σ₁ ≻ {E₀σ₁ ∗ π₀σ₁}}^{l₀}$ et on
+peut donc déduire que ${(E' ∗ π)σ₁ \epi {E₀σ₁ ∗ π₀σ₁}}_k$ en $l₀$ étapes.
+
+Pour définir $(E_{i+1},π_{i+1},l_{i+1})$ on considère la réduction du
+processus $E_iσ₁ ∗ π_i$. Par construction on sait que
+${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁ = (E_iσ₁ ∗ π_i)σ₁}}_k$ en $l_i$ étapes. En
+utilisant le lemme \lemRef("aposs") on sait que $E_i ∗ π_i$ peut avoir trois
+formes différentes.
+\begin{itemize}
+\item Si ${E_i ∗ π_i} = {v ∗ α}$ pour une valeur $v$ et une variable de pile
+  $α$ alors la fin de la séquence est atteinte avec $n = i$.
+\item Si $E_i = a$ alors on considère la réduction de $E_iσ₁ ∗ π_i$. Comme
+  $(E_iσ₁ ∗ π_i)σ₁ {\converge}_k$ on sait d'après le lemme \lemRef("aposs")
+  qu'il y a un état bloqué $p$ tel que ${{E_iσ₁ ∗ π_i} ≻ p}^j$. En utilisant
+  le lemme \lemRef("redcompat1") on obtient que
+  ${{E_iσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$, et donc ${{E_iσ₁ ∗ π_iσ₁} \epi pσ₁}_k$ en $j$
+  étapes. On prend donc $E_{i+1} ∗ π_{i+1} = p$ et $l_{i+1} = l_i + j$.
+
+  Dans ce cas est-il possible d'avoir $j = 0$~? Une telle situation est
+  possible uniquement si $E_iσ₁ ∗ π_i$ est d'une des formes décrites dans
+  le lemme \lemRef("aposs"). Ce processus ne peut pas être de la forme
+  $a ∗ π$ comme on a supposé que $a$ n'apparait pas dans $t₁$ ou $σ$. Si
+  il est de la forme $v ∗ α$, alors la fin de la séquence aurait été atteinte
+  avec $i = n$. Le processus $E_iσ₁ ∗ π_i$ peut également être de la forme
+  $δ_{v,w} ∗ π$, mais dans ce cas on s'assurera que $l_{i+2} > l_{i+1}$.
+\item Si $E_i = δ_{v,w}$ pour des valeurs $v$ et $w$, on sait qu'il y a
+  $m < k$ tel que ${vσ₁ \nequiv wσ₁}_m$. De ce fait on sait que
+  ${{E_iσ₁ ∗ π_i = δ(vσ₁,wσ₁) ∗ π_i} \epi {vσ₁ ∗ π_i}}_k$ par définition.
+  De plus, ${{E_iσ₁ ∗ π_iσ₁} \epi {vσ₁ ∗ π_iσ₁}}_k$ d'après le lemme
+  \lemRef("redcompat1"). Comme ${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k*$ en
+  $l_i$ étapes, on obtient que ${{E'σ₁ ∗ π} \epi {vσ₁ ∗ π_iσ₁}}_k*$ en
+  $l_i + 1$ étapes. Ceci nous donne également
+  ${(vσ₁ ∗ π_i)σ₁ = vσ₁ ∗ π_iσ₁} {\converge}_k$.
+      
+  On considère maintenant la réduction du processus $vσ₁ ∗ π_i$. D'après le
+  lemme \lemRef("aposs") il y a un processus bloqué $p$ tel que
+  ${{vσ₁ ∗ π_i} ≻ p}^j$. En utilisant le lemme \lemRef("redcompat1") on
+  obtient ${{vσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$ d'où on déduit
+  ${{vσ₁ ∗ π_iσ₁} \epi pσ₁}_k$ en $j$ étapes. On prend ensuite
+  $E_{i+1} ∗ π_{i+1} = p$ et $l_{i+1} = l_i + j + 1$. On note que dans ce cas,
+  on a $l_{i+1} > l_i$.
+\end{itemize}
+Intuitivement, $(E_i,π_i,l_i)_{i ≤ n}$ mimique la réduction du processus
+$E'σ₁ ∗ π$ tout en rendant explicite chaque substitution de $a$ et toute
+réduction d'un processus $δ$-similaire.
+
+Pour terminer la preuve il reste à montrer ${E_iσ₂ ∗ π_iσ₂} {\converge}_k$
+pour tout entier $i ≤ n$. Pour $i = 0$ ceci nous donnera
+${E'σ₂ ∗ π} {\converge}_k$ qui est le résultat attendu. Comme
+$E_n ∗ π_n = v ∗ α$, on a $E_nσ₂ ∗ π_nσ₂ = vσ₂ ∗ α$, et donc on obtient
+${E_nσ₂ ∗ π_nσ₂} {\converge}_k$. On suppose maintenant que
+${E_{i+1}σ₂ ∗ π_iσ₂} {\converge}_k$ pour $0 ≤ i < n$ et on montre que
+${E_iσ₂ ∗ π_iσ₂} {\converge}_k$. Par construction $E_i ∗ π_i$ peut être de
+deux formes (Seulement $E_n ∗ π_n$ est de la forme $v ∗ α$).
+\begin{itemize}
+\item Si $E_i = a$ alors ${{t₁σ ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k$. On
+  sait que ${{t₁σ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗ π_iσ₂}}_k$ par le lemme 
+  \lemRef("redcompat1") et on peut donc obtenir
+  ${t₁σ ∗ π_iσ₂} {\converge}_k$ par hypothèse d'induction. Comme
+  ${t₁ ≡ t₂}_k$ on obtient ${t₂σ ∗ π_iσ₂ = (E_i ∗ π_i)σ₂} {\converge}_k$.
+\item Si $E_i = δ_{v,w}$ alors ${{v ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k$ et
+  donc ${{vσ₂ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗ π_{i+1}σ₂}}_k$ d'après le lemme
+  \lemRef("redcompat1"). En utilisant l'hypothèse d'induction on obtient
+  ${vσ₂ ∗ π_iσ₂} {\converge}_k$. Il reste à montrer que
+  ${{δ(vσ₂,wσ₂) ∗ π_iσ₂} \epi {vσ₂ ∗ π_iσ₂}}_k$. On doit trouver un entier
+  $j < k$ tel que ${vσ₂ \nequiv wσ₂}_j$. Par construction il existe un
+  entier $m < k$ tel que ${vσ₁ \nequiv wσ₁}_m$. On va montrer que
+  ${vσ₂ \nequiv wσ₂}_m$. En utilisant l'hypothèse d'induction globale deux
+  fois, on obtient ${vσ₁ ≡ vσ₂}_m$ et ${wσ₁ ≡ vσ₂}_m$. Si ${vσ₂ ≡ wσ₂}_m$
+  alors ${{vσ₁ ≡ vσ₂}_m ≡ {wσ₂ ≡ wσ₁}_m}_m$ contredit $vσ₁ \nequiv wσ₁$.
+  De ce fait on a nécessairement ${vσ₂ \nequiv wσ₂}_m$.
+\end{itemize}
+\end{proof}
+\end{lem}
+
+\begin{thm}\label("extterm")
+Soient $t₁$, $t₂$ et $E$ trois termes et $a$ une variable de terme. Si
+$t₁ ≡ t₂$ alors $E[a := t₁] ≡ E[a := t₂]$.
+\begin{proof}
+Par définition, on doit montrer ${E[a := t₁] ≡ E[a := t₂]}_i$ pour tout
+entier naturel $i$. Soit $i₀$ un entier naturel quelconque. Comme $t₁ ≡ t₂$
+par hypothèse, on a en particulier ${t₁ ≡ t₂}_{i₀}$. On peut donc utiliser
+le lemme \lemRef("aextlem") pour déduire ${E[a := t₁] ≡ E[a := t₂]}_{i₀}$.
+\end{proof}
+\end{thm}
+
+=<
+
+=> Pôle et orthogonalité
+
+La syntaxe introduite dans les sections précédents, ainsi que la relation
+d'équivalence sur les terms, font parti d'une machierie nécessaire à la
+construction de notre modèle de réalisability. Nous allons maintenant nous
+en servir pour obtenir une interprétation sémantique du système de type
+d'ordre supérieur qui sera défini dans les sections suivantes.
+
+Comme toujours en réalisabilité classique, le modèle est paramétré par un
+pôle, dont le but est de servir de point d'échange entre le monde des
+programmes (les terms) et le mode des contextes d'exécution (les piles).
+\begin{def}
+Un \emph{pôle} est un ensemble de processus $\dbot ⊆ {Λ × Π}$ qui est
+clos par anti-réduction (on le dit parfois saturé). Autrement dit, pour
+tout processus $p$ et $q$, si $q ∈ \dbot$ et si $p \epi q$ alors $p ∈ \dbot$.
+\end{def}
+Ici, on choisira de se limiter à l'étude d'un seul et unique pôle. On définit
+donc le pôle
+$$ \dbot = \{p ∈ {Λ × Π} \| p {\converge}_{\epi}\} $$
+qui est clairement clos par anti-réduction. Notez que ce pôle est également
+clos par la relation de réduction $({\epi})$, bien que ce ne sois pas une
+propriété nécessaire en général. En particulier $\dbot$ contient tous les
+processus finaux.
+
+La notion d'\emph{orthogonalité} est centrale lorqu'on construit des modèles
+de réalisabilité à la Krivine. En effet, on interprète un type (ou on le
+réalise) par des programmes calculant des valeurs correspondantes. Cette
+interprétation est répartie dans une construction à trois niveaux, bien que
+complètement déterminée par le premier (et le choix du pôle). Le premier
+niveau consiste en un ensemble de valeurs qu'on appellera \emph{sémantique
+brute}. Cet ensemble regroupera toutes les valeurs syntactiques qui seront
+considéres comme ayant le type correspondant. Par example, si on considère le
+type des entier naturels, sa sémantique brute consisterait en l'ensemble
+$\{\hat{n} \| n ∈ \bbN\}$ où $\hat{n}$ est un encodage quelconque de
+l'entier $n$ comme une valeurs (par exemple l'encodage de Church). Le second
+niveau, appelé \emph{valeur de fausseté} est un ensemble contenant toutes les
+piles candidates pour construire un processus valide en utilisant n'importe
+quel valeur de la sémantique brute. La notion de validité ici dépend du choix
+du pôle. Dans notre cas, un processus valide est simplement un processus qui
+se réduit en un processus final (et est donc normalisant). Le troisième et
+dernier niveau, appelé \emph{valeur de vérité} est un ensemble de terms
+construit en itérant la procédé une fois de plus. Le formalisme pour les
+deux niveaux d'orthogonalité est donné dans la définition suivante.
+\begin{def}\label("orthodef")
+Pour tout ensemble de valeurs $φ ⊆ Λ_v$ on définit un ensemble $φ^\bot ⊆ Π$
+et un ensemble $φ^{\bot\bot} ⊆ Λ$ comme suit.
+$$ φ^\bot = \{π ∈ Π \| ∀v∈φ, {v ∗ π} ∈ \dbot\}$$
+$$ φ^{\bot\bot} = \{t ∈ Λ \| ∀π∈φ^\bot, {t ∗ π} ∈ \dbot\} $$
+\end{def}
+
+On va maintenant donner quelque propriétés générals de l'orthogonalité qui
+nous seront utiles durant notre construction, et qui sont vraies dans tout
+modèle de réalisability. Elles seront utiles lorsque nous prouveront la
+correction de notre système de type.
+\begin{lem}\label("orthosimple")
+Si $φ ⊆ Λ_v$ est un ensemble de valeurs, alors $φ ⊆ φ^{\bot\bot}$.
+\begin{proof}
+Immédiate suivant la définition de $φ^{\bot\bot}$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoblabla")
+Soit $φ ⊆ Λ_v$ et $ψ ⊆ Λ_v$ deux ensembles de valeurs quelconques. Si $φ ⊆ ψ$
+alors $ψ^{\bot} ⊆ φ^{\bot}$ et $φ^{\bot\bot} ⊆ ψ^{\bot\bot}$.
+\begin{proof}
+Immédiate par définition de l'orthogonalité.
+\end{proof}
+\end{lem}
+
+L'ajout des termes de la forme $δ_{v,w}$ et de la relation $({≡})$ va
+maintenant prendre tout son sens. Le théorème suivant, qui est notre
+résultat principal, n'est pas vrai dans tout les modèles de réalisabilité.
+En obtenir une preuve a nécessité l'internalisation de le l'équivalence sur
+les termes $({≡})$ au sein du langage comme un opération non-calculable.
+\begin{thm}\label("biortho")
+Si $φ ⊆ Λ_v$ est un ensemble de valeurs clos par $({≡})$, alors
+$φ^{\bot\bot} ∩ Λ_v = φ$.
+\begin{proof}
+La direction $φ ⊆ φ^{\bot\bot} ∩ Λ_v$ est immédiate en utilisant le lemme
+\lemRef("orthosimple"). Il faut donc montrer que $φ^{\bot\bot} ∩ Λ_v ⊆ φ$,
+ce qui revient à montrer que pour toute valeur $v ∈ φ^{\bot\bot}$ on a
+également $v ∈ φ$. On va montrer la contraposée, on suppose donc $v \notin φ$
+et on va montrer que $v \notin φ^{\bot\bot}$. On cherche donc une pile $π₀$
+telle que ${v ∗ π₀} \notin \dbot$ et que pour toute valeur $w ∈ φ$,
+${w ∗ π₀} ∈ \dbot$. On va maintenant montrer que $π₀ = [λx δ_{x,v}]α$
+convient. Par définition de $({\epi})$, $v ∗ π₀$ se réduit à $δ_{v,v} ∗ α$
+qui n'est pas dans $\dbot$ (ce processus est bloqué du fait que $v ≡ v$ par
+reflexivité). On prend maintenant $w ∈ φ$, et on regarde la réduction de
+$w ∗ π₀$. Par définition, ce processus se réduit en $δ_{w,v} ∗ α$, mais
+cette fois on a $w \nequiv v$ comme on a supposé $φ$ clos par $({≡})$ et
+$w \notin φ$. Le processus $w ∗ π₀$ se réduit donc en ${w ∗ α} ∈ \dbot$.
+\end{proof}
+\end{thm}
+
+Il est important de vérifier que le pôle qu'on a séléctioné n'engendre pas
+un modèle dégénéré. En particulier, on doit vérifier qu'aucun terme ne
+produit un processus valide quand on l'associe à toutes les piles.
+\begin{thm}\label("poleconsist")
+Le pôle $\dbot$ est consistent. En d'autre termes, pour tout terme clos $t$
+il existe une pile $π$ telle que ${t ∗ π} \notin \dbot$.
+\begin{proof}
+Soit $t$ un terme clos et $α$ une variable de pile. Si on a pas
+${t ∗ α} {\converge}_\epi$ alors on peut prendre directement $π = α$. Dans
+le cas contraire, on sait qu'il y a une valeur $v$ telle que
+${{t ∗ α} \epi {v ∗ α}}*$ (comme $t$ est clos, $α$ est la seule variable de
+pile disponible). On va maintenant montrer que
+$π = [λx\{\id([])\}]\{\id([])\}{.}β$ convient. On va noter $σ$ la
+substitution $[α := π]$. En utilisant une extension immédiate du lemme
+\lemRef("redcompat1") à la réduction de relation $({\epi})$ on obtient que
+${t ∗ π} = {(t ∗ α)σ \epi (v ∗ α)σ}* = {vσ ∗ π}$. Le processus $vσ ∗ π$ n'est
+pas dans le pôle car
+${{vσ ∗ π} \epi {\{\id([])\} ∗ \{\id([])\}{.}β} \notin \dbot}^2$.
+\end{proof}
+\end{thm}
+
+=<
+
+=> Formules et sémantique
+
+On considère ici un système de type d'ordre supérieur, on construira donc les
+formules en utilisant le $λ$-calcul. Les termes du $λ$-calcul constituant les
+formules seront typées (ou sortées) simplement à partir de types (ou sortes)
+de base.
+\begin{def}
+On a deux sortes de base~: $ι$ pour les individus (c'est à dire les termes du
+langage) et $ο$ pour les propositions. L'ensemble des sortes est donc défini
+par la grammaire suivante.
+$$ s₁,s₂ ::= ι \| ο \| s₁ → s₂ $$
+\end{def}
+
+
+(*
+In this paper we limit ourselves to second-order logic, even though the system
+can easily be extended to higher-order. For every natural number $n$ we
+require a countable set ${\mathcal{V}}_n = \{{X}_n, {Y}_n, {Z}_n ...\}$ of
+$n$-ary predicate variables.
+\begin{definition}
+The syntax of formulas is given by the following grammar, where $I$ denotes
+any finite subset of $\bbN$.
+\begin{align*} 
+A,B \;\;&::=\;\; {X}_n(t_1, ..., t_n)
+  \;\;\vert\;\; A \Rightarrow B
+  \;\;\vert\;\; \forall a\; A
+  \;\;\vert\;\; \exists a\; A
+\\&\;\;\;
+  \;\;\vert\;\; \forall X_n\; A
+  \;\;\vert\;\; \exists X_n\; A
+%  \;\;\vert\;\; \mu X_n\; A
+  \;\;\vert\;\; \{l_i : A_i\}_{i \in I}
+\\&\;\;\;
+  \;\;\vert\;\; [C_i : A_i]_{i \in I}
+  \;\;\vert\;\; t \in A
+  \;\;\vert\;\; A \restriction t \equiv u
+\end{align*}
+\end{definition}
+Terms appear in several places in formulas, in particular, they form the
+individuals of the logic. They can be quantified over and are used as
+arguments for predicate variables. Besides the ML-like formers for sums and
+products (i.e. records and variants) we add a membership predicate and a
+restriction
+operation. The membership predicate $t \in A$ is used to express the fact that
+the term $t$ has type $A$. It provides a way to encode the dependent product
+type using universal quantification and the arrow type. In this sense, it is
+inspired and related to Krivine's relativization of quantifiers.
+$$ \Pi_{a:A}\;B \;\;:=\;\; \forall a (a \in A \Rightarrow B) $$
+The restriction operator can be thought of as a kind of conjunction with no
+algorithmic content. The formula $A \restriction t \equiv u$ is to be
+interpreted in the same way as $A$ if the equivalence $t \equiv u$ holds, and
+as $\bot$ otherwise\footnote{Here, $\bot$ and $\top$ can be obtained using the
+usual second-order encoding: $\bot = \forall X_0\; X_0$ and
+$\top = \exists X_0\; X_0$.}.
+
+In order to handle free variables in formulas we will need to generalize the
+notion of substitution to allow the substitution of predicate variables.
+\begin{definition}
+A substitution is a finite map $\sigma$ ranging over $\lambda$-variables,
+$\mu$-variables, term and predicate variables such that:
+\begin{itemize}
+  \item if $x \in dom(\sigma)$ then $\sigma(x) \in \Lambda_v$,
+  \item if $\alpha \in dom(\sigma)$ then $\sigma(\alpha) \in \Pi$,
+  \item if $a \in dom(\sigma)$ then $\sigma(a) \in \Lambda$,
+  \item if $X_n \in dom(\sigma)$ then
+    $\sigma(X_n) \in {\Lambda^n \to \mathcal{P}({{\Lambda}_v}/\!\!\equiv)}$.
+\end{itemize}
+\end{definition}
+\begin{remark}
+A predicate variable of arity $n$ will be substituted by a $n$-ary predicate.
+Semantically, such predicate will correspond to some total (set-theoretic)
+function building a subset of $\Lambda_v/\!\!\equiv$ from $n$ terms. In the
+syntax, the binding of the arguments of a predicate variables will happen
+implicitly during its substitution.
+\end{remark}
+\begin{definition}
+Given a formula $A$ we denote $FV(A)$ the set of its free variables. Given a
+substitution $\sigma$ such that $dom(\sigma) \subset FV(A)$ we write
+$A[\sigma]$ the closed formula built by applying $\sigma$ to $A$.
+\end{definition}
+
+In the semantics we will interpret closed formulas by sets of values closed
+under the equivalence relation $(\equiv)$.
+\begin{definition}
+Given a formula $A$ and a substitution $\sigma$ such that $A[\sigma]$ is
+closed, we define the \emph{raw semantics}
+$\llbracket A \rrbracket_\sigma \subseteq \Lambda_v/\!\!\equiv$ of $A$ under
+the substitution $\sigma$ as follows.
+\begin{align*}
+\llbracket X_n(t_1, ..., t_n) \rrbracket_\sigma =&\;
+  \sigma(X_n)(t_1\sigma, ..., t_n\sigma)\\
+\llbracket A \Rightarrow B \rrbracket_\sigma =&\;
+  \{\lambda x\; t \;\;|\;\; \forall v \in \llbracket A \rrbracket_\sigma,
+  t[x := v] \in \llbracket B \rrbracket_\sigma^{\bot\bot} \} \\
+\llbracket \forall a\; A \rrbracket_\sigma =&\;
+  \cap_{t \in \Lambda^{\!\ast}}{\llbracket A \rrbracket_{\sigma, a := t}}\\
+\llbracket \exists a\; A \rrbracket_\sigma =&\;
+  \cup_{t \in \Lambda^{\!\ast}}{\llbracket A \rrbracket_{\sigma, a := t}}\\
+\llbracket \forall X_n\; A \rrbracket_\sigma =&\;
+  \cap_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
+  {\llbracket A \rrbracket_{\sigma, X_n := P}}\\
+\llbracket \exists X_n\; A \rrbracket_\sigma =&\;
+  \cup_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
+  {\llbracket A \rrbracket_{\sigma, X_n := P}}\\
+\llbracket \{l_i : A_i\}_{i \in I} \rrbracket_\sigma =&\;
+  \{\{l_i = v_i\}_{i \in I} \;\;|\;\; {\forall i \in I}\;\; v_i \in
+  \llbracket A_i \rrbracket_\sigma\}\\
+\llbracket [C_i : A_i]_{i \in I} \rrbracket_\sigma =&\;
+  \cup_{i \in I}\{C_i[v] \;\;|\;\; v \in \llbracket A_i \rrbracket_\sigma\}\\
+\llbracket t \in A \rrbracket_\sigma =&\;
+  \{v \in \llbracket A \rrbracket_\sigma \;\;|\;\; t\sigma \equiv v\}\\
+\llbracket A \restriction t \equiv u \rrbracket_\sigma =&\;
+  \left\{ 
+    \begin{array}{l l}
+      \!\!\!\llbracket A \rrbracket_\sigma & \text{if $t\sigma \equiv u\sigma$}\\
+      \!\!\!\emptyset & \text{otherwise}
+     \end{array} \right.
+\end{align*}
+\end{definition}
+
+In the model, programs will realize closed formulas in two different ways
+according to their syntactic class. The interpretation of values will be
+given in terms of raw semantics, and the interpretation of terms in general
+will be given in terms of truth values.
+\begin{definition}
+Let $A$ be a formula and $\sigma$ a substitution such that $A[\sigma]$ is closed.
+We say that:
+\begin{itemize}
+\item $v \in \Lambda_v$ realizes $A[\sigma]$ if
+  $v \in \llbracket A \rrbracket_\sigma$,
+\item $t \in \Lambda$ realizes $A[\sigma]$ if
+  $t \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
+\end{itemize}
+\end{definition}
+
+\subsection{Contexts and typing rules}
+
+Before giving the typing rules of our system we need to define contexts and
+judgements. As explained in the introduction, several typing rules require a
+value restriction in our context. This is reflected in typing rule by the
+presence of two forms of judgements.
+
+\begin{definition}
+A context is an ordered list of hypothesis. In particular, it contains type
+declarations for $\lambda$-variables and $\mu$-variables, and declaration of
+term variables and predicate variables. In our case, a context also contains
+term equalities and inequalities. A context is built using the following
+grammar.
+\begin{align*}
+\Gamma, \Delta \;:=\;
+  \bullet
+  &\;\;|\;\;
+  \Gamma, x : A
+  \;\;|\;\;
+  \Gamma, \alpha : \lnot A
+  \;\;|\;\;
+  \Gamma, a : Term
+  \\&\;\;|\;\;
+  \Gamma, X_n : Pred_n
+  \;\;|\;\;
+  \Gamma, t \equiv u
+  \;\;|\;\;
+  \Gamma, t \not\equiv u
+\end{align*}
+A context $\Gamma$ is said to be valid if it is build using the rules of
+figure \ref{valid_context} page \pageref{valid_context}. In the following,
+all the contexts that will be used will be considered as valid implicitely.
+\end{definition}
+\begin{figure}
+\center
+\begin{prooftree}
+\AxiomC{}
+\UnaryInfC{$\bullet \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$x \not\in dom(\Gamma)$}
+\AxiomC{$FV(A) \subseteq dom(\Gamma) \cup \{x\}$}
+\TrinaryInfC{$\Gamma, x : A \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$\alpha \not\in dom(\Gamma)$}
+\AxiomC{$FV(A) \subseteq dom(\Gamma)$}
+\TrinaryInfC{$\Gamma, \alpha : \lnot A \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$a \not\in dom(\Gamma)$}
+\BinaryInfC{$\Gamma, a : Term \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$X_n \not\in dom(\Gamma)$}
+\BinaryInfC{$\Gamma, X_n : Pred_n \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
+\BinaryInfC{$\Gamma, t \equiv u \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
+\BinaryInfC{$\Gamma, t \not\equiv u \;\; \text{Valid}$}
+\end{prooftree}
+\caption{Rules allowing the construction of a valid context.}
+\label{valid_context}
+\end{figure}
+
+\begin{definition}
+There are two forms of typing judgements:
+\begin{itemize}
+\item $\Gamma \vvdash v : A$ meaning that the value $v$ has type $A$ in
+  context $\Gamma$,
+\item $\Gamma \vdash t : A$ meaning that the term $t$ has type $A$ in
+  context $\Gamma$.
+\end{itemize}
+\end{definition}
+
+\begin{figure*}
+\centering
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$Ax$}
+\UnaryInfC{$\Gamma, x : A \vvdash x : A$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma, x : A \vdash t : B$}
+\RightLabel{$\Rightarrow_i$}
+\UnaryInfC{$\Gamma \vvdash \lambda x\;t : A \Rightarrow B$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vdash t : A \Rightarrow B$}
+\AxiomC{$\Gamma \vdash u : A$}
+\RightLabel{$\Rightarrow_e$}
+\BinaryInfC{$\Gamma \vdash t\; u : B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, \alpha : \lnot A \vdash t : A$}
+\RightLabel{$\mu$}
+\UnaryInfC{$\Gamma \vdash \mu \alpha\;t : A$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma, \alpha : \lnot A \vdash t : A$}
+\RightLabel{$\ast$}
+\UnaryInfC{$\Gamma, \alpha : \lnot A \vdash t \ast \alpha : B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vvdash v : A$}
+\RightLabel{$\in_i$}
+\UnaryInfC{$\Gamma \vvdash v : v \in A$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vdash t : u \in A$}
+\RightLabel{$\in_e$}
+\UnaryInfC{$\Gamma \vdash t : A$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma, u_1 \equiv u_2 \vdash t : A$}
+\RightLabel{$\restriction_i$}
+\UnaryInfC{$\Gamma, u_1 \equiv u_2 \vdash t : A \restriction u_1 \equiv u_2$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : A, u_1 \equiv u_2 \vdash t : B$}
+\RightLabel{$\restriction_e$}
+\UnaryInfC{$\Gamma, x : A \restriction u_1 \equiv u_2 \vdash t : B$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vvdash v : A$}
+\RightLabel{$v\!\!\uparrow$}
+\UnaryInfC{$\Gamma \vdash v : A$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma \vdash v : A$}
+\RightLabel{$v\!\!\downarrow$}
+\UnaryInfC{$\Gamma \vvdash v : A$}
+\end{prooftree}
+
+
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vvdash v : A$}
+\AxiomC{$a \not\in FV(\Gamma)$}
+\RightLabel{$\forall_i$}
+\BinaryInfC{$\Gamma \vvdash v : \forall a\;A$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vdash t : \forall a\;A$}
+\RightLabel{$\forall_e$}
+\UnaryInfC{$\Gamma \vdash t : A[a := u]$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vdash t : A[a := u]$}
+\RightLabel{$\exists_i$}
+\UnaryInfC{$\Gamma \vdash t : \exists a\;A$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma, y : A \vdash t : B$}
+\AxiomC{$a \not\in FV(\Gamma, B)$}
+\RightLabel{$\exists_e$}
+\BinaryInfC{$\Gamma, y : \exists a\;A \vdash t : B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vvdash v : A$}
+\AxiomC{$X_n \not\in FV(\Gamma)$}
+\RightLabel{$\forall_I$}
+\BinaryInfC{$\Gamma \vvdash v : \forall X_n\;A$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma \vdash t : \forall X_n\;A$}
+\RightLabel{$\forall_E$}
+\UnaryInfC{$\Gamma \vdash t : A[X_n := P]$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vdash t : A[X_n := P]$}
+\RightLabel{$\exists_I$}
+\UnaryInfC{$\Gamma \vdash t : \exists X_n\;A$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma, x : A \vdash t : B$}
+\AxiomC{$X_n \not\in FV(\Gamma, B)$}
+\RightLabel{$\exists_E$}
+\BinaryInfC{$\Gamma, x : \exists X_n\;A \vdash t : B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\{\Gamma \vvdash v_i : A_i\}_{i=1}^n$}
+\RightLabel{$\times_i$}
+\UnaryInfC{$\Gamma \vvdash \{l_i = v_i\}_{i=1}^n : \{l_i : A_i\}_{i=1}^n$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vvdash v : \{l_i : A_i\}_{i=1}^n$}
+\RightLabel{$\times_e$}
+\UnaryInfC{$\Gamma \vdash v.l_i : A_i$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vvdash v : A_i$}
+\RightLabel{$+_i$}
+\UnaryInfC{$\Gamma \vvdash C_i[v] : [C_i : A_i]_{i=1}^n$}
+\DisplayProof
+\quad\quad
+\AxiomC{$\Gamma \vvdash v : [C_i : A_i]_{i=1}^n$}
+\AxiomC{$\{\Gamma, x:A_i, C_i[x] \equiv v \vdash t_i : B\}_{i=1}^n$}
+\RightLabel{$+_e$}
+\BinaryInfC{$\Gamma \vdash case_v\;[C_i[x] \to t_i]_{i=1}^n : B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, w_1 \equiv w_2 \vdash t[x := w_1] : A$}
+\RightLabel{$\equiv_{v,l}$}
+\UnaryInfC{$\Gamma, w_1 \equiv w_2 \vdash t[x := w_2] : A$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma, t_1 \equiv t_2 \vdash t[a := t_1] : A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, t_1 \equiv t_2 \vdash t[a := t_2] : A$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, w_1 \equiv w_2 \vdash t : A[x := w_1]$}
+\RightLabel{$\equiv_{v,r}$}
+\UnaryInfC{$\Gamma, w_1 \equiv w_2 \vdash t : A[x := w_2]$}
+\DisplayProof\quad\quad
+\AxiomC{$\Gamma, t_1 \equiv t_2 \vdash t : A[a := t_1]$}
+\RightLabel{$\equiv_{t,r}$}
+\UnaryInfC{$\Gamma, t_1 \equiv t_2 \vdash t : A[a := t_2]$}
+\end{prooftree}
+\caption{Second-order type system.}
+\label{pml2rules}
+\end{figure*}
+
+The typing rules of the system are given in figure \ref{pml2rules} page
+\pageref{pml2rules}. Although most of them are fairly usual,
+our type system differs in several ways. For instance the last four rules
+are related to the extensionality of the calculus. One can note the value
+restriction in several places: both universal quantification introduction
+rules and the introduction of the membership predicate. If fact, some value
+restriction is also hidden in the rules for the elimination of the existential
+quantifiers and the elimination rule for the restriction connective. These
+rules are presented in their left-hand side variation, and only values can
+appear on the left of the sequent. It is not surprising that elimination of
+an existential quantifier requires value restriction as it is the dual of the
+introduction rule of a universal quantifier.
+
+An important and interesting difference with existing type systems
+is the presence of $v\!\!\uparrow$ and $v\!\!\downarrow$. These two rules
+allow one to go from one kind of sequent to the other when working on values.
+Going from $\Gamma \vvdash v : A$ to $\Gamma \vdash v : A$ is
+straight-forward. Going the other direction is the main motivation for our
+model. This allows us to lift the value restriction expressed in the syntax
+to a restriction expressed in terms of equivalence. For example, the two rules
+\begin{prooftree}
+\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
+\AxiomC{$a \not\in FV(\Gamma)$}
+\RightLabel{$\forall_{i,\equiv}$}
+\BinaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
+\end{prooftree}
+\begin{prooftree}
+\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
+\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
+\RightLabel{$\Pi_{e,\equiv}$}
+\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
+\end{prooftree}
+can be derived in the system (see figure \ref{deriv} page \pageref{deriv}).
+The value restriction can be removed similarly on every other rule. Thus,
+judgemens on values can be completely ignored by the user of the system.
+Transition to value judgements will only happen internally.
+
+\begin{figure*}
+\begin{prooftree}
+\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash v : A$}
+\RightLabel{$v\!\!\downarrow$}
+\UnaryInfC{$\Gamma, t \equiv v \vvdash v : A$}
+\AxiomC{$a \not\in FV(\Gamma)$}
+\RightLabel{$\forall_i$}
+\BinaryInfC{$\Gamma, t \equiv v \vvdash v : \forall a\;A$}
+\RightLabel{$v\!\!\uparrow$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash v : \forall a\;A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
+\DisplayProof
+\quad\quad
+\alwaysDoubleLine
+\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash t : \forall a (a \in A \Rightarrow B)$}
+\alwaysSingleLine
+\RightLabel{$\forall_e$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash t : u \in A \Rightarrow B[a := u]$}
+\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash v : A$}
+\RightLabel{$v\!\!\downarrow$}
+\UnaryInfC{$\Gamma, u \equiv v \vvdash v : A$}
+\RightLabel{$\in_i$}
+\UnaryInfC{$\Gamma, u \equiv v \vvdash v : v \in A$}
+\RightLabel{$v\!\!\uparrow$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash v : v \in A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash u : v \in A$}
+\RightLabel{$\equiv_{t,r}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash u : u \in A$}
+\RightLabel{$\Rightarrow_e$}
+\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
+\end{prooftree}
+\caption{Derivation of the rules $\forall_{i,\equiv}$ and $\Pi_{e,\equiv}$.}
+\label{deriv}
+\end{figure*}
+*)
+
+=<
+
+=> Adéquation
+
+(*
+We are now going to prove the soundness of our type system by showing that it
+is compatible with our realizability model. This property is specified by the
+following theorem which is traditionally called the adequacy lemma.
+\begin{definition}
+Let $\Gamma$ be a (valid) context. We say that the substitution $\sigma$
+realizes $\Gamma$ if:
+\begin{itemize}
+\item for every $x : A$ in $\Gamma$ we have
+  $\sigma(x) \in \llbracket A \rrbracket_\sigma$,
+\item for every $\alpha : \lnot A$ in $\Gamma$ we have
+  $\sigma(\alpha) \in \llbracket A \rrbracket_\sigma^\bot$,
+\item for every $a : Term$ in $\Gamma$ we have
+  $\sigma(a) \in \Lambda$,
+\item for every $X_n : Pred_n$ in $\Gamma$ we have
+  $\sigma(X_n) \in \Lambda^n \to \Lambda_v/\!\!\equiv$,
+\item for every $t \equiv u$ in $\Gamma$ we have
+  $t\sigma \equiv u\sigma$ and
+\item for every $t \not\equiv u$ in $\Gamma$ we have
+  $t\sigma \not\equiv u\sigma$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}{\emph{(Adequacy.)}}\label{adequacy}
+Let $\Gamma$ be a (valid) context, $A$ be a formula with
+$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a substitution realizing
+$\Gamma$.
+\begin{itemize}
+  \item If $\Gamma \vvdash v : A$ then
+    $v\sigma \in \llbracket A \rrbracket_\sigma$,
+  \item if $\Gamma \vdash t : A$ then
+    $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
+\end{itemize}
+\end{theorem}
+\input{adequacy}
+
+\begin{remark}
+For the sake of simplicity we fixed a pole $\dbot$ at the beginning of the
+current section. However, many of the properties presented here (including
+the adequacy lemma) remain valid with similar poles. We will make use of
+this fact in the proof of the following theorem.
+\end{remark}
+
+\begin{theorem}{\emph{(Safety.)}}\label{safety}
+Let $\Gamma$ be a context, $A$ be a formula such that
+$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a subsitution realizing
+$\Gamma$. If $t$ is a term such that $\Gamma \vdash t : A$ and if $A[\sigma]$
+is pure (i.e. it does not contain any $\_ \Rightarrow \_$), then for every
+stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ there is a value
+$v \in \llbracket A \rrbracket_\sigma$ and $\alpha \in \mathcal{V}_\mu$ such
+that ${t\sigma \ast \pi} \reds {v \ast \alpha}$.
+\end{theorem}
+\begin{proof}
+We do a proof by realizability using the pole
+$\dbot_A = \{ p \in \Lambda\times\Pi\;|\;p \reds v \ast \alpha \;\land\; v
+\in \llbracket A \rrbracket_\sigma\}$. It is well-defined as $A$ is pure
+and hence $\llbracket A \rrbracket_\sigma$ does not depend on the pole. Using
+the adequacy lemma (theorem \ref{adequacy}) with $\dbot_A$ we obtain
+that $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$. Hence for
+every stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ we have
+${t\sigma \ast \pi} \in \dbot_A$.
+\end{proof}
+\begin{remark}
+It is easy to see that if $A[\sigma]$ is closed and pure then
+$v \in \llbracket A \rrbracket_\sigma$ implies that $\vdash v : A$.
+\end{remark}
+
+\begin{theorem}{\emph{(Consistency.)}}\label{consistency}
+There is no $t$ such that $\bullet \vdash t : \bot$.
+\end{theorem}
+\begin{proof}
+Let us suppose that $\vdash t : \bot$. Using adequacy (theorem \ref{adequacy}
+page \pageref{adequacy}) we obtain that
+$t \in \llbracket \bot \rrbracket_\sigma^{\bot\bot}$. Since
+$\llbracket \bot \rrbracket_\sigma = \emptyset$ we know that
+$\llbracket \bot \rrbracket_\sigma^\bot = \Pi$ by definition. Now using
+theorem \ref{poleconsist} page \pageref{poleconsist} we obtain that
+$\llbracket \bot \rrbracket_\sigma^{\bot\bot} = \emptyset$. This is a
+contradiction.
+\end{proof}
+*)
+
+=<
+
+=> Système dérivé
+
+... (* TODO *)
+
+=<

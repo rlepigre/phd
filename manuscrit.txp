@@ -1,0 +1,91 @@
+(* #FORMAT FormatManuscrit *)
+(* #PACKAGES bibi *)
+\Include{Macros}
+
+(* The cover. *)
+\Caml(
+open Cover
+
+let johndoe = ("Iam Nobody", "University of Nowhere")
+let usmb = "Université Savoie Mont Blanc"
+let cover_data =
+  { author    = "Rodolphe Lepigre"
+  ; title     = [ "Restriction Sémantique par Valeurs"
+                ; "dans un Système à la Curry" ]
+  ; def_date  = "XX XXXXX 2016"
+  ; lab       = "LAMA, " ^ usmb
+  ; advisor   = ("Christophe Raffalli", usmb)
+  ; coadvisor = Some ("Pierre Hyvernat", usmb)
+  ; jury_pres = johndoe
+  ; reviewers = [ johndoe; johndoe ]
+  ; examinors = [ johndoe ] }
+
+let _ = special_page 1 (cover cover_data defaultEnv)
+)
+
+\pagesBefore(1)
+\begin{minisect}("Résumé")
+\Include{Resume}
+\end{minisect}
+
+\begin{minisect}("Abstract")
+\Include{Abstract}
+\end{minisect}
+
+\begin{minisect}("Remerciements")
+\Include{Remerciements}
+\end{minisect}
+
+\begin{minisect}("Table des matières")
+\tableOfContents()
+\end{minisect}
+\pagesAfter(2)
+
+
+-> Introduction
+
+\Include{Introduction}
+
+-<
+
+=> Prérequis
+
+\Include{Prerequis}
+
+=<
+
+=> Modèle pour une restriction sémantique
+
+\Include{SemValRestr}
+
+=<
+
+=> Pseudo-décision de l'équivalence
+
+\Include{Equivalence}
+
+=<
+
+=> Sous-typage et absence de contenu algorithmique
+
+\Include{SubTyping}
+
+=<
+
+=> Implémentation de PML2
+
+\Include{Implem}
+
+=<
+
+-> Conclusion et travaux futurs
+
+\Include{Conclusion}
+
+-<
+
+\begin{minisect}("Bibliographie")
+... (* TODO *)
+\end{minisect}
+
+
