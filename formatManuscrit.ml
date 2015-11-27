@@ -229,17 +229,24 @@ module Format (D:DocumentStructure) = struct
     in
     newPar D.structure Complete.normal param contents
 
-  module TableOfContents = Default.TableOfContents
-
   module Output (M:Driver.OutputDriver) = struct
     include Default.Output(M)
 
-    let rec sectionize path numbered = function
+    let rec sectionize path = function
       | Node n when List.mem_assoc "structural" n.node_tags ->
-          let numbered'=numbered && List.mem_assoc "numbered" n.node_tags in
-          let section_name=
-            if path=[] then (
-              [C (fun env->
+          let numbered = List.mem_assoc "numbered" n.node_tags in
+          let get_nums env =
+            let (_,l) =
+              try StrMap.find "_structure" env.counters
+              with Not_found -> (-1,[0])
+            in
+            let to_str x = string_of_int (x + 1) in
+            String.concat "." (List.rev_map to_str (drop 1 l))
+          in
+          let section_name =
+            if path = [] then
+              (* Chapter level. *)
+              let contents env =
                 let h= -.env.size/.phi in
                 let sz=2.5 in
   
@@ -253,15 +260,13 @@ module Format (D:DocumentStructure) = struct
                     boxes
                 in
   
-                let num=
-                  if List.mem_assoc "numbered" n.node_tags then
-                    let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
+                let num =
+                  if numbered then
+                    let nums = get_nums env in
                     List.map (RawContent.in_order 1)
                       (draw {env with size=env.size*.(sz-.h);fontColor=Color.gray }
-                         [tT (String.concat "." (List.map (fun x->string_of_int (x+1))
-                                                   (List.rev (drop 1 b))))])
-                  else
-                    []
+                      [tT nums])
+                  else []
                 in
                 let x0,x1=if num=[] then 0.,0. else
                     let x0,_,x1,_=RawContent.bounding_box num in x0,x1
@@ -269,129 +274,124 @@ module Format (D:DocumentStructure) = struct
                 let w=if num=[] then 0. else env.size in
   
                 let text=
-                  let dr=try
-                           snd (IntMap.min_binding (
-                             let d,_,_ = (* FIXME: lost Marker(Label ...) ?? *)
-                             OutputDrawing.minipage' {env with hyphenate=(fun _->[||]);
-                               normalLeftMargin=0.;
-                               normalMeasure=env.normalMeasure-.(x1-.x0)/.2.-.w;
-                               size=env.size*.sz}
-                               (DefaultFormat.paragraph n.displayname) in d
-                           ))
-                    with
-                        Not_found->empty_drawing_box
+                  let dr =
+                    try
+                      snd (IntMap.min_binding (
+                        let d,_,_ = (* FIXME: lost Marker(Label ...) ?? *)
+                          OutputDrawing.minipage'
+                            { env with hyphenate = (fun _->[||])
+                            ; normalLeftMargin=0.
+                            ; normalMeasure=env.normalMeasure-.(x1-.x0)/.2.-.w
+                            ; size=env.size*.sz }
+                            (DefaultFormat.paragraph n.displayname)
+                         in d))
+                    with Not_found -> empty_drawing_box
                   in
                   List.map (RawContent.in_order 1)
                     (dr.drawing_contents dr.drawing_nominal_width)
                 in
-                let dr=drawing (
-                  (List.map (RawContent.translate (-.w-.x1) h) num)@
-                    text
-                )
+
+                let trs = RawContent.translate (-.w-.x1) h in
+                let num = List.map trs num in
+                let dr = drawing (num @ text) in
+                let dr =
+                  let drawing_contents w =
+                    let trs = RawContent.translate ((x0-.x1)/.2.) 0. in
+                    List.map trs (dr.drawing_contents w)
+                  in Drawing { dr with drawing_contents }
                 in
-                let dr={dr with drawing_contents=(fun w_->
-                  List.map (RawContent.translate ((x0-.x1)/.2.) 0.) (dr.drawing_contents w_)
-                )}
-                in
-                bB (fun _->
-                  users@
-                    [Marker (Structure path);
-                     Marker AlignmentMark;
-                     Drawing (dr)])::
-                  Env(fun _->env')::[]
-              )]
-            ) else (
-              if List.mem_assoc "numbered" n.node_tags  then
-                [C (fun env->
-                  let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
-                  bB (fun _->[Marker (Structure path)])
-                  ::tT (String.concat "." (List.map (fun x->string_of_int (x+1)) (List.rev (drop 1 b))))
-                  ::tT " "
-                  ::n.displayname
-                )]
+                let path = Structure path in
+                let title = users @ [Marker path; Marker AlignmentMark; dr] in
+                [bB (fun _ -> title); Env(fun _ -> env')]
+              in [C contents]
+            else
+              (* Deeper level. *)
+              let marker = bB (fun _ -> [Marker (Structure path)]) in
+              if numbered then
+                let contents env =
+                  marker :: tT (get_nums env ^ " ") :: n.displayname
+                in [C contents]
               else
-                bB (fun env->[Marker (Structure path)])::
-                  n.displayname
-            )
+                marker :: n.displayname
           in
-          let par=Paragraph {
-            par_contents=section_name;
-            par_paragraph=(-1);par_states=[];
-            par_env=(fun env->
-                       let a,b=try StrMap.find "_structure" env.counters with Not_found -> -1,[0] in
-  
-                       { (envAlternative (Opentype.oldStyleFigures::env.fontFeatures)
-                            (if List.length b>=4 then Regular else Caps) env) with
-                         hyphenate=(fun _->[||]);
-                           size=(if List.length b=1 then sqrt phi else
-                                   if List.length b <= 2 then sqrt (sqrt phi) else
-                                     if List.length b = 3 then sqrt (sqrt (sqrt phi)) else 1.)*.env.size;
-                       });
-            par_post_env=(fun env1 env2 -> { env1 with names=env2.names; counters=env2.counters;
-                                               user_positions=env2.user_positions });
-            par_badness=badness;
-            par_parameters=
-              if path=[] then
-                (fun env a1 a2 a3 a4 a5 a6 line->
-                  let p=parameters env a1 a2 a3 a4 a5 a6 line in
-                  if not p.absolute && line.lineStart=0 then (
-                    let rec findMark w j=
-                      if j>=line.lineEnd then 0. else
-                        if a1.(line.paragraph).(j) = Marker AlignmentMark then w else
-                          let (_,ww,_)=box_interval a1.(line.paragraph).(j) in
-                          findMark (w+.ww) (j+1)
-                    in
-                    let w=findMark 0. 0 in
-                    { p with
-                      left_margin=p.left_margin-.w;
-                      min_lines_after=if line.lineEnd>=Array.length a1.(line.paragraph) then 4 else 1;
-                      min_page_before = (
-                        if line.paragraph=0 then 0 else
-                        if path=[] && line.lineStart<=0 then (
-                          let minimal=max p.min_page_before 1 in
-                          minimal+((1+max 0 (layout_page line)+minimal) mod 2)
-                        ) else p.min_page_before
-                      );
-                      measure=p.measure+.w }
-                  ) else
-                    p
-                )
-              else
-                (fun a b c d e f g line->
-                  let param=parameters a b c d e f g line in
-                  { param with
-                    min_page_before = (
-                      if path=[] && line.lineStart<=0 then (
-                        let minimal=max param.min_page_before 1 in
-                        minimal+((layout_page g+minimal) mod 2)
-                      ) else param.min_page_before
-                    );
-                    min_lines_before=2;
-                    min_lines_after=
-                      if path=[] then
-                        if line.lineEnd>=Array.length b.(line.paragraph) then 3 else 0
+          let par = Paragraph
+            { par_contents = section_name
+            ; par_paragraph = (-1)
+            ; par_states = []
+            ; par_env = (fun env ->
+                let len =
+                  try List.length (snd (StrMap.find "_structure" env.counters))
+                  with Not_found -> 1
+                in
+                let alt = if len >= 4 then Regular else Caps in
+                let feats = Opentype.oldStyleFigures :: env.fontFeatures in
+                let hyphenate _ = [||] in
+                let size = env.size *.
+                  match len with
+                  | 1 -> sqrt phi
+                  | 2 -> sqrt (sqrt phi)
+                  | 3 -> sqrt (sqrt (sqrt phi))
+                  | _ -> 1.0
+                in
+                { (envAlternative feats alt env) with hyphenate; size })
+            ; par_post_env = (fun env1 env2 ->
+                { env1 with names = env2.names
+                ; counters = env2.counters
+                ; user_positions = env2.user_positions })
+            ; par_badness = badness
+            ; par_parameters = (fun env a1 a2 a3 a4 a5 a6 line ->
+                let param = parameters env a1 a2 a3 a4 a5 a6 line in
+                if path = [] then
+                  if not param.absolute && line.lineStart = 0 then
+                    let boxes = a1.(line.paragraph) in
+                    let rec findMark w j =
+                      if j >= line.lineEnd then 0.0
+                      else if boxes.(j) = Marker AlignmentMark then w
                       else
-                        if line.lineEnd>=Array.length b.(line.paragraph) then 2 else 0;
-                    not_last_line=true }
-                );
-            par_completeLine=Complete.normal }
+                        let (_,ww,_) = box_interval boxes.(j) in
+                        findMark (w +. ww) (j + 1)
+                    in
+                    let w = findMark 0.0 0 in
+                    let min_lines_after =
+                      if line.lineEnd >= Array.length boxes then 4 else 1
+                    in
+                    let min_page_before =
+                      if line.paragraph = 0 then 0
+                      else if line.lineStart > 0 then param.min_page_before
+                      else
+                        let minimal = max param.min_page_before 1 in
+                        minimal + ((1 + max 0 (layout_page line) + minimal) mod 2)
+                    in
+                    { param with left_margin = param.left_margin -. w
+                    ; min_lines_after ; min_page_before
+                    ; measure = param.measure +. w }
+                  else param
+                else
+                  let min_lines_after =
+                    if line.lineEnd>=Array.length a1.(line.paragraph) then 2
+                    else 0
+                  in
+                  { param with min_page_before = param.min_page_before
+                  ; min_lines_before = 2 ; min_lines_after
+                  ; not_last_line = true })
+            ; par_completeLine = Complete.normal }
           in
           let children =
             let k =
               try fst (IntMap.min_binding n.children) - 1
               with Not_found -> 0
             in
-            let aux k a = sectionize (k :: path) numbered' a in
+            let aux k a = sectionize (k :: path) a in
             IntMap.add k par (IntMap.mapi aux n.children)
           in
           Node { n with children }
       | Node n ->
-          let children = IntMap.map (sectionize path numbered) n.children in
+          let children = IntMap.map (sectionize path) n.children in
           Node { n with children }
       | leaf   -> leaf
 
     let output params str env file =
-      let postprocess_tree = sectionize [] true in
+      let postprocess_tree = sectionize [] in
       basic_output params (postprocess_tree str) env file
   end
 
@@ -441,4 +441,98 @@ module Format (D:DocumentStructure) = struct
   let q _=utf8Char 8220
   let qq _=utf8Char 8221
 
+  module Env_minichap(M : sig val arg1 : content list end)  = struct
+    let do_begin_env () =
+      newStruct ~numbered:false D.structure M.arg1
+
+    let do_end_env () =
+      go_up D.structure
+  end
+
+
+
+  let table_of_contents tree depth =
+    let table_of_contents env =
+      let margin  = env.size *. phi in
+      let spacing = env.size /. phi in
+
+      let rec toc env0 path tree =
+        let level = List.length path in
+        match tree with
+        | Node s when level <= depth && List.mem_assoc "intoc" s.node_tags ->
+           let rec flat_children env1 = function
+             | []                    -> []
+             | (_,(FigureDef _))::s  -> flat_children env1 s
+             | (_,(Paragraph _))::s  -> flat_children env1 s
+             | (k,(Node h as tr))::s ->
+                 let env' = h.node_env env1 in
+                 (toc env' (k::path) tr) @ flat_children (h.node_post_env env1 env') s
+           in
+           let numbered = List.mem_assoc "numbered" s.node_tags in
+
+           let chi = if numbered || path=[] then flat_children env0 (IntMap.bindings s.children) else [] in
+           let a,b=(try StrMap.find "_structure" (env0.counters) with _-> -1,[0]) in
+           let count=(List.rev (drop 1 b)) in
+           if (* numbered && *) count<>[] then (
+             let labl=String.concat "_" ("_"::List.map string_of_int path) in
+             let page=try
+                        (1+layout_page (MarkerMap.find (Label labl) (user_positions env0)))
+             with Not_found -> 0
+             in
+             let env'= add_features [Opentype.oldStyleFigures] env in
+             let fontColor = if level = 1 then Color.red else Color.black in
+             let num = boxify_scoped { env' with fontColor }
+               [tT (String.concat "." (List.map (fun x->string_of_int (x+1)) count))] in
+             let name = boxify_scoped env' s.displayname in
+             let w=List.fold_left (fun w b->let (_,w',_)=box_interval b in w+.w') 0. num in
+             let w'=List.fold_left (fun w b->let (_,w',_)=box_interval b in w+.w') 0. name in
+             let cont=
+               (if numbered then List.map (RawContent.translate (-.w-.spacing) 0.)
+                  (draw_boxes env num) else [])@
+                 (List.map (RawContent.translate 0. 0.) (draw_boxes env name))@
+                 List.map (RawContent.translate (w'+.spacing) 0.)
+                 (draw_boxes env (boxify_scoped (envItalic true env') [tT (string_of_int page)]))
+             in
+             let (a,b,c,d)=RawContent.bounding_box cont in
+             Marker (BeginLink (Intern labl))::
+               Drawing {
+                 drawing_min_width=env.normalMeasure;
+                 drawing_nominal_width=env.normalMeasure;
+                 drawing_max_width=env.normalMeasure;
+                 drawing_width_fixed = true;
+                 drawing_adjust_before = false;
+                 drawing_y0=b;
+                 drawing_y1=d;
+                 drawing_break_badness=0.;
+                 drawing_badness=(fun _->0.);
+                 drawing_states=[];
+                 drawing_contents=
+                   (fun _->
+                     List.map (RawContent.translate
+                                 (margin+.spacing*.3.*.(float_of_int (level-1)))
+                                  0.) cont)
+               }::Marker EndLink::(glue 0. 0. 0.)::chi
+           )
+           else chi
+        | _ -> []
+      in
+      let counters = StrMap.add "_structure" (-1,[0]) env.counters in
+      toc { env with counters } [] (fst (top !tree))
+    in
+    let env x = { x with par_indent = [] } in
+    let toc = [bB table_of_contents] in
+    newPar tree ~environment:env Complete.normal Default.center toc
+
+  module TableOfContents = struct
+    let do_begin_env () =
+      table_of_contents D.structure 2
+      (*
+      let toc = [bB (table_of_contents !D.structure 2)] in
+      let env e = { e with par_indent = [] } in
+      newPar D.structure ~environment:env Complete.normal Default.center toc
+      *)
+
+    let do_end_env () = ()
+  end
 end
+

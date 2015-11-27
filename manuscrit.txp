@@ -23,6 +23,15 @@ let cover_data =
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
+\begin{minichap}{Remerciements}
+Bla bla bla blabla, bla blablabla bla.
+Bla bla bla blabla, bla blablabla bla.
+Bla bla bla blabla, bla blablabla bla.
+Bla bla bla blabla, bla blablabla bla.
+Bla bla bla blabla, bla blablabla bla.
+Bla bla bla blabla, bla blablabla bla.
+\end{minichap}
+
 \pagesBefore(1)
 \begin{minisect}("Résumé")
 \Include{Resume}
