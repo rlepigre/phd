@@ -4,21 +4,21 @@
 
 (* The cover. *)
 \Caml(
-open Cover
+open FormatManuscrit.Cover
 
-let johndoe = ("Iam Nobody", "University of Nowhere")
+let johndoe = ("IAmA Nobody", "University of Nowhere")
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
   { author    = "Rodolphe Lepigre"
-  ; title     = [ "Restriction Sémantique par Valeurs"
+  ; title     = [ "Restriction Sémantique par Valeurs" (* FIXME *)
                 ; "dans un Système à la Curry" ]
-  ; def_date  = "XX XXXXX 2016"
+  ; def_date  = "XX XXXXX 2016" (* FIXME *)
   ; lab       = "LAMA, " ^ usmb
   ; advisor   = ("Christophe Raffalli", usmb)
   ; coadvisor = Some ("Pierre Hyvernat", usmb)
-  ; jury_pres = johndoe
-  ; reviewers = [ johndoe; johndoe ]
-  ; examinors = [ johndoe ] }
+  ; jury_pres = johndoe (* FIXME *)
+  ; reviewers = [ johndoe; johndoe ] (* FIXME *)
+  ; examinors = [ johndoe ] } (* FIXME *)
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )

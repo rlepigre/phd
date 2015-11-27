@@ -11,8 +11,7 @@ open Printf
 module Cover = struct
   open Driver
   open RawContent
-  open Color
-  
+
   (* (nom, institution) d'un membre du jury. *)
   type person = string * string
   
@@ -31,7 +30,7 @@ module Cover = struct
   (* Paramètres de la couverture. *)
   let logo_UG     = "logo_UG.png"
   let logo_header = "logo_header.png"
-  let col         = colorHex "#DFDFDF"
+  let col         = Color.colorHex "#DFDFDF"
   let greyw       = 60.
   let l_span      = 20.
   let r_span      = 10.
@@ -505,101 +504,8 @@ end
          counters=StrMap.add "figure" (2,[]) StrMap.empty
     }
   let title=Default.title
-  module Env_definition=Default.Make_theorem
-    (struct
-       let refType="definition"
-       let counter="definition"
-       let counterLevel=3
-       let display num=alternative Bold [tT (Printf.sprintf "Definition %s" num); tT " "]
-     end)
-
-  module Env_theorem=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="theorem"
-         let counter="theorem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Theorem %s" num); tT " "]
-       end)
-    include Th
-    module Env_proof=Default.Proof
-  end
-  module Env_proposition=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="theorem"
-         let counter="theorem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Proposition %s" num); tT " "]
-       end)
-    include Th
-    module Env_proof=Default.Proof
-  end
-  module Env_corollary=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="theorem"
-         let counter="theorem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Corollary %s" num); tT " "]
-       end)
-    include Th
-    module Env_proof=Default.Proof
-  end
-  module Env_lemma=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="theorem"
-         let counter="theorem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Lemma %s" num); tT " "]
-       end)
-    include Th
-    module Env_proof=Default.Proof
-  end
-  module Env_openproblem=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="openproblem"
-         let counter="openproblem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Open problem %s" num); tT " "]
-       end)
-    include Th
-  end
-  module Env_conjecture=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="openproblem"
-         let counter="openproblem"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Conjecture %s" num); tT " "]
-       end)
-    include Th
-  end
-  module Env_algorithm=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="algorithm"
-         let counter="algorithm"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Algorithm %s" num); tT " "]
-       end)
-    include Th
-  end
-  module Env_exercise=struct
-    module Th=Default.Make_theorem
-      (struct
-         let refType="exercise"
-         let counter="exercise"
-         let counterLevel=3
-         let display num=alternative Bold [tT (Printf.sprintf "Exercise %s" num); tT " "]
-       end)
-    include Th
-  end
 
   open Util
-
 
   let utf8Char x=[tT (UTF8.init 1 (fun _->UChar.chr x))]
   let glyph x=
