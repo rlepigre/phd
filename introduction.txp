@@ -1,11 +1,29 @@
-Les travaux de thèse présentés ici s'articulent autours d'un but commun~:
-proposer un nouveau langage de programmation combinant un système de type
-expressif (produit dépendant, sous-typage) et rendant accessible la preuve
-de programme. Chacun des aspects du système de type ont été implémentés
-dans un prototype distribué avec ce manuscrit.
+The work presented in this thesis pursues a very practical goal: the
+design of a new type system with support for program proving. The main
+aim is to provide a practical programming language (based on \sc{ml})
+in which program properties can also be specified and verified at the
+discretion of the programmer.
 
-=> Un système de type expressif
+=> Historical considerations 
 
+... (* TODO *)
+
+=<
+=> Proving ML programs
+
+... (* TODO *)
+
+=<
+=> ML programs as proofs
+
+... (* TODO *)
+
+=<
+=> Solid theoretical foundations
+
+... (* TODO *)
+
+(*
 Notre nouveau langage de programmation s'inspire largement des langages de
 la famille \sc{ml} comme \sc{Caml} ou \sc{sml}. En particulier il contient
 le $λ$-calcul ainsi qu'une forme de type produit (enregistrement) et une
@@ -44,35 +62,14 @@ produit dépendant en utilisant ces noueaux constructeurs.
 
 Globalement, programmer avec notre langage devrait être
 une expérience relativement similaire à programmer en \sc{ml}.
+*)
 
 =<
-
-=> Preuve de programme
+=> Thesis overview
 
 ... (* TODO *)
 
-=> ...
-
-...
-
-=<
-
-=> ...
-
-...
-
-=<
-
-=<
-
-=> Systèmes similaires
-
-... (* TODO *)
-
-=<
-
-=> Organisation du manuscrit
-
+(*
 Au travers de ce manuscrit, nous construisons le système de type de notre
 langage incrémentalement. Le point de départ est un système d'ordre
 supérieur standard (connu sous le nom de \sc{hol}) enrichit avec des types
@@ -116,5 +113,11 @@ standard sont également fournis pour donner au lecteur une idée de
 l'utilisabilité du système en pratique. Les exemples sont également
 distribués avec le code source du prototype, afin que le lecteur puisse
 s'essayer à les utiliser et à les modifier.
+*)
+
+(*
+Every aspect of the system has been implemented in a prototype, which is
+distributed with this document.
+*)
 
 =<

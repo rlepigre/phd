@@ -338,6 +338,7 @@ module Format (D:DocumentStructure) = struct
                   | 3 -> sqrt (sqrt (sqrt phi))
                   | _ -> 1.0
                 in
+                let size = if minichap then sqrt phi *. size else size in
                 { (envAlternative feats alt env) with hyphenate; size })
             ; par_post_env = (fun env1 env2 ->
                 { env1 with names = env2.names

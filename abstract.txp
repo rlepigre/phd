@@ -1,0 +1,44 @@
+Dans ce manuscrit nous proposons diverses extensions et modifications du
+système de types d'ordre supérieur des langages de la famille \sc{ml}. Notre
+point de départ est donc un langage en appel par valeurs avec effets de bord
+et avec une syntaxe à la Curry. Un des aspects essentiels de ce travail est
+la construction d'un modèle fournissant une justification sémantique à chaque
+règle de typage, en utilisant les outils de la réalisabilité classique de
+Krivine. On obtient donc naturellement une interprétation calculatoire de la
+logique classique en terme d'opérateurs de contrôle.
+
+La principale particularité de notre système est l'ajout d'une théorie
+équationelle des termes du langage au sein du système de type. Ainsi, on peut
+non seulement programmer de manière usuelle, mais aussi prouver des
+programmes au sein du même langage, et donc avec la même syntaxe.
+
+On ajoute également au système une forme restreinte de type dépendant qui,
+comme le polymorphisme à la \sc{ml}, nécessite une restriction syntaxique.
+Cette limitation rend le produit dépendant difficile à utiliser en pratique,
+si on a pas recours à des sucres syntaxiques invasifs. Dans ce travail, une
+nouvelle approche est considérée après une réinvestigation de la «~value
+restriction~». On propose ici de limiter les règles concernées aux termes
+équivalents à une valeur. Une preuve qu'un terme est équivalent à une valeur
+peut être obtenue par raisonnement équationnel. Une procédure de
+pseudo-décision peut être employée pour décider automatiquement les
+équivalences de programmes.
+
+De plus, nous introduisons deux nouveaux constructeurs de types~: un
+opérateur de restriction, et un prédicat d'appartenance. Le premier est
+interprété comme une conjonction sans contenu algorithmique entre une formule
+et une équivalence. Si l'équivalence se trouve être fausse, le type résultant
+est vide. Le second dénote l'appartenance d'un terme à un type, ou plutôt
+l'appartenance d'un terme aux réalisateurs de ce type. En particulier,
+le prédicat d'appartenance est utilisé pour encoder le produit dépendant.
+
+Le sous-typage joue également un rôle important dans ce travail. En outre, il
+permet d'englober la totalité des règles de typage sans contenu algorithmique
+et constitue donc la partie centrale du système de type obtenu à la fin de
+ce manuscrit. En particulier, le mécanisme de sous-typage est suffisament
+expressif pour encoder plus petit et plus grand point fixe, ce qui permet
+d'obtenir des types récursifs et co-récursifs.
+
+L'objectif final de ce travail est de regrouper tout les aspects précédemment
+évoqués au sein d'une implémentation. À travers des exemples usuels et moins
+usuels, nous montrons que notre langage semble bien utilisable en pratique
+et dispose d'avantages certains vis-à-vis des langages usuels.
