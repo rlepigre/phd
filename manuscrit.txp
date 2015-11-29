@@ -1,6 +1,5 @@
 (* #FORMAT FormatManuscrit *)
 (* #PACKAGES bibi *)
-\Include{Macros}
 
 (* The cover. *)
 \Caml(
@@ -24,77 +23,53 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
 \begin{minichap}{Remerciements}
-Bla bla bla blabla, bla blablabla bla.
-Bla bla bla blabla, bla blablabla bla.
-Bla bla bla blabla, bla blablabla bla.
-Bla bla bla blabla, bla blablabla bla.
-Bla bla bla blabla, bla blablabla bla.
-Bla bla bla blabla, bla blablabla bla.
+\Include{Remerciements}
 \end{minichap}
 
-\pagesBefore(1)
-\begin{minisect}("Résumé")
-\Include{Resume}
-\end{minisect}
+\begin{minichap}{Sur le choix la langue de rédaction}
+\Include{ChoixLangue}
+\end{minichap}
 
-\begin{minisect}("Abstract")
-\Include{Abstract}
-\end{minisect}
-
-\begin{minisect}("Remerciements")
-\Include{Remerciements}
-\end{minisect}
-
-\begin{minisect}("Table des matières")
+\begin{minichap}{Table of contents}
 \tableOfContents()
-\end{minisect}
-\pagesAfter(2)
+\end{minichap}
 
-
--> Introduction
-
+=> Introduction
 \Include{Introduction}
+=<
 
--<
-
-=> Prérequis
-
+=> Prerequisites
 \Include{Prerequis}
-
 =<
 
-=> Modèle pour une restriction sémantique
-
+=> Semantical Value restriction
 \Include{SemValRestr}
-
 =<
 
-=> Pseudo-décision de l'équivalence
-
+=> Equivalence of programs
 \Include{Equivalence}
-
 =<
 
-=> Sous-typage et absence de contenu algorithmique
-
+=> Subtyping and reccursive types
 \Include{SubTyping}
-
 =<
 
-=> Implémentation de PML2
-
+=> Implementing the system
 \Include{Implem}
-
 =<
 
--> Conclusion et travaux futurs
-
+=> Perspectives and future work
 \Include{Conclusion}
+=<
 
--<
-
-\begin{minisect}("Bibliographie")
+\begin{minichap}{References}
 ... (* TODO *)
-\end{minisect}
+\end{minichap}
 
+\begin{minichap}{Résumé en français}
+\Include{Resume}
+\end{minichap}
 
+\begin{minichap}{Abstract}
+\Include{Abstract}
+\end{minichap}

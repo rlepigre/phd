@@ -244,7 +244,11 @@ module Format (D:DocumentStructure) = struct
             String.concat "." (List.rev_map to_str (drop 1 l))
           in
           let section_name =
-            if path = [] then
+            if path = [] && List.mem_assoc "minichap" n.node_tags then
+              (* Mini chapter. *)
+              let marker = bB (fun _ -> [Marker (Structure path)]) in
+              marker :: n.displayname
+            else if path = [] then
               (* Chapter level. *)
               let contents env =
                 let h= -.env.size/.phi in
@@ -443,7 +447,7 @@ module Format (D:DocumentStructure) = struct
 
   module Env_minichap(M : sig val arg1 : content list end)  = struct
     let do_begin_env () =
-      newStruct ~numbered:false D.structure M.arg1
+      newStruct ~numbered:false ~extra_tags:[("minichap","")] D.structure M.arg1
 
     let do_end_env () =
       go_up D.structure
@@ -470,14 +474,23 @@ module Format (D:DocumentStructure) = struct
            in
            let numbered = List.mem_assoc "numbered" s.node_tags in
 
-           let chi = if numbered || path=[] then flat_children env0 (IntMap.bindings s.children) else [] in
-           let a,b=(try StrMap.find "_structure" (env0.counters) with _-> -1,[0]) in
-           let count=(List.rev (drop 1 b)) in
-           if (* numbered && *) count<>[] then (
+           let chi =
+             if numbered || path=[] then
+               flat_children env0 (IntMap.bindings s.children)
+             else []
+           in
+           let count =
+             let (_,l) =
+               try StrMap.find "_structure" (env0.counters)
+               with Not_found -> (-1,[0])
+             in List.rev (drop 1 l)
+           in
+           if (* numbered && *) count <> [] then (
              let labl=String.concat "_" ("_"::List.map string_of_int path) in
-             let page=try
-                        (1+layout_page (MarkerMap.find (Label labl) (user_positions env0)))
-             with Not_found -> 0
+             let page =
+               let ups = user_positions env0 in
+               try 1 + layout_page (MarkerMap.find (Label labl) ups)
+               with Not_found -> 0
              in
              let env'= add_features [Opentype.oldStyleFigures] env in
              let fontColor = if level = 1 then Color.red else Color.black in
@@ -524,14 +537,7 @@ module Format (D:DocumentStructure) = struct
     newPar tree ~environment:env Complete.normal Default.center toc
 
   module TableOfContents = struct
-    let do_begin_env () =
-      table_of_contents D.structure 2
-      (*
-      let toc = [bB (table_of_contents !D.structure 2)] in
-      let env e = { e with par_indent = [] } in
-      newPar D.structure ~environment:env Complete.normal Default.center toc
-      *)
-
+    let do_begin_env () = table_of_contents D.structure 3
     let do_end_env () = ()
   end
 end

@@ -4,7 +4,7 @@ expressif (produit dépendant, sous-typage) et rendant accessible la preuve
 de programme. Chacun des aspects du système de type ont été implémentés
 dans un prototype distribué avec ce manuscrit.
 
--> Un système de type expressif
+=> Un système de type expressif
 
 Notre nouveau langage de programmation s'inspire largement des langages de
 la famille \sc{ml} comme \sc{Caml} ou \sc{sml}. En particulier il contient
@@ -45,21 +45,33 @@ produit dépendant en utilisant ces noueaux constructeurs.
 Globalement, programmer avec notre langage devrait être
 une expérience relativement similaire à programmer en \sc{ml}.
 
--<
+=<
 
--> Preuve de programme
-
-... (* TODO *)
-
--<
-
--> Systèmes similaires
+=> Preuve de programme
 
 ... (* TODO *)
 
--<
+=> ...
 
--> Organisation du manuscrit
+...
+
+=<
+
+=> ...
+
+...
+
+=<
+
+=<
+
+=> Systèmes similaires
+
+... (* TODO *)
+
+=<
+
+=> Organisation du manuscrit
 
 Au travers de ce manuscrit, nous construisons le système de type de notre
 langage incrémentalement. Le point de départ est un système d'ordre
@@ -105,4 +117,4 @@ l'utilisabilité du système en pratique. Les exemples sont également
 distribués avec le code source du prototype, afin que le lecteur puisse
 s'essayer à les utiliser et à les modifier.
 
--<
+=<
