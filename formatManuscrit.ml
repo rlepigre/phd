@@ -243,8 +243,9 @@ module Format (D:DocumentStructure) = struct
             let to_str x = string_of_int (x + 1) in
             String.concat "." (List.rev_map to_str (drop 1 l))
           in
+          let minichap = List.mem_assoc "minichap" n.node_tags in
           let section_name =
-            if path = [] && List.mem_assoc "minichap" n.node_tags then
+            if path = [] && minichap then
               (* Mini chapter. *)
               let marker = bB (fun _ -> [Marker (Structure path)]) in
               marker :: n.displayname
@@ -366,9 +367,14 @@ module Format (D:DocumentStructure) = struct
                         let minimal = max param.min_page_before 1 in
                         minimal + ((1 + max 0 (layout_page line) + minimal) mod 2)
                     in
-                    { param with left_margin = param.left_margin -. w
-                    ; min_lines_after ; min_page_before
-                    ; measure = param.measure +. w }
+                    let left_margin =
+                      if minichap then
+                        let w = param.measure -. line.nom_width in
+                        param.left_margin +. w /. 2.0
+                      else param.left_margin -. w
+                    in
+                    { param with left_margin ; min_lines_after
+                    ; min_page_before ; measure = param.measure +. w }
                   else param
                 else
                   let min_lines_after =
