@@ -1,3 +1,4 @@
+(* TODO résumé et abstract. *)
 Dans ce manuscrit nous proposons diverses extensions et modifications du
 système de types d'ordre supérieur des langages de la famille \sc{ml}. Notre
 point de départ est donc un langage en appel par valeurs avec effets de bord

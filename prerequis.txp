@@ -1,6 +1,7 @@
 \Caml(open Diagrams)
 \Include{Macros}
 
+(*
 Avant d'aborder la construction du modèle et de l'implémentation de notre
 nouveau langage, il est nécessaire de rappeler certains fondamentaux. On
 ne supposera ici aucune connaissance particulière dans les domaines de la
@@ -13,9 +14,16 @@ programmation semblable aux langages de la famille \sc{ml} (par exemple
 \sc{Caml} ou \sc{sml}). Comme tout langage \emph{fonctionnel}, sa syntaxe
 sera basée sur celle du $λ$-calcul. Il est donc naturel d'en faire notre
 point de départ.
+*)
 
-=> Le $λ$-calcul pur
+=> The pure $λ$-calculus
 
+Introduced by Alonzo Church in the Thirties, the $λ$-calculus is a
+formalism allowing the study of computable functions, and in particular
+reccursive functions.
+  (* TODO *)
+
+(*
 Introduit par Alonzo Church dans les années 1930, le $λ$-calcul est un
 formalisme permettant l'étude des fonctions calculables en général, et
 des fonctions récursives en particulier. En outre, Alan Turing montra en
@@ -114,6 +122,7 @@ En effet, il est clair que le choix du nom d'une variable liée n'a pas
 d'importance, de la même manière que l'on considère généralement les sommes
 $\sum_{i=1}^n i$ et $\sum_{j=1}^n j$ identiques bien que $i$ et $j$ soient
 deux noms différents.
+*)
 
 (*
 Pour former une fonction de deux argument (ou plus), il est nécessaire de la
@@ -126,51 +135,33 @@ En effet, le terme $(t) u$ correspondant au calcul de la «~fonction~» $t$ au
 (* TODO *)
 
 =<
-
-=> Types simples et interprétation BHK
-
-... (* TODO *)
-
-=<
-
-=> Le $λμ$-calcul et la logique classique 
+=> Krivine machine and $λμ$-calculus
 
 ... (* TODO *)
 
 =<
-
-=> Machine de Krivine
-
-... (* TODO *)
-
-=<
-
-=> Types simples et interprétation BHK
+=> Simple types and classical logic
 
 ... (* TODO *)
 
 =<
+=> On call-by-value and soundness
 
-=> Logique d'ordre supérieur
+... (* TODO *)
+
+=<
+=> Call-by-value realisability model
 
 ... (* TODO *)
 
 =<
-
-=> Sémantique et réalisabilité classique
+=> Sums and products
 
 ... (* TODO *)
 
-=> ...
-
-...
-
 =<
+=> Higher-order logic
 
-=> ...
-
-...
-
-=<
+... (* TODO *)
 
 =<

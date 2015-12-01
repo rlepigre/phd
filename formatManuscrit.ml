@@ -460,8 +460,6 @@ module Format (D:DocumentStructure) = struct
       go_up D.structure
   end
 
-
-
   let table_of_contents tree depth =
     let table_of_contents env =
       let margin  = env.size *. phi in
@@ -509,8 +507,8 @@ module Format (D:DocumentStructure) = struct
              let cont=
                (if numbered then List.map (RawContent.translate (-.w-.spacing) 0.)
                   (draw_boxes env num) else [])@
-                 (List.map (RawContent.translate 0. 0.) (draw_boxes env name))@
-                 List.map (RawContent.translate (w'+.spacing) 0.)
+                 (List.map (RawContent.translate (if numbered then 0. else -.w-.spacing) 0.) (draw_boxes env name))@
+                 List.map (RawContent.translate (w'+.(if numbered then spacing else -.w)) 0.)
                  (draw_boxes env (boxify_scoped (envItalic true env') [tT (string_of_int page)]))
              in
              let (a,b,c,d)=RawContent.bounding_box cont in

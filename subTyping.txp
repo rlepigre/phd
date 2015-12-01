@@ -1,22 +1,29 @@
-=> Sémantique du sous-typage
+=> Thinking modular
 
 ... (* TODO *)
 
 =<
-
-=> Règles adéquates de sous-typage
-
-... (* TODO *)
-
-=<
-
-=> Types réccursifs et point fixes
+=> Semantics of subtyping
 
 ... (* TODO *)
 
 =<
+=> Adequate subtyping rules
 
-=> Complétude et annotations
+... (* TODO *)
+
+=<
+=> Completeness and hints
+
+... (* TODO *)
+
+=<
+=> Reccursion and inductive types
+
+... (* TODO *)
+
+=<
+=> Termination and totality
 
 ... (* TODO *)
 

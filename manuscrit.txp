@@ -34,31 +34,31 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \tableOfContents()
 \end{minichap}
 
-=> Introduction
+=> Introduction \label("intro")
 \Include{Introduction}
 =<
 
-=> Prerequisites
+=> Higher-order classical \sc{ml} \label("hocml")
 \Include{Prerequis}
 =<
 
-=> Semantical Value restriction
+=> Proof programming system
+\Include{NewSystem}
+=<
+
+=> Semantical Value restriction \label("svr")
 \Include{SemValRestr}
 =<
 
-=> Equivalence of programs
-\Include{Equivalence}
-=<
-
-=> Subtyping and reccursive types
+=> Subtyping and reccursive types \label("subtyping")
 \Include{SubTyping}
 =<
 
-=> Implementing the system
+=> The system in practice \label("implementation")
 \Include{Implem}
 =<
 
-=> Perspectives and future work
+=> Perspectives and future work \label("future")
 \Include{Conclusion}
 =<
 
@@ -70,6 +70,6 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Resume}
 \end{minichap}
 
-\begin{minichap}{Abstract}
+(* TODO abstract on back cover. *)
+\pagesBefore(2)
 \Include{Abstract}
-\end{minichap}

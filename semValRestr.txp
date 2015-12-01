@@ -1,13 +1,51 @@
 \Caml(
   open ProofTree
   open Diagrams
-
-  let tval =
-    let t = Maths.glyphs "val" in
-    [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
 )
 \Include{Macros}
 
+=> Valuability condition
+
+... (* TODO *)
+
+=<
+=> From terms to values
+
+... (* TODO *)
+
+=<
+=> The new instruction trick
+
+... (* TODO *)
+
+=<
+=> Well-defined reduction and equivalence
+
+... (* TODO *)
+
+=<
+=> Extensionality of equivalence
+
+... (* TODO *)
+
+=<
+=> Adequacy, safety and consistency
+
+... (* TODO *)
+
+=<
+=> Partial axiomatisation of equivalence
+
+... (* TODO *)
+
+=<
+=> Derived type system
+
+... (* TODO *)
+
+=<
+
+(*
 Dans ce chapitre, je définis un modèle de réalisabilité par valeurs, dans le
 style de Krivine. Dans un tel model, chaque type $A$ est interprété par trois
 ensembles liés par orthogonalité~: un ensemble de valeurs $⟦A⟧$ appelé
@@ -1265,3 +1303,4 @@ contradiction.
 ... (* TODO *)
 
 =<
+*)

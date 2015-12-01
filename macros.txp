@@ -51,7 +51,6 @@ let make_theorem : string -> (module Env) = fun name ->
     end
   in (module Make_theorem( A ))
 
-
 module Env_def = (val make_theorem "Définition")
 module Env_rem = (val make_theorem "Remarque")
 module Env_lem = (val make_theorem "Lemme")
@@ -63,4 +62,11 @@ let remRef x = <<\generalRef("Remarque")(x)>>
 let lemRef x = <<\generalRef("Lemme")(x)>>
 let thmRef x = <<\generalRef("Théorème")(x)>>
 let corRef x = <<\generalRef("Corollaire")(x)>>
+
+let chapter l = (tT "chapter ") :: sectref l
+let mchapter l = (tT "Chapter ") :: sectref l
+
+let tval : Typography.Document.environment Typography.Maths.math list =
+  let t = Maths.glyphs "val" in
+  [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
 )

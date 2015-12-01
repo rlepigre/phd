@@ -1,40 +1,29 @@
-=> Graph et partage maximal
+=> Syntax-directed typing rules
 
 ... (* TODO *)
 
 =<
-
-=> Décision de l'équivalence des programmes
-
-... (* TODO *)
-
-=<
-
-=> Sous-typage
+=> Subtyping heuristics
 
 ... (* TODO *)
 
 =<
-
-=> DeCaP et syntaxe extensible
-
-... (* TODO *)
-
-=<
-
-=> Test de terminaison
+=> Equivalence decision procedure
 
 ... (* TODO *)
 
 =<
-
-=> Vue d'ensemble du système
+=> Examples of programs
 
 ... (* TODO *)
 
 =<
+=> Examples of proofs
 
-=> Exemples, expressivité et performance
+... (* TODO *)
+
+=<
+=> Module system
 
 ... (* TODO *)
 
