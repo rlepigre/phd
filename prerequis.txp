@@ -1,65 +1,54 @@
 \Caml(open Diagrams)
 \Include{Macros}
 
-(*
-Avant d'aborder la construction du modèle et de l'implémentation de notre
-nouveau langage, il est nécessaire de rappeler certains fondamentaux. On
-ne supposera ici aucune connaissance particulière dans les domaines de la
-théorie des types et de la réalisabilité. Les lecteurs avertis pourront
-donc se contenter de parcourir rapidement ce chapitre, voire même de
-l'ignorer.
-
-Dans ce manuscrit, on va s'intéresser à la création d'un nouveau langage de
-programmation semblable aux langages de la famille \sc{ml} (par exemple
-\sc{Caml} ou \sc{sml}). Comme tout langage \emph{fonctionnel}, sa syntaxe
-sera basée sur celle du $λ$-calcul. Il est donc naturel d'en faire notre
-point de départ.
-*)
+This chapter introduces the formalisms of type theory and classical
+realizability. These theories are used here to account for the syntax
+and the semantics of a functional programming language commonly known
+as \sc{ml}. Its type-system will be built upon in the following
+chapters to incorporate the author's original contributions.
 
 => The pure $λ$-calculus
 
-Introduced by Alonzo Church in the Thirties, the $λ$-calculus is a
-formalism allowing the study of computable functions, and in particular
-reccursive functions.
-  (* TODO *)
-
-(*
-Introduit par Alonzo Church dans les années 1930, le $λ$-calcul est un
-formalisme permettant l'étude des fonctions calculables en général, et
-des fonctions récursives en particulier. En outre, Alan Turing montra en
-1937 que le $λ$-calcul possède la même expressivité que les Machines de
-Turing. Le $λ$-calcul constitue donc un véritable langage de programmation
-dans lequel toutes les fonctions calculables peuvent être exprimées.
+In this thesis, we consider a programming language of the \sc{ml}
+family similar to \sc{Caml} or \sc{sml}. Like every other functional
+language, its syntax is base on the $λ$-calculus. Introduced by
+Alonzo Church in the Thirties, the $λ$-calculus \cite("Church41") is
+a formalism for representing computable functions, which include
+reccursive functions. In particular, Alan Turing showed in 1937 that
+the $λ$-calculus and turing machines are equivalent models of
+computation \cite("Turing37").
 
 \begin{def}
-On suppose donné un alphabet dénombrable $\cal{V}_λ = \{x,y,z, ...\}$ de
-variables. L'ensemble $Λ$ des termes du $λ$-calcul (ou $λ$-termes) est le
-plus petit ensemble contenant $\cal{V}_λ$ et tel que~:
+We suppose given a countable alphabet $\cal{V}_λ = \{x,y,z, ...\}$ of
+variables (also called $λ$-variables). The set of the terms of the
+$λ$-calculus (also called $λ$-terms) is the smallest set $Λ$ such that:
 \begin{itemize}
-\item si $x ∈ \cal{V}_λ$ et si $t ∈ Λ$ alors ${λx t} ∈ Λ$,
-\item si $t ∈ Λ$ et $u ∈ Λ$ alors ${(t) u} ∈ Λ$.
+\item if $x ∈ \cal{V}_λ$ then $x ∈ Λ$ (e.g. $\cal{V}_λ ⊆ Λ$),
+\item if $x ∈ \cal{V}_λ$ and $t ∈ Λ$ then ${λx t} ∈ Λ$,
+\item if $t ∈ Λ$ and $u ∈ Λ$ then ${(t) u} ∈ Λ$.
 \end{itemize}
+A term of the form $λx t$ is called a $λ$-abstractions (or simply
+abstractions).
 \end{def}
-De manière équivalente, on peut considérer la grammaire \sc{bnf} (forme de
-Backus-Naur)
+The set of the $λ$-terms can be defined, in an equivalent way, as
+the language recognised by the following \sc{bnf} grammar
+(Backus-Naur form).
 \begin{center}
-$ t,u ::= {x} \| {λx t} \| {(t) u}$
+$t,u ::= {x} \| {λx t} \| {(t) u}$
 \end{center}
-et définir $Λ$ comme l'ensemble des termes reconnus par cette dernière.
-La grammaire fait apparaître clairement le fait qu'un terme peut être soit
-une variable (aussi appelée $λ$-variable), soit une $λ$-abstraction (de la
-forme $λx t$), soit une application (de la forme $(t) u$). Dans la suite de
-ce manuscrit, on préfèrera l'utilisation de grammaires \sc{bnf} pour
-définir la syntaxe d'un langage, du fait de leur concision et de leur clarté.
+This method has the advantage of exposing the structure of terms in an
+explicit way. Indeed, a term of the $λ$-calculus is either a
+$λ$-variable, a $λ$-abstraction or an application (i.e. a term of the
+form $(t) u$).
 
-Intuitivement, une $λ$-abstraction $λx t$ forme une fonction en liant la
-variable $x$ dans le terme $t$, ce que l'on note usuellement $x |-> t$. La
-notion de variable liée, et la notion associée de variable libre, jouent
-donc un rôle important.
+Intuitively, a $λ$-abstraction $λx t$ forms a fonction binding the
+variable $x$ in the term $t$. This is more usually denoted $x |-> t$.
+Variable binding and the associated notion of free variable hence play
+an important role.
 \begin{def}
-Étant donné un terme $t$, on note $FV_λ(t)$ l'ensemble de ses $λ$-variables
-libres et $BV_λ(t)$ l'ensemble de ses $λ$-variables liées. Ces ensembles
-sont définis par induction sur la structure du terme $t$.
+Given a term $t$, we denote by $FV_λ(t)$ the set of its free
+$λ$-variables and $BV_λ(t)$ the set of its bound $λ$-variables. These
+sets are defined inductively on the structure of $t$.
 \begin{center}
 \diagram(
 let contents = two_cols
@@ -68,27 +57,28 @@ let contents = two_cols
  ; [<$ FV_λ((t) u) $>; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $>       ]
  ; [<$ BV_λ(x) $>    ; <$ = $>; <$ ∅ $>                       ]
  ; [<$ BV_λ(λx t) $> ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $>         ]
- ; [<$ BV_λ((t) u) $>; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $>       ]
- ]
-let _ =
-  array [`East; `Main; `West; `East; `Main; `West] contents
-    ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+ ; [<$ BV_λ((t) u) $>; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $>       ] ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
 )
 \end{center}
 \end{def}
 \begin{rem}
-Rien n'empêche une $λ$-variable d'être à la fois libre et liée dans un
-terme. Dans $t = λx (y) λy (x) y$, la première occurrence de $y$ est libre,
-alors que la seconde est liée. On a en effet $y ∈ FV_λ(t) = \{y\}$ et
+Nothing prevents a $λ$-variable to be bound and free in a term. In
+$t = λx (y) λy (x) y$, the first occurence of $y$ is free while its
+second occurence is bound. Indeed, $y ∈ FV_λ(t) = \{y\}$ and
 $y ∈ BV_λ(t) = \{x, y\}$.
 \end{rem}
-Lorsqu'une fonction, c'est à dire une $λ$-abstraction est appliquée à un
-argument, on obtient un terme de la forme $(λx t) u$ qu'on appelle un
-$β$-rédex. La réduction de tels $β$-rédex constitue l'essence du calcul,
-c'est à dire de l'évaluation des termes du $λ$-calcul. Intuitivement, la
-réduction du $β$-rédex $(λx t) u$ s'effectuera en remplacent $x$ par $u$
-dans $t$. Cette opération, appelée substitution, est définie formellement
-comme suit.
+
+When a $λ$-abstraction (i.e. a function) is applied to an argument, we
+obtain a term of the form $(λx t) u$, called a $β$-redex. The reduction
+of such $β$-redexes is essential for computation. Intuitively, the
+réduction of the $β$-redex $(λx t) u$ will be performed by substituting
+$x$ by $u$ in the term $t$. This operation, called substitution, is
+formally defined as follows.
+(* TODO *)
+
+(*
 \begin{def}
 Soit $t ∈ Λ$ et $u ∈ Λ$ deux termes, et $x ∈ \cal{V}_λ$ une $λ$-variable.
 On dénote $t[x := u]$ le terme $t$ dans lequel toute occurrence libre de

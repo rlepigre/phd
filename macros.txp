@@ -51,17 +51,17 @@ let make_theorem : string -> (module Env) = fun name ->
     end
   in (module Make_theorem( A ))
 
-module Env_def = (val make_theorem "Définition")
-module Env_rem = (val make_theorem "Remarque")
-module Env_lem = (val make_theorem "Lemme")
-module Env_thm = (val make_theorem "Théorème")
-module Env_cor = (val make_theorem "Corollaire")
+module Env_def = (val make_theorem "Definition")
+module Env_rem = (val make_theorem "Remark")
+module Env_lem = (val make_theorem "Lemma")
+module Env_thm = (val make_theorem "Theorem")
+module Env_cor = (val make_theorem "Corollary")
 
-let defRef x = <<\generalRef("Définition")(x)>>
-let remRef x = <<\generalRef("Remarque")(x)>>
-let lemRef x = <<\generalRef("Lemme")(x)>>
-let thmRef x = <<\generalRef("Théorème")(x)>>
-let corRef x = <<\generalRef("Corollaire")(x)>>
+let defRef x = <<\generalRef("Definition")(x)>>
+let remRef x = <<\generalRef("Remark")(x)>>
+let lemRef x = <<\generalRef("Lemma")(x)>>
+let thmRef x = <<\generalRef("Theorem")(x)>>
+let corRef x = <<\generalRef("Corollary")(x)>>
 
 let chapter l = (tT "chapter ") :: sectref l
 let mchapter l = (tT "Chapter ") :: sectref l
@@ -69,4 +69,34 @@ let mchapter l = (tT "Chapter ") :: sectref l
 let tval : Typography.Document.environment Typography.Maths.math list =
   let t = Maths.glyphs "val" in
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
+
+let bibliography =
+  [ ( "Church41"
+    , ( "Alonzo Church"
+      , "The Calculi of Lambda-Conversion"
+      , "Princeton University Press"
+      , "1941" ) )
+
+  ; ( "Turing37"
+    , ( "Alan Turing"
+      , "Computability and λ-Definability"
+      , "Journal of Symbolic Logic"
+      , "1937" ) )
+  ]
+
+let mcite : string list -> content list = fun l ->
+  let check k =
+    if not (List.mem_assoc k bibliography) then
+      Printf.eprintf "BIBLIO ==> Unknown citation [%s]\n%!" k
+  in
+  List.iter check l;
+  let l = List.map (fun k -> emph [tT k]) l in
+  let rec generate = function
+    | []    -> invalid_arg "mcite"
+    | [k]   -> k
+    | k::ks -> k @ [tT ", "] @ generate ks
+  in
+  [tT "["] @ generate l @ [tT "]"]
+
+let cite : string -> content list = fun k -> mcite [k]
 )
