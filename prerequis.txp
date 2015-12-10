@@ -13,42 +13,57 @@ In this thesis, we consider a programming language of the \sc{ml}
 family similar to \sc{Caml} or \sc{sml}. Like every other functional
 language, its syntax is base on the $λ$-calculus. Introduced by
 Alonzo Church in the Thirties, the $λ$-calculus \cite("Church41") is
-a formalism for representing computable functions, which include
-reccursive functions. In particular, Alan Turing showed in 1937 that
-the $λ$-calculus and turing machines are equivalent models of
-computation \cite("Turing37").
+a formalism for representing computable functions, and in particular
+reccursive functions. Alan Turing showed in 1937 that the $λ$-calculus
+and turing machines are equivalent models of computation \cite("Turing37").
 
-\begin{def}
-We suppose given a countable alphabet $\cal{V}_λ = \{x,y,z, ...\}$ of
-variables (also called $λ$-variables). The set of the terms of the
-$λ$-calculus (also called $λ$-terms) is the smallest set $Λ$ such that:
+(* The language of λ-terms. *)
+\begin{def}\label("deflambda")
+The terms of the $λ$-calculus (or $λ$-terms) are built from a countable
+alphabet of variables (or $λ$-variables) denoted $\cal{V}_λ=\{x,y,z,...\}$.
+The set of all the $λ$-terms is denoted $Λ$ and is defined as the smallest
+set such that:
 \begin{itemize}
-\item if $x ∈ \cal{V}_λ$ then $x ∈ Λ$ (e.g. $\cal{V}_λ ⊆ Λ$),
+\item if $x ∈ \cal{V}_λ$ then $x ∈ Λ$ (i.e. $\cal{V}_λ ⊆ Λ$),
 \item if $x ∈ \cal{V}_λ$ and $t ∈ Λ$ then ${λx t} ∈ Λ$,
 \item if $t ∈ Λ$ and $u ∈ Λ$ then ${(t) u} ∈ Λ$.
 \end{itemize}
-A term of the form $λx t$ is called a $λ$-abstractions (or simply
-abstractions).
+A term of the form $λx t$ is called an abstraction (or $λ$-abstractions)
+and a term of the form $(t) u$ is called an application.
 \end{def}
-The set of the $λ$-terms can be defined, in an equivalent way, as
-the language recognised by the following \sc{bnf} grammar
-(Backus-Naur form).
-\begin{center}
-$t,u ::= {x} \| {λx t} \| {(t) u}$
-\end{center}
-This method has the advantage of exposing the structure of terms in an
-explicit way. Indeed, a term of the $λ$-calculus is either a
-$λ$-variable, a $λ$-abstraction or an application (i.e. a term of the
-form $(t) u$).
+Intuitively, a $λ$-abstraction $λx t$ forms a fonction by binding the
+variable $x$ in the term $t$. This would be denoted $x |-> t$ in common
+mathematics. Similarly, a term of the form $(t) u$ denotes the application
+of (the function) $t$ to (the argument) $u$. This would be denoted $t(u)$
+in common mathematics. 
+\begin{rem}
+The notation $(t) u$ is not very common, even in the type theory community.
+It is known as Krivine's notation and has the advantage of being simple and
+unambiguous. In particular, no additional parenthesis are required. In the
+most usual notations, parenthesis are not enforced anywhere and are only
+added for disambiguation.
+\end{rem}
+The of all the $λ$-terms from \defRef("deflambda") can also be defined using
+a Backus-Naur Form (\sc{bnf}) grammar. This method has the advantage of
+being very concise while exposing the structure of terms in an explicit way.
+\begin{def}\label("lambdabnf")
+The set of all the $λ$-terms $Λ$ is defined as the language recognised by
+the following \sc{bnf} grammar.
+$$t,u ::= {x} \| {λx t} \| {(t) u} \hspace(4.0) x ∈ \cal{V}_λ$$
+\end{def}
+It is clear, from this definition, that a term of the $λ$-calculus is
+either a $λ$-variable, a $λ$-abstraction or an application.
 
-Intuitively, a $λ$-abstraction $λx t$ forms a fonction binding the
-variable $x$ in the term $t$. This is more usually denoted $x |-> t$.
-Variable binding and the associated notion of free variable hence play
-an important role.
+(* Free variables and bound variables. *)
+Although this is not reflected explicitely in the syntax, $λ$-variables may
+play two very different roles in $λ$-terms. They can be used either as
+constants, like $y$ in the constant function $λx y$, or as references to
+a binders, like $x$ in the identity function $λx x$. Variable binding and
+the associated notions of free and bound variable are hence essential.
 \begin{def}
-Given a term $t$, we denote by $FV_λ(t)$ the set of its free
-$λ$-variables and $BV_λ(t)$ the set of its bound $λ$-variables. These
-sets are defined inductively on the structure of $t$.
+Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
+and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
+inductively on the structure of $t$.
 \begin{center}
 \diagram(
 let contents = two_cols
@@ -64,26 +79,24 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 \end{center}
 \end{def}
 \begin{rem}
-Nothing prevents a $λ$-variable to be bound and free in a term. In
-$t = λx (y) λy (x) y$, the first occurence of $y$ is free while its
-second occurence is bound. Indeed, $y ∈ FV_λ(t) = \{y\}$ and
+Nothing prevents a $λ$-variable to be both bound and free in a term. For
+example, in $t = λx (y) λy (x) y$ the first occurence of $y$ is free while
+its second occurence is bound. Indeed, we have $y ∈ FV_λ(t) = \{y\}$ and
 $y ∈ BV_λ(t) = \{x, y\}$.
 \end{rem}
 
+(* Substitution and β-reduction. *)
 When a $λ$-abstraction (i.e. a function) is applied to an argument, we
 obtain a term of the form $(λx t) u$, called a $β$-redex. The reduction
-of such $β$-redexes is essential for computation. Intuitively, the
-réduction of the $β$-redex $(λx t) u$ will be performed by substituting
-$x$ by $u$ in the term $t$. This operation, called substitution, is
-formally defined as follows.
-(* TODO *)
-
-(*
+of such $β$-redexes plays an essential role in computation. Intuitively,
+the reduction of the $β$-redex $(λx t) u$ will be performed by replacing
+every occurence of the bound variable $x$ by $u$ in the term $t$. This
+operation, called substitution, is formally defined as follows.
 \begin{def}
-Soit $t ∈ Λ$ et $u ∈ Λ$ deux termes, et $x ∈ \cal{V}_λ$ une $λ$-variable.
-On dénote $t[x := u]$ le terme $t$ dans lequel toute occurrence libre de
-$x$ a été remplacée par $u$. Cette opération est définie par induction sur
-la structure du terme $t$.
+Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
+$λ$-variable. We denote $t[x := u]$ the term $t$ in which every free
+occurence of $x$ has been replaced by $u$. This operation is defined
+inductively on the structure of $t$.
 \begin{center}
 \diagram(
 let contents = two_cols
@@ -99,20 +112,39 @@ let _ =
 )
 \end{center}
 \end{def}
-Une subtilité subsiste au niveau de la notion de substitution~: la capture.
-Considérons par exemple le terme $t = λx λy x$ correspondant à une fonction
-avec un argument $x$, et retournant une fonction constante de valeur $x$.
-Appliquons maintenant la substitution $[x := y]$ à $t$. Par cette opération,
-on obtient le terme $λy y$ qui n'est plus une fonction constante, mais la
-fonction identité. Pour remédier à ce problème, il convient de s'assurer
-lors d'une substitution $t[x := u]$ qu'aucune variable libre de $u$ n'est
-liée dans $t$. Bien qu'on ne puisse pas renommer les variables libres de
-$u$, il est tout à fait possible de renommer les variables liées de $t$.
-En effet, il est clair que le choix du nom d'une variable liée n'a pas
-d'importance, de la même manière que l'on considère généralement les sommes
-$\sum_{i=1}^n i$ et $\sum_{j=1}^n j$ identiques bien que $i$ et $j$ soient
-deux noms différents.
+
+
+In fact, only occurences of $x$ that are not
+bound by a $λ$-abstraction in $t$ need to be replaced.
+
+
+
+
+
+
+(* beta + substitution and capture *)
+
+
+
+(*
+\begin{rem}
+Substitution is a subtle notion, and care should be taken to avoir capture
+of variables. For example, let us consider the term $t = λx λy x$, which
+corresponds to a function taking an argument $x$ and returning a constant
+function with value $x$. If we now apply the substitution $[x := y]$ to $t$,
+the resulting terms will be $λy y$, which is not a constant function but
+the identity function. To solve this problem, we need to make sure that
+wheneve we perform a substitution $t[x := u]$, no free variable of $u$ is
+bound in $t$ (that is $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename
+free variables of $u$, it is possible to rename the bould variable of $t$.
+Indeed, the choice of the name of a bound variable has no effect on the
+meaning of a term. For example, the sums $\sum_{i=1}^n i$ et $\sum_{j=1}^n j$
+are considered identical despites the fact that $i$ and $j$ have different
+names.
+\end{rem}
 *)
+(* TODO *)
+
 
 (*
 Pour former une fonction de deux argument (ou plus), il est nécessaire de la
@@ -125,7 +157,9 @@ En effet, le terme $(t) u$ correspondant au calcul de la «~fonction~» $t$ au
 (* TODO *)
 
 =<
-=> Krivine machine and $λμ$-calculus
+=> Call-by-value Krivine machine
+
+In this section, we 
 
 ... (* TODO *)
 

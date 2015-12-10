@@ -57,11 +57,11 @@ module Env_lem = (val make_theorem "Lemma")
 module Env_thm = (val make_theorem "Theorem")
 module Env_cor = (val make_theorem "Corollary")
 
-let defRef x = <<\generalRef("Definition")(x)>>
-let remRef x = <<\generalRef("Remark")(x)>>
-let lemRef x = <<\generalRef("Lemma")(x)>>
-let thmRef x = <<\generalRef("Theorem")(x)>>
-let corRef x = <<\generalRef("Corollary")(x)>>
+let defRef x = <<definition \generalRef("Definition")(x)>>
+let remRef x = <<remark \generalRef("Remark")(x)>>
+let lemRef x = <<lemma \generalRef("Lemma")(x)>>
+let thmRef x = <<theorem \generalRef("Theorem")(x)>>
+let corRef x = <<corollary \generalRef("Corollary")(x)>>
 
 let chapter l = (tT "chapter ") :: sectref l
 let mchapter l = (tT "Chapter ") :: sectref l
@@ -100,3 +100,5 @@ let mcite : string list -> content list = fun l ->
 
 let cite : string -> content list = fun k -> mcite [k]
 )
+
+
