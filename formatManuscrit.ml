@@ -218,6 +218,8 @@ let skip x=bB (fun env->let w=env.size*.x in [glue w w w])
 module Format (D:DocumentStructure) = struct
   module Default = DefaultFormat.Format(D)
 
+  let parameters = Default.parameters
+
   (* Secial page. *)
   let special_page pages_after contents =
     let param a b c d e f g line =

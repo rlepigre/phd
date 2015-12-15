@@ -42,7 +42,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Prerequis}
 =<
 
-=> Proof programming system
+=> Proof programming system \label("pml")
 \Include{NewSystem}
 =<
 

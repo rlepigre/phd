@@ -1,9 +1,11 @@
 \Include{Macros}
 
-The aim of this work is to provide a uniform environment in which programs
-can be designed and proved. The idea is to combine a practical programming
-language, with an enriched type-system allowing the specification of
-computational behaviours.
+The aim of this thesis work is to provide a uniform environment in which
+programs can be designed and proved. The idea is to combine a practical
+programming language with an enriched type-system allowing the specification
+of computational behaviours. In the system, proofs are built as programs,
+and they can hence be composed as programs. This allows for the design of
+proof tactics.
 
 => Historical considerations
 
@@ -33,27 +35,23 @@ computational behaviours.
 => Thesis overview
 
 The type-system of our new language is build incrementally throughout this
-thesis. The starting point is a standard higher-order system known as
-\sc{hol}. It is enriched here with product types (corresponding to \sc{ml}
-records) and sum types (corresponding to \sc{ml} constructors). This system
-is formally constructed in \chapter("hocml"), following a general
-introduction to the concepts and formalisms of type theory and classical
-realisability. Readers familiar with these theories may jump directly to
-\chapter("svr"), which marks the start of the author's original contribution.
+thesis. Our starting point is a higher-order language enriched with product
+types (corresponding to \sc{ml} records), sum types (corresponding to
+\sc{ml} polymorphic variants) and control operators. This system is formally
+constructed in \chapter("hocml"), following a general introduction to the
+concepts and formalisms of type theory and classical realisability. It is
+then enriched, in \chapter("pml"), with new types allowing the
+specification of program equivalences. In particular, the system is extended
+with a dependent product type. However, the expressivity of this dependent
+product type is limited due to value restriction. A solution to this
+problem is proposed in \chapter("svr"), and value restriction is relaxed.
+A realizability model is then constructed to show the soundness of this new
+approach. In particular, the property that the biorthogonal completion of
+a set of value is closed for values is required.
 
-\mchapter("svr") establishes the 
 
 (*
 (* TODO *)
-Le chapitre 2 constitue la partie centrale de ce travail de thèse. En
-particulier il contient la définition formèle de notre langage avec sa
-sémantique opérationnelle et la notion d'équivalence observationnelle
-correspondante. En utilisant l'équivalence, une alternative à la «~value
-restriction~» est proposée, ce qui permet d'obtenir un produit dépendant
-utilisable directement. Une alternative pourrait être d'avoir recours à
-des sucres syntaxiques invasifs qui pourraient poser un problème de
-clareté sémantique pour l'utilisateur.
-
 Le chapitre 3 se concentre sur les aspects pratiques de l'équivalence. En
 effet, la notion sémantique d'équivalence ne peut pas être utilisée pour
 une implémentation et ne peut donc pas être appliquée en pratique. Pour

@@ -1,9 +1,11 @@
+FLAG=
+
 all: manuscrit.pdf
 
 TXPS=$(wildcard *.txp)
 
 manuscrit.pdf: $(TXPS) formatManuscrit.ml
-	patoline manuscrit.txp
+	patoline $(FLAG) manuscrit.txp
 
 clean:
 	rm -rf *~ _patobuild

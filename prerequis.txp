@@ -53,12 +53,20 @@ $$t,u ::= {x} \| {λx t} \| {(t) u} \hspace(4.0) x ∈ \cal{V}_λ$$
 \end{def}
 It is clear, from this definition, that a term of the $λ$-calculus is
 either a $λ$-variable, a $λ$-abstraction or an application.
+\begin{rem}
+The syntax of the $λ$-calculus only allows for one-place functions. To form
+a function of two arguments (or more) one must rely on Curryfication.
+Indeed, a function of two arguments can be seen as a function of one
+argument returning a function. Following this scheme, the multiple arguments
+of the function are given in turn, and not simultaneously. As an example,
+the function $(x,y) |-> x$ can be encoded as $λx λy x$ in the $λ$-calculus.
+\end{rem}
 
 (* Free variables and bound variables. *)
-Although this is not reflected explicitely in the syntax, $λ$-variables may
-play two very different roles in $λ$-terms. They can be used either as
-constants, like $y$ in the constant function $λx y$, or as references to
-a binders, like $x$ in the identity function $λx x$. Variable binding and
+Although this is not reflected explicitely in the syntax of $λ$-terms,
+a $λ$-variable may play two very different roles. It can be used either as
+a constants, like $y$ in the constant function $λx y$, or as a reference to
+a binder, like $x$ in the identity function $λx x$. Variable binding and
 the associated notions of free and bound variable are hence essential.
 \begin{def}
 Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
@@ -112,22 +120,6 @@ let _ =
 )
 \end{center}
 \end{def}
-
-
-In fact, only occurences of $x$ that are not
-bound by a $λ$-abstraction in $t$ need to be replaced.
-
-
-
-
-
-
-(* beta + substitution and capture *)
-
-
-
-(*
-\begin{rem}
 Substitution is a subtle notion, and care should be taken to avoir capture
 of variables. For example, let us consider the term $t = λx λy x$, which
 corresponds to a function taking an argument $x$ and returning a constant
@@ -138,28 +130,14 @@ wheneve we perform a substitution $t[x := u]$, no free variable of $u$ is
 bound in $t$ (that is $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename
 free variables of $u$, it is possible to rename the bould variable of $t$.
 Indeed, the choice of the name of a bound variable has no effect on the
-meaning of a term. For example, the sums $\sum_{i=1}^n i$ et $\sum_{j=1}^n j$
-are considered identical despites the fact that $i$ and $j$ have different
-names.
-\end{rem}
-*)
-(* TODO *)
-
-
-(*
-Pour former une fonction de deux argument (ou plus), il est nécessaire de la
-Curryfier~: les arguments de la fonction sont donnés l'un après l'autre et
-non simultanément.
-En effet, le terme $(t) u$ correspondant au calcul de la «~fonction~» $t$ au
-«~point~» $u$ (qui est en général noté $t(u)$) ...
-*)
-
-(* TODO *)
+meaning of a term.
+(* FIXME α-equivalence ? Passage par des arbres ? *)
 
 =<
-=> Call-by-value Krivine machine
+=> Call-by-value Krivine machine and effects
 
-In this section, we 
+In the previous section, the syntax of the $λ$-calculus was explicited. We
+will now introduce the notion of reduction using an abstract machine.
 
 ... (* TODO *)
 
@@ -169,12 +147,7 @@ In this section, we
 ... (* TODO *)
 
 =<
-=> On call-by-value and soundness
-
-... (* TODO *)
-
-=<
-=> Call-by-value realisability model
+=> Soundness of polymorphism in call-by-value
 
 ... (* TODO *)
 
@@ -189,3 +162,9 @@ In this section, we
 ... (* TODO *)
 
 =<
+=> Call-by-value realisability model
+
+... (* TODO *)
+
+=<
+
