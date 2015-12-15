@@ -31,7 +31,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \end{minichap}
 
 \begin{minichap}{Table of contents / Table des matières}
-\tableOfContents()
+\tableOfContents
 \end{minichap}
 
 => Introduction \label("intro")

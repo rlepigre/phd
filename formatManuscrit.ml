@@ -219,6 +219,8 @@ module Format (D:DocumentStructure) = struct
   module Default = DefaultFormat.Format(D)
 
   let parameters = Default.parameters
+  module Make_theorem = Default.Make_theorem
+  module Env_itemize = Default.Env_itemize
 
   (* Secial page. *)
   let special_page pages_after contents =

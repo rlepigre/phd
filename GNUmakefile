@@ -1,4 +1,4 @@
-FLAG=
+FLAG=--new-parser
 
 all: manuscrit.pdf
 
