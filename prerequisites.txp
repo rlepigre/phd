@@ -1,0 +1,36 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+This chapter introduces the formalisms of type theory and classical
+realizability. These theories are used here to account for the syntax
+and the semantics of a functional programming language similar to
+\sc{ml}. Its type-system will be built upon in the following chapters
+to incorporate the author's original contributions.
+
+=> The pure $λ$-calculus
+\Include{Purelambda}
+=<
+
+=> Call-by-value Krivine machine and effects
+\Include{Cbvkam}
+=<
+
+=> Simple types and classical logic
+... (* TODO *)
+=<
+
+=> Soundness of polymorphism in call-by-value
+... (* TODO *)
+=<
+
+=> Sums and products
+... (* TODO *)
+=<
+
+=> Higher-order logic
+... (* TODO *)
+=<
+
+=> Call-by-value realisability model
+... (* TODO *)
+=<

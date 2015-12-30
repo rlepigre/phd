@@ -1,0 +1,238 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+In this thesis, we consider a programming language of the \sc{ml}
+family similar to \sc{Caml} or \sc{sml}. Like every other functional
+language, its syntax is base on the $λ$-calculus. Introduced by
+Alonzo Church in the Thirties, the $λ$-calculus \cite("Church41") is
+a formalism for representing computable functions, and in particular
+reccursive functions. Alan Turing showed in 1937 that the $λ$-calculus
+and turing machines are equivalent models of computation \cite("Turing37").
+
+(* The language of λ-terms. *)
+\begin{def}\label("deflambda")
+The terms of the $λ$-calculus (or $λ$-terms) are built from a countable
+alphabet of variables (or $λ$-variables) denoted $\cal{V}_λ=\{x,y,z,...\}$.
+The set of all the $λ$-terms is denoted $Λ$ and is defined as the smallest
+set such that:
+\begin{itemize}
+\item if $x ∈ \cal{V}_λ$ then $x ∈ Λ$ (i.e. $\cal{V}_λ ⊆ Λ$),
+\item if $x ∈ \cal{V}_λ$ and $t ∈ Λ$ then ${λx t} ∈ Λ$,
+\item if $t ∈ Λ$ and $u ∈ Λ$ then ${(t) u} ∈ Λ$.
+\end{itemize}
+A term of the form $λx t$ is called an abstraction (or $λ$-abstractions)
+and a term of the form $(t) u$ is called an application.
+\end{def}
+Intuitively, a $λ$-abstraction $λx t$ forms a fonction by binding the
+variable $x$ in the term $t$. This would be denoted $x |-> t$ in common
+mathematics. Similarly, a term of the form $(t) u$ denotes the application
+of (the function) $t$ to (the argument) $u$. This would be denoted $t(u)$
+in common mathematics. 
+\begin{rem}
+The notation $(t) u$ is  known as Krivine's notation and has the advantage
+of being simple and unambiguous. In particular, no additional parenthesis
+are required. In the usual presentation of the $λ$-calculus, parenthesis
+are not enforced anywhere and are only added for disambiguation.
+\end{rem}
+The set of all the $λ$-terms from \defRef("deflambda") can be equivalently
+defined using a Backus-Naur Form (\sc{bnf}) grammar. This method has the
+advantage of being very concise while exposing the structure of terms in
+an explicit way.
+\begin{def}\label("lambdabnf")
+The set of all the $λ$-terms $Λ$ is defined as the language recognised by
+the following \sc{bnf} grammar.
+$$t,u ::= {x} \| {λx t} \| {(t) u} \hspace(4.0) x ∈ \cal{V}_λ$$
+\end{def}
+It is clear, from this definition, that a term of the $λ$-calculus is
+either a $λ$-variable, a $λ$-abstraction or an application.
+\begin{rem}
+The syntax of the $λ$-calculus only allows for one-place functions. To form
+a function of two arguments (or more) one must rely on Curryfication.
+Indeed, a function of two arguments can be seen as a function of one
+argument returning a function. Following this scheme, the multiple arguments
+of the function are given in turn, and not simultaneously. As an example,
+the function $(x,y) |-> x$ can be encoded as $λx λy x$ in the $λ$-calculus.
+\end{rem}
+
+(* Free variables and bound variables. *)
+Although this is not reflected explicitely in the syntax of $λ$-terms,
+a $λ$-variable may play two very different roles. It can be used either as
+a constants, like $y$ in the constant function $λx y$, or as a reference to
+a binder, like $x$ in the identity function $λx x$. Variable binding and
+the associated notions of free and bound variable are hence essential.
+\begin{def}
+Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
+and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
+inductively on the structure of $t$.
+\begin{center}
+\diagram(
+let contents = two_cols
+ [ [<$ FV_λ(x) $>    ; <$ = $>; <$ \{x\} $>                   ]
+ ; [<$ FV_λ(λx t) $> ; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
+ ; [<$ FV_λ((t) u) $>; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $>       ]
+ ; [<$ BV_λ(x) $>    ; <$ = $>; <$ ∅ $>                       ]
+ ; [<$ BV_λ(λx t) $> ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $>         ]
+ ; [<$ BV_λ((t) u) $>; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $>       ] ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\end{def}
+\begin{rem}
+Nothing prevents a $λ$-variable to be both bound and free in a term. For
+example, in $t = λx (y) λy (x) y$ the first occurrence of $y$ is free while
+its second occurrence is bound. Indeed, we have $y ∈ FV_λ(t) = \{y\}$ and
+$y ∈ BV_λ(t) = \{x, y\}$.
+\end{rem}
+
+(* Substitution, α-equivalence and β-reduction. *)
+When a $λ$-abstraction (i.e. a function) is applied to an argument, we
+obtain a term of the form $(λx t) u$, called a $β$-redex. The reduction
+of such $β$-redexes plays an essential role in computation. Intuitively,
+the reduction of the $β$-redex $(λx t) u$ will be performed by replacing
+every occurence of the bound variable $x$ by $u$ in the term $t$. This
+operation, called substitution, is formally defined as follows.
+\begin{def}
+Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
+$λ$-variable. We denote $t[x ← u]$ the term $t$ in which every free
+occurrence of $x$ has been replaced by $u$. This operation is defined
+inductively on the structure of $t$.
+\begin{center}
+\diagram(
+let contents = two_cols
+ [ [<$ x[x ← u] $>        ; <$ = $>; <$ u $>                     ]
+ ; [<$ y[x ← u] $>        ; <$ = $>; <$ y $>                     ]
+ ; [<$ (λx t)[x ← u] $>   ; <$ = $>; <$ λx t $>                  ]
+ ; [<$ (λy t)[x ← u] $>   ; <$ = $>; <$ λy t[x ← u] $>           ]
+ ; [<$ ((t₁) t₂)[x ← u] $>; <$ = $>; <$ (t₁[x ← u]) t₂[x ← u] $> ]
+ ]
+let _ =
+  array [`East; `Main; `West; `East; `Main; `West] contents
+    ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\end{def}
+Substitution is a subtle notion, and care should be taken to avoir capture
+of variables. For example, let us consider the function $λx λy x$ which
+takes an argument $x$ and returns a constant function with value $x$. If we
+apply this function to the constant $y$, the expected result is a constant
+function with value $y$. However, if we blindly substitute $x$ with $y$ in
+$λy x$ we obtain a constant function $λy y$. Indeed, the free variable $y$
+has been captured and now references a binder that had (coincidentally)
+the same name.
+
+To solve this problem, we need to make sure that whenever a substitution
+$t[x ← u]$ is performed, no free variable of $u$ is bound in $t$ (i.e.
+$FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables of
+$u$, it is possible to rename the bould variable of $t$. Indeed, changing
+the name of a bound variable has no effect on the meaning of a term. Two
+terms that are equivalent up to the names of the bound variables are said
+to be $α$-equivalent.
+\begin{def}
+The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
+\cite("Krivine90"), as the smallest relation such that:
+\begin{itemize}
+\item if $x ∈ \cal{V}_λ$ then $x ≡_α x$,
+\item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then ${(t₁) u₁} ≡_α {(t₂) u₂}$,
+\item if ${t₁[x₁ ← y]} \nequiv_α {t₂[x₂ ← y]}$ for only finitely many
+      $y ∈ \cal{V}_λ$ then ${λx₁ t₁} ≡_α {λx₂ t₂}$.
+\end{itemize}
+\end{def}
+\begin{lem}\label("alphalem")
+Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
+always possible to find a term $t' \in Λ$ such that $t' ≡_α t$ and
+$BV_λ(t') ∩ V = ∅$.
+\begin{proof}
+A full proof is available in \cite("Krivine90"), Lemma 1.11.
+\end{proof}
+\end{lem}
+\begin{def}
+Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
+$λ$-variable. We denote $t[x := u]$ the capture-avoiding substitution of
+$x$ by $u$ in the term $t$. It is defined as $t'[x ← u]$ where $t' ∈ Λ$ is
+a term such that $t' ≡_α t$ and $BV_λ(t') ∩ FV(u) = ∅$. Such a term exists
+according to \lemRef("alphalem").
+\end{def}
+
+In order to define the most general notion of reduction over $λ$-terms, we
+need to be able to refer to any $β$-redex in a term. To this aim, we
+introduce the notion of evaluation context. Intuitively, a context will
+consist in a term with a hole (i.e. a place-holder for a subterm).
+Intuitively, this will allow us to quantify over subterms of a term.
+\begin{def}
+An evaluation context $E$ is a term with a hole. Given a term $t ∈ Λ$, we
+denote $E[t]$ the term formed by puting $t$ into the hole of the evaluation
+context $E$. Evaluation contexts are formed according to the following
+\sc{bnf} grammar.
+$$ E ::= [{\wc}] \| {λx E} \| {(E) u} \| {(t) E} $$
+\end{def}
+\begin{def}\label("generalbeta")
+The general $β$-reduction relation is defined as the smallest relation
+$({→}_β)$ such that for every evaluation context $E$, for every terms
+$t ∈ Λ$ and $u ∈ Λ$, and for every variable $x ∈ \cal{V}_λ$ we have the
+following.
+$$ {E[(λx t) u]} →_β {E[t[x := u]]}$$
+We say that the term $t ∈ Λ$ is in $β$-normal-form if there is no $u ∈ Λ$
+such that $t →_β u$. We denote $({→}_β^{∗})$ the reflexive, transitive
+closure of $({→}_β)$.
+\end{def}
+The general $β$-reduction relation $({→}_β)$ is non-deterministic. Indeed,
+given a term $t$, there might be two (different) terms $u₁$ and $u₂$ such
+that $t →_β u₁$ and $t →_β u₂$. However, $({→}_β)$ has the Church-Rosser
+property (a.k.a. diamond property or confluence), hence there must be
+$u ∈ Λ$ such that ${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$. In the next
+section, the language will be enriched with operations generating
+side-effects. As a consequence, the confluence of the calculus will be lost
+and we will need to pick an evaluation order.
+
+The two most widely used evaluation strategies are call-by-name and
+call-by-value. They both reduce outermost $β$-redex first, which means
+that they can be formalised without the use of evaluation contexts. In
+call-by-name, the terms that are in function position are reduced first.
+The computation of the terms that are in argument position is postponed
+to the time of their effective use. In call-by-value, the arguments are
+evaluated first, before performing the application.
+\begin{def}
+The call-by-name reduction relation $({→}_N) ⊆ Λ×Λ$ is the smallest relation
+satisfying the following two rules.
+$$
+  \unaryR{t →_N t'}{{(t) u} →_N {(t') u}}
+  \hspace(6.0)
+  \axiomR{{(λx t) u} →_N {t[x := u]}}
+$$
+\end{def}
+In call-by-value, both the function and its argument need to be fully
+evaluated before the application can be performed. Consequently, two
+different strategies can be defined: left-to-right and right-to-left
+call-by-value evaluation. The evaluation order that is the most widely
+used in practice is left-to-right call-by-value. However, some practical
+languages like OCaml use right-to-left evaluation.
+\begin{def}
+A term $t$ is said to be a value if it is either a $λ$-variable or a
+$λ$-abstraction. We will use the letters $v$ and $w$ to denote values.
+\end{def}
+\begin{def}
+The left-to-right call-by-value reduction relation $({→}_{Vl}) ⊆ Λ×Λ$ is the
+smallest relation satisfying the following rules.
+$$
+  \unaryR{t →_{Vl} t'}{{(t) u} →_{Vl} {(t') u}}
+  \hspace(4.0)
+  \unaryR{u →_{Vl} u'}{{(λx t) u} →_{Vl} {(λx t) u'}}
+  \hspace(4.0)
+  \unaryR{v value}{{(λx t) v} →_{Vl} {t[x := v]}}
+$$
+\end{def}
+\begin{def}
+The right-to-left call-by-value reduction relation $({→}_{Vr}) ⊆ Λ×Λ$ is the
+smallest relation satisfying the following rules.
+$$
+  \unaryR{u →_{Vr} u'}{{(t) u} →_{Vr} {(t) u'}}
+  \hspace(4.0)
+  \binaryR{t →_{Vr} t'}{v value}{{(t) v} →_{Vr} {(t') v}}
+  \hspace(4.0)
+  \unaryR{v value}{{(λx t) v} →_{Vr} {t[x := v]}}
+$$
+\end{def}
+
+In this thesis, $λ$-terms and programs in general will be evaluated in an
+abstract machine called a Krivine machine \cite("Krivine07").

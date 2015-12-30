@@ -1,0 +1,26 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+In the previous section, we explicited the syntax of the $λ$-calculus and
+the evaluation of $λ$-terms. We will now reformulate these definition in
+terms of a call-by-value Krivine abstract machine. Our presentation will
+hence slightly differ from the most usual machine, which is call-by-name.
+Although call-by-value Krivine machines have rarely been published, they
+are well-known among classical realizability experts.
+
+\begin{def}
+Value, terms, stacks and processes are mutually inductively defined by the
+following four \sc{bnf} grammars. The names of the corresponding sets are
+displayed on the right.
+\begin{center}
+\diagram(
+let _ = array [`East ; `East ; `West; `West]
+  ~horizontal_padding:(function 3 -> 8.0 | _ -> 1.0)
+  [ [ <$v,w$>; <$::=$>; <$ x \| {λx t} $>;           <$(Λ_{val})$> ]
+  ; [ <$t,u$>; <$::=$>; <$ a \| v \| {(t) u} $>;     <$(Λ)$>       ]
+  ; [ <$π,ρ$>; <$::=$>; <$ α \| {v ⋅ π} \| [t] π $>; <$(Π)$>       ]
+  ; [ <$p,s$>; <$::=$>; <$ t ∗ π $>                ; <$(Λ × Π)$>   ] ]
+)
+\end{center}
+\end{def}
+(* TODO *)

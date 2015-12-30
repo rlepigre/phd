@@ -28,7 +28,7 @@ let two_cols ls =
   zip c1 c2 []
 
 let _ =
-  let pnum i = if i < 4 then "" else string_of_int i in
+  let pnum i = if i < 3 then "" else string_of_int i in
   DefaultFormat.sprint_page_number := pnum
 
 let defaultEnv =
@@ -82,6 +82,16 @@ let bibliography =
       , "Computability and λ-Definability"
       , "Journal of Symbolic Logic"
       , "1937" ) )
+  ; ( "Krivine90"
+    , ( "Jean-Louis Krivine"
+      , "Lambda-calcul, types et modèles"
+      , "Masson"
+      , "1990" ) )
+  ; ( "Krivine07"
+    , ( "Jean-louis Krivine"
+      , "A call-by-name lambda-calculus machine"
+      , "Higher Order and Symbolic Computation"
+      , "2007" ) )
   ]
 
 let mcite : string list -> content list = fun l ->
