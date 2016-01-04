@@ -7,13 +7,9 @@ and the semantics of a functional programming language similar to
 \sc{ml}. Its type-system will be built upon in the following chapters
 to incorporate the author's original contributions.
 
-=> The pure $λ$-calculus
 \Include{Purelambda}
-=<
 
-=> Call-by-value Krivine machine and effects
 \Include{Cbvkam}
-=<
 
 => Simple types and classical logic
 ... (* TODO *)

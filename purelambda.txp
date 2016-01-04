@@ -1,6 +1,8 @@
 \Caml(open Diagrams open ProofTree)
 \Include{Macros}
 
+=> The pure $λ$-calculus
+
 In this thesis, we consider a programming language of the \sc{ml}
 family similar to \sc{Caml} or \sc{sml}. Like every other functional
 language, its syntax is base on the $λ$-calculus. Introduced by
@@ -117,14 +119,14 @@ of variables. For example, let us consider the function $λx λy x$ which
 takes an argument $x$ and returns a constant function with value $x$. If we
 apply this function to the constant $y$, the expected result is a constant
 function with value $y$. However, if we blindly substitute $x$ with $y$ in
-$λy x$ we obtain a constant function $λy y$. Indeed, the free variable $y$
+$λy x$ we obtain the identity function $λy y$. Indeed, the free variable $y$
 has been captured and now references a binder that had (coincidentally)
 the same name.
 
 To solve this problem, we need to make sure that whenever a substitution
 $t[x ← u]$ is performed, no free variable of $u$ is bound in $t$ (i.e.
 $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables of
-$u$, it is possible to rename the bould variable of $t$. Indeed, changing
+$u$, it is possible to rename the bould variables of $t$. Indeed, changing
 the name of a bound variable has no effect on the meaning of a term. Two
 terms that are equivalent up to the names of the bound variables are said
 to be $α$-equivalent.
@@ -236,3 +238,5 @@ $$
 
 In this thesis, $λ$-terms and programs in general will be evaluated in an
 abstract machine called a Krivine machine \cite("Krivine07").
+
+=<
