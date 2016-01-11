@@ -76,7 +76,6 @@ let bibliography =
       , "The Calculi of Lambda-Conversion"
       , "Princeton University Press"
       , "1941" ) )
-
   ; ( "Turing37"
     , ( "Alan Turing"
       , "Computability and λ-Definability"
@@ -92,6 +91,11 @@ let bibliography =
       , "A call-by-name lambda-calculus machine"
       , "Higher Order and Symbolic Computation"
       , "2007" ) )
+  ; ( "Parigot92"
+    , ( "Michel Parigot"
+      , "λμ-calculus: an algorithic interpretation of classical natural deduction"
+      , "Lecture Notes in Computer Science"
+      , "1992" ) )
   ]
 
 let mcite : string list -> content list = fun l ->
