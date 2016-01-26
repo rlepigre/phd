@@ -137,7 +137,34 @@ let _ = array [`East ; `Main ; `West]
 Now, when the abstract machine encounters a $μ$-abstraction $μα t$, the
 current stack $π$ is substituted to the $μ$-variables $α$. As a consequence,
 every subterm of the form $[α]u$ in $t$ becomes $[π]u$. When the machine
-then reaches a state of the form $[π]u ∗ ρ$, the current stack $ρ$ is
-erased, and computation resumes with the stored stack $π$.
+then reaches a state of the form $[π]u ∗ ρ$, the current stack $ρ$ is erased,
+and computation resumes with the stored stack $π$. For example, the processus
+$λx μα (Ω_x) [α]x ∗ v · ε$ where $Ω_x$ is an arbitrary term and $v$ is an
+arbitrary value.
+$$
+  {{λx μα (Ω_x) [α]x} ∗ {v · ε}}
+  \succ
+  {{μα (Ω_v) [α]v} ∗ ε}
+  \succ
+  {{(Ω_v) [ε]v} ∗ ε}
+  \succ
+  {{[ε]v} ∗ {[Ω_v] ε}}
+  \succ
+  {v ∗ ε}
+$$
+Note that when a stack is erased, arbitrary terms might be erased. In
+particular, we could have chosed $Ω_x = Ω = (λx (x) x) λx (x) x$ in the
+previous example, although the reduction of this term does not terminate.
+Indeed, we have
+$$
+  {Ω ∗ π}
+  \succ
+  {{λx (x) x} ∗ {[λx (x) x] π}}
+  \succ
+  {{λx (x) x} ∗ {{λx (x) x} · π}}
+  \succ
+  {Ω ∗ π}
+$$
+for every stack $π$.
 
 =<

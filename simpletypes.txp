@@ -1,0 +1,30 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Simple types and classical logic
+
+In order to prevent undesired computational behaviours such as non-termination
+or runtime errors, functional programming rely on syntactic checks. We will
+here consider a small type system for our language, with only two type
+constructors.
+
+(*
+$$
+\axiomRN{Ax}{Γ, x : A ⊢ x : A}
+
+\hspace(4.)
+\unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B}
+
+\hspace(4.)
+\binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
+$$
+
+$$
+\unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
+
+\hspace(4.)
+\unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
+$$
+*)
+
+=<
