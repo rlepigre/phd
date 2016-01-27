@@ -70,49 +70,60 @@ let tval : Typography.Document.environment Typography.Maths.math list =
   let t = Maths.glyphs "val" in
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
 
+(* Bibliography stuff. *)
+let biblio = Minibib.create "biblio"
+
 let bibliography =
-  [ ( "Church41"
+  [ ( "Church1941"
     , ( "Alonzo Church"
       , "The Calculi of Lambda-Conversion"
       , "Princeton University Press"
       , "1941" ) )
-  ; ( "Turing37"
+  ; ( "Turing1937"
     , ( "Alan Turing"
-      , "Computability and λ-Definability"
+      , "Computability and Lambda-Definability"
       , "Journal of Symbolic Logic"
       , "1937" ) )
-  ; ( "Krivine90"
+  ; ( "Krivine1990"
     , ( "Jean-Louis Krivine"
       , "Lambda-calcul, types et modèles"
       , "Masson"
       , "1990" ) )
-  ; ( "Krivine07"
+  ; ( "Krivine2007"
     , ( "Jean-louis Krivine"
       , "A call-by-name lambda-calculus machine"
       , "Higher Order and Symbolic Computation"
       , "2007" ) )
-  ; ( "Parigot92"
+  ; ( "Parigot1992"
     , ( "Michel Parigot"
       , "λμ-calculus: an algorithic interpretation of classical natural deduction"
       , "Lecture Notes in Computer Science"
       , "1992" ) )
   ]
+let bibliography =
+  let open Minibib in
+  let f (key, (authors, title, notes, year)) =
+    { key ; authors ; title ; notes ; year }
+  in
+  List.map f bibliography
+
+let _ =
+  Minibib.insert_many bibliography biblio
 
 let mcite : string list -> content list = fun l ->
-  let check k =
-    if not (List.mem_assoc k bibliography) then
-      Printf.eprintf "BIBLIO ==> Unknown citation [%s]\n%!" k
+  let act l =
+    let l = List.map (fun k -> emph [tT k]) l in
+    let rec generate = function
+      | []    -> invalid_arg "mcite"
+      | [k]   -> k
+      | k::ks -> k @ [tT ", "] @ generate ks
+    in
+    [tT "["] @ generate l @ [tT "]"]
   in
-  List.iter check l;
-  let l = List.map (fun k -> emph [tT k]) l in
-  let rec generate = function
-    | []    -> invalid_arg "mcite"
-    | [k]   -> k
-    | k::ks -> k @ [tT ", "] @ generate ks
-  in
-  [tT "["] @ generate l @ [tT "]"]
+  Minibib.cite biblio act l
 
-let cite : string -> content list = fun k -> mcite [k]
+let cite : string -> content list = fun k ->
+  mcite [k]
 )
 
 

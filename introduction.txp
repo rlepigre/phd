@@ -1,20 +1,56 @@
 \Include{Macros}
 
+Program proving is inherently difficult and time consuming. This is probably
+the reason why so few programmers care to show the correctness of their
+programs formally.
+(* *)
 The aim of this thesis work is to provide a uniform environment in which
-programs can be designed and proved. The idea is to combine a practical
-programming language with an enriched type-system allowing the specification
-of computational behaviours. In the system, proofs are built as programs,
-and they can hence be composed as programs. This allows for the design of
-proof tactics.
+programs can be designed, specified and proved. The idea is to combine a
+full-fledged programming language with an enriched type-system allowing
+the specification of computational behaviours.
+(* *)
+Using such a tool, a programmer can adjust the level of guarantees to his
+needs, by using more or less fine-grained specifications. The system can thus
+be used as \sc{ml} for type-safe general programming, or as a proof assistant
+for proving properties of \sc{ml} programs.
+(* *)
+In the system, there is no syntactic distinction between programs and proofs.
+Consequently, programming and proving features can be used both in proofs and
+in programs. For instance, proofs can be composed as programs (and with
+programs) to form proof tactics. And in programs, unreachable branches can be
+eliminated using proof mechanisms.
+(* *)
+The uniformity of the framework imply that programs and proofs can be refined
+incrementally to obtain more guarantees.
 
-=> Historical considerations
+=> \sc{ML}-style general programming
 
-... (* TODO *)
+In this thesis, our first goal is the design of a new type system for a
+statically typed functional programming language. We choose to consider a
+call-by-value language similar to \sc{caml} or \sc{sml}, as they have proved
+to be higly practical and efficient. In particular, our language provides
+polymorphic variants and \sc{sml} style records, which are convenient for
+encoding datatypes. As an example, the type of lists and the corresponding
+length function can be defined as follows in our language.
+### OCaml
 
-=<
-=> Proving \sc{ml} programs
+type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
 
-... (* TODO *)
+val rec length : /\A List(A) -> int = function
+  | Nil    -> 0
+  | Cons c -> 1 + (length c.tl)
+
+###
+Like in \sc{caml} or \sc{sml}, polymorphism can be used to make definitions
+as general as possible. For instance, the previous function ##length## can
+be applied to lists containing elements of arbitrary types. In our system,
+we do not limit ourselves to let-polymorphism: universal quantification is
+allowed anywhere in types. Our type system hence contains the full power of
+Jean-Yves Girard and John Reynold's System F.
+
+
+
+(* TODO *)
 
 =<
 => \sc{ml} programs as proofs
@@ -27,6 +63,14 @@ proof tactics.
 ... (* TODO *)
 
 =<
+=> Subtyping
+
+Polymorphism and subtyping are essential for programming in a generic way.
+They lead to programs that are shorter, easier to understand and hence more
+reliable.
+
+
+=<
 => Bias toward undecidability
 
 ... (* TODO *)
@@ -34,13 +78,13 @@ proof tactics.
 =<
 => Thesis overview
 
-The type-system of our new language is build incrementally throughout this
+The type-system of our new language is built incrementally throughout this
 thesis. Our starting point is a higher-order language enriched with product
-types (corresponding to \sc{ml} records), sum types (corresponding to
-\sc{ml} polymorphic variants) and control operators. This system is formally
-constructed in \chapter("hocml"), following a general introduction to the
-concepts and formalisms of type theory and classical realisability. It is
-then enriched, in \chapter("pml"), with new types allowing the
+types (corresponding to \sc{sml} records), sum types (corresponding to
+\sc{OCaml} polymorphic variants) and control operators. This system is
+formally constructed in \chapter("hocml"), following a general introduction
+to the concepts and formalisms of type theory and classical realisability.
+It is then enriched, in \chapter("pml"), with new types allowing the
 specification of program equivalences. In particular, the system is extended
 with a dependent product type. However, the expressivity of this dependent
 product type is limited due to value restriction. A solution to this
