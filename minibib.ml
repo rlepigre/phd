@@ -18,9 +18,11 @@ module File =
       close_out oc
 
     let read : string -> bibliography = fun fn ->
-      let ic = open_in fn in
-      let b = input_value ic in
-      close_in ic; b
+      try
+        let ic = open_in fn in
+        let b = input_value ic in
+        close_in ic; b
+      with _ -> []
 
     let create : string -> unit = fun fn ->
       write fn []
@@ -45,7 +47,14 @@ type biblio = string
 
 let create : string -> biblio =
   fun name ->
-    name ^ ".minibib" 
+    let bib = "_patobuild/" ^ name ^ ".minibib" in
+    File.create bib; bib
+
+let from_name : string -> biblio =
+  fun name ->
+    let bib = "_patobuild/" ^ name ^ ".minibib" in
+    let _ = File.read bib in
+    bib
 
 let insert : entry -> biblio -> unit =
   fun e bib ->

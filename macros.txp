@@ -71,44 +71,7 @@ let tval : Typography.Document.environment Typography.Maths.math list =
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
 
 (* Bibliography stuff. *)
-let biblio = Minibib.create "biblio"
-
-let bibliography =
-  [ ( "Church1941"
-    , ( "Alonzo Church"
-      , "The Calculi of Lambda-Conversion"
-      , "Princeton University Press"
-      , "1941" ) )
-  ; ( "Turing1937"
-    , ( "Alan Turing"
-      , "Computability and Lambda-Definability"
-      , "Journal of Symbolic Logic"
-      , "1937" ) )
-  ; ( "Krivine1990"
-    , ( "Jean-Louis Krivine"
-      , "Lambda-calcul, types et modèles"
-      , "Masson"
-      , "1990" ) )
-  ; ( "Krivine2007"
-    , ( "Jean-louis Krivine"
-      , "A call-by-name lambda-calculus machine"
-      , "Higher Order and Symbolic Computation"
-      , "2007" ) )
-  ; ( "Parigot1992"
-    , ( "Michel Parigot"
-      , "λμ-calculus: an algorithic interpretation of classical natural deduction"
-      , "Lecture Notes in Computer Science"
-      , "1992" ) )
-  ]
-let bibliography =
-  let open Minibib in
-  let f (key, (authors, title, notes, year)) =
-    { key ; authors ; title ; notes ; year }
-  in
-  List.map f bibliography
-
-let _ =
-  Minibib.insert_many bibliography biblio
+let biblio = Minibib.from_name "biblio"
 
 let mcite : string list -> content list = fun l ->
   let act l =

@@ -1,0 +1,17 @@
+\Caml(
+let _ =
+  let open Minibib in
+  let refs = entries (from_name "biblio") in
+  let new_entry e =
+    let contents =
+      [tT "["] @ emph [tT e.key] @ [tT "] "] @ emph [tT e.title] @
+      [tT ", " ; tT e.authors ; tT " (" ; tT e.notes ; tT ", "
+      ; tT e.year ; tT ")"]
+    in
+    newPar D.structure
+      ~environment:(fun env -> { env with par_indent = [] })
+      Complete.normal Patoline_Format.parameters contents
+  in
+  List.iter new_entry refs
+)
+

@@ -5,6 +5,8 @@
 \Caml(
 open FormatManuscrit.Cover
 
+let _ = Biblio.init ()
+
 let johndoe = ("IAmA Nobody", "University of Nowhere")
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
@@ -65,22 +67,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 =<
 
 \begin{minichap}{References}
-\Caml(
-  let _ =
-    let open Minibib in
-    let refs = entries biblio in
-    let new_entry e =
-      let contents =
-        [tT "["] @ emph [tT e.key] @ [tT "] "] @ emph [tT e.title] @
-        [tT ", " ; tT e.authors ; tT " (" ; tT e.notes ; tT ", "
-        ; tT e.year ; tT ")"]
-      in
-      newPar D.structure
-        ~environment:(fun env -> { env with par_indent = [] })
-        Complete.normal Patoline_Format.parameters contents
-    in
-    List.iter new_entry refs
-)
+\Include{References}
 \end{minichap}
 
 \begin{minichap}{Résumé en français}

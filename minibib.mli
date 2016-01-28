@@ -14,6 +14,10 @@ type biblio
    expected otherwise. *)
 val create : string -> biblio
 
+(* [from_name name] acquires a bibliography that was previously created with
+   the name [name]. *)
+val from_name : string -> biblio
+
 (* [insert e b] inserts the entry [e] in the bibliography [b]. If the key
    for the entry is already used, a warning message is displayed. In this
    case, the given entry is not inserted. *)
