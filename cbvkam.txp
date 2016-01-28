@@ -91,7 +91,7 @@ operations allowing the manipulation of the stack. More precisely, we
 will provide a way to save the stack (i.e. the evaluation context or the
 continuation), so that it can be restored at a latter stage. A natural
 way to extend our language is to use the syntax of Michel Parigot's
-$λμ$-calculus \cite("Parigot92"). We hence introduce a new binder $μα t$
+$λμ$-calculus \cite("Parigot1992"). We hence introduce a new binder $μα t$
 capturing the current stack in the $μ$-variable $α$. It can then be
 restored in $t$ using the syntax $[α]u$.
 \begin{def}

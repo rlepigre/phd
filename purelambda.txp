@@ -6,10 +6,10 @@
 In this thesis, we consider a programming language of the \sc{ml}
 family similar to \sc{Caml} or \sc{sml}. Like every other functional
 language, its syntax is base on the $λ$-calculus. Introduced by
-Alonzo Church in the Thirties, the $λ$-calculus \cite("Church41") is
+Alonzo Church in the Thirties, the $λ$-calculus \cite("Church1941") is
 a formalism for representing computable functions, and in particular
 reccursive functions. Alan Turing showed in 1937 that the $λ$-calculus
-and turing machines are equivalent models of computation \cite("Turing37").
+and turing machines are equivalent models of computation \cite("Turing1937").
 
 (* The language of λ-terms. *)
 \begin{def}\label("deflambda")
@@ -132,7 +132,7 @@ terms that are equivalent up to the names of the bound variables are said
 to be $α$-equivalent.
 \begin{def}
 The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
-\cite("Krivine90"), as the smallest relation such that:
+\cite("Krivine1990"), as the smallest relation such that:
 \begin{itemize}
 \item if $x ∈ \cal{V}_λ$ then $x ≡_α x$,
 \item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then ${(t₁) u₁} ≡_α {(t₂) u₂}$,
@@ -145,7 +145,7 @@ Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
 always possible to find a term $t' \in Λ$ such that $t' ≡_α t$ and
 $BV_λ(t') ∩ V = ∅$.
 \begin{proof}
-A full proof is available in \cite("Krivine90"), Lemma 1.11.
+A full proof is available in \cite("Krivine1990"), Lemma 1.11.
 \end{proof}
 \end{lem}
 \begin{def}
@@ -237,6 +237,6 @@ $$
 \end{def}
 
 In this thesis, $λ$-terms and programs in general will be evaluated in an
-abstract machine called a Krivine machine \cite("Krivine07").
+abstract machine called a Krivine machine \cite("Krivine2007").
 
 =<
