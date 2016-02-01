@@ -55,12 +55,12 @@ be defined and used as follows in our language.
 
 type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
 
-val rec exists : ∀ A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l ->
+val rec exists : ∀A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l →
   match l with
   | Nil    → Fls
   | Cons c → if pred c.hd then Tru else exists pred c.tl
 
-val rec rev_append : ∀ A List(A) ⇒ List(A) ⇒ List(A) = fun la lb ->
+val rec rev_append : ∀A List(A) ⇒ List(A) ⇒ List(A) = fun la lb →
   match la with
   | Nil    → lb
   | Cons c → rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
@@ -83,10 +83,10 @@ instance, the following type definition corresponds to a module signature
 for sets.
 ### PML
 
-type Set(E) = \/S { empty : S
-                  ; add   : E -> S -> S
-                  ; mem   : E -> S -> Bool
-                  ; union : S -> S -> S }
+type Set(E) = ∃S { empty : S
+                 ; add   : E ⇒ S ⇒ S
+                 ; mem   : E ⇒ S ⇒ Bool
+                 ; union : S ⇒ S ⇒ S }
 
 ###
 Using such an encoding for modules, functors can be defined using functons.
@@ -94,13 +94,13 @@ As an example, we can implement a functor producing a ##Set## module for
 arbitrary types using lists.
 ### PML
 
-type Eq(E) = { equal : E -> E -> Bool }
+type Eq(E) = { equal : E ⇒ E ⇒ Bool }
 
-val makeSet : /\E Eq(E) -> Set(E) = /\E fun o ->
-  { empty : List(E)              = Nil
-  ; add   : E -> List(E)         = fun e l -> Cons {hd = e ; tl = l}
-  ; mem   : E -> List(E) -> Bool = fun e -> exists (o.equal e)
-  ; union : List(E) -> List(E) -> List(E) = rev_append }
+val makeSet : ∀E Eq(E) ⇒ Set(E) = ∀E fun o →
+  { empty : List(E)                = Nil
+  ; add   : E ⇒ List(E)           = fun e l → Cons {hd = e ; tl = l}
+  ; mem   : E ⇒ List(E) ⇒ Bool   = fun e → exists (o.equal e)
+  ; union : List(E) ⇒ List(E) ⇒ List(E) = rev_append }
 
 ###
 The functions contained in a module of type ##Set## can be used in the
@@ -117,9 +117,9 @@ exception mechanism. For example, the following function can be used to
 compute the product of a list of integers.
 ### PML
 
-val rec product : List(Int) -> Int = fun l -> save (fun k -> match l with
-  | Nil    -> 1
-  | Cons c -> if c.hd = 0 then restore k 0 else c.hd * product c.tl)
+val rec product : List(Int) ⇒ Int = fun l → save (fun k → match l with
+  | Nil    → 1
+  | Cons c → if c.hd = 0 then restore k 0 else mul c.hd (product c.tl))
 ###
 
 =<
@@ -145,10 +145,10 @@ the corresponding addition function can be defined as follows.
 
 type rec Nat = [Z | S of Nat]
 
-val rec add : Nat -> Nat -> Nat = fun n m ->
+val rec add : Nat ⇒ Nat ⇒ Nat = fun n m →
   match n with
-  | Z    -> m
-  | S nn -> S (add nn m)
+  | Z    → m
+  | S nn → S (add nn m)
 
 ###
 We can then prove properties of addition such as ##add Z n## $≡$ ##n##
@@ -164,7 +164,7 @@ dependent product over ##Nat## and an equality type.
 *)
 ### PML
 
-val addZeroN : (n:Nat) => (add Z n == n) = fun n -> 8<
+val addZeroN : (n:Nat) ⇒ (add Z n ≡ n) = fun n → 8<
 
 ###
 The term ##8<## (to be pronounced ''scissors'') can be introduced whenever
@@ -177,10 +177,10 @@ Although the statement of this property is similar to the previous one,
 its proof is slightly more complex and requires case analysis and induction.
 ### PML
 
-let rec addNZero : (n:nat) => (add n Z == n) = fun n ->
+let rec addNZero : (n:nat) ⇒ (add n Z ≡ n) = fun n →
   match n with
-  | Z    -> 8<
-  | S nn -> let r = addNZero nn in 8<
+  | Z    → 8<
+  | S nn → let r = addNZero nn in 8<
 
 ###
 In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z## $≡$ ##nn##)
@@ -207,7 +207,7 @@ it is possible to define a list concatenation function ##append## with
 the following type.
 ### PML
 
-val append : (n:Nat) => (m:Nat) => List(n) => List(m) => List(add n m) = ...
+val append : (n:Nat) ⇒ (m:Nat) ⇒ List(n) ⇒ List(m) ⇒ List(add n m)
 
 ###
 However, the ##append## function cannot be used to implement a function
