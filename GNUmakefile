@@ -4,7 +4,7 @@ all: manuscrit.pdf
 
 TXPS=$(wildcard *.txp)
 
-manuscrit.pdf: $(TXPS) formatManuscrit.ml
+manuscrit.pdf: $(TXPS) biblio.ml formatManuscrit.ml
 	patoline $(FLAG) manuscrit.txp
 
 clean:

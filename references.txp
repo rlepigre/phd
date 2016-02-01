@@ -1,17 +1,74 @@
 \Caml(
-let _ =
+
+let env = Patoline_Format.defaultEnv
+let pad = 0.4
+
+let references bib (* env *) =
   let open Minibib in
-  let refs = entries (from_name "biblio") in
-  let new_entry e =
-    let contents =
-      [tT "["] @ emph [tT e.key] @ [tT "] "] @ emph [tT e.title] @
-      [tT ", " ; tT e.authors ; tT " (" ; tT e.notes ; tT ", "
-      ; tT e.year ; tT ")"]
+  let refs = entries (from_name bib) in
+
+  (* Building reference parts. *)
+  let format_ref e =
+    let key   = [tT "["] @ emph [tT e.key] @ [tT "]"] in
+    let title = emph [tT e.title] @ [tT ","] in
+    let auth  = [tT e.authors; tT ","] in
+    let data  =
+      [tT e.notes; tT ", "; tT e.year ; tT "."]
     in
-    newPar D.structure
-      ~environment:(fun env -> { env with par_indent = [] })
-      Complete.normal Patoline_Format.parameters contents
+    (key, title, auth, data)
   in
-  List.iter new_entry refs
+  let refs = List.map format_ref refs in
+
+  (* Computing widest key. *)
+  let key_width (key, _, _, _) =
+    let (x0,_,x1,_) = bounding_box (Document.draw env key) in
+    (x1 -. x0) /. env.size
+  in
+  let rec listmax m xs =
+    match xs with
+    | []    -> m
+    | x::xs -> listmax (max x m) xs
+  in
+  let maxw = listmax 0.0 (List.map key_width refs) in
+
+  (* Create an entry. *)
+  let new_entry entry =
+    let (key, title, auth, data) = entry in
+    let contents1 =
+      let w = key_width entry in
+      let sp = maxw -. w +. pad in
+      key @ hspace sp @ title
+    in
+    let sp = maxw +. pad *. 1.9 in
+    let contents2 = hspace sp @ auth in
+    let contents3 = hspace sp @ data in
+    [contents1; contents2; contents3]
+  in
+
+  let line c =
+    let no_indent env = {env with par_indent = []} in
+    (*
+    let par =
+      new_paragraph ~env:no_indent Complete.normal
+        Patoline_Format.parameters c
+    in
+    N (Paragraph par)
+    *)
+    newPar D.structure ~environment:no_indent Complete.normal
+      Patoline_Format.parameters c
+  in
+
+  (*
+  List.map line (List.concat (List.map new_entry refs))
+  *)
+  List.iter line (List.concat (List.map new_entry refs)); []
+
+(*
+let references bib =
+  [C (references bib)]
+*)
+
 )
+
+\references("biblio")
 

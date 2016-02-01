@@ -1,3 +1,4 @@
+\Caml(open ProofTree)
 \Include{Macros}
 
 Program proving is inherently difficult and time consuming. This is probably
@@ -11,51 +12,377 @@ the specification of computational behaviours.
 (* *)
 Using such a tool, a programmer can adjust the level of guarantees to his
 needs, by using more or less fine-grained specifications. The system can thus
-be used as \sc{ml} for type-safe general programming, or as a proof assistant
-for proving properties of \sc{ml} programs.
+be used as ML for type-safe general programming, or as a proof assistant
+for proving properties of ML programs.
 (* *)
 In the system, there is no syntactic distinction between programs and proofs.
 Consequently, programming and proving features can be used both in proofs and
 in programs. For instance, proofs can be composed as programs (and with
-programs) to form proof tactics. And in programs, unreachable branches can be
+programs) to form proof tactics. In programs, unreachable branches can be
 eliminated using proof mechanisms.
 (* *)
-The uniformity of the framework imply that programs and proofs can be refined
-incrementally to obtain more guarantees.
+The uniformity of the framework implies that programs can be incrementally
+refined to obtain more guarantees.
 
 => \sc{ML}-style general programming
 
 In this thesis, our first goal is the design of a new type system for a
 statically typed functional programming language. We choose to consider a
-call-by-value language similar to \sc{caml} or \sc{sml}, as they have proved
+call-by-value language similar to Caml or SML, as they have proved
 to be higly practical and efficient. In particular, our language provides
-polymorphic variants and \sc{sml} style records, which are convenient for
-encoding datatypes. As an example, the type of lists and the corresponding
-length function can be defined as follows in our language.
+polymorphic variants \cite("Garrigue1998") and SML style records, which
+are convenient for encoding datatypes. As an example, the type of lists can
+be defined and used as follows in our language.
 ### OCaml
 
 type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
 
-val rec length : /\A List(A) -> int = function
-  | Nil    -> 0
-  | Cons c -> 1 + (length c.tl)
+val rec exists : /\A (A -> Bool) -> List(A) -> Bool = fun pred l ->
+  match l with
+  | Nil    -> Fls
+  | Cons c -> if pred c.hd then Tru else exists pred c.tl
+
+val rec rev_append : /\A List(A) -> List(A) -> List(A) = fun la lb ->
+  match la with
+  | Nil    -> lb
+  | Cons c -> rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
 
 ###
-Like in \sc{caml} or \sc{sml}, polymorphism can be used to make definitions
-as general as possible. For instance, the previous function ##length## can
-be applied to lists containing elements of arbitrary types. In our system,
-we do not limit ourselves to let-polymorphism: universal quantification is
-allowed anywhere in types. Our type system hence contains the full power of
-Jean-Yves Girard and John Reynold's System F.
+Like in Caml or SML, polymorphism can be used to make definitions
+as general as possible. For instance, the previous functions ##exists## and
+##rev_append## can be applied to lists containing elements of arbitrary
+types. In our system, we do not limit ourselves to let-polymorphism:
+universal quantification is allowed anywhere in types. As a consequence,
+our type system has the full power of Jean-Yves Girard and John Reynold's
+System F \mcite(["Girard1972";"Reynolds1974"]).
 
+Our language provides a module system encoded using records, and thus
+preserving the minimality of our language. The values of a module can then
+be accessed using projection. They can also be made accessible by
+\emph{opening} the record, allowing access to the fields without projection.
+In our system, type abstraction is encoded using existential types. For
+instance, the following type definition corresponds to a module signature
+for sets.
+###
 
+type Set(E) = \/S { empty : S
+                  ; add   : E -> S -> S
+                  ; mem   : E -> S -> Bool
+                  ; union : S -> S -> S }
 
-(* TODO *)
+###
+Using such an encoding for modules, functors can be defined using functons.
+As an example, we can implement a functor producing a ##Set## module for
+arbitrary types using lists.
+###
+
+type Eq(E) = { equal : E -> E -> Bool }
+
+val makeSet : /\E Eq(E) -> Set(E) = /\E fun o ->
+  { empty : List(E)              = Nil
+  ; add   : E -> List(E)         = fun e l -> Cons {hd = e ; tl = l}
+  ; mem   : E -> List(E) -> Bool = fun e -> exists (o.equal e)
+  ; union : List(E) -> List(E) -> List(E) = rev_append }
+
+###
+The functions contained in a module of type ##Set## can be used in the
+usual way, using dot projection. The abstract types can be referenced
+similarly.
+
+The languages of the ML family generally allow operations generating
+side-effects like references (i.e. mutable variables). Our system provides
+another kind of operations generating side-effects: control operators. As
+demonstrated by Timothy G. Griffin \cite("Griffin1990"), control operators
+like Lisp's \emph{call/cc} can be used to give a computational interpretation
+to classical logic. On the programming side, they can be used to encode an
+exception mechanism. For example, the following function can be used to
+compute the product of a list of integers.
+### OCaml
+
+val rec product : List(Int) -> Int = fun l -> save (fun k -> match l with
+  | Nil    -> 1
+  | Cons c -> if c.hd = 0 then restore k 0 else c.hd * product c.tl)
+###
 
 =<
-=> \sc{ml} programs as proofs
 
-... (* TODO *)
+=> Proof of ML programs
+
+The system presented in this thesis is intended to be more than a programming
+language. It can also be used as a proof assistant focusing on program
+proving. The proof mechanism relies on dependent products and equality types
+$t ≡ u$, where $t$ and $u$ are (possibly untyped) terms of the language
+itself. Equality types are interpreted as $\top$ if the denoted equivalence
+holds, and as $\bot$ otherwise. In our system, a proof is first and foremost
+a program. For instance, a pattern-matching corresponds to a case analysis in
+a proof, and a recursive call to the use of an induction hypothesis. As a
+consequence, we may say that we follow the \emph{program as proof principle},
+rather than the usual \emph{proof as program principle}. In particular,
+proofs can be composed as programs and with programs to form proof tactics.
+
+Let us now show several examples of proofs on very simple programs
+manipulating unary natural numbers. The type of unary natural numbers and
+the corresponding addition function can be defined as follows.
+### OCaml
+
+type rec Nat = [Z | S of Nat]
+
+val rec add : Nat -> Nat -> Nat = fun n m ->
+  match n with
+  | Z    -> m
+  | S nn -> S (add nn m)
+
+###
+We can then prove properties of addition such as ##add Z n## $≡$ ##n##
+for all ##n## in the type ##Nat##. This property can be expressed using a
+dependent product over ##Nat## and an equality type.
+(*
+
+          ⊢ add x Z[] ≡ x
+    --------------------------- ✄
+     x:nat ⊢ ✄ : add x Z[] ≡ x
+ ---------------------------------- Πi
+  ⊢ λx.✄ : Π n:nat (add n Z[] ≡ n)
+*)
+### OCaml
+
+val addZeroN : (n:Nat) => (add Z n == n) = fun n -> 8<
+
+###
+The term ##8<## (to be pronounced ''scissors'') can be introduced whenever
+the goal is derivable from the context with equational reasoning. Our first
+proof is immediate since we have ##add Z n## $≡$ ##n## by definition of
+##add##.
+
+Let us now show that ##add n Z## $≡$ ##n## for every ##n## in ##Nat##.
+Although the statement of this property is similar to the previous one,
+its proof is slightly more complex and requires case analysis and induction.
+### OCaml
+
+let rec addNZero : (n:nat) => (add n Z == n) = fun n ->
+  match n with
+  | Z    -> 8<
+  | S nn -> let r = addNZero nn in 8<
+
+###
+In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z## $≡$ ##nn##)
+is obtained by a recursive call. It is then used to conclude the proof using
+equational reasoning. Note that in our system, programs that are considered
+as proofs need to go through a termination checker. Indeed, a looping program
+could be used to prove anything otherwise. The proofs ##addZeroN## and
+##addNZero## are obviously terminating, and hence valid.
+
+Several difficulties arise when combining call-by-value evaluation,
+side-effects, dependent products and equality over programs. Most notably,
+the expressiveness of dependent products is weakened by the value
+restriction: elimination of dependent product can only happen on
+arguments that are syntactic values. In other words, the typing rule
+$$ \binaryR{Γ ⊢ t : Π_{a:A} B}{Γ ⊢ u : A}{Γ ⊢ t u : B[a := u]} $$
+cannot be proved safe if $u$ is not a value.
+(* *)
+This means, for example, that we cannot derive a proof of ##add (add Z Z) Z##
+$≡$ ##add Z Z## by applying ##addNZero## (which has type $Π$##n:Nat (add n Z##
+$≡$ ##n)##) to the term ##add Z Z## since it is not a value.
+(* *)
+The restriction affects regular programs in a similar way. For instance,
+it is possible to define a list concatenation function ##append## with
+the following type.
+###
+
+val append : (n:Nat) => (m:Nat) => List(n) => List(m) => List(add n m) = ...
+
+###
+However, the ##append## function cannot be used to implement a function
+concatenating three lists. Indeed, this would require being able to provide
+append with a non-value natural number argument of the form ##add n m##.
+
+Surprisingly, the equality types and the underlying observational
+equivalence relation give a solution to the lack of expressiveness of
+dependent products. The value restriction can be relaxed to obtain the rule
+$$ \binaryR{Γ,u≡v ⊢ t : Π_{a:A} B}{Γ,u≡v ⊢ u : A}{Γ,u≡v ⊢ t u : B[a := u]} $$
+which only requires $u$ to be equivalent to some value $v$. The same idea
+can be applied to every rule requiring value restriction. The obtained
+system is conservative over the one with the syntactic restriction.
+Indeed, finding a value equivalent to a term that is already a value can
+always be done using the reflexivity of the equivalence relation.
+
+Although the idea seems simple, proving the soundness of the new typing rules
+semantically is surprisingly subtle. A model is built using classical
+realizability techniques in which the interpretation of a type $A$ is spread
+among two sets: a set of values $⟦A⟧$ and a set of terms $⟦A⟧^{\bot\bot}$.
+The former contains all values that should have type $A$. For example,
+$⟦nat⟧$ should contain the values of the form ##S[S[...Z[]...]]##. The
+set $⟦A⟧^{\bot\bot}$ is the completion of $⟦A⟧$ with all the terms behaving
+like values of $⟦A⟧$ (in the observational sense).
+(* *)
+To show that the relaxation of the value restriction is sound, we need the
+values of $⟦A⟧^{\bot\bot}$ to also be in $⟦A⟧$. In other words, the
+completion operation should not introduce new values. To obtain this
+property, we need to extend the language with a new, non-computable
+instruction internalizing equivalence. This new instruction is only used to
+build the model, and will not be available to the user (nor will it appear
+in an implementation).
+
+=> About effects and value restriction
+
+A soundness issue related to side-effects and call-by-value evaluation
+arose in the seventies with the advent of ML. The problem stems from a
+bad interaction between side-effects and Hindley-Milner polymorphism. It was
+first formulated in terms of references \citen("Wright1995")("Section 2"),
+and many alternative type systems were designed (e.g. \mcite(["Tofte1990";
+"Damas1982"; "Leroy1991"; "Leroy1993"])) However, they all introduced a
+complexity that contrasted with the elegance and simplicity of ML's type
+system (for a detailed account, see \citen("Wright1995")("Section 2") and
+\citen("Garrigue2004")("Section 2")).
+
+A simple and elegant solution was finally found by Andrew Wright in the
+nineties. He suggested restricting generalization in let-bindings to cases
+where the bound term is a syntactic value \mcite(["Wright1994";"Wright1995"]).
+In ML the polymorphism mechanism is strongly linked with let-bindings. In
+Caml syntax, they are expressions of the form ##let x = u in t##. In slightly
+more expressive type systems, this restriction appears in the typing rule for
+the introduction of the universal quantifier.
+$$ \binaryR{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A} $$
+This rule cannot be proved safe (in a call-by-value system with side-effects)
+if $t$ is not a syntactic value.
+(* *)
+Similarly, the elimination rule for dependent product (shown previously)
+requires value restriction. It is possible to exhibit a counter-example
+breaking the type safety of our system if it is omitted. (* TODO *)
+
+In this paper, we consider control structures, which have been shown to give
+a computational interpretation to classical logic by Timothy Griffin
+\cite("Griffin1990").
+(* *)
+In 1991, Robert Harper and Mark Lillibridge found a complex program breaking
+the type safety of ML extended with \emph{call/cc} \cite("Harper1991").
+As with references, value restriction solves the inconsistency and yields a
+sound type system. 
+(* *)
+Instead of using control operators like \emph{call/cc}, we adopt the syntax
+of Michel Parigot's $λμ$-calculus \cite("Parigot1992"). Our language hence
+contains a new binder $μα t$ capturing the continuation in the $μ$-variable
+$α$. The continuation can then be restored in $t$ using the syntax $[α]u$.
+(* *)
+In the context of the $λμ$-calculus, the soundness issue arises when
+evaluating $t (μα u)$ when $μα u$ has a polymorphic type. Such a situation
+cannot happen with value restriction since $μα u$ is not a value.
+
+=<
+
+(*
+\subsection*{Main results}
+
+The main contribution of this paper is a new approach to value restriction.
+The syntactic restriction on terms is replaced by a semantical restriction
+expressed in terms of an observational equivalence relation denoted
+$(\equiv)$. Although this approach seems simple, building a model to prove
+soundness semantically (theorem \ref{adequacy}) is surprisingly subtle.
+Subject reduction is not required here, as  our model construction implies
+type safety (theorem \ref{safety}). Furthermore our type system is consistent
+as a logic (theorem \ref{consistency}).
+
+In this paper, we restrict ourselves to a second order type system but it
+can easily be extended to higher-order. Types are built from two basic sorts
+of objects: \emph{propositions} (the types themselves) and \emph{individuals}
+(untyped terms of the language). Terms appear in a restriction operator
+$A \restriction t \equiv u$ and a membership predicate $t \in A$. The former
+is used to define the equality types (by taking $A = \top$) and the latter is
+used to encode dependent product.
+$$ Π_{a : A} B \quad:=\quad ∀ a (a \in A ⇒ B)$$
+Overall, the higher-order version of our system is similar to a
+Curry-style HOL with ML programs as individuals. It does not allow the
+definition of a type which structure depends on a term (e.g. functions with
+a variable number of arguments). Our system can thus be placed between HOL
+(a.k.a. $F_\omega$) and the pure calculus of constructions (a.k.a. $CoC$) in
+(a Curry-style and classical version of) Barendregt's $λ$-cube.
+
+Throughout this paper we build a realizability model \`a la Krivine
+\cite{krivine} based on a call-by-value abstract machine. As a consequence,
+formulas are interpreted using three layers (values, stacks and terms)
+related via orthogonality (definition \ref{orthodef}). The crucial property
+(theorem \ref{biortho}) for the soundness of semantical value restriction is
+that
+$$ \phi^{\bot\bot} \cap \Lambda_v = \phi$$
+for every set of values $\phi$ (closed under $(\equiv)$). $\Lambda_v$ denotes
+the set of all values and $\phi^\bot$ (resp. $\phi^{\bot\bot}$) the set of all
+stacks (resp. terms) that are compatible with every value in $\phi$
+(resp. stacks in $\phi^\bot$). To obtain a model satisfying this property, we
+need to extend our programming language with a term $\delta_{v,w}$ which
+reduction depends on the observational equivalence of two values $v$ and $w$.
+
+\subsection*{Related work}
+
+To our knowledge, combining call-by-value evaluation, side-effects and
+dependent products has never been achieved before. At least not for a
+dependent product fully compatible with effects and call-by-value. For
+example, the Aura language \cite{aura} forbids dependency on terms that
+are not values in dependent applications. Similarly, the $F^\star$ language
+\cite{fstar} relies on (partial) let-normal forms to enforce values
+in argument position. Daniel Licata and Robert Harper have defined a notion
+of positively dependent types \cite{licata} which only allow dependency over
+strictly positive types.
+%
+Finally, in language like ATS \cite{ats} and DML \cite{dml} dependent types
+are limited to a specific index language.
+
+The system that seems the most similar to ours is NuPrl \cite{nuprl},
+although it is inconsistent with classical reasoning. NuPrl accommodates
+an observational equivalence $(\sim)$ (Howe's ``squiggle''
+relation \cite{howe}) similar to our $(\equiv)$ relation. It is partially
+reflected in the syntax of the system. Being based on a Kleene style
+realizability model, NuPrl can also be used to reason about untyped terms.
+
+The central part of this paper consists in a classical realizability model
+construction in the style of Jean-Louis Krivine \cite{krivine}. We rely on a
+call-by-value presentation which yields a model in three layers (values,
+terms and stacks). Such a technique has already been used to account for
+classical ML-like polymorphism in call-by-value in the work of Guillaume
+Munch-Maccagnoni \cite{munch}\footnote{Our theorem \ref{biortho} seems
+unrelated to lemma 9 in Munch-Maccagnoni's work \cite{munch}.}. It is here
+extended to include dependent products.
+
+The most actively developed proof assistants following the Curry-Howard
+correspondence are Coq and Agda \cite{coq,agda}. The former is based on
+Coquand and Huet's calculus of constructions and the latter on Martin-Löf's
+dependent type theory \cite{coc,ml82}. These two constructive theories
+provide dependent types, which allow the definition of very expressive
+specifications. Coq and Agda do not directly give a computational
+interpretation to classical logic. Classical reasoning can only be done
+through the definition of axioms such as the law of the excluded middle.
+Moreover, these two languages are logically consistent, and hence their
+type-checkers only allow terminating programs. As termination checking is
+a difficult (and undecidable) problem, many terminating programs are
+rejected. Although this is not a problem for formalizing mathematics, this
+makes programming tedious.
+
+The TRELLYS project \cite{trellys} aims at providing a language in which
+a consistent core can interact with type-safe dependently-typed programming
+with general recursion. Although the language defined in \cite{trellys} is
+call-by-value and allows effect, it suffers from value restriction like
+Aura \cite{aura}. The value restriction does not appear explicitly but is
+encoded into a well-formedness judgement appearing as the premise of the
+typing rule for application. Apart from value restriction, the main
+difference between the language of the TRELLYS project and ours resides in
+the calculus itself. Their calculus is Church-style (or explicitly typed)
+while ours is Curry-style (or implicitly typed). In particular, their
+terms and types are defined simultaneously, while our type system is
+constructed on top of an untyped calculus.
+
+Another similar system can be found in the work of Alexandre Miquel
+\cite{phdalex}, where propositions can be classical and Curry-style. However
+the rest of the language remains Church style and does not embed a full
+ML-like language.
+%
+The PVS system \cite{pvs96} is similar to ours as it is based on classical
+higher-order logic. However this tool does not seem to be a programming
+language, but rather a specification language coupled with proof checking
+and model checking utilities. It is nonetheless worth mentioning that the
+undecidability of PVS's type system is handled by generating proof
+obligations. Our system will take a different approach and use a
+non-backtracking type-checking and type-inference algorithm.
+*)
+(* TODO *)
 
 =<
 => Realizability model
