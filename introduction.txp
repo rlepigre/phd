@@ -1,5 +1,23 @@
 \Caml(open ProofTree)
 \Include{Macros}
+(* Set indentation in verbatim environments. *)
+\Caml(
+  let pad = 2.0
+
+  let keywords =
+    [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
+    ; "match" ; "with" ; "of" ]
+
+  let symbols  =
+    [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ]
+
+  let verb_PML fn lines =
+    let open Verbatim in
+    lines_to_file lines fn;
+    let build_word = handle_word {keywords ; symbols} in
+    let build_line l = hspace pad @ handle_spaces build_word l in
+    line_per_line D.structure build_line lines
+)
 
 Program proving is inherently difficult and time consuming. This is probably
 the reason why so few programmers care to show the correctness of their
@@ -33,19 +51,19 @@ to be higly practical and efficient. In particular, our language provides
 polymorphic variants \cite("Garrigue1998") and SML style records, which
 are convenient for encoding datatypes. As an example, the type of lists can
 be defined and used as follows in our language.
-### OCaml
+### PML
 
 type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
 
-val rec exists : /\A (A -> Bool) -> List(A) -> Bool = fun pred l ->
+val rec exists : ∀ A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l ->
   match l with
-  | Nil    -> Fls
-  | Cons c -> if pred c.hd then Tru else exists pred c.tl
+  | Nil    → Fls
+  | Cons c → if pred c.hd then Tru else exists pred c.tl
 
-val rec rev_append : /\A List(A) -> List(A) -> List(A) = fun la lb ->
+val rec rev_append : ∀ A List(A) ⇒ List(A) ⇒ List(A) = fun la lb ->
   match la with
-  | Nil    -> lb
-  | Cons c -> rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
+  | Nil    → lb
+  | Cons c → rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
 
 ###
 Like in Caml or SML, polymorphism can be used to make definitions
@@ -63,7 +81,7 @@ be accessed using projection. They can also be made accessible by
 In our system, type abstraction is encoded using existential types. For
 instance, the following type definition corresponds to a module signature
 for sets.
-###
+### PML
 
 type Set(E) = \/S { empty : S
                   ; add   : E -> S -> S
@@ -74,7 +92,7 @@ type Set(E) = \/S { empty : S
 Using such an encoding for modules, functors can be defined using functons.
 As an example, we can implement a functor producing a ##Set## module for
 arbitrary types using lists.
-###
+### PML
 
 type Eq(E) = { equal : E -> E -> Bool }
 
@@ -97,7 +115,7 @@ like Lisp's \emph{call/cc} can be used to give a computational interpretation
 to classical logic. On the programming side, they can be used to encode an
 exception mechanism. For example, the following function can be used to
 compute the product of a list of integers.
-### OCaml
+### PML
 
 val rec product : List(Int) -> Int = fun l -> save (fun k -> match l with
   | Nil    -> 1
@@ -123,7 +141,7 @@ proofs can be composed as programs and with programs to form proof tactics.
 Let us now show several examples of proofs on very simple programs
 manipulating unary natural numbers. The type of unary natural numbers and
 the corresponding addition function can be defined as follows.
-### OCaml
+### PML
 
 type rec Nat = [Z | S of Nat]
 
@@ -144,7 +162,7 @@ dependent product over ##Nat## and an equality type.
  ---------------------------------- Πi
   ⊢ λx.✄ : Π n:nat (add n Z[] ≡ n)
 *)
-### OCaml
+### PML
 
 val addZeroN : (n:Nat) => (add Z n == n) = fun n -> 8<
 
@@ -157,7 +175,7 @@ proof is immediate since we have ##add Z n## $≡$ ##n## by definition of
 Let us now show that ##add n Z## $≡$ ##n## for every ##n## in ##Nat##.
 Although the statement of this property is similar to the previous one,
 its proof is slightly more complex and requires case analysis and induction.
-### OCaml
+### PML
 
 let rec addNZero : (n:nat) => (add n Z == n) = fun n ->
   match n with
@@ -187,7 +205,7 @@ $≡$ ##n)##) to the term ##add Z Z## since it is not a value.
 The restriction affects regular programs in a similar way. For instance,
 it is possible to define a list concatenation function ##append## with
 the following type.
-###
+### PML
 
 val append : (n:Nat) => (m:Nat) => List(n) => List(m) => List(add n m) = ...
 
@@ -222,6 +240,8 @@ property, we need to extend the language with a new, non-computable
 instruction internalizing equivalence. This new instruction is only used to
 build the model, and will not be available to the user (nor will it appear
 in an implementation).
+
+=<
 
 => About effects and value restriction
 
@@ -270,82 +290,82 @@ cannot happen with value restriction since $μα u$ is not a value.
 
 =<
 
-(*
-\subsection*{Main results}
+=> Main results
 
 The main contribution of this paper is a new approach to value restriction.
 The syntactic restriction on terms is replaced by a semantical restriction
 expressed in terms of an observational equivalence relation denoted
-$(\equiv)$. Although this approach seems simple, building a model to prove
-soundness semantically (theorem \ref{adequacy}) is surprisingly subtle.
-Subject reduction is not required here, as  our model construction implies
-type safety (theorem \ref{safety}). Furthermore our type system is consistent
-as a logic (theorem \ref{consistency}).
+$({≡})$. Although this approach seems simple, building a model to prove
+soundness semantically is surprisingly subtle. Subject reduction is not
+required here, as our model construction implies type safety. Furthermore
+our type system is consistent as a logic.
 
 In this paper, we restrict ourselves to a second order type system but it
 can easily be extended to higher-order. Types are built from two basic sorts
-of objects: \emph{propositions} (the types themselves) and \emph{individuals}
-(untyped terms of the language). Terms appear in a restriction operator
-$A \restriction t \equiv u$ and a membership predicate $t \in A$. The former
-is used to define the equality types (by taking $A = \top$) and the latter is
-used to encode dependent product.
-$$ Π_{a : A} B \quad:=\quad ∀ a (a \in A ⇒ B)$$
-Overall, the higher-order version of our system is similar to a
-Curry-style HOL with ML programs as individuals. It does not allow the
-definition of a type which structure depends on a term (e.g. functions with
-a variable number of arguments). Our system can thus be placed between HOL
-(a.k.a. $F_\omega$) and the pure calculus of constructions (a.k.a. $CoC$) in
-(a Curry-style and classical version of) Barendregt's $λ$-cube.
+of objects: propositions (the types themselves) and individuals (untyped
+terms of the language). Terms appear in a restriction operator
+$A \restriction t ≡ u$ and a membership predicate $t ∈ A$. The former is used
+to define the equality types (by taking $A = \top$) and the latter is used
+to encode dependent product.
+$$ Π_{a : A} B := ∀ a (a ∈ A ⇒ B)$$
+Overall, the higher-order version of our system is similar to a Curry-style
+HOL with ML programs as individuals. It does not allow the definition of a
+type which structure depends on a term (e.g. functions with a variable number
+of arguments). Our system can thus be placed between HOL (a.k.a. $F_\omega$)
+and the pure calculus of constructions (a.k.a. $CoC$) in (a Curry-style and
+classical version of) Barendregt's $λ$-cube.
 
-Throughout this paper we build a realizability model \`a la Krivine
-\cite{krivine} based on a call-by-value abstract machine. As a consequence,
-formulas are interpreted using three layers (values, stacks and terms)
-related via orthogonality (definition \ref{orthodef}). The crucial property
-(theorem \ref{biortho}) for the soundness of semantical value restriction is
-that
-$$ \phi^{\bot\bot} \cap \Lambda_v = \phi$$
-for every set of values $\phi$ (closed under $(\equiv)$). $\Lambda_v$ denotes
-the set of all values and $\phi^\bot$ (resp. $\phi^{\bot\bot}$) the set of all
-stacks (resp. terms) that are compatible with every value in $\phi$
-(resp. stacks in $\phi^\bot$). To obtain a model satisfying this property, we
-need to extend our programming language with a term $\delta_{v,w}$ which
-reduction depends on the observational equivalence of two values $v$ and $w$.
+Throughout this paper we build a realizability model à la Krivine
+\cite("Krivine2009") based on a call-by-value abstract machine. As a
+consequence, formulas are interpreted using three layers (values, stacks
+and terms) related via orthogonality. The crucial property for the soundness
+of semantical value restriction is that
+$$ φ^{\bot\bot} ∩ Λ_v = φ $$
+for every set of values $φ$ (closed under $({≡})$). $Λ_v$ denotes the set of
+all values and $φ^\bot$ (resp. $φ^{\bot\bot}$) the set of all stacks (resp.
+terms) that are compatible with every value in $φ$ (resp. stacks in
+$φ^\bot$). To obtain a model satisfying this property, we need to extend our
+programming language with a term $δ_{v,w}$ which reduction depends on the
+observational equivalence of two values $v$ and $w$.
 
-\subsection*{Related work}
+=<
+
+=> Related work
 
 To our knowledge, combining call-by-value evaluation, side-effects and
 dependent products has never been achieved before. At least not for a
 dependent product fully compatible with effects and call-by-value. For
-example, the Aura language \cite{aura} forbids dependency on terms that
-are not values in dependent applications. Similarly, the $F^\star$ language
-\cite{fstar} relies on (partial) let-normal forms to enforce values
+example, the Aura language \cite("Jia2008") forbids dependency on terms that
+are not values in dependent applications. Similarly, the $F^{★}$ language
+\cite("Swamy2011") relies on (partial) let-normal forms to enforce values
 in argument position. Daniel Licata and Robert Harper have defined a notion
-of positively dependent types \cite{licata} which only allow dependency over
-strictly positive types.
-%
-Finally, in language like ATS \cite{ats} and DML \cite{dml} dependent types
-are limited to a specific index language.
+of positively dependent types \cite("Licata2009") which only allow dependency
+over strictly positive types.
+(* *)
+Finally, in language like ATS \cite("Xi2004") and DML \cite("Xi1999")
+dependent types are limited to a specific index language.
 
-The system that seems the most similar to ours is NuPrl \cite{nuprl},
-although it is inconsistent with classical reasoning. NuPrl accommodates
-an observational equivalence $(\sim)$ (Howe's ``squiggle''
-relation \cite{howe}) similar to our $(\equiv)$ relation. It is partially
+The system that seems the most similar to ours is NuPrl
+\cite("Constable1986"), although it is inconsistent with classical reasoning.
+NuPrl accommodates an observational equivalence $({\sim})$ (Howe's squiggle
+relation \cite("Howe1989")) similar to our $({≡})$ relation. It is partially
 reflected in the syntax of the system. Being based on a Kleene style
 realizability model, NuPrl can also be used to reason about untyped terms.
 
 The central part of this paper consists in a classical realizability model
-construction in the style of Jean-Louis Krivine \cite{krivine}. We rely on a
-call-by-value presentation which yields a model in three layers (values,
-terms and stacks). Such a technique has already been used to account for
-classical ML-like polymorphism in call-by-value in the work of Guillaume
-Munch-Maccagnoni \cite{munch}\footnote{Our theorem \ref{biortho} seems
-unrelated to lemma 9 in Munch-Maccagnoni's work \cite{munch}.}. It is here
-extended to include dependent products.
+construction in the style of Jean-Louis Krivine \cite("Krivine2009"). We
+rely on a call-by-value presentation which yields a model in three layers
+(values, terms and stacks). Such a technique has already been used to account
+for classical ML-like polymorphism in call-by-value in the work of Guillaume
+Munch-Maccagnoni \cite("Munch2009"). It is here extended to include dependent
+products. Note that our main theorem seems unrelated to lemma 9 in
+Munch-Maccagnoni's work \cite("Munch2009").
 
 The most actively developed proof assistants following the Curry-Howard
-correspondence are Coq and Agda \cite{coq,agda}. The former is based on
-Coquand and Huet's calculus of constructions and the latter on Martin-Löf's
-dependent type theory \cite{coc,ml82}. These two constructive theories
+correspondence are Coq and Agda \mcite(["CoqTeam2004";"Norell2008"]). The
+former is based on Coquand and Huet's calculus of constructions and the
+latter on Martin-Löf's dependent type theory \mcite(["Coquand1988";
+"Martin-Löf1982"]). These two constructive theories
 provide dependent types, which allow the definition of very expressive
 specifications. Coq and Agda do not directly give a computational
 interpretation to classical logic. Classical reasoning can only be done
@@ -356,33 +376,31 @@ a difficult (and undecidable) problem, many terminating programs are
 rejected. Although this is not a problem for formalizing mathematics, this
 makes programming tedious.
 
-The TRELLYS project \cite{trellys} aims at providing a language in which
-a consistent core can interact with type-safe dependently-typed programming
-with general recursion. Although the language defined in \cite{trellys} is
-call-by-value and allows effect, it suffers from value restriction like
-Aura \cite{aura}. The value restriction does not appear explicitly but is
-encoded into a well-formedness judgement appearing as the premise of the
-typing rule for application. Apart from value restriction, the main
-difference between the language of the TRELLYS project and ours resides in
-the calculus itself. Their calculus is Church-style (or explicitly typed)
-while ours is Curry-style (or implicitly typed). In particular, their
-terms and types are defined simultaneously, while our type system is
-constructed on top of an untyped calculus.
+The TRELLYS project \cite("Casinghino2014") aims at providing a language in
+which a consistent core can interact with type-safe dependently-typed
+programming with general recursion. Although the language defined in
+\cite("Casinghino2014") is call-by-value and allows effect, it suffers from
+value restriction like Aura \cite("Jia2008"). The value restriction does not
+appear explicitly but is encoded into a well-formedness judgement appearing
+as the premise of the typing rule for application. Apart from value
+restriction, the main difference between the language of the TRELLYS project
+and ours resides in the calculus itself. Their calculus is Church-style (or
+explicitly typed) while ours is Curry-style (or implicitly typed). In
+particular, their terms and types are defined simultaneously, while our type
+system is constructed on top of an untyped calculus.
 
 Another similar system can be found in the work of Alexandre Miquel
-\cite{phdalex}, where propositions can be classical and Curry-style. However
-the rest of the language remains Church style and does not embed a full
-ML-like language.
-%
-The PVS system \cite{pvs96} is similar to ours as it is based on classical
-higher-order logic. However this tool does not seem to be a programming
-language, but rather a specification language coupled with proof checking
-and model checking utilities. It is nonetheless worth mentioning that the
-undecidability of PVS's type system is handled by generating proof
+\cite("Miquel2001"), where propositions can be classical and Curry-style.
+However the rest of the language remains Church style and does not embed a
+full ML-like language.
+(* *)
+The PVS system \cite("Owre1996") is similar to ours as it is based on
+classical higher-order logic. However this tool does not seem to be a
+programming language, but rather a specification language coupled with proof
+checking and model checking utilities. It is nonetheless worth mentioning
+that the undecidability of PVS's type system is handled by generating proof
 obligations. Our system will take a different approach and use a
 non-backtracking type-checking and type-inference algorithm.
-*)
-(* TODO *)
 
 =<
 => Realizability model

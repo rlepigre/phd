@@ -23,6 +23,12 @@ let biblio =
   ; notes   = "Masson"
   ; year    = "1990" };
 
+  { key     = "Krivine2009"
+  ; authors = "Jean-Louis Krivine"
+  ; title   = "Realizability in Classical Logic"
+  ; notes   = "Panoramas et Synthèses (Volume 27)"
+  ; year    = "2009" };
+
   { key     = "Krivine2007"
   ; authors = "Jean-louis Krivine"
   ; title   = "A call-by-name lambda-calculus machine"
@@ -46,7 +52,7 @@ let biblio =
   ; authors = "Jean-Yves Girard"
   ; title   = "Interprétation fonctionnelle et élimination des coupures "
               ++ "de l'arithmétique d'ordre supérieur"
-  ; notes   = "Thèse de l'Université Paris 7"
+  ; notes   = "Thèse de l'Université Paris VII"
   ; year    = "1972" };
 
   { key     = "Reynolds1974"
@@ -96,6 +102,116 @@ let biblio =
   ; title   = "ML with callcc is unsound"
   ; notes   = "Message posted to the SML mailing list"
   ; year    = "1991" };
+
+  { key     = "Leroy1991"
+  ; authors = "Xavier Leroy and Pierre Weis"
+  ; title   = "Polymorphic Type Inference and Assignment"
+  ; notes   = "Proceedings of POPL"
+  ; year    = "1991" };
+
+  { key     = "Leroy1993"
+  ; authors = "Xavier Leroy"
+  ; title   = "Polymorphism by Name for References and Continuations"
+  ; notes   = "Proceedings of POPL"
+  ; year    = "1993" };
+
+  { key     = "Miquel2001"
+  ; authors = "Alexandre Miquel"
+  ; title   = "Le Calcul des Constructions Implicites : Syntaxe et Sémantique"
+  ; notes   = "Thèse de l'Université Paris VII"
+  ; year    = "2001" };
+
+  { key     = "Xi2004"
+  ; authors = "Hongwei Xi"
+  ; title   = "Applied Type System (extended abstract)"
+  ; notes   = "Lecture Notes in Computer Science"
+  ; year    = "2004" };
+
+  { key     = "Xi1999"
+  ; authors = "Hongwei Xi and Frank Pfenning"
+  ; title   = "Dependent Types in Practical Programming"
+  ; notes   = "Proceedings of POPL"
+  ; year    = "1999" };
+
+  { key     = "Licata2009"
+  ; authors = "Daniel Licata and Robert Harper"
+  ; title   = "Positively Dependent Types"
+  ; notes   = "Proceedings of PLPV"
+  ; year    = "2009" };
+
+  { key     = "Swamy2011"
+  ; authors = "Nikhil Swamy, Juan Chen, C. Fournet, P.-Y. Strub, "
+              ++ "K. Bhargavan and J. Yang"
+  ; title   = "Secure Distributed Programming with Value-Dependent Types"
+  ; notes   = "Proceedings of ICFP"
+  ; year    = "2011" };
+
+  { key     = "Munch2009"
+  ; authors = "Guillaume Munch-Maccagnoni"
+  ; title   = "Focalisation and Classical Realisability"
+  ; notes   = "Proceedings of CSL"
+  ; year    = "2009" };
+
+  { key     = "Casinghino2014"
+  ; authors = "Chris Casinghino, Vilhelm Sjöberg and Stephanie Weirich"
+  ; title   = "Combining Proofs and Programs in a Dependently Typed Language"
+  ; notes   = "Proceedings of PLPV"
+  ; year    = "2014" };
+
+  { key     = "Jia2008"
+  ; authors = "L. Jia, J. Vaughan, Karl Mazurak, J. Zhao, L. Zarko, "
+              ++ "J. Schorr and S. Zdancewic"
+  ; title   = "AURA: a Programming Language for Authorization and Audit"
+  ; notes   = "Proceedings of ICFP"
+  ; year    = "2008" };
+
+  { key     = "Howe1989"
+  ; authors = "Douglas J. Howe"
+  ; title   = "Equality in Lazy Computation Systems"
+  ; notes   = "Proceedings of LICS"
+  ; year    = "1989" };
+
+  { key     = "Constable1986"
+  ; authors = "R. L. Constable, S. F. Allen, H. M. Bromley, W. R. Cleaveland,"
+              ++ " et al."
+              (* J. F Cremer, R. W. Harper, D. J. Howe, T. B. Knoblock,
+                 N. P. Mendler, P. Panangaden, J. T Sasaki, S. F. Smith *)
+  ; title   = "Implementing Mathematics with the Nuprl proof development "
+              ++ "system"
+  ; notes   = "Prentice Hall"
+  ; year    = "1986" };
+
+  { key     = "Coquand1988"
+  ; authors = "Thierry Coquand and Gérard Huet"
+  ; title   = "The Calculus of Constructions"
+  ; notes   = "Information and Computation (Volume 76, Issue 2-3)"
+  ; year    = "1988" };
+
+  { key     = "Martin-Löf1982"
+  ; authors = "Per Martin-Löf"
+  ; title   = "Constructive Mathematics and Computer Programming"
+  ; notes   = "Studies in Logic the Foundations of Mathematics (Volume 104)"
+  ; year    = "1982" };
+
+  { key     = "CoqTeam2004"
+  ; authors = "The Coq Development Team"
+  ; title   = "The Coq Proof Assistant Reference Manual"
+  ; notes   = "LogiCal Project (http://coq.inria.fr)"
+  ; year    = "2004" };
+
+  { key     = "Norell2008"
+  ; authors = "Ulf Norell"
+  ; title   = "Dependently Typed Programming in Agda"
+  ; notes   = "Lecture notes from the Summer School in Advanced FP"
+  ; year    = "2008" };
+
+  { key     = "Owre1996"
+  ; authors = "Sam Owre, Sreeranga Rajan, John Rushby, Natarajan Shankar, "
+              ++ "M. Srivas"
+  ; title   = "PVS: Combining Specification, Proof Checking and Model "
+              ++ "Checking"
+  ; notes   = "Lecture Notes In Computer Science"
+  ; year    = "1996" };
 
   ]
 
