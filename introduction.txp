@@ -9,7 +9,7 @@
     ; "match" ; "with" ; "of" ]
 
   let symbols  =
-    [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ]
+    [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
 
   let verb_PML fn lines =
     let open Verbatim in
@@ -17,6 +17,14 @@
     let build_word = handle_word {keywords ; symbols} in
     let build_line l = hspace pad @ handle_spaces build_word l in
     line_per_line D.structure build_line lines
+
+  let verbatim =
+    let open Verbatim in
+    (*
+    let build = handle_spaces (handle_word {keywords ; symbols}) in
+    verb_text (handle_spaces build)
+    *)
+    verb_text (handle_word {keywords = []; symbols})
 )
 
 Program proving is inherently difficult and time consuming. This is probably
@@ -151,9 +159,9 @@ val rec add : Nat ⇒ Nat ⇒ Nat = fun n m →
   | S nn → S (add nn m)
 
 ###
-We can then prove properties of addition such as ##add Z n## $≡$ ##n##
-for all ##n## in the type ##Nat##. This property can be expressed using a
-dependent product over ##Nat## and an equality type.
+We can then prove properties of addition such as ##add Z n ≡ n## for all
+##n## in the type ##Nat##. This property can be expressed using a dependent
+product over ##Nat## and an equality type.
 (*
 
           ⊢ add x Z[] ≡ x
@@ -169,10 +177,10 @@ val addZeroN : (n:Nat) ⇒ (add Z n ≡ n) = fun n → 8<
 ###
 The term ##8<## (to be pronounced ''scissors'') can be introduced whenever
 the goal is derivable from the context with equational reasoning. Our first
-proof is immediate since we have ##add Z n## $≡$ ##n## by definition of
+proof is immediate since we have ##add Z n ≡ n## by definition of
 ##add##.
 
-Let us now show that ##add n Z## $≡$ ##n## for every ##n## in ##Nat##.
+Let us now show that ##add n Z ≡ n## for every ##n## in ##Nat##.
 Although the statement of this property is similar to the previous one,
 its proof is slightly more complex and requires case analysis and induction.
 ### PML
@@ -183,7 +191,7 @@ let rec addNZero : (n:nat) ⇒ (add n Z ≡ n) = fun n →
   | S nn → let r = addNZero nn in 8<
 
 ###
-In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z## $≡$ ##nn##)
+In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z ≡ nn##)
 is obtained by a recursive call. It is then used to conclude the proof using
 equational reasoning. Note that in our system, programs that are considered
 as proofs need to go through a termination checker. Indeed, a looping program
@@ -198,9 +206,9 @@ arguments that are syntactic values. In other words, the typing rule
 $$ \binaryR{Γ ⊢ t : Π_{a:A} B}{Γ ⊢ u : A}{Γ ⊢ t u : B[a := u]} $$
 cannot be proved safe if $u$ is not a value.
 (* *)
-This means, for example, that we cannot derive a proof of ##add (add Z Z) Z##
-$≡$ ##add Z Z## by applying ##addNZero## (which has type $Π$##n:Nat (add n Z##
-$≡$ ##n)##) to the term ##add Z Z## since it is not a value.
+This means, for example, that we cannot derive a proof of
+##add (add Z Z) Z ≡ add Z Z## by applying ##addNZero## (which has type
+##Πn:Nat (add n Z ≡ n)##) to the term ##add Z Z## since it is not a value.
 (* *)
 The restriction affects regular programs in a similar way. For instance,
 it is possible to define a list concatenation function ##append## with
