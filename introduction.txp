@@ -1,31 +1,9 @@
-\Caml(open ProofTree)
 \Include{Macros}
-(* Set indentation in verbatim environments. *)
 \Caml(
-  let pad = 2.0
-
-  let keywords =
-    [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
-    ; "match" ; "with" ; "of" ]
-
-  let symbols  =
-    [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
-
-  let verb_PML fn lines =
-    let open Verbatim in
-    lines_to_file lines fn;
-    let build_word = handle_word {keywords ; symbols} in
-    let build_line l = hspace pad @ handle_spaces build_word l in
-    line_per_line D.structure build_line lines
-
-  let verbatim =
-    let open Verbatim in
-    (*
-    let build = handle_spaces (handle_word {keywords ; symbols}) in
-    verb_text (handle_spaces build)
-    *)
-    verb_text (handle_word {keywords = []; symbols})
+  open ProofTree
+  open PMLVerbatim
 )
+
 
 Program proving is inherently difficult and time consuming. This is probably
 the reason why so few programmers care to show the correctness of their
@@ -43,9 +21,9 @@ for proving properties of ML programs.
 (* *)
 In the system, there is no syntactic distinction between programs and proofs.
 Consequently, programming and proving features can be used both in proofs and
-in programs. For instance, proofs can be composed as programs (and with
-programs) to form proof tactics. In programs, unreachable branches can be
-eliminated using proof mechanisms.
+in programs. For instance, proofs can be composed as (and with) programs to
+form proof tactics. In programs, unreachable branches can be eliminated using
+proof mechanisms.
 (* *)
 The uniformity of the framework implies that programs can be incrementally
 refined to obtain more guarantees.
@@ -54,13 +32,12 @@ refined to obtain more guarantees.
 
 In this thesis, our first goal is the design of a new type system for a
 statically typed functional programming language. We choose to consider a
-call-by-value language similar to Caml or SML, as they have proved
-to be higly practical and efficient. In particular, our language provides
+call-by-value language similar to OCaml or SML, as they have proved to be
+higly practical and efficient. In particular, our language provides
 polymorphic variants \cite("Garrigue1998") and SML style records, which
 are convenient for encoding datatypes. As an example, the type of lists can
 be defined and used as follows in our language.
 ### PML
-
 type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
 
 val rec exists : ∀A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l →
@@ -72,93 +49,110 @@ val rec rev_append : ∀A List(A) ⇒ List(A) ⇒ List(A) = fun la lb →
   match la with
   | Nil    → lb
   | Cons c → rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
-
 ###
-Like in Caml or SML, polymorphism can be used to make definitions
-as general as possible. For instance, the previous functions ##exists## and
-##rev_append## can be applied to lists containing elements of arbitrary
-types. In our system, we do not limit ourselves to let-polymorphism:
-universal quantification is allowed anywhere in types. As a consequence,
-our type system has the full power of Jean-Yves Girard and John Reynold's
-System F \mcite(["Girard1972";"Reynolds1974"]).
+
+Like in OCaml or SML, polymorphism is provided to allow more generic
+programs. For instance, the functions ##exists## and ##rev_append##
+can be applied to lists containing elements of an arbitrary type.
+(* *)
+In general, ML-like languages only allow a limited form of polymorphism
+on let-bindings. In these systems, generalisation can only happen on
+expressions of the form ##let x = t in u##. For example, the function
+### PML
+let silly_ocaml : ('a → 'a) → unit → unit option =
+  fun f u → f (Some (f u))
+###
+is rejected by the OCaml type checker. In our system, polymorphism is not
+limited: universal quantification is allowed anywhere in types. As a
+consequence, our type system has the full power of Jean-Yves Girard and John
+Reynold's System F \mcite(["Girard1972"; "Reynolds1974"]). For example, the
+equivalent of
+##silly_ocaml##
+### PML
+val silly : (∀A A → A) → {} → Option({}) =
+  fun f u → f (Some (f u))
+###
+is accepted by our type-checker.
 
 Our language provides a module system encoded using records, and thus
-preserving the minimality of our language. The values of a module can then
-be accessed using projection. They can also be made accessible by
-\emph{opening} the record, allowing access to the fields without projection.
-In our system, type abstraction is encoded using existential types. For
-instance, the following type definition corresponds to a module signature
-for sets.
+preserving the minimality of our language. The values contained in a module
+can be accessed using projection. They can also be made accessible by
+//opening// the record, extending the current scope with its fields.
+Our system also allows type abstractions encoded using existential types.
+For instance, the following type definition corresponds to a module
+signature for sets with elements of type ##E##.
 ### PML
-
 type Set(E) = ∃S { empty : S
                  ; add   : E ⇒ S ⇒ S
                  ; mem   : E ⇒ S ⇒ Bool
                  ; union : S ⇒ S ⇒ S }
-
 ###
-Using such an encoding for modules, functors can be defined using functons.
-As an example, we can implement a functor producing a ##Set## module for
-arbitrary types using lists.
+Using such an encoding for modules, functors correspond to simple functions.
+For example, we can implement a functor producing a ##Set## module using
+lists.
 ### PML
-
 type Eq(E) = { equal : E ⇒ E ⇒ Bool }
 
 val makeSet : ∀E Eq(E) ⇒ Set(E) = ∀E fun o →
-  { empty : List(E)                = Nil
-  ; add   : E ⇒ List(E)           = fun e l → Cons {hd = e ; tl = l}
-  ; mem   : E ⇒ List(E) ⇒ Bool   = fun e → exists (o.equal e)
+  { empty : List(E)              = Nil
+  ; add   : E ⇒ List(E)         = fun e l → Cons {hd = e ; tl = l}
+  ; mem   : E ⇒ List(E) ⇒ Bool = fun e → exists (o.equal e)
   ; union : List(E) ⇒ List(E) ⇒ List(E) = rev_append }
-
 ###
-The functions contained in a module of type ##Set## can be used in the
-usual way, using dot projection. The abstract types can be referenced
-similarly.
+A module of type ##Set(E)## can be obtained by providing ##makeSet## with
+an equality function on the type ##E##. The functions contained in the
+module can the be accessed in the usual way with dot projection. The
+abstract type ##S## can be refered to similarly.
 
 The languages of the ML family generally allow operations generating
 side-effects like references (i.e. mutable variables). Our system provides
 another kind of operations generating side-effects: control operators. As
 demonstrated by Timothy G. Griffin \cite("Griffin1990"), control operators
-like Lisp's \emph{call/cc} can be used to give a computational interpretation
+like Lisp's //call/cc// can be used to give a computational interpretation
 to classical logic. On the programming side, they can be used to encode an
 exception mechanism. For example, the following function can be used to
-compute the product of a list of integers.
+compute the product of a list of integers rather efficiently.
 ### PML
-
-val rec product : List(Int) ⇒ Int = fun l → save (fun k → match l with
+val rec product : List(Int) ⇒ Int = fun l → save k →
+  match l with
   | Nil    → 1
-  | Cons c → if c.hd = 0 then restore k 0 else mul c.hd (product c.tl))
+  | Cons c → if c.hd = 0 then restore k 0
+              else mul c.hd (product c.tl)
 ###
+Here, the continuation is saved in a variable ##k## and is restored with
+the value ##0## if the absorbing element of multiplication is found in
+the list.
 
 =<
 
 => Proof of ML programs
 
-The system presented in this thesis is intended to be more than a programming
-language. It can also be used as a proof assistant focusing on program
-proving. The proof mechanism relies on dependent products and equality types
-$t ≡ u$, where $t$ and $u$ are (possibly untyped) terms of the language
-itself. Equality types are interpreted as $\top$ if the denoted equivalence
-holds, and as $\bot$ otherwise. In our system, a proof is first and foremost
-a program. For instance, a pattern-matching corresponds to a case analysis in
-a proof, and a recursive call to the use of an induction hypothesis. As a
-consequence, we may say that we follow the \emph{program as proof principle},
-rather than the usual \emph{proof as program principle}. In particular,
-proofs can be composed as programs and with programs to form proof tactics.
+The system presented in this thesis is not only a programming language, but
+also a proof assistant focusing on program proving. Its proof mechanism
+relies on dependent products and equality types $t ≡ u$, where $t$ and $u$
+are (possibly untyped) terms of the language itself. Equality types are
+interpreted as $\top$ (i.e. truth) if the denoted equivalence holds, and as
+$\bot$ (i.e. falsity) otherwise.
+(* *)
+In our system, a proof is first and foremost a program. For instance, a
+pattern-matching corresponds to a case analysis in a proof, and a recursive
+call to the use of an induction hypothesis. As a consequence, we may say
+that we follow the //program as proof principle//, rather than the usual
+//proof as program principle//. In particular, proofs can be composed as
+(and with) programs to form proof tactics.
 
-Let us now show several examples of proofs on very simple programs
-manipulating unary natural numbers. The type of unary natural numbers and
-the corresponding addition function can be defined as follows.
+We will now consider several proof examples involving unary natural numbers.
+Their type is defined bellow together with the corresponding addition
+function.
 ### PML
-
 type rec Nat = [Z | S of Nat]
 
 val rec add : Nat ⇒ Nat ⇒ Nat = fun n m →
   match n with
   | Z    → m
   | S nn → S (add nn m)
-
 ###
+(* TODO from here *)
 We can then prove properties of addition such as ##add Z n ≡ n## for all
 ##n## in the type ##Nat##. This property can be expressed using a dependent
 product over ##Nat## and an equality type.
@@ -171,9 +165,7 @@ product over ##Nat## and an equality type.
   ⊢ λx.✄ : Π n:nat (add n Z[] ≡ n)
 *)
 ### PML
-
 val addZeroN : (n:Nat) ⇒ (add Z n ≡ n) = fun n → 8<
-
 ###
 The term ##8<## (to be pronounced ''scissors'') can be introduced whenever
 the goal is derivable from the context with equational reasoning. Our first
@@ -184,12 +176,10 @@ Let us now show that ##add n Z ≡ n## for every ##n## in ##Nat##.
 Although the statement of this property is similar to the previous one,
 its proof is slightly more complex and requires case analysis and induction.
 ### PML
-
 let rec addNZero : (n:nat) ⇒ (add n Z ≡ n) = fun n →
   match n with
   | Z    → 8<
   | S nn → let r = addNZero nn in 8<
-
 ###
 In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z ≡ nn##)
 is obtained by a recursive call. It is then used to conclude the proof using
@@ -214,9 +204,7 @@ The restriction affects regular programs in a similar way. For instance,
 it is possible to define a list concatenation function ##append## with
 the following type.
 ### PML
-
 val append : (n:Nat) ⇒ (m:Nat) ⇒ List(n) ⇒ List(m) ⇒ List(add n m)
-
 ###
 However, the ##append## function cannot be used to implement a function
 concatenating three lists. Indeed, this would require being able to provide
@@ -267,7 +255,7 @@ A simple and elegant solution was finally found by Andrew Wright in the
 nineties. He suggested restricting generalization in let-bindings to cases
 where the bound term is a syntactic value \mcite(["Wright1994";"Wright1995"]).
 In ML the polymorphism mechanism is strongly linked with let-bindings. In
-Caml syntax, they are expressions of the form ##let x = u in t##. In slightly
+OCaml syntax, they are expressions of the form ##let x = u in t##. In slightly
 more expressive type systems, this restriction appears in the typing rule for
 the introduction of the universal quantifier.
 $$ \binaryR{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A} $$
@@ -433,8 +421,8 @@ reliable.
 
 The type-system of our new language is built incrementally throughout this
 thesis. Our starting point is a higher-order language enriched with product
-types (corresponding to \sc{sml} records), sum types (corresponding to
-\sc{OCaml} polymorphic variants) and control operators. This system is
+types (corresponding to SML records), sum types (corresponding to
+OCaml polymorphic variants) and control operators. This system is
 formally constructed in \chapter("hocml"), following a general introduction
 to the concepts and formalisms of type theory and classical realisability.
 It is then enriched, in \chapter("pml"), with new types allowing the

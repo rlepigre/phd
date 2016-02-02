@@ -94,6 +94,32 @@ let citen : string -> string -> content list = fun k n ->
     [tT "["] @ emph [tT (String.concat ", " [k;n])] @ [tT "]"]
   in
   Minibib.cite biblio act [k]
+
+  (* PML verbatim environments. *)
+  module PMLVerbatim : sig
+      val verb_PML : string option -> string list -> unit
+      val verbatim : string -> content list
+    end = struct
+      let pad = 2.0
+      let keywords =
+        [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
+        ; "match" ; "with" ; "of" ; "save" ; "restore" ]
+
+      let symbols  = [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
+
+      let verb_PML fn lines =
+        let open Verbatim in
+        lines_to_file lines fn;
+        let build_word = handle_word {keywords ; symbols} in
+        let build_line l = hspace pad @ handle_spaces build_word l in
+        line_per_line D.structure build_line lines
+    
+      let verbatim =
+        let open Verbatim in
+        (*
+        let build = handle_spaces (handle_word {keywords ; symbols}) in
+        verb_text (handle_spaces build)
+        *)
+        verb_text (handle_word {keywords = []; symbols})
+    end
 )
-
-

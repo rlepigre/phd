@@ -423,9 +423,9 @@ module Format (D:DocumentStructure) = struct
       (UTF8.init 1 (fun _->UChar.chr y)) z
 
   let defaultEnv =
-    let size = 3.5 in (* 10pt *)
-    let lead = 5.0 in
-    let env=(envFamily alegreya Default.defaultEnv) in
+    let env = envFamily alegreya Default.defaultEnv in
+    let (size, lead) = (env.size, env.lead) in
+    (* let (size, lead) = (3.5, 5.0) in (* 10pt *) *)
     {  env with
          size=size;
          show_boxes=false;
