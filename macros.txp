@@ -95,31 +95,91 @@ let citen : string -> string -> content list = fun k n ->
   in
   Minibib.cite biblio act [k]
 
-  (* PML verbatim environments. *)
-  module PMLVerbatim : sig
-      val verb_PML : string option -> string list -> unit
-      val verbatim : string -> content list
-    end = struct
-      let pad = 2.0
-      let keywords =
-        [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
-        ; "match" ; "with" ; "of" ; "save" ; "restore" ]
+(* PML verbatim environments. *)
+module PMLVerbatim : sig
+    val verb_PML : string option -> string list -> unit
+    val verbatim : string -> content list
+  end = struct
+    let pad = 2.0
+    let keywords =
+      [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
+      ; "match" ; "with" ; "of" ; "save" ; "restore" ]
 
-      let symbols  = [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
+    let symbols  = [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
 
-      let verb_PML fn lines =
-        let open Verbatim in
-        lines_to_file lines fn;
-        let build_word = handle_word {keywords ; symbols} in
-        let build_line l = hspace pad @ handle_spaces build_word l in
-        line_per_line D.structure build_line lines
-    
-      let verbatim =
-        let open Verbatim in
-        (*
-        let build = handle_spaces (handle_word {keywords ; symbols}) in
-        verb_text (handle_spaces build)
-        *)
-        verb_text (handle_word {keywords = []; symbols})
-    end
+    let verb_PML fn lines =
+      let open Verbatim in
+      lines_to_file lines fn;
+      let build_word = handle_word {keywords ; symbols} in
+      let build_line l = hspace pad @ handle_spaces build_word l in
+      line_per_line D.structure build_line lines
+  
+    let verbatim =
+      let open Verbatim in
+      (*
+      let build = handle_spaces (handle_word {keywords ; symbols}) in
+      verb_text (handle_spaces build)
+      *)
+      verb_text (handle_word {keywords = []; symbols})
+  end
+
+let raw_scissors : raw list =
+  let mirror =
+    let mat =
+      [| [| 1.0 ;  0.0 ; 0.0 |]
+      ;  [| 0.0 ; -1.0 ; 0.0 |]
+      ;  [| 0.0 ;  0.0 ; 1.0 |] |]
+    in
+    affine mat
+  in
+  let pp = {default_path_param with lineWidth = 0.4} in
+  let pp_fillb =
+    { default_path_param with close = true; fillColor = Some Color.black }
+  in
+  let pp_fillw = {pp_fillb with fillColor = Some Color.white} in
+  let hd = Path (pp, [circle 0.8]) in
+  let hole = Path (pp_fillw, [circle 0.3]) in
+  let br =
+    let x = [|0.0; 8.0; 1.0|] in
+    let y = [|0.0; 0.0; 0.9|] in
+    (x,y)
+  in
+  let br = Path (pp_fillb, [[|br|]]) in
+  let br = translate 0.0 (-1.0) br in
+  let br = [br; hd] in
+  let cs =
+    [ rotate (-0.3) (List.map (translate (-0.5) 1.8) br)
+    ; rotate 0.3 [mirror br]
+    ; translate 1.2 0.9 hole ]
+  in
+  let (x0,y0,x1,y1) = bounding_box_full cs in
+  let w = x1 -. x0 in
+  let cs = List.map (resize (1.0 /. w)) cs in
+  let (x0,y0,x1,y1) = bounding_box_full cs in
+  List.map (translate (-.x0) (-.y0)) cs
+
+
+let scissors : 'a math list =
+  let cont env = List.map (resize 2.6) raw_scissors in
+  let dr env menv =
+    drawing ~offset:(-0.2) (cont env)
+  in
+  let glue w =
+    { drawing_min_width     = w
+    ; drawing_max_width     = w
+    ; drawing_nominal_width = w
+    ; drawing_width_fixed   = true
+    ; drawing_adjust_before = false
+    ; drawing_y0            = infinity
+    ; drawing_y1            = -.infinity
+    ; drawing_contents      = (fun _ -> [])
+    ; drawing_break_badness = 0.0
+    ; drawing_states        = []
+    ; drawing_badness       = knuth_h_badness w }
+  in
+  [Maths.Scope (fun env menv ->
+    [ Maths.Glue (glue 2.0)
+    ; Maths.Glue (dr env menv)
+    ; Maths.Glue (glue 0.4) ]
+  )]
 )

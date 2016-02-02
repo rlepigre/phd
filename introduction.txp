@@ -167,7 +167,7 @@ product over ##Nat## and an equality type.
 ### PML
 val addZeroN : (n:Nat) ⇒ (add Z n ≡ n) = fun n → 8<
 ###
-The term ##8<## (to be pronounced ''scissors'') can be introduced whenever
+The term $\scissors$ (to be pronounced ''scissors'') can be introduced whenever
 the goal is derivable from the context with equational reasoning. Our first
 proof is immediate since we have ##add Z n ≡ n## by definition of
 ##add##.
