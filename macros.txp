@@ -95,34 +95,7 @@ let citen : string -> string -> content list = fun k n ->
   in
   Minibib.cite biblio act [k]
 
-(* PML verbatim environments. *)
-module PMLVerbatim : sig
-    val verb_PML : string option -> string list -> unit
-    val verbatim : string -> content list
-  end = struct
-    let pad = 2.0
-    let keywords =
-      [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
-      ; "match" ; "with" ; "of" ; "save" ; "restore" ]
-
-    let symbols  = [ "∀" ; "→" ; "∃" ; "≡" ; "⇒" ; "Π" ]
-
-    let verb_PML fn lines =
-      let open Verbatim in
-      lines_to_file lines fn;
-      let build_word = handle_word {keywords ; symbols} in
-      let build_line l = hspace pad @ handle_spaces build_word l in
-      line_per_line D.structure build_line lines
-  
-    let verbatim =
-      let open Verbatim in
-      (*
-      let build = handle_spaces (handle_word {keywords ; symbols}) in
-      verb_text (handle_spaces build)
-      *)
-      verb_text (handle_word {keywords = []; symbols})
-  end
-
+(* A majestic scissors symbol built with my onw hands. *)
 let raw_scissors : raw list =
   let mirror =
     let mat =
@@ -159,11 +132,11 @@ let raw_scissors : raw list =
   List.map (translate (-.x0) (-.y0)) cs
 
 
+let scissors_drawing : Document.environment -> drawingBox = fun env ->
+  let cont _ = List.map (resize 3.2) raw_scissors in
+  drawing ~offset:(-0.2) (cont env)
+
 let scissors : 'a math list =
-  let cont env = List.map (resize 2.6) raw_scissors in
-  let dr env menv =
-    drawing ~offset:(-0.2) (cont env)
-  in
   let glue w =
     { drawing_min_width     = w
     ; drawing_max_width     = w
@@ -178,8 +151,49 @@ let scissors : 'a math list =
     ; drawing_badness       = knuth_h_badness w }
   in
   [Maths.Scope (fun env menv ->
-    [ Maths.Glue (glue 2.0)
-    ; Maths.Glue (dr env menv)
+    [ Maths.Glue (glue 1.2)
+    ; Maths.Glue (scissors_drawing env)
     ; Maths.Glue (glue 0.4) ]
   )]
+
+(* PML verbatim environments. *)
+module PMLVerbatim : sig
+    val verb_PML : string option -> string list -> unit
+    val verbatim : string -> content list
+  end = struct
+    let pad = 2.0
+    let keywords =
+      [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
+      ; "match" ; "with" ; "of" ; "save" ; "restore" ]
+
+    let symbols  =
+      let simple_verb : string -> string * content =
+         fun s -> (s, Verbatim.symbol s)
+      in
+      let scissors =
+        bB (fun env -> [Drawing (scissors_drawing env)])
+      in
+      [ simple_verb "∀"
+      ; simple_verb "→"
+      ; simple_verb "∃"
+      ; simple_verb "≡"
+      ; simple_verb "⇒"
+      ; simple_verb "Π"
+      ; ("8<", scissors) ]
+
+    let verb_PML fn lines =
+      let open Verbatim in
+      lines_to_file lines fn;
+      let build_word = handle_word {keywords ; symbols} in
+      let build_line l = hspace pad @ handle_spaces build_word l in
+      line_per_line D.structure build_line lines
+  
+    let verbatim =
+      let open Verbatim in
+      (*
+      let build = handle_spaces (handle_word {keywords ; symbols}) in
+      verb_text (handle_spaces build)
+      *)
+      verb_text (handle_word {keywords = []; symbols})
+  end
 )
