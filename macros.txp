@@ -120,17 +120,21 @@ let raw_scissors : raw list =
   let br = Path (pp_fillb, [[|br|]]) in
   let br = translate 0.0 (-1.0) br in
   let br = [br; hd] in
+  let origin_x c =
+    let (x0,_,_,_) = bounding_box_full [c] in
+    translate (-.x0) 0.0 c
+  in
+  let br1 = rotate (-0.3) (List.map (translate (-0.5) 1.7) br) in
+  let br2 = rotate 0.3 [mirror br] in
   let cs =
-    [ rotate (-0.3) (List.map (translate (-0.5) 1.8) br)
-    ; rotate 0.3 [mirror br]
-    ; translate 1.2 0.9 hole ]
+    [ origin_x br1 ; origin_x br2
+    ; translate 1.5 0.9 (origin_x hole) ]
   in
   let (x0,y0,x1,y1) = bounding_box_full cs in
   let w = x1 -. x0 in
   let cs = List.map (resize (1.0 /. w)) cs in
   let (x0,y0,x1,y1) = bounding_box_full cs in
   List.map (translate (-.x0) (-.y0)) cs
-
 
 let scissors_drawing : Document.environment -> drawingBox = fun env ->
   let cont _ = List.map (resize 3.2) raw_scissors in
