@@ -75,7 +75,7 @@ module Cover = struct
   
     (* Grey strip on the left and images *)
     let left_grey = fill_square (0., 0.) (greyw, h4 +. 1.) col in
-    let (wlogo, hlogo) = ReadImg.size logo_UG in
+    let (wlogo, hlogo) = ImageLib.size logo_UG in
     let w = greyw -. 2. *. logo_span -. l_span in
     let logo = Image
       { image_file         = logo_UG
@@ -87,7 +87,7 @@ module Cover = struct
       ; image_y            = bot_span +. logo_span
       ; image_order        = 1 }
     in
-    let (wheader, hheader) = ReadImg.size logo_header in
+    let (wheader, hheader) = ImageLib.size logo_header in
     let w = w4 /. 2. in
     let h = (float_of_int hheader *. w) /. (float_of_int wheader) in
     let header = Image

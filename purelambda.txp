@@ -65,7 +65,7 @@ the associated notions of free and bound variable are hence essential.
 \begin{def}
 Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
 and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
-inductively on the structure of $t$.
+inductively.
 \begin{center}
 \diagram(
 let contents = two_cols

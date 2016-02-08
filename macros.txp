@@ -166,9 +166,10 @@ module PMLVerbatim : sig
     val verbatim : string -> content list
   end = struct
     let pad = 2.0
+
     let keywords =
-      [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "rec"
-      ; "match" ; "with" ; "of" ; "save" ; "restore" ]
+      [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "in"
+      ; "rec" ; "match" ; "with" ; "of" ; "save" ; "restore" ]
 
     let symbols  =
       let simple_verb : string -> string * content =

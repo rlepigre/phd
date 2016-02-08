@@ -48,7 +48,7 @@ val rec exists : ∀A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l →
 val rec rev_append : ∀A List(A) ⇒ List(A) ⇒ List(A) = fun la lb →
   match la with
   | Nil    → lb
-  | Cons c → rev_concat la.tl (Cons {hd = la.hd ; tl = lb})
+  | Cons c → rev_concat c.tl (Cons {hd = c.hd ; tl = lb})
 ###
 
 Like in OCaml or SML, polymorphism is provided to allow more generic
@@ -101,7 +101,7 @@ val makeSet : ∀E Eq(E) ⇒ Set(E) = ∀E fun o →
 ###
 A module of type ##Set(E)## can be obtained by providing ##makeSet## with
 an equality function on the type ##E##. The functions contained in the
-module can the be accessed in the usual way with dot projection. The
+module can then be accessed in the usual way with dot projection. The
 abstract type ##S## can be refered to similarly.
 
 The languages of the ML family generally allow operations generating
@@ -125,7 +125,7 @@ the list.
 
 =<
 
-=> Proof of ML programs
+=> Proofs of ML programs
 
 The system presented in this thesis is not only a programming language, but
 also a proof assistant focusing on program proving. Its proof mechanism
@@ -145,52 +145,63 @@ We will now consider several proof examples involving unary natural numbers.
 Their type is defined bellow together with the corresponding addition
 function.
 ### PML
-type rec Nat = [Z | S of Nat]
+type rec Nat = [Zero | Succ of Nat]
 
 val rec add : Nat ⇒ Nat ⇒ Nat = fun n m →
   match n with
-  | Z    → m
-  | S nn → S (add nn m)
+  | Zero    → m
+  | Succ nn → S (add nn m)
 ###
-(* TODO from here *)
-We can then prove properties of addition such as ##add Z n ≡ n## for all
-##n## in the type ##Nat##. This property can be expressed using a dependent
-product over ##Nat## and an equality type.
+As a first example, we are going to show that for every ##n## we have
+##add Zero n ≡ n##. To express this property, we quantifiy over program
+values to obtain ##∀n (add Zero n ≡ n)##. This statement can then be proved
+using the following program.
 (*
-
-          ⊢ add x Z[] ≡ x
-    --------------------------- ✄
-     x:nat ⊢ ✄ : add x Z[] ≡ x
- ---------------------------------- Πi
-  ⊢ λx.✄ : Π n:nat (add n Z[] ≡ n)
+      ⊢ add Zero x ≡ x
+   ---------------------- ✄
+    ⊢ ✄ : add Zero x ≡ x       x ∉ FV(·)
+   -------------------------------------- ∀i
+    ⊢ ✄ : ∀x (add Zero x ≡ x)
 *)
 ### PML
-val addZeroN : (n:Nat) ⇒ (add Z n ≡ n) = fun n → 8<
+val addZeroN : ∀n (add Zero n ≡ n) = 8<
 ###
-The term $\scissors$ (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context with equational reasoning.
-Our first proof is immediate since we have ##add Z n ≡ n## by definition of
-##add##.
+The special term ##8<## (to be pronounced "scissors") can be introduced
+whenever the goal is derivable from the context, using equational reasoning.
+Our first proof is immediate since we have ##add Zero n ≡ n## by definition
+of the ##add## function.
 
-Let us now show that ##add n Z ≡ n## for every ##n## in ##Nat##.
-Although the statement of this property is similar to the previous one,
-its proof is slightly more complex and requires case analysis and induction.
+Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
+this property looks similar to the previous one, it is not possible to prove
+##∀n (add n Zero ≡ n)## since the equivalence ##add n Zero ≡ n## does not
+hold when ##n## is not a unary natural number. Indeed, the computation of
+##add n Zero## produces a runtime error in this case.
+(* *)
+As a consequence, we need to rely on a form of quantification that only
+ranges over unary natural numbers. This can be done using the dependent
+product type ##(n:Nat) ⇒ (add n Zero ≡ n)##. This property can then be
+proved using induction and case analysis.
 ### PML
-let rec addNZero : (n:nat) ⇒ (add n Z ≡ n) = fun n →
+let rec addNZero : (n:nat) ⇒ (add n Zero ≡ n) = fun n →
   match n with
-  | Z    → 8<
-  | S nn → let r = addNZero nn in 8<
+  | Zero    → 8<
+  | Succ m  → let r = addNZero m in 8<
 ###
-In the ##S nn## case, the induction hypothesis (i.e. ##add nn Z ≡ nn##)
+In the ##Succ m## case, the induction hypothesis (i.e. ##add m Zero ≡ m##)
 is obtained by a recursive call. It is then used to conclude the proof using
 equational reasoning. Note that in our system, programs that are considered
 as proofs need to go through a termination checker. Indeed, a looping program
 could be used to prove anything otherwise. The proofs ##addZeroN## and
 ##addNZero## are obviously terminating, and hence valid.
 
-Several difficulties arise when combining call-by-value evaluation,
-side-effects, dependent products and equality over programs. Most notably,
-the expressiveness of dependent products is weakened by the value
+=<
+
+=> Soundness of dependent products
+
+(* TODO *)
+Several difficulties arise when combining call-by-value evaluation, effects,
+dependent products and equality over programs. Most notably, the expressive
+power of dependent products is weakened by the value
 restriction: elimination of dependent product can only happen on
 arguments that are syntactic values. In other words, the typing rule
 $$ \binaryR{Γ ⊢ t : Π_{a:A} B}{Γ ⊢ u : A}{Γ ⊢ t u : B[a := u]} $$
