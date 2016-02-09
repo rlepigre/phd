@@ -13,11 +13,7 @@ to incorporate the author's original contributions.
 
 \Include{Simpletypes}
 
-=> Soundness of polymorphism in call-by-value
-
-... (* TODO *)
-
-=<
+\Include{ValueRestriction}
 
 => Sums and products
 

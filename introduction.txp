@@ -28,7 +28,7 @@ proof mechanisms.
 The uniformity of the framework implies that programs can be incrementally
 refined to obtain more guarantees.
 
-=> \sc{ML}-style general programming
+=> ML-style general programming
 
 In this thesis, our first goal is the design of a new type system for a
 statically typed functional programming language. We choose to consider a
@@ -281,53 +281,6 @@ Polymorphism and subtyping are essential for programming in a generic way.
 They lead to programs that are shorter, easier to understand and hence more
 reliable.
 (* TODO *)
-
-=<
-
-=> About effects and value restriction
-
-A soundness issue related to side-effects and call-by-value evaluation
-arose in the seventies with the advent of ML. The problem stems from a
-bad interaction between side-effects and Hindley-Milner polymorphism. It was
-first formulated in terms of references \citen("Wright1995")("Section 2"),
-and many alternative type systems were designed (e.g. \mcite(["Tofte1990";
-"Damas1982"; "Leroy1991"; "Leroy1993"])) However, they all introduced a
-complexity that contrasted with the elegance and simplicity of ML's type
-system (for a detailed account, see \citen("Wright1995")("Section 2") and
-\citen("Garrigue2004")("Section 2")).
-
-A simple and elegant solution was finally found by Andrew Wright in the
-nineties. He suggested restricting generalization in let-bindings to cases
-where the bound term is a syntactic value \mcite(["Wright1994";"Wright1995"]).
-In ML the polymorphism mechanism is strongly linked with let-bindings. In
-OCaml syntax, they are expressions of the form ##let x = u in t##. In slightly
-more expressive type systems, this restriction appears in the typing rule for
-the introduction of the universal quantifier.
-$$ \binaryR{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A} $$
-This rule cannot be proved safe (in a call-by-value system with side-effects)
-if $t$ is not a syntactic value.
-(* *)
-Similarly, the elimination rule for dependent product (shown previously)
-requires value restriction. It is possible to exhibit a counter-example
-breaking the type safety of our system if it is omitted. (* TODO *)
-
-In this paper, we consider control structures, which have been shown to give
-a computational interpretation to classical logic by Timothy Griffin
-\cite("Griffin1990").
-(* *)
-In 1991, Robert Harper and Mark Lillibridge found a complex program breaking
-the type safety of ML extended with \emph{call/cc} \cite("Harper1991").
-As with references, value restriction solves the inconsistency and yields a
-sound type system. 
-(* *)
-Instead of using control operators like \emph{call/cc}, we adopt the syntax
-of Michel Parigot's $λμ$-calculus \cite("Parigot1992"). Our language hence
-contains a new binder $μα t$ capturing the continuation in the $μ$-variable
-$α$. The continuation can then be restored in $t$ using the syntax $[α]u$.
-(* *)
-In the context of the $λμ$-calculus, the soundness issue arises when
-evaluating $t (μα u)$ when $μα u$ has a polymorphic type. Such a situation
-cannot happen with value restriction since $μα u$ is not a value.
 
 =<
 
