@@ -213,6 +213,13 @@ let biblio =
   ; notes   = "Lecture Notes In Computer Science"
   ; year    = "1996" };
 
+  { key     = "Lepigre2016"
+  ; authors = "Rodolphe Lepigre"
+  ; title   = "A Classical Realizability Model for a Semantical Value "
+              ++ "Restriction"
+  ; notes   = "Proceedings of ESOP, LNCS Volume 9632"
+  ; year    = "2016" };
+
   ]
 
 let init () =

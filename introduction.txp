@@ -198,55 +198,89 @@ could be used to prove anything otherwise. The proofs ##addZeroN## and
 
 => Soundness of dependent products
 
-(* TODO *)
-Several difficulties arise when combining call-by-value evaluation, effects,
-dependent products and equality over programs. Most notably, the expressive
-power of dependent products is weakened by the value
-restriction: elimination of dependent product can only happen on
-arguments that are syntactic values. In other words, the typing rule
-$$ \binaryR{Γ ⊢ t : Π_{a:A} B}{Γ ⊢ u : A}{Γ ⊢ t u : B[a := u]} $$
-cannot be proved safe if $u$ is not a value.
+Several difficulties arise when combining call-by-value evaluation,
+side-effects, dependent products and equality types. Most notably, dependent
+products need to be restricted to preserve soundness. Indeed, if ##f## has
+type ##(a:A) ⇒ B(a)## and ##t## has type ##A## then we cannot always derive
+that ##f t## has type ##B(t)##. As a consequence, we need to restrict the
+application of dependent functions so that ##f t## is guaranteed to be of
+type ##B(t)##.
 (* *)
-This means, for example, that we cannot derive a proof of
-##add (add Z Z) Z ≡ add Z Z## by applying ##addNZero## (which has type
-##Πn:Nat (add n Z ≡ n)##) to the term ##add Z Z## since it is not a value.
-(* *)
-The restriction affects regular programs in a similar way. For instance,
-it is possible to define a list concatenation function ##append## with
-the following type.
+The simplest possible approach consist in only allowing syntactic values as
+argument of dependent functions. This //value restriction// has been
+introduced by Andrew Wright \cite("Wright1994") to solve a similar soundness
+problem related to polymorphism.
+
+With value restriction, the expressivity of our dependent products
+is considerably weakened. In particular, it forbids the application of
+##addNZero## to ##add Zero Zero## to obtain a proof of
+##add (add Zero Zero) Zero ≡ add Zero Zero##. Indeed, the term
+##add Zero Zero## is not a value. As a consequence, value restriction
+breaks the modularity of our proof system, as it relies heavily on dependent
+products.
+
+Regular programs are also affected by value restriction in a similar way.
+For example, it is possible to define a type for vectors (i.e. lists of
+fixed length) together with their concatenation function in the following
+way.
 ### PML
-val append : (n:Nat) ⇒ (m:Nat) ⇒ List(n) ⇒ List(m) ⇒ List(add n m)
+val rec len : ∀A List(A) ⇒ Nat = fun l →
+  match l with
+  | Nil    → Zero
+  | Cons c → Succ (len c.tl)
+
+type Vect(A,n) = ∃l (l:List(A) | len l ≡ n)
+
+val rec concat : ∀A (n:Nat) ⇒ (m:Nat) ⇒ Vect(A,n) ⇒ Vect(A,m) ⇒
+                      Vect(A,add n m) = fun n m ln lm →
+  match n with
+  | Zero    → lm
+  | Succ nn → (match ln with
+               | Nil    → 8<
+               | Cons c → let ls = concat nn m c.tl lm in
+                            Cons {hd = c.hd; tl = ls})
 ###
-However, the ##append## function cannot be used to implement a function
-concatenating three lists. Indeed, this would require being able to provide
-append with a non-value natural number argument of the form ##add n m##.
+Here, the symbol ##8<## is used to fill a branch of the program that is
+not accessible. Indeed, if ##n## is not ##Zero## then the list ##ln##
+cannot be equal to ##Nil## by definition of ##Vect(A,n)## (its length
+must be equal to ##n##). Let us now suppose that we want to produce,
+using ##concat##, a function ##concat3## computing the concatenation of
+three vectors. We would expect to be able to define it in the following
+way.
+### PML
+val concat3 : ∀A (n:Nat) ⇒ (m:Nat) ⇒ (k:Nat) ⇒
+                   List(n) ⇒ List(m) ⇒ List(k) ⇒
+                     List(add (add n m) k) = fun n m k ln lm lk →
+  concat (add n m) k (concat n m ln lm) lk
+###
+However, this definition is not valid with value restriction since
+##concat## is applied to the non-value argument ##add n m##. This again
+demonstrates that value restruction breaks the modularity of programs
+that are typed using dependent products. As a consequence, we need to
+relax value restriction so that some well-behaved terms can be used as
+arguments for dependent functions.
 
-Surprisingly, the equality types and the underlying observational
-equivalence relation give a solution to the lack of expressiveness of
-dependent products. The value restriction can be relaxed to obtain the rule
-$$ \binaryR{Γ,u≡v ⊢ t : Π_{a:A} B}{Γ,u≡v ⊢ u : A}{Γ,u≡v ⊢ t u : B[a := u]} $$
-which only requires $u$ to be equivalent to some value $v$. The same idea
-can be applied to every rule requiring value restriction. The obtained
-system is conservative over the one with the syntactic restriction.
-Indeed, finding a value equivalent to a term that is already a value can
-always be done using the reflexivity of the equivalence relation.
+The equality types provide a solution to our expressivity
+problem. The equivalence relation they denote identifies terms (including
+values) with the same observable computational behaviour. Hence, equal
+terms have the same behaviour on every possible input. Consequently, we
+can use a term ##t## as an argument of a dependent function, if an only
+if there is a value ##v## such that we can derive ##t ≡ v##. The same idea
+can be applied whenever value restriction was previously required, and the
+obtained system is conservative over the one with the syntactic
+restriction. Indeed, finding a value equivalent to a term that is already
+a value can always be done using reflexivity. Although our new idea seems
+simple, proving the soundness of the obtained system is surprisingly
+subtle \cite("Lepigre2016").
 
-Although the idea seems simple, proving the soundness of the new typing rules
-semantically is surprisingly subtle. A model is built using classical
-realizability techniques in which the interpretation of a type $A$ is spread
-among two sets: a set of values $⟦A⟧$ and a set of terms $⟦A⟧^{\bot\bot}$.
-The former contains all values that should have type $A$. For example,
-$⟦nat⟧$ should contain the values of the form ##S[S[...Z[]...]]##. The
-set $⟦A⟧^{\bot\bot}$ is the completion of $⟦A⟧$ with all the terms behaving
-like values of $⟦A⟧$ (in the observational sense).
-(* *)
-To show that the relaxation of the value restriction is sound, we need the
-values of $⟦A⟧^{\bot\bot}$ to also be in $⟦A⟧$. In other words, the
-completion operation should not introduce new values. To obtain this
-property, we need to extend the language with a new, non-computable
-instruction internalizing equivalence. This new instruction is only used to
-build the model, and will not be available to the user (nor will it appear
-in an implementation).
+=<
+
+=> Subtyping
+
+Polymorphism and subtyping are essential for programming in a generic way.
+They lead to programs that are shorter, easier to understand and hence more
+reliable.
+(* TODO *)
 
 =<
 
@@ -337,6 +371,33 @@ observational equivalence of two values $v$ and $w$.
 
 =<
 
+=> Call-by-value realizability model
+
+A model is built using classical
+realizability techniques in which the interpretation of a type $A$ is spread
+among two sets: a set of values $⟦A⟧$ and a set of terms $⟦A⟧^{\bot\bot}$.
+The former contains all values that should have type $A$. For example,
+$⟦nat⟧$ should contain the values of the form ##S[S[...Z[]...]]##. The
+set $⟦A⟧^{\bot\bot}$ is the completion of $⟦A⟧$ with all the terms behaving
+like values of $⟦A⟧$ (in the observational sense).
+(* *)
+To show that the relaxation of the value restriction is sound, we need the
+values of $⟦A⟧^{\bot\bot}$ to also be in $⟦A⟧$. In other words, the
+completion operation should not introduce new values. To obtain this
+property, we need to extend the language with a new, non-computable
+instruction internalizing equivalence. This new instruction is only used to
+build the model, and will not be available to the user (nor will it appear
+in an implementation).
+(* TODO *)
+
+=<
+
+=> Typing algorithm and bias toward undecidability
+
+... (* TODO *)
+
+=<
+
 => Related work
 
 To our knowledge, combining call-by-value evaluation, side-effects and
@@ -410,24 +471,7 @@ obligations. Our system will take a different approach and use a
 non-backtracking type-checking and type-inference algorithm.
 
 =<
-=> Realizability model
 
-... (* TODO *)
-
-=<
-=> Subtyping
-
-Polymorphism and subtyping are essential for programming in a generic way.
-They lead to programs that are shorter, easier to understand and hence more
-reliable.
-
-
-=<
-=> Bias toward undecidability
-
-... (* TODO *)
-
-=<
 => Thesis overview
 
 The type-system of our new language is built incrementally throughout this

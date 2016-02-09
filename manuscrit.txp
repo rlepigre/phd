@@ -30,10 +30,6 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Remerciements}
 \end{minichap}
 
-\begin{minichap}{Sur le choix de la langue de rédaction}
-\Include{ChoixLangue}
-\end{minichap}
-
 \begin{minichap}{Table of contents / Table des matières}
 \TableOfContents
 \end{minichap}
