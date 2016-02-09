@@ -220,6 +220,13 @@ let biblio =
   ; notes   = "Proceedings of ESOP, LNCS Volume 9632"
   ; year    = "2016" };
 
+  { key     = "Church1936"
+  ; authors = "Alonzo Church and John Barkley Rosser Sr."
+  ; title   = "Some properties of conversion"
+  ; notes   = "Transactions of the American Mathematical Society, "
+              ++ "Volume 36, Number 3, pages 472–482"
+  ; year    = "1936" };
+
   ]
 
 let init () =
