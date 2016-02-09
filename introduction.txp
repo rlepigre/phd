@@ -431,45 +431,19 @@ The type-system of our new language is built incrementally throughout this
 thesis. Our starting point is a higher-order language enriched with product
 types (corresponding to SML records), sum types (corresponding to
 OCaml polymorphic variants) and control operators. This system is
-formally constructed in \chapter("hocml"), following a general introduction
-to the concepts and formalisms of type theory and classical realisability.
-It is then enriched, in \chapter("pml"), with new types allowing the
-specification of program equivalences. In particular, the system is extended
-with a dependent product type. However, the expressivity of this dependent
-product type is limited due to value restriction. A solution to this
-problem is proposed in \chapter("svr"), and value restriction is relaxed.
+formally constructed in \chapter("hocml"), together with a general
+introduction to the concepts and formalisms of type theory and classical
+realisability.
+
+The system is then enriched with new types allowing the specification of
+program equivalences in \chapter("pml"). In particular, the system is
+extended with a dependent product type. However, the expressivity of this
+dependent product type is limited due to value restriction. A solution to
+this problem is proposed in \chapter("svr"), and value restriction is relaxed.
 A realizability model is then constructed to show the soundness of this new
 approach. In particular, the property that the biorthogonal completion of
 a set of value is closed for values is required.
 
-
-(*
-(* TODO *)
-Le chapitre 3 se concentre sur les aspects pratiques de l'équivalence. En
-effet, la notion sémantique d'équivalence ne peut pas être utilisée pour
-une implémentation et ne peut donc pas être appliquée en pratique. Pour
-palier à ce problème, nous dérivons des règles syntaxiques à partir de la
-définition de l'équivalence. Ces dernières correspondrons grossièrement
-aux règles de réduction de notre langage et on pourra les utiliser pour
-implémanter une procédure de pseudo-décision pour l'équivalence.
-
-Le chapitre 4 quant à lui modifie le système défini dans les chapitres 2
-et 3 pour intégrer une notion de sous-typage. En particulier, le sous-typage
-permet d'englober toutes les règles de typage qui n'ont aucun contenu
-algorithmique. En particulier, tout l'indécidabilité du typage de notre
-système sera contenue dans le sous-typage (et donc aussi dans
-l'équivalence). Dans notre cadre, le sous-typage peut également être utilisé
-pour définir plus petits et plus grands points fixes de types. Ceci nous
-permet donc d'obtenir types récursifs et types co-récursifs de manière
-élégante.
-
-Finalement, le chapitre 5 contient une description de certaines parties
-de notre implémantation. Des examples de programmes standard et moins
-standard sont également fournis pour donner au lecteur une idée de
-l'utilisabilité du système en pratique. Les exemples sont également
-distribués avec le code source du prototype, afin que le lecteur puisse
-s'essayer à les utiliser et à les modifier.
-*)
 
 Every aspect of the system has been implemented in a prototype, which is
 distributed with this document.
