@@ -196,7 +196,7 @@ could be used to prove anything otherwise. The proofs ##addZeroN## and
 
 =<
 
-=> Soundness of dependent products
+=> On the expressivity of dependent products
 
 Several difficulties arise when combining call-by-value evaluation,
 side-effects, dependent products and equality types. Most notably, dependent
@@ -275,14 +275,23 @@ subtle \cite("Lepigre2016").
 
 =<
 
-=> Subtyping
+=> Programming with subtyping
 
 Polymorphism and subtyping are essential for programming in a generic way.
 They lead to programs that are shorter, easier to understand and hence more
-reliable.
+reliable. Although polymorphism is widespread among practical programming
+languages, only limited forms of subtyping are used in practice.
+
 (* TODO *)
 
 =<
+
+=> Typing algorithm and bias toward undecidability
+
+... (* TODO *)
+
+=<
+
 
 => Main results
 
@@ -322,10 +331,7 @@ $φ^\bot$). To obtain a model satisfying this property, we need to extend our
 programming language with a term $δ_{v,w}$ which reduction depends on the
 observational equivalence of two values $v$ and $w$.
 
-=<
-
-=> Call-by-value realizability model
-
+(*
 A model is built using classical
 realizability techniques in which the interpretation of a type $A$ is spread
 among two sets: a set of values $⟦A⟧$ and a set of terms $⟦A⟧^{\bot\bot}$.
@@ -342,12 +348,7 @@ instruction internalizing equivalence. This new instruction is only used to
 build the model, and will not be available to the user (nor will it appear
 in an implementation).
 (* TODO *)
-
-=<
-
-=> Typing algorithm and bias toward undecidability
-
-... (* TODO *)
+*)
 
 =<
 

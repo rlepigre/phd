@@ -11,6 +11,8 @@ to incorporate the author's original contributions.
 
 \Include{Cbvkam}
 
+\Include{Effects}
+
 \Include{Simpletypes}
 
 \Include{ValueRestriction}

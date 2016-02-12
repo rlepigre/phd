@@ -46,7 +46,7 @@ the function $(x,y) |-> x$ can be encoded as $λx λy x$.
 (* Free variables and bound variables. *)
 Although this is not reflected explicitely in the syntax of $λ$-terms,
 a $λ$-variable may play two very different roles. It can be used either as
-a constants, like $y$ in the constant function $λx y$, or as a reference to
+a constant, like $y$ in the constant function $λx y$, or as a reference to
 a binder, like $x$ in the identity function $λx x$. Variable binding and
 the associated notions of free and bound variable are hence essential.
 \begin{def}
@@ -69,7 +69,7 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 \end{center}
 \end{def}
 \begin{rem}
-Nothing prevents a $λ$-variable to have both free and bound occurences in
+Nothing prevents a $λ$-variable to have both free and bound occurrences in
 a term. For example, in $t = λx y λy x y$ the first occurrence of $y$ is
 free while its second occurrence is bound. We have $y ∈ FV_λ(t) = \{y\}$
 and $y ∈ BV_λ(t) = \{x, y\}$.
@@ -124,7 +124,7 @@ The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
 \cite("Krivine1990"), as the smallest relation such that:
 \begin{itemize}
 \item if $x ∈ \cal{V}_λ$ then $x ≡_α x$,
-\item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then ${(t₁) u₁} ≡_α {(t₂) u₂}$,
+\item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then ${t₁ u₁} ≡_α {t₂ u₂}$,
 \item if ${t₁[x₁ ← y]} \nequiv_α {t₂[x₂ ← y]}$ for only finitely many
       $y ∈ \cal{V}_λ$ then ${λx₁ t₁} ≡_α {λx₂ t₂}$.
 \end{itemize}
@@ -155,7 +155,7 @@ An evaluation context $E$ is a term with a hole. Given a term $t ∈ Λ$, we
 denote $E[t]$ the term formed by puting $t$ into the hole of the evaluation
 context $E$. Evaluation contexts are formed according to the following
 \sc{bnf} grammar.
-$$ E ::= [{\wc}] \| {λx E} \| {(E) u} \| {(t) E} $$
+$$ E ::= [{\wc}] \| {λx E} \| {E u} \| {t E} $$
 \end{def}
 \begin{def}\label("generalbeta")
 The general $β$-reduction relation is defined as the smallest relation
@@ -170,11 +170,18 @@ closure of $({→}_β)$.
 The general $β$-reduction relation $({→}_β)$ is non-deterministic. Indeed,
 given a term $t$, there might be two (different) terms $u₁$ and $u₂$ such
 that $t →_β u₁$ and $t →_β u₂$. However, $({→}_β)$ has the Church-Rosser
-property \cite("Church1936"), hence there must be a term $u ∈ Λ$ such that
-${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$. In the next section, the language
-will be enriched with operations generating side-effects. As a consequence,
-the confluence of the calculus will be lost and we will need to choose an
-evaluation order.
+property \cite("Church1936").
+\begin{thm}
+Let $t ∈ Λ$ be a term. If there are $u₁ ∈ Λ$ and $u₂ ∈ Λ$ such that
+$t →_β u₁$ and $t →_β u₁$, then there must be $u ∈ Λ$ such that
+${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$.
+\begin{proof}
+A full proof is available in \cite("Church1936").
+\end{proof}
+\end{thm}
+In the next section, the language will be enriched with operations producing
+side-effects. As a consequence, the Church-Rosser property will be lost and
+we will need to choose an evaluation order.
 
 The two most widely used evaluation strategies are call-by-name and
 call-by-value. They both reduce outermost $β$-redex first, which means

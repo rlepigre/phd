@@ -21,7 +21,6 @@ A context $Γ$ is
 Given a term $t ∈ Λ$, a context over $t$ is a finite map $Γ$ with 
 $FV(t) ⊆ dom(Γ)$ such that $∀{x ∈ FV_λ(t)}, Γ(x) ∈ \cal{F}$ and
 $∀{α ∈ FV_μ(t)}, Γ(α) ∈ \cal{F}$.
-\end{itemize}
 \end{def}
 
 
