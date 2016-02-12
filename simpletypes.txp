@@ -3,19 +3,40 @@
 
 => Simple types and classical logic
 
-In order to prevent undesired computational behaviours such as non-termination
-or runtime errors, functional programming rely on syntactic checks. We will
-here consider a small type system for our language, with only two type
-constructors.
+In order to prevent undesired computational behaviours such as runtime
+errors, functional programming languages rely on syntactic checks. We
+will here consider a small type system for our language, with only one
+type constructor for typing functions.
+\begin{def}
+The set of types (or formulas) $\cal{F}$ is built from the countable set of
+type variables $\cal{V}_\cal{F} = \{X,Y,Z...\}$ using the following BNF
+grammar.
+$$A,B ::= {X} \| {A ⇒ B} \hspace(4.0) X ∈ \cal{V}_\cal{F}$$
+\end{def}
+To be able to give a type to terms containing free variables, we need to
+use contexts. A context will map every free variable of a give term to its
+assumed type.
+\begin{def}
+A context $Γ$ is
+Given a term $t ∈ Λ$, a context over $t$ is a finite map $Γ$ with 
+$FV(t) ⊆ dom(Γ)$ such that $∀{x ∈ FV_λ(t)}, Γ(x) ∈ \cal{F}$ and
+$∀{α ∈ FV_μ(t)}, Γ(α) ∈ \cal{F}$.
+\end{itemize}
+\end{def}
+
+
+
 
 (*
 $$
 \axiomRN{Ax}{Γ, x : A ⊢ x : A}
 
 \hspace(4.)
+
 \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B}
 
 \hspace(4.)
+
 \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
 $$
 
@@ -23,6 +44,7 @@ $$
 \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
 
 \hspace(4.)
+
 \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
 $$
 *)
