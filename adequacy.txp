@@ -27,38 +27,35 @@ We proceed by induction on the derivation of the derivation of
 $Γ ⊢_\tval v : A$ (resp. $Γ ⊢ t : A$) and we reason by case on
 the last rule used.
 
-(*
-\smallskip\noindent($\text{ax}$)
-By hypothesis $σ$ realizes $Γ, x : A$ from which we directly
-obtain $xσ ∈ \vsem{A}_σ$.
+\begin{noindent}
+\linesBefore(2)$(ax)$
+By hypothesis $σ$ realizes $Γ, x : A$ from which we directly obtain
+$xσ ∈ ⟦A⟧_σ$.
 
-\smallskip\noindent($\uparrow$) and ($\downarrow$)
-are direct consequences of lemma \ref{orthosimple} and theorem \ref{biortho}
-respectively.
+\linesBefore(2)$({\uparrow}, {\downarrow})$
+Direct consequences of \lemRef("orthosimple") and \thmRef("biortho").
 
-\smallskip\noindent($\Rightarrow_e$)
-We need to prove that $tσ\;uσ ∈ \tsem{B}_σ$, hence we take
-$π ∈ \ssem{B}_σ$ and show $tσ\;uσ ∗ π ∈ \dbot$.
-Since $\dbot$ is saturated, we can take a reduction step and show
-$uσ ∗ [tσ]π ∈ \dbot$. By induction hypothesis $uσ ∈
-\tsem{A}_σ$ so we only have to show $[tσ]π ∈ \ssem{A}_σ$.
-To do so we take $v ∈ \vsem{A}_σ$ and show $v ∗ [tσ]π ∈
-\dbot$. Here we can again take a reduction step and show $tσ ∗ v.π
-∈ \dbot$. By induction hypothesis we have $tσ ∈
-\tsem{A \Rightarrow B}_σ$, hence it is enough to show
-$v.π ∈ \ssem{A \Rightarrow B}_σ$. We now take a value
-$\lambda x\;t_x ∈ \vsem{A \Rightarrow B}_σ$ and show that
-$\lambda x\;t_x ∗ v.π ∈ \dbot$. We then apply again a reduction step
-and show $t_x[x := v] ∗ π ∈ \dbot$. Since $π ∈ \ssem{B}_σ$
-we only need to show $t_x[x := v] ∈ \tsem{B}_σ$ which is true by
-definition of $\vsem{A \Rightarrow B}_σ$.
+\linesBefore(2)$({\Rightarrow}_e)$
+We need to prove that $tσ uσ ∈ ⟦B⟧_σ^{\bot\bot}$, hence we take a stack
+$π ∈ ⟦B⟧_σ^\bot$ and show that $tσ uσ ∗ π ∈ \dbot$. Since $\dbot$ is
+saturated, we can take a reduction step and show that $uσ ∗ [tσ]π ∈ \dbot$.
+By induction hypothesis we have $uσ ∈ ⟦A⟧_σ^{\bot\bot}$, hence it only
+remains to show that $[tσ]π ∈ ⟦A⟧_σ^\bot$. We take $v ∈ ⟦A⟧_σ$ and show
+$v ∗ [tσ]π ∈ \dbot$. Here we can again take a reduction step and show
+$tσ ∗ v·π ∈ \dbot$. By induction hypothesis we have
+$tσ ∈ ⟦A ⇒ B⟧_σ^{\bot\bot}$, hence it is enough to show
+$v·π ∈ ⟦A ⇒ B⟧_σ^\bot$. We now take a value $λx t_x ∈ ⟦A ⇒ B⟧_σ$ and show
+that $λx t_x ∗ v.π ∈ \dbot$. We then apply again a reduction step and show
+$t_x[x := v] ∗ π ∈ \dbot$. Since $π ∈ ⟦B⟧_σ^\bot$ we only need to show
+$t_x[x := v] ∈ ⟦B⟧_σ^{\bot\bot}$ which is true by definition of $⟦A ⇒ B⟧_σ$.
 
-\smallskip\noindent($\Rightarrow_i$)
-We need to show $\lambda x\;tσ ∈ \vsem{A \Rightarrow B}_σ$ so
-we take $v ∈ \vsem{A}_σ$ and show $tσ[x \!:=\! v] ∈
-\tsem{B}_σ$. Since $σ[x := v]$ realizes $Γ, x:A$ we can
-conclude using the induction hypothesis.
+\linesBefore(2)$({\Rightarrow}_i)$
+We need to show $λx tσ ∈ ⟦A ⇒ B⟧_σ$ so we take a value $v ∈ ⟦A⟧_σ$ and we
+show that $tσ[x := v] ∈ ⟦B⟧_σ^{\bot\bot}$. Since $σ[x := v]$ realizes
+$Γ, x:A$ we can conclude using the induction hypothesis.
+\end{noindent}
 
+(* TODO TODO TODO
 \smallskip\noindent($\mu$)
 We need to show that $\mu α\;tσ ∈ \tsem{A}_σ$ hence we take
 $π ∈ \ssem{A}_σ$ and show $\mu α\;tσ ∗ π ∈ \dbot$.
