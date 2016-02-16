@@ -1,0 +1,226 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Adequacy, safety and consistency
+
+We are now going to prove the soundness of our type system by showing that it
+is compatible with our realizability model. This property is specified by the
+following theorem which is traditionally called the adequacy lemma.
+\begin{def}
+Let $Γ$ be a context and $ρ$ be a valuation such that $Γ[ρ]$ is closed. We
+say that the substitution $σ$ realizes the closed context $Γ[ρ]$ if:
+\begin{itemize}
+\item for every $x : A$ in $Γ$ we have $σ(x) ∈ ⟦A⟧_ρ$,
+\item for every $α : ¬ A$ in $Γ$ we have $σ(x) ∈ ⟦A⟧_ρ^\bot$,
+\item for every $t ≡ u$ in $Γ$ we have $tσρ ≡ uσρ$ and
+\item for every $t \nequiv u$ in $Γ$ we have $tσρ \nequiv uσρ$.
+\end{itemize}
+\end{def}
+
+\begin{thm}\label("adequacy")
+Let $Γ$ be a context, $A$ be a formula and $ρ$ be a valuation such that
+$Γ[ρ]$ and $A[ρ]$ are closed. Let $σ$ be a substitution realizing $Γ[ρ]$.
+If $Γ ⊢_\tval v : A$ then $vσ ∈ ⟦A⟧_ρ$ and if $Γ ⊢ t : A$ then
+$tσ ∈ ⟦A⟧_ρ^{\bot\bot}$.
+\begin{proof}
+We proceed by induction on the derivation of the derivation of
+$Γ ⊢_\tval v : A$ (resp. $Γ ⊢ t : A$) and we reason by case on
+the last rule used.
+
+(*
+\smallskip\noindent($\text{ax}$)
+By hypothesis $σ$ realizes $Γ, x : A$ from which we directly
+obtain $xσ ∈ \vsem{A}_σ$.
+
+\smallskip\noindent($\uparrow$) and ($\downarrow$)
+are direct consequences of lemma \ref{orthosimple} and theorem \ref{biortho}
+respectively.
+
+\smallskip\noindent($\Rightarrow_e$)
+We need to prove that $tσ\;uσ ∈ \tsem{B}_σ$, hence we take
+$π ∈ \ssem{B}_σ$ and show $tσ\;uσ ∗ π ∈ \dbot$.
+Since $\dbot$ is saturated, we can take a reduction step and show
+$uσ ∗ [tσ]π ∈ \dbot$. By induction hypothesis $uσ ∈
+\tsem{A}_σ$ so we only have to show $[tσ]π ∈ \ssem{A}_σ$.
+To do so we take $v ∈ \vsem{A}_σ$ and show $v ∗ [tσ]π ∈
+\dbot$. Here we can again take a reduction step and show $tσ ∗ v.π
+∈ \dbot$. By induction hypothesis we have $tσ ∈
+\tsem{A \Rightarrow B}_σ$, hence it is enough to show
+$v.π ∈ \ssem{A \Rightarrow B}_σ$. We now take a value
+$\lambda x\;t_x ∈ \vsem{A \Rightarrow B}_σ$ and show that
+$\lambda x\;t_x ∗ v.π ∈ \dbot$. We then apply again a reduction step
+and show $t_x[x := v] ∗ π ∈ \dbot$. Since $π ∈ \ssem{B}_σ$
+we only need to show $t_x[x := v] ∈ \tsem{B}_σ$ which is true by
+definition of $\vsem{A \Rightarrow B}_σ$.
+
+\smallskip\noindent($\Rightarrow_i$)
+We need to show $\lambda x\;tσ ∈ \vsem{A \Rightarrow B}_σ$ so
+we take $v ∈ \vsem{A}_σ$ and show $tσ[x \!:=\! v] ∈
+\tsem{B}_σ$. Since $σ[x := v]$ realizes $Γ, x:A$ we can
+conclude using the induction hypothesis.
+
+\smallskip\noindent($\mu$)
+We need to show that $\mu α\;tσ ∈ \tsem{A}_σ$ hence we take
+$π ∈ \ssem{A}_σ$ and show $\mu α\;tσ ∗ π ∈ \dbot$.
+Since $\dbot$ is saturated, it is enough to show $tσ[α := π] ∗
+π ∈ \dbot$. As $σ[α := π]$ realizes $Γ, α:¬ A$
+we conclude by induction hypothesis.
+
+\smallskip\noindent($∗$)
+We need to show $tσ ∗ ασ ∈ \tsem{B}_σ$, hence we take
+$π ∈ \ssem{B}_σ$ and show that $(tσ ∗ ασ) ∗ π
+∈ \dbot$. Since $\dbot$ is saturated, we can take a reduction step and show
+$tσ ∗ ασ ∈ \dbot$. By induction hypothesis $tσ ∈
+\tsem{A}_σ$ hence it is enough to show $ασ ∈ \ssem{A}_σ$
+which is true by hypothesis.
+
+\smallskip\noindent($∈_i$)
+We need to show $vσ ∈ \vsem{v ∈ A}_σ$. We have $vσ ∈
+\vsem{A}_σ$ by induction hypothesis, and $vσ ≡ vσ$ by
+reflexivity of $(≡)$.
+
+\smallskip\noindent($∈_e$)
+By hypothesis we know that $σ$ realizes $Γ, x : u ∈ A$. To be able
+to conclude using the induction hypothesis, we need to show that $σ$
+realizes $Γ, x : A, x ≡ u$. Since we have $σ(x) ∈
+\vsem{u ∈ A}_σ$, we obtain that $xσ ∈ \vsem{A}_σ$ and
+$xσ ≡ uσ$ by definition of $\vsem{u ∈ A}_σ$.
+
+\smallskip\noindent($\restriction_i$)
+We need to show $tσ ∈ \tsem{A \restriction u_1 ≡ u_2}_σ$.
+By hypothesis $u_1σ ≡ u_2σ$, hence $\vsem{A \restriction u_1
+≡ u_2}_σ = \vsem{A}_σ$. Consequently, it is enough to show
+that $tσ ∈ \tsem{A}_σ$, which is exactly the induction hypothesis.
+
+\smallskip\noindent($\restriction_e$)
+By hypothesis we know that $σ$ realizes $Γ, x : A \restriction u_1
+≡ u_2$. To be able to use the induction hypothesis, we need to show that
+$σ$ realizes $Γ, x : A, u_1 ≡ u_2$. Since we have $σ(x)
+∈ \vsem{A \restriction u_1 ≡ u_2}_σ$, we obtain that $xσ ∈
+\vsem{A}_σ$ and that $u_1σ ≡ u_2σ$ by definition of
+$\vsem{A \restriction u_1 ≡ u_2}_σ$.
+
+\smallskip\noindent($\forall_i$)
+We need to show that $vσ ∈ \vsem{\forall a\; A}_σ = \bigcap_{t
+∈ \Lambda} \vsem{A}_{σ[a := t]}$ so we take $t ∈ \Lambda$ and show
+$vσ ∈ ⟦ A ⟧_{σ[a := t]}$. This is true by
+induction hypothesis since $a \not∈ FV(Γ)$ and hence $σ[a:=t]$
+realizes $Γ$.
+
+\smallskip\noindent($\forall_e$)
+We need to show $tσ ∈ \tsem{A[a := u]}_σ = \tsem{A}_{σ[a :=
+uσ]}$ for some $u ∈ \Lambda$. By induction hypothesis we know $tσ
+∈ \tsem{\forall a\;A}_σ$, hence we only need to show that
+$\tsem{\forall a\; A}_σ \subseteq \tsem{A}_{σ[a := uσ]}$. By
+definition we have $\vsem{\forall a\; A}_σ \subseteq \vsem{A}_{σ[a
+:= uσ]}$ so we can conclude using lemma \ref{orthoblabla}.
+
+\smallskip\noindent($\exists_e$)
+By hypothesis we know that $σ$ realizes $Γ, x : \exists a\;A$. In
+particular, we know that $σ(x) ∈ \vsem{\exists a\;A}_σ$, which
+means that there is a term $u ∈ \Lambda^∗$ such that $σ(x) ∈
+\vsem{A}_{σ[a := u]}$. Since $a \notin FV(Γ)$, we obtain that the
+substitution $σ[a := u]$ realizes the context $Γ, x : A$. Using the
+induction hypothesis, we finally get $tσ = tσ[a := u] ∈
+\tsem{B}_{σ[a := u]} = \tsem{B}_σ$ since $a \notin TV(t)$ and $a
+\notin FV(B)$.
+
+\smallskip\noindent($\exists_i$)
+The proof for this rule is similar to the one for \emph{($\forall_e$)}. We
+need to show that $\tsem{A[a := u]}_σ = \tsem{A}_{σ[a := uσ]}
+\subseteq \tsem{\exists a\;A}_σ$. This follows from lemma
+\ref{orthoblabla} since $\vsem{A}_{σ[a := uσ]} \subseteq
+\vsem{\exists a\;A}_σ$ by definition.
+
+\smallskip\noindent($\forall_I$), $(\forall_E)$, $(\exists_E)$ and $(\exists_I)$
+are similar to similar to ($\forall_i$), ($\forall_e$), ($\exists_e$) and
+($\exists_i$).
+
+\smallskip\noindent($\times_i$)
+We need to show that $\{l_i = v_iσ\}_{i ∈ I} ∈
+\vsem{\{l_i : A_i\}_{i ∈ I}}_σ$. By definition we need to show that
+for all $i ∈ I$ we have $v_iσ ∈ \vsem{A_i}_σ$. This is
+immediate by induction hypothesis.
+
+\smallskip\noindent($\times_e$)
+We need to show that $vσ.l_i ∈ \tsem{A_i}_σ$ for some $i ∈ I$.
+By induction hypothesis we have $vσ ∈
+\vsem{\{l_i : A_i\}_{i ∈ I}}_σ$ and hence $v$ has the form
+$\{l_i = v_i\}_{i ∈ I}$ with $v_iσ ∈ \vsem{A_i}_σ$. Let us now
+take $π ∈ \ssem{A_i}_σ$ and show that
+$\{l_i = v_iσ\}_{i ∈ I}.l_i ∗ π ∈ \dbot$. Since $\dbot$ is
+saturated, it is enough to show $v_iσ ∗ π ∈ \dbot$. This is true
+since $v_iσ ∈ \vsem{A_i}_σ$ and $π ∈ \ssem{A_i}_σ$.
+
+\smallskip\noindent($+_i$)
+We need to show $C_i[vσ] ∈ \vsem{[C_i : A_i]_{i ∈ I}}_σ$ for
+some $i ∈ I$. By induction hypothesis $vσ ∈ \vsem{A_i}_σ$ and
+hence we can conclude by definition of $\vsem{[C_i : A_i]_{i ∈ I}}_σ$.
+
+\smallskip\noindent($+_e$)
+We need to show $case_{vσ}\;[C_i[x] \to t_iσ]_{i ∈ I} ∈
+\tsem{B}_σ$. By induction hypothesis $vσ ∈ \vsem{[C_i of A_i]_{i
+∈ I}}_σ$ which means that there is $i ∈ I$ and $w ∈
+\vsem{A_i}_σ$ such that $vσ = C_i[w]$. We take $π ∈
+\ssem{B}_σ$ and show $\tcase{C_i[w]}{C_i[x] \to t_iσ}_{i ∈ I}
+∗ π ∈ \dbot$. Since $\dbot$ is saturated, it is enough to show
+$t_iσ[x := w] ∗ π ∈ \dbot$. It remains to show that
+$t_iσ[x := w] ∈ \tsem{B}_σ$. To be able to conclude using
+the induction hypothesis we need to show that $σ[x := w]$ realizes
+$Γ, x : A_i, C_i[x] ≡ v$. This is true since $σ$ realizes
+$Γ$, $w ∈ \vsem{A_i}_σ$ and $C_i[w] ≡ vσ$ by reflexivity.
+
+\smallskip\noindent($≡_{v,l}$)
+We need to show $t[x := w_1]σ = tσ[x := w_1σ] ∈
+\vsem{A}_σ$. By hypothesis we know that $w_1σ ≡ w_2σ$
+from which we can deduce $tσ[x := w_1σ] ≡ tσ[x :=
+w_2σ]$ by extensionality (theorem \ref{extval}). Since $\vsem{A}_σ$
+is closed under $(≡)$ we can conclude using the induction hypothesis.
+
+\smallskip\noindent($≡_{t,l}$), ($≡_{v,r}$) and ($≡_{t,r}$)
+are similar to ($≡_{v,l}$), using extensionality (theorem \ref{extval}
+and theorem \ref{extterm}).
+*)
+\end{proof}
+\end{thm}
+
+\begin{rem}
+For the sake of simplicity we fixed a pole $\dbot$ at the beginning of the
+current section. However, many of the properties presented here (including
+the adequacy lemma) remain valid with similar poles. We will make use of
+this fact in the proof of the following theorem.
+\end{rem}
+
+\begin{thm}\label("safety")
+Let $A$ be a formula, $Γ$ be a context and $ρ$ be a valuation such that
+$Γ[ρ]$ is a closed context and $A[ρ]$ is a closed formula. We also require
+that $A[ρ]$ is pure (i.e. does not contain any $\wc ⇒ \wc$). If $σ$ is a
+substitution realizing $Γ[ρ]$ and $t$ is a term such that the judgments
+$Γ ⊢ t : A$ is provable then for every stack $π ∈ ⟦A⟧_ρ^\bot$ there is a
+value $v ∈ ⟦A⟧_ρ$ and $α ∈ \cal{V}_\mu$ such that
+${{tσ ∗ π} \epi {v ∗ α}}^{∗}$.
+\begin{proof}
+We do a proof by realizability using the pole $\dbot_A = \{ p ∈ Λ×Π \|
+{p \epi {v ∗ α}}^{∗} \land v ∈ ⟦A⟧_ρ\}$. It is well-defined as $A[ρ]$ is
+pure and hence $⟦A⟧_ρ$ does not depend on the pole. Using the adequacy
+lemma (\thmRef("adequacy")) with $\dbot_A$ we obtain $tσ ∈ ⟦A⟧_ρ^{\bot\bot}$.
+Hence for every stack $π ∈ ⟦A⟧_ρ^\bot$ we have ${tσ ∗ π} ∈ \dbot_A$.
+\end{proof}
+\end{thm}
+\begin{rem}
+It is easy to see that if $A[ρ]$ is closed and pure then $v ∈ ⟦A⟧_ρ$ holds
+if and only if $⊢ v : A$ is provable.
+\end{rem}
+
+\begin{thm}\label("consistency")
+There is no $t$ such that $⊢ t : \bot$.
+\begin{proof}
+Let us suppose that $⊢ t : \bot$. Using the adequacy lemma
+(\thmRef("adequacy")) we obtain that $t ∈ ⟦\bot⟧^{\bot\bot}$. Since
+$⟦\bot⟧ = \emptyset$ we know that $⟦\bot⟧^\bot = Π$ by definition. Now
+using \thmRef("poleconsist") we obtain $⟦\bot⟧^{\bot\bot} = ∅$.
+This is a contradiction.
+\end{proof}
+\end{thm}
+
+=<

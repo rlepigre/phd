@@ -1,0 +1,177 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Extensionality of equivalence
+
+In order to be able to work with the equivalence relation $({≡})$, we
+need to check that it is extensional. In other words, we need to be able
+to replace equals by equals at any place in terms without changing their
+observed behaviour. This property is summarized in the following two
+theorems.
+
+\begin{thm}\label("extval")
+Let $v$ and $w$ be values, $E$ be a term and $x$ be a $λ$-variable. If
+$v ≡ w$ then we have $E[x := v] ≡ E[x := w]$.
+\begin{proof}
+We are going to prove the contrapositive so we suppose $E[x := v] \nequiv
+E[x := w]$ and show $v \nequiv w$. By definition there is a natural number
+$i$, a stack $π$ and a substitution $σ$ such that we have ${(E[x := v])σ ∗
+π} {\converge}_i$ and ${(E[x := w])σ ∗ π} {\diverge}_i$ (up to symmetry).
+Since we can rename $x$ in such a way that it does not appear in $dom(σ)$,
+we can suppose that we have ${Eσ[x := vσ] ∗ π} {\converge}_i$ and ${Eσ[x
+:= wσ] ∗ π} {\diverge}_i$. To show $v \nequiv w$ we need $i₀$, $π₀$ and
+$σ₀$ such that ${vσ₀ ∗ π₀} {\converge}_{i₀}$ and ${wσ₀ ∗ π₀} {\diverge}_{
+i₀}$ (up to symmetry). We can take $i₀ = i$, $π₀ = [λx Eσ]π$ and $σ₀ = σ$
+as ${{vσ₀ ∗ π₀} \epi {Eσ[x := vσ] ∗ π}}_{i₀}$ and
+${{wσ₀ ∗ π₀} \epi {Eσ[x := wσ] ∗ π}}_{i₀}$.
+\end{proof}
+\end{thm}
+
+\begin{lem}\label("aposs")
+Let $s$ be a process, $t$ be a term, $a$ be a term variable and $k$ be a
+natural number. If $s[a := t] {\converge}_k$ then there is a blocked state
+$p$ such that ${s ≻ p}^{∗}$ and either
+\begin{itemize}
+\item $p = v ∗ α$ for some value $v$ and a stack variable $α$,
+\item $p = a ∗ π$ for some stack $π$,
+\item $k > 0$ and $p = δ(v,w) ∗ π$ for some values $v$ and $w$ and
+      stack $π$, and in this case $v[a := t] \nequiv_j w[a := t]$ for
+      some $j < k$.
+\end{itemize}
+\begin{proof}
+Let $σ$ be the substitution $[a := t]$. If $s$ is non-terminating,
+\lemRef("redstable") tells us that $sσ$ is also non-terminating, which
+contradicts $sσ {\converge}_k$. Consequently, there is a blocked process
+$p$ such that ${s ≻ p}^{∗}$ since $({≻}) ⊆ ({\epi}_k)$.
+(* *)
+Using \lemRef("redcompatall") we get ${sσ ≻ pσ}^{∗}$ from which we obtain
+$pσ {\converge}_k$. The process $p$ cannot be stuck, otherwise $pσ$ would
+also be stuck by \lemRef("redstable"), which would contradict
+$pσ {\converge}_k$. Let us now suppose that $p = δ_{v,w} ∗ π$ for some
+values $v$ and $w$ and some stack $π$. Since $δ_{vσ,wσ} ∗ π {\converge}_k$
+there must be $i < k$ such that $vσ \nequiv_j wσ$, otherwise this would
+contradict $δ_{vσ,wσ} ∗ π {\converge}_k$. In this case we necessarily
+have $k > 0$, otherwise there would be no possible candidate for $i$.
+According to \lemRef("possibilities") we need to rule out four more forms
+of therms: $x.l ∗ π$, $x ∗ v.π$, $case_x B ∗ π$ and $b ∗ π$ in the case
+where $b ≠ a$. If $p$ was of one of these forms the substitution $σ$ would
+not be able to unblock the reduction of $p$, which would contradict again
+$pσ {\converge}_k$.
+\end{proof}
+\end{lem}
+
+\begin{lem}\label("aextlem")
+Let $t₁$, $t₂$ and $E$ be terms and $a$ be a term variable. For every
+$k ∈ \bbN$, if $t₁ ≡_k t₂$ then $E[a := t₁] ≡_k E[a := t₂]$.
+\begin{proof}
+Let us take $k ∈ \bbN$, suppose that ${t₁ ≡ t₂}_k$ and show that
+$E[a := t₁] ≡_k E[a := t₁]$. By symmetry we can assume that we have
+$i ≤ k$, $π ∈ Π$ and a substitution $σ$ such that $(E[a := t₁])σ ∗ π 
+{\converge}_i$ and show that $(E[a := t₂])σ ∗ π {\converge}_i$. As we are
+free to rename $a$, we can suppose that it does not appear in $dom(σ)$,
+$TV(π)$, $TV(t₁)$ or $TV(t₂)$. In order to lighten the notations we define
+$E' = Eσ$, $σ₁ = [a := t₁σ]$ and $σ₂ = [a := t₂σ]$. We are hence assuming
+$E'σ₁ ∗ π {\converge}_i$ and trying to show $E'σ₂ ∗ π {\converge}_i$.
+
+We will now build a sequence $(E_i,π_i,l_i)_{i ∈ I}$ such that
+${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k$ in $l_i$ steps for every $i ∈ I$.
+Furthermore, we require that $(l_i)_{i ∈ I}$ is increasing and that it has
+a strictly increasing subsequence. Under this condition our sequence will
+be finite. If it was infinite the number of reduction steps that could be
+taken from $E'σ₁ ∗ π$ would not be bounded, which would contradict
+$E'σ₁ ∗ π {\converge}_i$. We now denote our finite sequence
+$(E_i,π_i,l_i)_{i ≤ n}$ with $n ∈ \bbN$. To show that
+$(l_i)_{i ≤ n}$ has a strictly increasing subsequence, we will ensure that
+it does not have three equal consecutive values. More formally, we will
+require that if $0 < i < n$ and $l_{i-1} = l_i$ then $l_{i+1} > l_i$.
+
+To define $(E₀,π₀,l₀)$ we consider the reduction of $E' ∗ π$. Since we know
+that we have $(E' ∗ π)σ₁ = E'σ₁ ∗ π {\converge}_i$ we use \lemRef("aposs")
+to obtain a blocked state $p$ such that ${{E' ∗ π} ≻ p}^j$. We can now take
+$E₀ ∗ π₀ = p$ and $l₀ = j$. By \lemRef("redcompatall") we have ${(E' ∗ π)σ₁
+≻ {E₀σ₁ ∗ π₀σ₁}}^j$ from which we can deduce that ${(E' ∗ π)σ₁ \epi {E₀σ₁ ∗
+π₀σ₁}}_k$ in $l₀ = j$ steps.
+
+To define $(E_{i+1},π_{i+1},l_{i+1})$ we consider the process $E_iσ₁ ∗ π_i$.
+By construction we know that ${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k = (E_iσ₁ ∗
+π_i)σ₁$ in $l_i$ steps. Using \lemRef("aposs"), we obtain that the process
+$E_i ∗ π_i$ can be of three different shapes.
+\begin{itemize}
+\item If ${E_i ∗ π_i} = {v ∗ α}$ for some value $v$ and stack variable $α$
+      then the end of the sequence was reached with $n = i$.
+\item If $E_i = a$ then we consider the reduction of $E_iσ₁ ∗ π_i$. Since
+      $(E_iσ₁ ∗ π_i)σ₁ {\converge}_k$ we know from \lemRef("aposs") that
+      there is a blocked process $p$ such that ${{E_iσ₁ ∗ π_i} ≻ p}^j$.
+      Using \lemRef("redcompatall") we obtain ${{E_iσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$
+      from which we can deduce that ${{E_iσ₁ ∗ π_iσ₁} \epi pσ₁}_k$ in $j$
+      steps. We then take $E_{i+1} ∗ π_{i+1} = p$ and $l_{i+1} = l_i + j$.
+
+      Is it possible to have $j=0$? This can only happen when $E_iσ₁ ∗ π_i$
+      is of one of the three forms of \lemRef("aposs"). It cannot be of the
+      form $a ∗ π$ as we assumed that $a$ does not appear in $t₁$ or $σ$.
+      If it is of the form $v ∗ α$, then we reached the end of the sequence
+      with $i + 1 = n$ so there is no problem. In the case where the process
+      $E_iσ₁ ∗ π_i$ is of the form $δ(v,w) ∗ π$, but we will have $l_{i+2} >
+      l_{i+1}$.
+\item If $E_i = δ(v,w)$ for some values $v$ and $w$ we have $m < k$ such
+      that ${vσ₁ \nequiv wσ₁}_m$. Hence ${{E_iσ₁ ∗ π_i = δ(vσ₁,wσ₁) ∗ π_i}
+      \epi {vσ₁ ∗ π_i}}_k$ by definition. Moreover, we know that
+      ${{E_iσ₁ ∗ π_iσ₁} \epi {vσ₁ ∗ π_iσ₁}}_k$ by \lemRef("redcompatall").
+      Since ${{E'σ₁ ∗ π} \epi
+      {E_iσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i$ steps we get that ${{E'σ₁ ∗ π}
+      \epi {vσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i + 1$ steps, and hence
+      ${(vσ₁ ∗ π_i)σ₁ = vσ₁ ∗ π_iσ₁} {\converge}_k$.
+      
+      We now consider the reduction of the process $vσ₁ ∗ π_i$. By
+      \lemRef("aposs") there is a blocked process $p$ such that
+      ${{vσ₁ ∗ π_i} ≻ p}^j$. Using \lemRef("redcompatall") we obtain
+      ${{vσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$ from which we deduce that ${{vσ₁ ∗ π_iσ₁}
+      \epi pσ₁}_k^{∗}$ in $j$ steps. We then take $E_{i+1} ∗ π_{i+1} = p$
+      and $l_{i+1} = l_i + j + 1$. Note that in this case we have $l_{i+1}
+      > l_i$.
+\end{itemize}
+Intuitively $(E_i,π_i,l_i)_{i ≤ n}$ mimics the reduction of $E'σ₁ ∗ π$ while
+making explicit every substitution of $a$ and every reduction of a $δ$-like
+state.
+
+To end the proof we show that for every $i ≤ n$ we have ${E_iσ₂ ∗ π_iσ₂}
+{\converge}_k$. For $i = 0$ this will give us ${E'σ₂ ∗ π} {\converge}_k$,
+which is the expected result. Since $E_n ∗ π_n = v ∗ α$ we have $E_nσ₂ ∗
+π_nσ₂ = vσ₂ ∗ α$ from which we trivially obtain ${E_nσ₂ ∗ π_nσ₂}
+{\converge}_k$. We now suppose that ${E_{i+1}σ₂ ∗ π_iσ₂} {\converge}_k$ for
+$0 ≤ i < n$ and show that ${E_iσ₂ ∗ π_iσ₂} {\converge}_k$. By construction
+$E_i ∗ π_i$ can be of two shapes since only $E_n ∗ π_n$ can be of the form
+$v ∗ α$.
+\begin{itemize}
+\item If $E_i = a$ then ${{t₁σ ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k^{∗}$. by
+      \lemRef("redcompatall") we get ${{t₁σ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗
+      π_iσ₂}}_k$ from which we deduce ${t₁σ ∗ π_iσ₂}
+      {\converge}_k$ by induction hypothesis. Since ${t₁ ≡ t₂}_k$ we obtain
+      ${t₂σ ∗ π_iσ₂ = (E_i ∗ π_i)σ₂} {\converge}_k$.
+\item If $E_i = δ(v,w)$ then ${{v ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k$ and
+      hence ${{vσ₂ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗ π_{i+1}σ₂}}_k$ by
+      \lemRef("redcompatall"). Using the induction hypothesis we obtain
+      ${vσ₂ ∗ π_iσ₂} {\converge}_k$. It remains to show that
+      ${{δ(vσ₂,wσ₂) ∗ π_iσ₂} \epi {vσ₂ ∗ π_iσ₂}}_k^{∗}$. We need to find
+      $j < k$ such that ${vσ₂ \nequiv wσ₂}_j$. By construction there is
+      $m < k$ such that ${vσ₁ \nequiv wσ₁}_m$. We are going to show that
+      ${vσ₂ \nequiv wσ₂}_m$. By using the global induction hypothesis twice
+      we obtain ${vσ₁ ≡ vσ₂}_m$ and ${wσ₁ ≡ vσ₂}_m$. Now if ${vσ₂ ≡ wσ₂}_m$
+      then ${{vσ₁ ≡ vσ₂}_m ≡ {wσ₂ ≡ wσ₁}_m}_m$ contradicts
+      $vσ₁ \nequiv wσ₁$. Hence we must have ${vσ₂ \nequiv wσ₂}_m$.
+\end{itemize}
+\end{proof}
+\end{lem}
+
+\begin{thm}\label("extterm")
+Let $t₁$, $t₂$ and $E$ be three terms and $a$ be a term variable. If
+$t₁ ≡ t₂$ then $E[a := t₁] ≡ E[a := t₂]$.
+\begin{proof}
+We suppose that $t₁ ≡ t₂$ which means that ${t₁ ≡ t₂}_i$ for every
+$i ∈ \bbN$. We need to show that $E[a := t₁] ≡ E[a := t₂]$ so we take
+$i₀ ∈ \bbN$ and show ${E[a := t₁] ≡ E[a := t₂]}_{i₀}$. By hypothesis we
+have ${t₁ ≡ t₂}_{i₀}$ and hence we can conclude using \lemRef("aextlem").
+\end{proof}
+\end{thm}
+
+=<

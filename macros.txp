@@ -57,14 +57,13 @@ module Env_lem = (val make_theorem "Lemma")
 module Env_thm = (val make_theorem "Theorem")
 module Env_cor = (val make_theorem "Corollary")
 
-let defRef x = <<definition \generalRef("Definition")(x)>>
-let remRef x = <<remark \generalRef("Remark")(x)>>
-let lemRef x = <<lemma \generalRef("Lemma")(x)>>
-let thmRef x = <<theorem \generalRef("Theorem")(x)>>
-let corRef x = <<corollary \generalRef("Corollary")(x)>>
+let defRef x = <<Definition \generalRef("Definition")(x)>>
+let remRef x = <<Remark \generalRef("Remark")(x)>>
+let lemRef x = <<Lemma \generalRef("Lemma")(x)>>
+let thmRef x = <<Theorem \generalRef("Theorem")(x)>>
+let corRef x = <<Corollary \generalRef("Corollary")(x)>>
 
-let chapter l = (tT "chapter ") :: sectref l
-let mchapter l = (tT "Chapter ") :: sectref l
+let chapter l = (tT "Chapter ") :: sectref l
 
 let tval : Typography.Document.environment Typography.Maths.math list =
   let t = Maths.glyphs "val" in

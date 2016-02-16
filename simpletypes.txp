@@ -6,7 +6,7 @@
 In order to prevent undesired computational behaviours such as runtime
 errors, functional programming languages rely on syntactic checks. We
 will here consider a small type system for our language, with only one
-type constructor for typing functions.
+type constructor for functions and type constants.
 \begin{def}
 The set of types (or formulas) $\cal{F}$ is built from the countable set of
 type variables $\cal{V}_\cal{F} = \{X,Y,Z...\}$ using the following BNF
@@ -17,35 +17,25 @@ To be able to give a type to terms containing free variables, we need to
 use contexts. A context will map every free variable of a give term to its
 assumed type.
 \begin{def}
-A context $Γ$ is
 Given a term $t ∈ Λ$, a context over $t$ is a finite map $Γ$ with 
-$FV(t) ⊆ dom(Γ)$ such that $∀{x ∈ FV_λ(t)}, Γ(x) ∈ \cal{F}$ and
-$∀{α ∈ FV_μ(t)}, Γ(α) ∈ \cal{F}$.
+$FV_λ(t) ∪ FV_μ(t) ⊆ dom(Γ)$ such that $∀{x ∈ FV_λ(t)}, Γ(x) ∈ \cal{F}$
+and $∀{α ∈ FV_μ(t)}, Γ(α) ∈ \cal{F}$. For convenience, we will represent
+contexts using lists generated using the following BNF grammar.
+$$ Γ, Δ ::= {\bullet} \| {Γ, x : A} \| {Γ, α : A^\bot} $$
+However, we need to keep in mind that variables can only be mapped once
+in a context and that the order in the list is not relevent.
+\end{def}
+\begin{def}
+A typing judgement is a triple of a term $t$, a type $A$ and a context $Γ$
+over $t$.
 \end{def}
 
 
 
-
-(*
-$$
-\axiomRN{Ax}{Γ, x : A ⊢ x : A}
-
-\hspace(4.)
-
-\unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B}
-
-\hspace(4.)
-
-\binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
-$$
-
-$$
-\unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
-
-\hspace(4.)
-
-\unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
-$$
-*)
+$$ \axiomRN{Ax}{Γ, x : A ⊢ x : A} $$
+$$ \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B} $$
+$$ \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B} $$
+$$ \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A} $$
+$$ \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B} $$
 
 =<

@@ -1,7 +1,7 @@
 \Caml(open Diagrams open ProofTree)
 \Include{Macros}
 
-=> Call-by-value Krivine machine and effects
+=> Call-by-value Krivine machine
 
 In the previous section, we explicited the syntax of the $λ$-calculus and
 the evaluation of $λ$-terms. We will now reformulate these definition in

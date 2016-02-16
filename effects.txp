@@ -1,14 +1,14 @@
 \Caml(open Diagrams open ProofTree)
 \Include{Macros}
 
-=> Call-by-value Krivine machine and effects
+=> Computational effects and $λ$$μ$-calculus
 
 We are now going to extend the calculus and our abstract machine with
 operations allowing the manipulation of the stack. More precisely, we
 will provide a way to save the stack (i.e. the evaluation context or the
 continuation), so that it can be restored at a later stage. A natural
 way to extend our language is to use the syntax of Michel Parigot's
-$λμ$-calculus \cite("Parigot1992"). We hence introduce a new binder $μα t$
+$λ$$μ$-calculus \cite("Parigot1992"). We hence introduce a new binder $μα t$
 capturing the current stack in the $μ$-variable $α$. It can then be
 restored in $t$ using the syntax $[α]u$.
 \begin{def}
@@ -33,6 +33,12 @@ $π$ is a stack variable. Allowing arbitrary stacks allow us to substitute
 $μ$-variables by stacks during computation. Like with $λ$-variable, we will
 need to be careful and avoid variable capture. However, we will not give
 the full details this time.
+\begin{def}
+Given a value, term, stack or process $ψ$, we denote $FV_λ(ψ)$ (resp.
+$BV_λ(ψ)$) the set of its free (resp. bound) $λ$-variables and $FV_μ(ψ)$
+(resp. $BV_μ(ψ)$) the set of its free (resp. bound) $μ$-variables. These
+sets are defined inductively in a similar way to \defRef("freelvars").
+\end{def}
 \begin{def}
 Let $t ∈ Λ$ be a term, $π ∈ Π$ be a stack and $α ∈ \cal{V}_μ$ be a
 $μ$-variable. We denote $t[α := π]$ the (capture-avoiding) substitution of

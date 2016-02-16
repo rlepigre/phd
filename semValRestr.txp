@@ -24,16 +24,11 @@
 ... (* TODO *)
 
 =<
-=> Extensionality of equivalence
 
-... (* TODO *)
+\Include{Extensionality}
 
-=<
-=> Adequacy, safety and consistency
+\Include{Adequacy}
 
-... (* TODO *)
-
-=<
 => Partial axiomatisation of equivalence
 
 ... (* TODO *)

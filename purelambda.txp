@@ -49,7 +49,7 @@ a $λ$-variable may play two very different roles. It can be used either as
 a constant, like $y$ in the constant function $λx y$, or as a reference to
 a binder, like $x$ in the identity function $λx x$. Variable binding and
 the associated notions of free and bound variable are hence essential.
-\begin{def}
+\begin{def}\label("freelvars")
 Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
 and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
 inductively on the structure of the term $t$.
@@ -184,7 +184,7 @@ side-effects. As a consequence, the Church-Rosser property will be lost and
 we will need to choose an evaluation order.
 
 The two most widely used evaluation strategies are call-by-name and
-call-by-value. They both reduce outermost $β$-redex first, which means
+call-by-value. They both reduce outermost $β$-redexes first, which means
 that they can be formalised without the use of evaluation contexts. In
 call-by-name, the terms that are in function position are reduced first.
 The computation of the terms that are in argument position is postponed
@@ -199,6 +199,14 @@ $$
   \unaryR{t →_N t'}{{t u} →_N {t' u}}
 $$
 \end{def}
+\begin{rem}
+In this thesis, we will often define relations using deduction rule
+systems. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
+a conclusion $C$ separated by an horizontal bar.
+$$ \ternaryR{P₁}{...}{P_n}{C} $$
+The meaning of such a rules is that the conclusion $C$ can be deduced when
+all the premisses $P_i$ are true. Note that there might be no premisse.
+\end{rem}
 In call-by-value, both the function and its argument need to be fully
 evaluated before the application can be performed. Consequently, two
 different strategies can be defined: left-to-right and right-to-left
