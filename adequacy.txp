@@ -53,131 +53,113 @@ $t_x[x := v] ∈ ⟦B⟧_σ^{\bot\bot}$ which is true by definition of $⟦A ⇒
 We need to show $λx tσ ∈ ⟦A ⇒ B⟧_σ$ so we take a value $v ∈ ⟦A⟧_σ$ and we
 show that $tσ[x := v] ∈ ⟦B⟧_σ^{\bot\bot}$. Since $σ[x := v]$ realizes
 $Γ, x:A$ we can conclude using the induction hypothesis.
-\end{noindent}
 
-(* TODO TODO TODO
-\smallskip\noindent($\mu$)
-We need to show that $\mu α\;tσ ∈ \tsem{A}_σ$ hence we take
-$π ∈ \ssem{A}_σ$ and show $\mu α\;tσ ∗ π ∈ \dbot$.
-Since $\dbot$ is saturated, it is enough to show $tσ[α := π] ∗
-π ∈ \dbot$. As $σ[α := π]$ realizes $Γ, α:¬ A$
-we conclude by induction hypothesis.
+\linesBefore(2)$({μ})$
+We need to show that $μα tσ ∈ ⟦A⟧_σ^{\bot\bot}$ hence we take
+$π ∈ ⟦A⟧_σ^\bot$ and show $μα tσ ∗ π ∈ \dbot$. Since $\dbot$ is
+saturated, it is enough to show $tσ[α := π] ∗ π ∈ \dbot$. As
+$σ[α := π]$ realizes $Γ, α:¬ A$ we conclude by induction hypothesis.
 
-\smallskip\noindent($∗$)
-We need to show $tσ ∗ ασ ∈ \tsem{B}_σ$, hence we take
-$π ∈ \ssem{B}_σ$ and show that $(tσ ∗ ασ) ∗ π
-∈ \dbot$. Since $\dbot$ is saturated, we can take a reduction step and show
-$tσ ∗ ασ ∈ \dbot$. By induction hypothesis $tσ ∈
-\tsem{A}_σ$ hence it is enough to show $ασ ∈ \ssem{A}_σ$
-which is true by hypothesis.
+\linesBefore(2)$([\wc])$
+We need to show $tσ ∗ ασ ∈ ⟦B⟧_σ^{\bot\bot}$, hence we take $π ∈ ⟦B⟧_σ^\bot$
+and show that $(tσ ∗ ασ) ∗ π ∈ \dbot$. Since $\dbot$ is saturated, we can
+take a reduction step and show $tσ ∗ ασ ∈ \dbot$. By induction hypothesis
+$tσ ∈ ⟦A⟧_σ^{\bot\bot}$ hence it is enough to show $ασ ∈ ⟦A⟧_σ^\bot$ which
+is true by hypothesis.
 
-\smallskip\noindent($∈_i$)
-We need to show $vσ ∈ \vsem{v ∈ A}_σ$. We have $vσ ∈
-\vsem{A}_σ$ by induction hypothesis, and $vσ ≡ vσ$ by
-reflexivity of $(≡)$.
+\linesBefore(2)$({∈}_i)$
+We need to show $vσ ∈ ⟦v ∈ A⟧_σ$. We have $vσ ∈ ⟦A⟧_σ$ by induction
+hypothesis, and $vσ ≡ vσ$ by reflexivity of $({≡})$.
 
-\smallskip\noindent($∈_e$)
-By hypothesis we know that $σ$ realizes $Γ, x : u ∈ A$. To be able
-to conclude using the induction hypothesis, we need to show that $σ$
-realizes $Γ, x : A, x ≡ u$. Since we have $σ(x) ∈
-\vsem{u ∈ A}_σ$, we obtain that $xσ ∈ \vsem{A}_σ$ and
-$xσ ≡ uσ$ by definition of $\vsem{u ∈ A}_σ$.
+\linesBefore(2)$({∈}_e)$
+By hypothesis we know that $σ$ realizes $Γ, x : u ∈ A$. To be able to
+conclude using the induction hypothesis, we need to show that $σ$ realizes
+$Γ, x : A, x ≡ u$. Since we have $σ(x) ∈ ⟦u ∈ A⟧_σ$, we obtain that
+$xσ ∈ ⟦A⟧_σ$ and $xσ ≡ uσ$ by definition of $⟦u ∈ A⟧_σ$.
 
-\smallskip\noindent($\restriction_i$)
-We need to show $tσ ∈ \tsem{A \restriction u_1 ≡ u_2}_σ$.
-By hypothesis $u_1σ ≡ u_2σ$, hence $\vsem{A \restriction u_1
-≡ u_2}_σ = \vsem{A}_σ$. Consequently, it is enough to show
-that $tσ ∈ \tsem{A}_σ$, which is exactly the induction hypothesis.
+\linesBefore(2)$({\restriction}_i)$
+We need to show $tσ ∈ ⟦A \restriction u₁ ≡ u₂⟧_σ^{\bot\bot}$. By
+hypothesis $u₁σ ≡ u₂σ$, hence $⟦A \restriction u₁ ≡ u₂⟧_σ = ⟦A⟧_σ$.
+Consequently, it is enough to show that $tσ ∈ ⟦A⟧_σ^{\bot\bot}$, which
+is exactly the induction hypothesis.
 
-\smallskip\noindent($\restriction_e$)
-By hypothesis we know that $σ$ realizes $Γ, x : A \restriction u_1
-≡ u_2$. To be able to use the induction hypothesis, we need to show that
-$σ$ realizes $Γ, x : A, u_1 ≡ u_2$. Since we have $σ(x)
-∈ \vsem{A \restriction u_1 ≡ u_2}_σ$, we obtain that $xσ ∈
-\vsem{A}_σ$ and that $u_1σ ≡ u_2σ$ by definition of
-$\vsem{A \restriction u_1 ≡ u_2}_σ$.
+\linesBefore(2)$({\restriction}_e)$
+By hypothesis we know that $σ$ realizes $Γ, x : A \restriction u₁ ≡ u₂$. To
+be able to use the induction hypothesis, we need to show that $σ$ realizes
+$Γ, x : A, u₁ ≡ u₂$. Since we have $σ(x) ∈ ⟦A \restriction u₁ ≡ u₂⟧_σ$, we
+obtain that $xσ ∈ ⟦A⟧_σ$ and that $u₁σ ≡ u₂σ$ by definition of
+$⟦A \restriction u₁ ≡ u₂⟧_σ$.
 
-\smallskip\noindent($\forall_i$)
-We need to show that $vσ ∈ \vsem{\forall a\; A}_σ = \bigcap_{t
-∈ \Lambda} \vsem{A}_{σ[a := t]}$ so we take $t ∈ \Lambda$ and show
-$vσ ∈ ⟦ A ⟧_{σ[a := t]}$. This is true by
-induction hypothesis since $a \not∈ FV(Γ)$ and hence $σ[a:=t]$
-realizes $Γ$.
+\linesBefore(2)$({∀}_i)$
+We need to show that $vσ ∈ ⟦∀a A⟧_σ = \bigcap_{t ∈ Λ} ⟦A⟧_{σ[a := t]}$ so
+we take $t ∈ Λ$ and show $vσ ∈ ⟦A⟧_{σ[a := t]}$. This is true by induction
+hypothesis since $a ∉ FV(Γ)$ and hence $σ[a:=t]$ realizes $Γ$.
 
-\smallskip\noindent($\forall_e$)
-We need to show $tσ ∈ \tsem{A[a := u]}_σ = \tsem{A}_{σ[a :=
-uσ]}$ for some $u ∈ \Lambda$. By induction hypothesis we know $tσ
-∈ \tsem{\forall a\;A}_σ$, hence we only need to show that
-$\tsem{\forall a\; A}_σ \subseteq \tsem{A}_{σ[a := uσ]}$. By
-definition we have $\vsem{\forall a\; A}_σ \subseteq \vsem{A}_{σ[a
-:= uσ]}$ so we can conclude using lemma \ref{orthoblabla}.
+\linesBefore(2)$({∀}_e)$
+We need to show $tσ ∈ ⟦A[a := u]⟧_σ^{\bot\bot} = ⟦A⟧_{σ[a := uσ]}^{\bot\bot}$
+for some $u ∈ Λ$. By induction hypothesis we know $tσ ∈ ⟦∀a A⟧_σ^{\bot\bot}$,
+hence we only need to show that $⟦∀a A⟧_σ^{\bot\bot} ⊆ ⟦A⟧_{σ[a := uσ]}^{
+\bot\bot}$. By definition we have $⟦∀a A⟧_σ ⊆ ⟦A⟧_{σ[a := uσ]}$ so we can
+conclude using \lemRef("orthoblabla").
 
-\smallskip\noindent($\exists_e$)
-By hypothesis we know that $σ$ realizes $Γ, x : \exists a\;A$. In
-particular, we know that $σ(x) ∈ \vsem{\exists a\;A}_σ$, which
-means that there is a term $u ∈ \Lambda^∗$ such that $σ(x) ∈
-\vsem{A}_{σ[a := u]}$. Since $a \notin FV(Γ)$, we obtain that the
+\linesBefore(2)$({∃}_e)$
+By hypothesis we know that $σ$ realizes $Γ, x : ∃a A$. In particular, we know
+that $σ(x) ∈ ⟦∃a A⟧_σ$, which means that there is a term $u ∈ Λ^{∗}$ such
+that $σ(x) ∈ ⟦A⟧_{σ[a := u]}$. Since $a ∉ FV(Γ)$, we obtain that the
 substitution $σ[a := u]$ realizes the context $Γ, x : A$. Using the
-induction hypothesis, we finally get $tσ = tσ[a := u] ∈
-\tsem{B}_{σ[a := u]} = \tsem{B}_σ$ since $a \notin TV(t)$ and $a
-\notin FV(B)$.
+induction hypothesis, we finally get
+$tσ = tσ[a := u] ∈ ⟦B⟧_{σ[a := u]}^{\bot\bot} = ⟦B⟧_σ^{\bot\bot}$ since
+$a ∉ TV(t)$ and $a ∉ FV(B)$.
 
-\smallskip\noindent($\exists_i$)
-The proof for this rule is similar to the one for \emph{($\forall_e$)}. We
-need to show that $\tsem{A[a := u]}_σ = \tsem{A}_{σ[a := uσ]}
-\subseteq \tsem{\exists a\;A}_σ$. This follows from lemma
-\ref{orthoblabla} since $\vsem{A}_{σ[a := uσ]} \subseteq
-\vsem{\exists a\;A}_σ$ by definition.
+\linesBefore(2)$({∃}_i)$
+The proof for this rule is similar to the one for $({∀}_e)$. We need to show
+that $⟦A[a := u]⟧_σ^{\bot\bot} = ⟦A⟧_{σ[a := uσ]}^{\bot\bot} ⊆
+⟦∃a A⟧_σ^{\bot\bot}$. This follows from \lemRef("orthoblabla") since
+$⟦A⟧_{σ[a := uσ]} ∈ ⟦∃a A⟧_σ$ by definition.
 
-\smallskip\noindent($\forall_I$), $(\forall_E)$, $(\exists_E)$ and $(\exists_I)$
-are similar to similar to ($\forall_i$), ($\forall_e$), ($\exists_e$) and
-($\exists_i$).
+\linesBefore(2)$({∀}_I, {∀}_E, {∃}_I, {∃}_E)$
+The proofs for these rules is similar to the ones for $({∀}_i)$, $({∀}_e)$,
+$({∃}_i)$ and $({∃}_e)$ respectively.
 
-\smallskip\noindent($\times_i$)
-We need to show that $\{l_i = v_iσ\}_{i ∈ I} ∈
-\vsem{\{l_i : A_i\}_{i ∈ I}}_σ$. By definition we need to show that
-for all $i ∈ I$ we have $v_iσ ∈ \vsem{A_i}_σ$. This is
-immediate by induction hypothesis.
+\linesBefore(2)$({×}_i)$
+We need to show that $\{(l_i = v_iσ)_{i ∈ I}\} ∈ ⟦(l_i : A_i)_{i ∈ I}⟧_σ$.
+By definition we need to show that for all $i ∈ I$ we have $v_iσ ∈ ⟦A_i⟧_σ$.
+This is immediate by induction hypothesis.
 
-\smallskip\noindent($\times_e$)
-We need to show that $vσ.l_i ∈ \tsem{A_i}_σ$ for some $i ∈ I$.
-By induction hypothesis we have $vσ ∈
-\vsem{\{l_i : A_i\}_{i ∈ I}}_σ$ and hence $v$ has the form
-$\{l_i = v_i\}_{i ∈ I}$ with $v_iσ ∈ \vsem{A_i}_σ$. Let us now
-take $π ∈ \ssem{A_i}_σ$ and show that
-$\{l_i = v_iσ\}_{i ∈ I}.l_i ∗ π ∈ \dbot$. Since $\dbot$ is
-saturated, it is enough to show $v_iσ ∗ π ∈ \dbot$. This is true
-since $v_iσ ∈ \vsem{A_i}_σ$ and $π ∈ \ssem{A_i}_σ$.
+\linesBefore(2)$({×}_e)$
+We need to show that $vσ.l_i ∈ ⟦A_i⟧_σ^{\bot\bot}$ for some $i ∈ I$. By
+induction hypothesis we have $vσ ∈ ⟦\{(l_i : A_i)_{i ∈ I}\}⟧_σ$ and hence
+$v$ has the form $\{(l_i = v_i)_{i ∈ I}\}$ with $v_iσ ∈ ⟦A_i⟧_σ$. Let us
+now take $π ∈ ⟦A_i⟧_σ^\bot$ and show that $\{(l_i = v_iσ)_{i ∈ I}\}.l_i ∗
+π ∈ \dbot$. Since $\dbot$ is saturated, it is enough to show $v_iσ ∗ π ∈
+\dbot$. This is true since $v_iσ ∈ ⟦A_i⟧_σ$ and $π ∈ ⟦A_i⟧_σ^\bot$.
 
-\smallskip\noindent($+_i$)
-We need to show $C_i[vσ] ∈ \vsem{[C_i : A_i]_{i ∈ I}}_σ$ for
-some $i ∈ I$. By induction hypothesis $vσ ∈ \vsem{A_i}_σ$ and
-hence we can conclude by definition of $\vsem{[C_i : A_i]_{i ∈ I}}_σ$.
+\linesBefore(2)$({+}_i)$
+We need to show $C_i[vσ] ∈ ⟦[(C_i : A_i)_{i ∈ I}]⟧_σ$ for some $i ∈ I$. By
+induction hypothesis $vσ ∈ ⟦A_i⟧_σ$ and hence we can conclude by definition
+of $⟦[(C_i : A_i)_{i ∈ I}]⟧_σ$.
 
-\smallskip\noindent($+_e$)
-We need to show $case_{vσ}\;[C_i[x] \to t_iσ]_{i ∈ I} ∈
-\tsem{B}_σ$. By induction hypothesis $vσ ∈ \vsem{[C_i of A_i]_{i
-∈ I}}_σ$ which means that there is $i ∈ I$ and $w ∈
-\vsem{A_i}_σ$ such that $vσ = C_i[w]$. We take $π ∈
-\ssem{B}_σ$ and show $\tcase{C_i[w]}{C_i[x] \to t_iσ}_{i ∈ I}
-∗ π ∈ \dbot$. Since $\dbot$ is saturated, it is enough to show
-$t_iσ[x := w] ∗ π ∈ \dbot$. It remains to show that
-$t_iσ[x := w] ∈ \tsem{B}_σ$. To be able to conclude using
-the induction hypothesis we need to show that $σ[x := w]$ realizes
-$Γ, x : A_i, C_i[x] ≡ v$. This is true since $σ$ realizes
-$Γ$, $w ∈ \vsem{A_i}_σ$ and $C_i[w] ≡ vσ$ by reflexivity.
+\linesBefore(2)$({+}_e)$
+We need to show $case_{vσ} [(C_i[x] → t_iσ)_{i ∈ I}] ∈ ⟦B⟧_σ^{\bot\bot}$.
+By induction hypothesis $vσ ∈ ⟦[(C_i of A_i)_{i ∈ I}]⟧_σ$ which means that
+there is $i ∈ I$ and $w ∈ ⟦A_i⟧_σ$ such that $vσ = C_i[w]$. We take $π ∈
+⟦B⟧_σ^\bot$ and show $case_{C_i[w]} [(C_i[x] → t_iσ)_{i ∈ I}] ∗ π ∈ \dbot$.
+Since $\dbot$ is saturated, it is enough to show $t_iσ[x := w] ∗ π ∈ \dbot$.
+It remains to show that $t_iσ[x := w] ∈ ⟦B⟧_σ^{\bot\bot}$. To be able to
+conclude using the induction hypothesis we need to show that $σ[x := w]$
+realizes $Γ, x : A_i, C_i[x] ≡ v$. This is true since $σ$ realizes $Γ$,
+$w ∈ ⟦A_i⟧_σ$ and $C_i[w] ≡ vσ$ by reflexivity.
 
-\smallskip\noindent($≡_{v,l}$)
-We need to show $t[x := w_1]σ = tσ[x := w_1σ] ∈
-\vsem{A}_σ$. By hypothesis we know that $w_1σ ≡ w_2σ$
-from which we can deduce $tσ[x := w_1σ] ≡ tσ[x :=
-w_2σ]$ by extensionality (theorem \ref{extval}). Since $\vsem{A}_σ$
-is closed under $(≡)$ we can conclude using the induction hypothesis.
+\linesBefore(2)$({≡}_{v,l})$
+We need to show $t[x := w₁]σ = tσ[x := w₁σ] ∈ ⟦A⟧_σ$. By hypothesis we know
+that $w₁σ ≡ w₂σ$ from which we can deduce $tσ[x := w₁σ] ≡ tσ[x := w₂σ]$ by
+extensionality (\thmRef("extval")). Since $⟦A⟧_σ$ is closed under $({≡})$ we
+can conclude using the induction hypothesis.
 
-\smallskip\noindent($≡_{t,l}$), ($≡_{v,r}$) and ($≡_{t,r}$)
-are similar to ($≡_{v,l}$), using extensionality (theorem \ref{extval}
-and theorem \ref{extterm}).
-*)
+\linesBefore(2)$({≡}_{t,l}, {≡}_{v,r}, {≡}_{t,r})$
+The proofs for these rules is similar to the one for $({≡}_{v,l})$ using
+extensionality (\thmRef("extval") and \thmRef("extterm")).
+\end{noindent}
 \end{proof}
 \end{thm}
 
