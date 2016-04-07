@@ -8,6 +8,8 @@ open FormatManuscrit.Cover
 let _ = Biblio.init ()
 
 let johndoe = ("IAmA Nobody", "University of Nowhere")
+let alex = ("Alexandre Miquel", "Universidad de la República, Uruguay")
+
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
   { author    = "Rodolphe Lepigre"
@@ -18,7 +20,7 @@ let cover_data =
   ; advisor   = ("Christophe Raffalli", usmb)
   ; coadvisor = Some ("Pierre Hyvernat", usmb)
   ; jury_pres = johndoe (* FIXME *)
-  ; reviewers = [ johndoe; johndoe ] (* FIXME *)
+  ; reviewers = [ alex; johndoe; johndoe ] (* FIXME *)
   ; examinors = [ johndoe ] } (* FIXME *)
 
 let _ = special_page 1 (cover cover_data defaultEnv)

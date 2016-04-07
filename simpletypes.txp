@@ -18,8 +18,9 @@ use contexts. A context will map every free variable of a give term to its
 assumed type.
 \begin{def}
 Given a term $t ∈ Λ$, a context over $t$ is a finite map $Γ$ with 
-$FV_λ(t) ∪ FV_μ(t) ⊆ dom(Γ)$ such that $∀{x ∈ FV_λ(t)}, Γ(x) ∈ \cal{F}$
-and $∀{α ∈ FV_μ(t)}, Γ(α) ∈ \cal{F}$. For convenience, we will represent
+$FV_λ(t) ∪ FV_μ(t) ⊆ dom(Γ)$ such that for all $λ$-variable $x ∈ FV_λ(t)$
+we have $Γ(x) ∈ \cal{F}$ and for all $μ$-variable $α∈FV_μ(t)$ we have
+$Γ(α) ∈ \cal{F}$. For convenience, we will represent
 contexts using lists generated using the following BNF grammar.
 $$ Γ, Δ ::= {\bullet} \| {Γ, x : A} \| {Γ, α : A^\bot} $$
 However, we need to keep in mind that variables can only be mapped once

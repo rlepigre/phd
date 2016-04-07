@@ -1,5 +1,3 @@
-FLAG=--new-parser
-
 all: manuscrit.pdf
 
 TXPS=$(wildcard *.txp)
