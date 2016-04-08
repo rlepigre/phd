@@ -28,15 +28,20 @@ in a context and that the order in the list is not relevent.
 \end{def}
 \begin{def}
 A typing judgement is a triple of a term $t$, a type $A$ and a context $Γ$
-over $t$.
+over $t$ that is denoted $Γ ⊢ t : A$. We say that a judgement judgement is
+valid if it can be derived using the following rules.
+$$
+  \axiomRN{Ax}{Γ, x : A ⊢ x : A}
+  \hspace(2.0)
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
+$$
+$$
+  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
+  \hspace(2.0)
+  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
+$$
 \end{def}
-
-
-
-$$ \axiomRN{Ax}{Γ, x : A ⊢ x : A} $$
-$$ \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B} $$
-$$ \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B} $$
-$$ \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A} $$
-$$ \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B} $$
 
 =<

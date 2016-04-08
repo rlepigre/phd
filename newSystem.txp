@@ -1,4 +1,7 @@
-
+In this chapter, the type system previously presented will be extended to
+enable the specification and the proof of program properties. The proof
+mechanism will rely on an untyped notion of equivalence over programs. It
+will be used to identify programs with the same computational behaviour.
 
 => Observational equivalence type
 
