@@ -205,7 +205,8 @@ systems. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
 a conclusion $C$ separated by an horizontal bar.
 $$ \ternaryR{P₁}{...}{P_n}{C} $$
 The meaning of such a rules is that the conclusion $C$ can be deduced when
-all the premisses $P_i$ are true. Note that there might be no premisse.
+all the premisses $P_i$ are true. Note that there might be no premisse, and
+in this case the conclusion can be deduced immediatly.
 \end{rem}
 In call-by-value, both the function and its argument need to be fully
 evaluated before the application can be performed. Consequently, two

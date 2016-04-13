@@ -1,0 +1,17 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Polymorphism and universal quantification
+
+\begin{def}
+The set of types (or formulas) is defined using the following BNF grammar.
+$$A,B ::= {X} \| {A ⇒ B} \| {∀X A} \hspace(4.0) X ∈ \cal{V}_\cal{F}$$
+\end{def}
+
+$$
+  \binaryRN{{∀}_i}{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A}
+  \hspace(2.0)
+  \unaryRN{{∀}_e}{Γ ⊢ t : ∀X A}{Γ ⊢ t : A[X := B]}
+$$
+
+=<

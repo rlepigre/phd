@@ -70,7 +70,7 @@ point the function can be evaluated and the value is stored in the stack
 ready to be consumed by the function as soon as it evaluates to a
 $λ$-abstraction. A capture-avoiding substitution can then be performed to
 effectively apply the argument to the function. For example, the process
-${(λx x y) λx x} ∗ ε$ reduces in the following way.
+${(λx x y) λz z} ∗ ε$ reduces in the following way.
 $$
   {{(λx x y) λz z} ∗ ε}
   \succ

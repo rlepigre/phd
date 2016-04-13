@@ -94,6 +94,9 @@ let citen : string -> string -> content list = fun k n ->
   in
   Minibib.cite biblio act [k]
 
+let scale : float -> Document.environment -> Document.environment =
+  fun f e -> {e with size = f *. e.size}
+
 (* A majestic scissors symbol built with my onw hands. *)
 let raw_scissors : raw list =
   let mirror =

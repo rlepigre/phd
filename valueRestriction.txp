@@ -1,7 +1,7 @@
 \Caml(open Diagrams open ProofTree)
 \Include{Macros}
 
-=> Polymorphism and value restriction
+=> Value restriction
 
 A soundness issue related to side-effects and call-by-value evaluation
 arose in the seventies with the advent of ML. The problem stems from a
