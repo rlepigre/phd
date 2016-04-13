@@ -1,0 +1,8 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Global view of the type system
+
+... (* TODO *)
+
+=<

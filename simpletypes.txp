@@ -9,9 +9,9 @@ will here consider a small type system for our language, with only one
 type constructor for functions and type constants.
 \begin{def}
 The set of types (or formulas) $\cal{F}$ is built from the countable set of
-type variables (or type constants) $\cal{V}_\cal{F} = \{X,Y,Z...\}$ using
+type variables (or type constants) $\cal{V}₀ = \{X,Y,Z...\}$ using
 the following BNF grammar.
-$$A,B ::= {X} \| {A ⇒ B} \hspace(4.0) X ∈ \cal{V}_\cal{F}$$
+$$A,B ::= {X} \| {A ⇒ B} \hspace(4.0) X ∈ \cal{V}₀$$
 We denote $FV_\cal{F}(A)$ the set of all the (free) type variables appearing
 in the type $A$.
 \end{def}
@@ -101,6 +101,8 @@ logic. Types then correspond to formulas that can be proved using deduction
 rules. In our simple type system, the structure of a defivation is completely
 determined by the terms of the $λμ$-calculus. Consequently, we may think of
 a term well-typed term as a proof of its type (or formula).
+
+(* § on classical reasoning TODO *)
 
 \begin{env}(scale 0.75)
 $$
