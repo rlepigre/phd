@@ -106,11 +106,10 @@ let _ =
 Substitution is a subtle notion, and care should be taken to avoir capture
 of variables. For example, let us consider the function $λx λy x$ which
 takes an argument $x$ and returns a constant function with value $x$. If we
-apply this function to the constant $y$, the expected result is a constant
-function with value $y$. However, if we blindly substitute $x$ with $y$ in
-$λy x$ we obtain the identity function $λy y$. Indeed, the free variable $y$
-has been captured and now references a binder that had (coincidentally)
-the same name.
+apply this function to $y$, the expected result is a constant function with
+value $y$. However, if we blindly substitute $x$ with $y$ in $λy x$ we obtain
+the identity function $λy y$. Indeed, the free variable $y$ has been captured
+and now references a binder that had (coincidentally) the same name.
 
 To solve this problem, we need to make sure that whenever a substitution
 $t[x ← u]$ is performed, no free variable of $u$ is bound in $t$ (i.e.
@@ -149,7 +148,7 @@ In order to define the most general notion of reduction over $λ$-terms, we
 need to be able to refer to any $β$-redex in a term. To this aim, we
 introduce the notion of evaluation context. Intuitively, a context will
 consist in a term with a hole (i.e. a place-holder for a subterm).
-Intuitively, this will allow us to quantify over subterms of a term.
+Intuitively, this will allow us to focus on any particular subterm of a term.
 \begin{def}
 An evaluation context $E$ is a term with a hole. Given a term $t ∈ Λ$, we
 denote $E[t]$ the term formed by puting $t$ into the hole of the evaluation

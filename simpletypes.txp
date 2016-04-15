@@ -59,7 +59,7 @@ $X ⇒ Y ⇒ X$, where $X$ and $Y$ are type variables, in the following way.
 $$
   \proofTree{
     \unaryN{⇒_i}{
-      X, Y ⊢ λx λy x : Y ⇒ X
+      X, Y ⊢ λx λy x : X ⇒ Y ⇒ X
     }{
       \unaryN{⇒_i}{
         X, Y, x : X ⊢ λy x : Y ⇒ X
@@ -100,10 +100,14 @@ Throught the Curry-Howard isomorphism, our type system can be seen as a
 logic. Types then correspond to formulas that can be proved using deduction
 rules. In our simple type system, the structure of a defivation is completely
 determined by the terms of the $λμ$-calculus. Consequently, we may think of
-a term well-typed term as a proof of its type (or formula).
+a well-typed term as a proof of the formula corresponding to its type.
 
-(* § on classical reasoning TODO *)
-
+As our calculus contains control structures, the logic corresponding to our
+type system is not limited to intuitionisticaly valid formulas. Indeed,
+control structures have been shown to give a computational interpretation to
+classical logic by Timothy Griffin \cite("Griffin1990"). As an example, the
+following type derivation shows that the term $λf μα f λx [α]x$ inhabits a
+type corresponding to Peirce's Law.
 \begin{env}(scale 0.75)
 $$
   \proofTree{
@@ -133,5 +137,6 @@ $$
   }
 $$
 \end{env}
+This type cannot be inhabited by a term not containing control structures.
 
 =<

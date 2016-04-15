@@ -3,15 +3,49 @@
 
 => Polymorphism and universal quantification
 
+Let us consider the term $λx λy x$, which can be given the type $X ⇒ Y ⇒ X$
+as show in the previous section. The term really corresponds to a function
+taking as input two arguments, and returning the first directly. Note that
+we do not need to say anything about the nature of the arguments this
+function may accepts. In fact, this function can be applied to arguments
+of any two types. This information is not conveyed by the type $X ⇒ Y ⇒ X$,
+as it only specifies that the function takes arguments of two particular
+types $X$ and $Y$, and returns an element of type $X$.
+
+To solve this expressivity problem, we extend our type system with a new
+type constructor for universal quantification, or polymorphism. We will then
+be able to use types like $∀X ∀Y X ⇒ Y ⇒ X$, as in System F
+\mcite(["Girard1972";"Reynolds1974"]).
+
 \begin{def}
-The set of types (or formulas) is defined using the following BNF grammar.
+The set of types (or formulas) is extended with universal quantification. It
+is now defined using the following BNF grammar.
 $$A,B ::= {X} \| {A ⇒ B} \| {∀X A} \hspace(4.0) X ∈ \cal{V}_\cal{F}$$
 \end{def}
+\begin{rem}
+To lighten the notations, we will consider that universal quantification
+binds stronger than the function type. As a consequence, we will read
+$∀X ∀Y X ⇒ Y ⇒ X$ as $∀X (∀Y (X ⇒ (Y ⇒ X)))$.
+\end{rem}
 
 $$
   \binaryRN{{∀}_i}{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A}
   \hspace(2.0)
   \unaryRN{{∀}_e}{Γ ⊢ t : ∀X A}{Γ ⊢ t : A[X := B]}
+$$
+
+$$
+  \proofTree{
+    \binaryN{∀_i}{⊢ λx λy x : ∀X ∀Y X ⇒ Y ⇒ X}{
+      \binaryN{∀_i}{X ⊢ λx λy x : ∀Y X ⇒ Y ⇒ X}{
+        \unaryN{⇒_i}{X, Y ⊢ λx λy x : X ⇒ Y ⇒ X}{
+          \unaryN{⇒_i}{X, Y, x : X ⊢ λy x : Y ⇒ X}{
+            \axiomN{Ax}{X, Y, x : X, y : Y ⊢ x : X}
+          }
+        }
+      }{\hyp{Y ∉ FV(X,Y)}}
+    }{\hyp{X ∉ FV(X)}}
+  }
 $$
 
 =<
