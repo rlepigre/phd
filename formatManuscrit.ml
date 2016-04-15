@@ -4,7 +4,6 @@ open FTypes
 open Typography.Document
 open Util
 open UsualMake
-open Typography.ConfigUtil
 open Typography.Box
 open Printf
 
