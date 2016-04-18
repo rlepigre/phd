@@ -22,7 +22,7 @@ A term of the form $λx t$ is called an abstraction (or $λ$-abstractions)
 and a term of the form $t u$ is called an application.
 \end{def}
 Intuitively, a $λ$-abstraction $λx t$ forms a fonction by binding the
-variable $x$ in the term $t$. This would be denoted $x |-> t$ in common
+variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
 mathematics. Similarly, a term of the form $t u$ denotes the application
 of (the function) $t$ to (the argument) $u$. This would be denoted $t(u)$
 in common mathematics. 
@@ -40,7 +40,7 @@ a function of two arguments (or more) one must rely on Curryfication.
 Indeed, a function of two arguments can be seen as a function of one
 argument returning a function. Following this scheme, the multiple arguments
 of the function are given in turn, and not simultaneously. As an example,
-the function $(x,y) |-> x$ can be encoded as $λx λy x$.
+the function $(x,y) ↦ x$ can be encoded as $λx λy x$.
 \end{rem}
 
 (* Free variables and bound variables. *)

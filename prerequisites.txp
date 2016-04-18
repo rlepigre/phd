@@ -25,11 +25,7 @@ to incorporate the author's original contributions.
 
 =<
 
-=> Higher-order logic
-
-... (* TODO *)
-
-=<
+\Include{HigherOrder}
 
 \Include{BaseSystem}
 

@@ -1,0 +1,33 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
+=> Higher-order logic
+
+(* Sorting rules. *)
+$$
+\binaryR{Δ ⊢ A : ο}{Δ ⊢ B : ο}{Δ ⊢ A ⇒ B : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ \{l_i : A_i\}_{i∈I} : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ [C_i : A_i]_{i∈I} : ο}
+$$
+$$
+\axiomR{Δ, χ : s ⊢ χ : s}
+\hspace(3.0)
+\unaryR{Δ, χ : s₁ ⊢ E : s₂}{Δ ⊢ χ^{s₁} ↦ E : s₁ → s₂}
+\hspace(3.0)
+\binaryR{Δ ⊢ E : s₁ → s₂}{Δ ⊢ F : s₁}{Δ ⊢ E(F) : s₂}
+$$
+$$
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∀χ^s A : ο}
+\hspace(3.0)
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∃χ^s A : ο}
+$$
+$$
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ μX A : ο}
+\hspace(3.0)
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ νX A : ο}
+$$
+(* TODO *)
+
+=<

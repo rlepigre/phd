@@ -4,7 +4,7 @@
 => Polymorphism and universal quantification
 
 Let us consider the term $λx λy x$, which can be given the type $X ⇒ Y ⇒ X$
-as show in the previous section. The term really corresponds to a function
+as show in the previous section. This term really corresponds to a function
 taking as input two arguments, and returning the first directly. Note that
 we do not need to say anything about the nature of the arguments this
 function may accepts. In fact, this function can be applied to arguments
@@ -14,8 +14,9 @@ types $X$ and $Y$, and returns an element of type $X$.
 
 To solve this expressivity problem, we extend our type system with a new
 type constructor for universal quantification, or polymorphism. We will then
-be able to use types like $∀X ∀Y X ⇒ Y ⇒ X$, as in System F
-\mcite(["Girard1972";"Reynolds1974"]).
+be able to use types like $∀X ∀Y X ⇒ Y ⇒ X$. The obtained system is called
+System F, it was introduced by Jean-Yves Girard and John Reynolds
+independently \mcite(["Girard1972";"Reynolds1974"]).
 
 \begin{def}
 The set of types (or formulas) is extended with universal quantification. It
