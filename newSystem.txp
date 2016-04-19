@@ -25,7 +25,56 @@ will be used to identify programs with the same computational behaviour.
 =<
 => Membership and typed quantification
 
-... (* TODO *)
+\Caml(open ProofTree)
+\Include{Macros}
+\pagesBefore(1)
+(* ⇒_i rule *)
+Typing rule for non-dependent arrow:
+$$
+\unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
+$$
+
+(* The weak Π_i rule and its derivation *)
+$$
+\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
+}
+$$
+$$
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
+   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
+     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
+  }
+ }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+
+(* The Π_i rule and its derivation *)
+$$
+\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
+}
+$$
+$$
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
+   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
+     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
+  }
+ }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+
+(* TODO *)
 
 =<
 => Soundness of the dependent product

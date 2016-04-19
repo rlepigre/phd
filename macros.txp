@@ -31,9 +31,6 @@ let _ =
   let pnum i = if i < 3 then "" else string_of_int i in
   DefaultFormat.sprint_page_number := pnum
 
-let defaultEnv =
-  {defaultEnv with hyphenate = DefaultFormat.hyphenate_dict "hyph-fr.hdict"}
-
 module type Env =
   sig
     val do_begin_env : unit -> unit
