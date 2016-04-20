@@ -172,7 +172,7 @@ that $t →_β u₁$ and $t →_β u₂$. However, $({→}_β)$ has the Church-R
 property \cite("Church1936").
 \begin{thm}
 Let $t ∈ Λ$ be a term. If there are $u₁ ∈ Λ$ and $u₂ ∈ Λ$ such that
-$t →_β u₁$ and $t →_β u₁$, then there must be $u ∈ Λ$ such that
+$t →_β u₁$ and $t →_β u₂$, then there must be $u ∈ Λ$ such that
 ${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$.
 \begin{proof}
 A full proof is available in \cite("Church1936").
