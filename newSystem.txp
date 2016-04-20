@@ -29,9 +29,11 @@ will be used to identify programs with the same computational behaviour.
 \Include{Macros}
 \pagesBefore(1)
 (* ⇒_i rule *)
-Typing rule for non-dependent arrow:
 $$
 \unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
+\hspace(1.5)
+\binaryRN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t : A ⇒ B}{Σ; Γ; Δ; Ξ ⊢ u : A}{
+  Σ; Γ; Δ; Ξ ⊢ t u : B}
 $$
 
 (* The weak Π_i rule and its derivation *)
@@ -51,6 +53,26 @@ $$
    }
   }
  }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+(* The weak Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
+  }
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
+   }
+  }
+ }
 }
 $$
 
@@ -73,6 +95,28 @@ $$
  }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
 }
 $$
+
+(* The Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
+  }
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
+   }
+  }
+ }
+}
+$$
+\pagesAfter(1)
 
 (* TODO *)
 
