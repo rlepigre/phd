@@ -1,3 +1,5 @@
+=> Proof programming system \label("newSystem")
+
 In this chapter, the type system previously presented will be extended to
 enable the specification and the proof of program properties. The proof
 mechanism will rely on an untyped notion of equivalence over programs. It
@@ -129,5 +131,7 @@ $$
 => The limits of value restriction
 
 ... (* TODO *)
+
+=<
 
 =<

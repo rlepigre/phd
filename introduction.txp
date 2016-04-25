@@ -4,6 +4,7 @@
   open PMLVerbatim
 )
 
+=> Introduction \label("intro")
 
 Program proving is inherently difficult and time consuming. This is probably
 the reason why so few programmers care to show the correctness of their
@@ -448,5 +449,7 @@ a set of value is closed for values is required.
 
 Every aspect of the system has been implemented in a prototype, which is
 distributed with this document.
+
+=<
 
 =<
