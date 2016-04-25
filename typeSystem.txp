@@ -1,0 +1,31 @@
+=> Higher-order classical \sc{ml} \label("typeSystem")
+
+This chapter introduces the formalisms of type theory and classical
+realizability. These theories are used here to account for the syntax
+and the semantics of a functional programming language similar to
+\sc{ml}. Its type-system will be built upon in the following chapters
+to incorporate the author's original contributions.
+
+\Include{Simpletypes}
+
+\Include{Polymorphism}
+
+\Include{ValueRestriction}
+
+=> Sums and products
+
+... (* TODO *)
+
+=<
+
+\Include{HigherOrder}
+
+\Include{BaseSystem}
+
+=> Call-by-value realisability model
+
+... (* TODO *)
+
+=<
+
+=<
