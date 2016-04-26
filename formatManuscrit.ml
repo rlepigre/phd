@@ -147,9 +147,11 @@ module Cover = struct
     hspace 10.;
     add_line 4. "pour obtenir le grade de";
     hspace 10.;
-    add_line 7. "Docteur de l'Université de Grenoble";
-    hspace 5.;
-    add_line 4. "spécialité : Mathématiques et Informatique";
+    add_line 7. "Docteur de la Communauté Université";
+    hspace 7.;
+    add_line 7. "Grenoble Alpes";
+    hspace 8.;
+    add_line 4. "spécialité : Informatique";
     hspace 14.;
     add_line 4. "présentée par";
     hspace 5.;
@@ -455,13 +457,15 @@ module Format (D:DocumentStructure) = struct
   let q _=utf8Char 8220
   let qq _=utf8Char 8221
 
-  module Env_minichap(M : sig val arg1 : content list end)  = struct
-    let do_begin_env () =
-      newStruct ~numbered:false ~extra_tags:[("minichap","")] D.structure M.arg1
+  module Env_minichap(M : sig val arg1 : content list end) =
+    struct
+      let do_begin_env () =
+        let extra_tags = [("minichap", "")] in
+        newStruct ~numbered:false ~extra_tags D.structure M.arg1
 
-    let do_end_env () =
-      go_up D.structure
-  end
+      let do_end_env () =
+        go_up D.structure
+    end
 
   let table_of_contents tree depth =
     let table_of_contents env =

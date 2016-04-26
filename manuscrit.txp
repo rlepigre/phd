@@ -8,6 +8,7 @@ let _ = Biblio.init ()
 
 let johndoe = ("IAmA Nobody", "University of Nowhere")
 let alex = ("Alexandre Miquel", "Universidad de la República, Uruguay")
+let bob  = ("Robert Harper", "Carnegie Mellon University, United States")
 
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
@@ -19,7 +20,7 @@ let cover_data =
   ; advisor   = ("Christophe Raffalli", usmb)
   ; coadvisor = Some ("Pierre Hyvernat", usmb)
   ; jury_pres = johndoe (* FIXME *)
-  ; reviewers = [ alex; johndoe; johndoe ] (* FIXME *)
+  ; reviewers = [ bob; alex; johndoe ] (* FIXME *)
   ; examinors = [ johndoe ] } (* FIXME *)
 
 let _ = special_page 1 (cover cover_data defaultEnv)
@@ -31,7 +32,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \end{minichap}
 
 (* Table des matières *)
-\begin{minichap}{Table of contents / Table des matières}
+\begin{minichap}{Table des matières / Table of contents}
 \TableOfContents
 \end{minichap}
 
@@ -51,7 +52,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Conclusion}
 
 (* Résumé en français *)
-\begin{minichap}{Résumé en français}
+\begin{minichap}{Résumé substantiel en français}
 \Include{Resume}
 \end{minichap}
 
@@ -61,5 +62,6 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \end{minichap}
 
 (* Abstract / Résumé *)
-\pagesBefore(2)
+\begin{minichap}{Résumé / Abstract}
 \Include{Abstract}
+\end{minichap}
