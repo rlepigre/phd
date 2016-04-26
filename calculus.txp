@@ -158,8 +158,8 @@ according to \lemRef("alphalem").
 In order to define the most general notion of reduction over $λ$-terms, we
 need to be able to refer to any $β$-redex in a term. To this aim, we
 introduce the notion of evaluation context. Intuitively, a context will
-consist in a term with a hole (i.e. a place-holder for a subterm).
-A context will thus allow us to focus on any particular subterm of a term.
+consist in a term with a hole (i.e. a place-holder for a subterm) and it
+will allow us to focus on any particular subterm of a term.
 \begin{def}
 The set of evaluation contexts $[Λ]$ is defined as the language recognised
 by the following ||bnf|| grammar.
@@ -185,7 +185,7 @@ let _ =
 \end{def}
 \begin{def}\label("generalbeta")
 The general $β$-reduction relation is defined as the smallest relation
-$({→}_β)$ such that for every evaluation context $E$, for every terms
+$({→}_β)$ such that for every evaluation context $E ∈ [Λ]$, for every terms
 $t ∈ Λ$ and $u ∈ Λ$, and for every variable $x ∈ \cal{V}_λ$ we have the
 following.
 $$ {E[(λx t) u]} →_β {E[t[x := u]]}$$
@@ -196,8 +196,15 @@ closure of $({→}_β)$.
 
 The general $β$-reduction relation $({→}_β)$ is non-deterministic. Indeed,
 given a term $t$, there might be two (different) terms $u₁$ and $u₂$ such
-that $t →_β u₁$ and $t →_β u₂$. However, $({→}_β)$ has the Church-Rosser
-property \cite("Church1936").
+that $t →_β u₁$ and $t →_β u₂$. For example, the term
+$((λx₁ x₁) λx₂ x₂) ((λx₃ x₃) λx₄ x₄)$ can either reduce to
+$(λx₂ x₂) ((λx₃ x₃) λx₄ x₄)$ or to $((λx₁ x₁) λx₂ x₂) (λx₄ x₄)$. Indeed,
+we can focus on the $β$-redex $(λx₁ x₁) λx₂ x₂$ using the evaluation context
+$[{\wc}] ((λx₃ x₃) λx₄ x₄)$, or on the $β$-redex $(λx₃ x₃) λx₄ x₄$ using the
+evaluation context $((λx₁ x₁) λx₂ x₂) [{\wc}]$.
+
+Although it is non-deterministic, the general $β$-reduction relation
+$({→}_β)$ has the Church-Rosser property \cite("Church1936").
 \begin{thm}
 Let $t ∈ Λ$ be a term. If there are $u₁ ∈ Λ$ and $u₂ ∈ Λ$ such that
 $t →_β u₁$ and $t →_β u₂$, then there must be $u ∈ Λ$ such that
@@ -210,12 +217,9 @@ Intuitivly, the Church-Rosser property enforces a weak form of determinism.
 Indeed, it implies that a program can only compute one particular result,
 even if it can be attained in several different ways.
 
-=<
-
-=> Evaluation strategies
-
 In this thesis, we consider a programming language that is effectful, hence
 it does not have the Church-Rosser property. As a consequence, we need to
+(* restrict the notion of reduction... *)
 choose an evaluation order for the language to remain deterministic enough
 (in our case completely deterministic). The two evaluation orders that are
 the most widely used in practice are call-by-name and call-by-value. They
