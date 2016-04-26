@@ -50,14 +50,14 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{Conclusion}
 
-(* Bibliographie *)
-\begin{minichap}{References}
-\Include{References}
-\end{minichap}
-
 (* Résumé en français *)
 \begin{minichap}{Résumé en français}
 \Include{Resume}
+\end{minichap}
+
+(* Bibliographie *)
+\begin{minichap}{References}
+\Include{References}
 \end{minichap}
 
 (* Abstract / Résumé *)

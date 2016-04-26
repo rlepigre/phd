@@ -42,9 +42,8 @@ let make_theorem : string -> (module Env) = fun name ->
     struct
       let refType = name
       let counter = name
-      let counterLevel = 0
-      let display num = alternative Bold
-        [tT (name ^ " " ^ num ^ "."); (tT " ")]
+      let counterLevel = 1
+      let display num = emph [tT (name ^ " " ^ num ^ "."); (tT " ")]
     end
   in (module Make_theorem( A ))
 

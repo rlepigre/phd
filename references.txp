@@ -24,12 +24,7 @@ let references bib (* env *) =
     let (x0,_,x1,_) = bounding_box (Document.draw env key) in
     (x1 -. x0) /. env.size
   in
-  let rec listmax m xs =
-    match xs with
-    | []    -> m
-    | x::xs -> listmax (max x m) xs
-  in
-  let maxw = listmax 0.0 (List.map key_width refs) in
+  let maxw = List.fold_left max 0.0 (List.map key_width refs) in
 
   (* Create an entry. *)
   let new_entry entry =
