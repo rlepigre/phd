@@ -65,6 +65,26 @@ let tval : Typography.Document.environment Typography.Maths.math list =
   let t = Maths.glyphs "val" in
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
 
+(* Stuff to add side note. *)
+let sidenote text note =
+  let environment env = {env with par_indent = []} in
+  let np =
+    newPar D.structure ~environment Complete.normal Patoline_Format.parameters
+  in
+  let contents env =
+    let width c =
+      let (x0,_,x1,_) = bounding_box (Document.draw env c) in
+      x1 -. x0
+    in
+    let textw = width text in
+    let notew = width note in
+    let pagew = env.normalMeasure in
+    let pad1 = (pagew -. textw) /. 2.0 in
+    let pad2 = pagew -. pad1 -. textw -. notew in
+    let glue w = [bB (fun _ -> [glue w w w])] in 
+    (linesBefore 2) @ (glue pad1) @ text @ (glue pad2) @ note @ (linesAfter 2)
+  in np [C contents]
+
 (* Bibliography stuff. *)
 let biblio = Minibib.from_name "biblio"
 

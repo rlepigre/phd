@@ -10,13 +10,12 @@ computational effects.
 
 => The pure $λ$-calculus
 
-In this thesis, we consider a programming language of the ML family,
-similar to OCaml or SML. Like every functional language, its
-syntax is based on the $λ$-calculus. Introduced by Alonzo Church in
-the Thirties, the $λ$-calculus \cite("Church1941") is a formalism
-for representing computable functions, and in particular reccursive
-functions. As shown by Alan Turing in 1937, the $λ$-calculus is a
-//universal model of computation// \cite("Turing1937").
+In this thesis, we consider a programming language of the ML family, similar
+to OCaml or SML. Like every functional language, its syntax is based on the
+$λ$-calculus. Introduced by Alonzo Church in the Thirties, the $λ$-calculus
+\cite("Church1941") is a formalism for representing computable functions, and
+in particular reccursive functions. As shown by Alan Turing, the $λ$-calculus
+is a //universal model of computation// \cite("Turing1937").
 
 (* The language of λ-terms. *)
 \begin{def}\label("deflambda")
@@ -24,7 +23,9 @@ The terms of the $λ$-calculus (or $λ$-terms) are built from a countable
 alphabet of variables (or $λ$-variables) denoted $\cal{V}_λ=\{x,y,z...\}$.
 The set of all the $λ$-terms is denoted $Λ$ and is defined as the language
 recognised by the following ||bnf|| grammar.
-$$t,u ::= {x} \| {λx t} \| {t u} \hspace(4.0) x ∈ \cal{V}_λ$$
+\Caml(
+let _ = sidenote << $t,u ::= {x} \| {λx t} \| {t u}$ >> << $x ∈ \cal{V}_λ$ >>
+)
 A term of the form $λx t$ is called an abstraction (or $λ$-abstractions)
 and a term of the form $t u$ is called an application.
 \end{def}
@@ -137,7 +138,7 @@ The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
 \end{def}
 \begin{lem}\label("alphalem")
 Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
-always possible to find a term $t' \in Λ$ such that $t' ≡_α t$ and
+always possible to find a term $t' ∈ Λ$ such that $t' ≡_α t$ and
 $BV_λ(t') ∩ V = ∅$.
 \begin{proof}
 A full proof is available in \cite("Krivine1990"), Lemma 1.11.
@@ -328,22 +329,22 @@ hence work with the following definition of substitution. In particular,
 a substitution of the form $t[x := u]$ will be forbidden if $u$ is not a
 syntactic value.
 \begin{def}
-Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v \in Λ_{val}$
+Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v ∈ Λ_{val}$
 be a value. We denote $t[x := v]$ the capture-avoiding substitution of $x$
 by $v$ in $t$.
 \end{def}
 \begin{def}
-The reduction relation $({\succ}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest
-relation satisfying the following rules. We will denote $({\succ}^{∗})$ its
+The reduction relation $({≻}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest
+relation satisfying the following rules. We will denote $({≻}^{∗})$ its
 reflexive and transitive closure.
 \begin{center}
 \linesBefore(4)
 \diagram(
 let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
-  [ [ <${t u} ∗ π$>     ; <$\succ$>; <$u ∗ {[t]π}$>       ]
-  ; [ <$v ∗ {[t] π}$>   ; <$\succ$>; <$t ∗ {v·π}$>        ]
-  ; [ <$λx t ∗ {v · π}$>; <$\succ$>; <${t[x := v]} ∗ π$>  ] ]
+  [ [ <${t u} ∗ π$>     ; <$≻$>; <$u ∗ {[t]π}$>       ]
+  ; [ <$v ∗ {[t] π}$>   ; <$≻$>; <$t ∗ {v·π}$>        ]
+  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x := v]} ∗ π$>  ] ]
 )
 \end{center}
 \end{def}
@@ -358,13 +359,13 @@ effectively apply the argument to the function. For example, the process
 ${(λx x y) λz z} ∗ ε$ reduces in the following way.
 $$
   {{(λx x y) λz z} ∗ ε}
-  \succ
+  ≻
   {{λz z} ∗ {[λx x y]ε}}
-  \succ
+  ≻
   {{λx x y} ∗ {{λz z} · ε}}
-  \succ
+  ≻
   {{(λz z) y} ∗ ε}
-  \succ
+  ≻
   {y ∗ ε}
 $$
 \begin{rem}
@@ -419,17 +420,17 @@ $μ$-variable. We denote $t[α := π]$ the (capture-avoiding) substitution of
 $α$ by $π$ in $t$.
 \end{def}
 \begin{def}
-The reduction relation $({\succ})$ is extended with two new reduction rules.
+The reduction relation $({≻})$ is extended with two new reduction rules.
 \begin{center}
 \linesBefore(7)
 \diagram(
 let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
-  [ [ <${(t) u} ∗ π$>   ; <$\succ$>; <$u ∗ {[t]π}$>       ]
-  ; [ <$v ∗ {[t] π}$>   ; <$\succ$>; <$t ∗ {v·π}$>        ]
-  ; [ <$λx t ∗ {v · π}$>; <$\succ$>; <${t[x := v]} ∗ π$>  ]
-  ; [ <$μα t ∗ π$>      ; <$\succ$>; <${t[α := π]} ∗ π$>  ]
-  ; [ <$[ρ]t ∗ π$>      ; <$\succ$>; <$t ∗ ρ$>            ] ]
+  [ [ <${(t) u} ∗ π$>   ; <$≻$>; <$u ∗ {[t]π}$>       ]
+  ; [ <$v ∗ {[t] π}$>   ; <$≻$>; <$t ∗ {v·π}$>        ]
+  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x := v]} ∗ π$>  ]
+  ; [ <$μα t ∗ π$>      ; <$≻$>; <${t[α := π]} ∗ π$>  ]
+  ; [ <$[ρ]t ∗ π$>      ; <$≻$>; <$t ∗ ρ$>            ] ]
 )
 \end{center}
 \end{def}
@@ -442,13 +443,13 @@ $λx μα Ω_x [α]x ∗ v · ε$ where $Ω_x$ is an arbitrary term and $v$ is a
 arbitrary value reduces as follows.
 $$
   {{λx μα Ω_x [α]x} ∗ {v · ε}}
-  \succ
+  ≻
   {{μα Ω_v [α]v} ∗ ε}
-  \succ
+  ≻
   {{Ω_v [ε]v} ∗ ε}
-  \succ
+  ≻
   {{[ε]v} ∗ {[Ω_v] ε}}
-  \succ
+  ≻
   {v ∗ ε}
 $$
 Note that when a stack is erased, arbitrary terms might be erased. In
@@ -457,11 +458,11 @@ previous example, although the reduction of this term does not terminate.
 Indeed, we have
 $$
   {Ω ∗ π}
-  \succ
+  ≻
   {{λx x x} ∗ {[λx x x] π}}
-  \succ
+  ≻
   {{λx x x} ∗ {{λx x x} · π}}
-  \succ
+  ≻
   {Ω ∗ π}
 $$
 for every possible stack $π$.
@@ -521,529 +522,162 @@ that values are terms. A stack can be either the empty stack $ε$, a stack
 variable, a value pushed on top of a stack, or a stack frame containing a
 term on top of a stack. These two constructors are specific to the
 call-by-value presentation, only one would be required in call-by-name.
-(* TODO *)
-
+\begin{rem}
+We enforce values in constructors, record fields, projection and case
+analysis. This makes the calculus simpler because only $β$-reduction will
+manipulate the stack. We can define syntactic sugars such as the following
+to hide the restriction from the programmer.
+$$ t.l := (λx x.l) t \hspace(2.0) C[t] := (λx C[x]) t $$
+\end{rem}
 \begin{def}
-The relation $({\succ}) ⊆ (Λ×Π)²$ is defined as the smallest relation
+Given a value, term, stack or process $ψ$ we denote $FV_λ(ψ)$ (resp.
+$FV_μ(ψ)$, $TV(ψ)$) the set of free $λ$-variables (resp. free $μ$-variables,
+term variables) contained in $ψ$. We say that $ψ$ is closed if it does not
+contain any free variable of any kind. The set of closed values and the set
+of closed terms are denoted $Λ_{val}^{∗}$ and $Λ^{∗}$ respectively.
+\end{def}
+
+Processes form the internal state of our abstract machine. They are to be
+thought of as a term put in some evaluation context represented using a
+stack. Intuitively, the stack $π$ in the process $t ∗ π$ contains the
+arguments to be fed to $t$. Since we are in call-by-value the stack also
+handles the storing of functions while their arguments are being evaluated.
+This is why we need stack frames (i.e. stacks of the form $[t]π$). The
+operational semantics of our language is given by a relation $({≻})$ over
+processes.
+\begin{def}
+The relation $({≻}) ⊆ (Λ×Π)²$ is defined as the smallest relation
 satisfying the following reduction rules.
 \begin{center}
 \diagram(
 let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
   [ [ <${t u} ∗ π$>
-    ; <$\succ$>; <$u ∗ {[t]π}$> ]
+    ; <$≻$>; <$u ∗ {[t]π}$> ]
   ; [ <$v ∗ {[t] π}$>
-    ; <$\succ$>; <$t ∗ {v·π}$> ]
+    ; <$≻$>; <$t ∗ {v·π}$> ]
   ; [ <$λx t ∗ {v · π}$>
-    ; <$\succ$>; <${t[x := v]} ∗ π$> ]
+    ; <$≻$>; <${t[x := v]} ∗ π$> ]
   ; [ <$μα t ∗ π$>
-    ; <$\succ$>; <${t[α := π]} ∗ π$> ]
+    ; <$≻$>; <${t[α := π]} ∗ π$> ]
   ; [ <$[ρ]t ∗ π$>
-    ; <$\succ$>; <$t ∗ ρ$> ]
+    ; <$≻$>; <$t ∗ ρ$> ]
   ; [ <$\{(l_i = v_i)_{i∈I}\}.l_k ∗ π$>
-    ; <$\succ$>; <$v_k ∗ π \hspace(2.6) when \hspace(0.4) k∈I$> ]
+    ; <$≻$>; <$v_k ∗ π \hspace(2.6) when \hspace(0.4) k∈I$> ]
   ; [ <$[C_k[v] \| (C_i → t_i)_{i∈I}] ∗ π$>
-    ; <$\succ$>; <$t_k v ∗ π \hspace(2.) when \hspace(0.4) k∈I$> ]
+    ; <$≻$>; <$t_k v ∗ π \hspace(2.) when \hspace(0.4) k∈I$> ]
   ; [ <$Y_{t,v} ∗ π$>
-    ; <$\succ$>; <$t ∗ {{λx Y_{t,x}}·v·π}$> ]
+    ; <$≻$>; <$t ∗ {{λx Y_{t,x}}·v·π}$> ]
   ; [ <${unit}_{\{\id([])\}} ∗ π$>
-    ; <$\succ$>; <$\{\id([])\} ∗ π$> ]
+    ; <$≻$>; <$\{\id([])\} ∗ π$> ]
   ]
 )
 \end{center}
-We will denote $({\succ}^{+})$ its transitive closure, $({\succ}^{∗})$ its
-reflexive-transitive closure and $({\succ}^k)$ its $k$-fold application.
+We will denote $({≻}^{+})$ its transitive closure, $({≻}^{∗})$ its
+reflexive-transitive closure and $({≻}^k)$ its $k$-fold application.
 \end{def}
-
-=<
-
-=<
-
-(*
-\begin{remark}
-We enforce values in constructors, record fields, projection and case
-analysis. This makes the calculus simpler because only $\beta$-reduction
-will manipulate the stack. We can define syntactic sugars such as the
-following to hide the restriction from the programmer.
-$$ t.l\;:=\;(\lambda x\,x.l)\,t \hspace{2cm} C[t]\;:=\;(\lambda x\,C[x])\,t $$
-\end{remark}
-\begin{definition}
-Given a value, term, stack or process $\psi$ we denote $FV_\lambda(\psi)$
-(resp. $FV_\mu(\psi)$, $TV(\psi)$) the set of free $\lambda$-variables (resp.
-free $\mu$-variables, term variables) contained in $\psi$. We say that $\psi$
-is closed if it does not contain any free variable of any kind. The set of
-closed values and the set of closed terms are denoted $\Lambda_v^\ast$
-and $\Lambda^\ast$ respectively.
-\end{definition}
-\begin{remark}
-A stack, and hence a process, can never be closed as they always at least
-contain a stack variable.
-\end{remark}
-
-\subsection{Call-by-value reduction relation}
-
-Processes form the internal state of our abstract machine. They are to be
-thought of as a term put in some evaluation context represented using a stack.
-Intuitively, the stack $\pi$ in the process $t \ast \pi$ contains the
-arguments to be fed to $t$. Since we are in call-by-value the
-stack also handles the storing of functions while their arguments are being
-evaluated. This is why we need stack frames (i.e. stacks of the form
-$[t] \pi$). The operational semantics of our language is given by a relation
-$(\succ)$ over processes.
-\begin{definition}
-The relation $(\succ) \subseteq (\Lambda\times\Pi)^2$ is defined as the
-smallest relation satisfying the following reduction rules.
-\begin{align*}
-t\;u \ast \pi
-  \;\;\;\;&\succ\;\;\;
-  u \ast [t] \pi\\
-v \ast [t] \pi
-  \;\;\;\;&\succ\;\;\;
-  t \ast v.\pi\\
-\lambda x\;t \ast v.\pi
-  \;\;\;\;&\succ\;\;\;
-  t[x \!:=\! v] \ast \pi\\
-\mu \alpha\;t \ast \pi
-  \;\;\;\;&\succ\;\;\;
-  t[\alpha \!:=\! \pi] \ast \pi\\
-p \ast \pi
-  \;\;\;\;&\succ\;\;\;
-  p\\
-  \{l_i = v_i\}_{i \in I}.l_k \ast \pi
-  \;\;\;\;&\succ\;\;\;
-  v_k \ast \pi & {k \in I}\\
-\tcase{C_k[v]}{C_i[x_i] \to t_i}_{i \in I} \ast \pi
-  \;\;\;\;&\succ\;\;\;
-t_k[x_k \!:=\! v] \ast \pi & {k \in I}
-\end{align*}
-We will denote $(\succ^{+})$ its transitive closure, $(\succ^{*})$ its
-reflexive-transitive closure and $(\succ^k)$ its $k$-fold application.
-\end{definition}
-The first three rules are those that handle $\beta$-reduction. When the
-abstract machine encounters an application, the function is stored in a
-stack-frame in order to evaluate its argument first. Once the argument has
-been completely computed, a value faces the stack-frame containing the
-function. At this point the function can be evaluated and the value is stored
-in the stack ready to be consumed by the function as soon as it evaluates to a
-$\lambda$-abstraction. A capture-avoiding substitution can then be performed
-to effectively apply the argument to the function. The fourth and fifth rules
-rules handle the classical part of computation. When a $\mu$-abstraction is
+The first three rules are those that handle $β$-reduction. When the abstract
+machine encounters an application, the function is stored in a stack-frame in
+order to evaluate its argument first. Once the argument has been completely
+computed, a value faces the stack-frame containing the function. At this
+point the function can be evaluated and the value is stored in the stack
+ready to be consumed by the function as soon as it evaluates to a
+$λ$-abstraction. A capture-avoiding substitution can then be performed to
+effectively apply the argument to the function. The fourth and fifth rules
+rules handle the classical part of computation. When a $μ$-abstraction is
 reached, the current stack (i.e. the current evaluation context) is captured
-and substituted for the corresponding $\mu$-variable. Conversely, when a process
-is reached, the current stack is thrown away and evaluation resumes with the
-process. The last two rules perform projection and case analysis in the
-expected way. Note that for now, states of the form $\delta_{v,w} \ast \pi$
-are unaffected by the reduction relation.
-\begin{remark}
-For the abstract machine to be simpler, we use right-to-left call-by-value
-evaluation, and not the more usual left-to-right call-by-value evaluation.
-\end{remark}
+and substituted for the corresponding $μ$-variable. Conversely, when a
+process is reached, the current stack is thrown away and evaluation resumes
+with the process. The last two rules perform projection and case analysis in
+the expected way.
 
-\begin{lemma}\label{redcompatall}
-The reduction relation $(\succ)$ is compatible with substitutions of variables
-of any kind. More formally, if $p$ and $q$ are processes such that $p \succ q$
+\begin{lem}\label{redcompatall}
+The reduction relation $({≻})$ is compatible with substitutions of variables
+of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
 then:
 \begin{itemize}
-\item for all $x \in \mathcal{V}_\lambda$ and $v \in \Lambda_v$,
-  $p[x := v] \succ q[x := v]$,
-\item for all $\alpha \in \mathcal{V}_\mu$ and $\pi \in \Pi$,
-  $p[\alpha := \pi] \succ q[\alpha := \pi]$,
-\item for all $a \in \mathcal{V}_\iota$ and $t \in \Lambda$,
-  $p[a := t] \succ q[a := t]$.
+\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$, $p[x := v] ≻ q[x := v]$,
+\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $p[α := π] ≻ q[α := π]$,
+\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $p[a := t] ≻ q[a := t]$.
 \end{itemize}
-Consequently, if $\sigma$ is a substitution for variables of any kind and if
-$p \succ q$ (resp. $p \succ^{*} q$, $p \succ^{+} q$, $p \succ^k q$) then 
-$p\sigma \succ q\sigma$ (resp. $p\sigma \succ^{*} q\sigma$,
-$p\sigma \succ^{+} q\sigma$, $p\sigma \succ^k q\sigma$).
-\end{lemma}
+Consequently, if $σ$ is a substitution for variables of any kind and if
+$p ≻ q$ (resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $pσ ≻ qσ$ (resp.
+$pσ ≻^{∗} qσ$, $pσ ≻^{+} qσ$, $pσ ≻^k qσ$).
 \begin{proof}
-  Immediate case analysis on the reduction rules.
+Immediate case analysis on the reduction rules.
 \end{proof}
-\medskip
+\end{lem}
 
 We are now going to give the vocabulary that will be used to describe some
 specific classes of processes. In particular we need to identify processes
 that are to be considered as the evidence of a successful computation, and
 those that are to be recognised as expressing failure.
-\begin{definition}
-A process $p \in \Lambda\times\Pi$ is said to be:
+\begin{def}
+A process $p ∈ Λ×Π$ is said to be:
 \begin{itemize}
-\item \emph{final} if there is a value $v \in \Lambda_v$ and a stack variable
-  $\alpha \in \mathcal{V}_\mu$ such that $p = v \ast \alpha$,
-\item \emph{$\delta$-like} if there are values $v, w \in \Lambda_v$ and a
-  stack $\pi \in \Pi$ such that $p = \delta_{v,w} \ast \pi$,
-\item \emph{blocked} if there is no $q \in \Lambda\times\Pi$ such that
-  $p \succ q$,
-\item \emph{stuck} if it is not final nor $\delta$-like, and if for every
-  substitution $\sigma$, $p\sigma$ is blocked,
-\item \emph{non-terminating} if there is no blocked process
-  $q \in \Lambda\times\Pi$ such that $p \succ^{*} q$.
+\item //final// if there is a value $v ∈ Λ_{val}$ such that $p = v ∗ α$,
+\item //blocked// if there is no $q ∈ Λ×Π$ such that $p ≻ q$,
+\item //stuck// if it is not final and if for every substitution $σ$, $pσ$
+      is blocked,
+\item //non-terminating// if there is no blocked process $q ∈ Λ×Π$ such that
+      $p ≻^{∗} q$.
 \end{itemize}
-\end{definition}
+\end{def}
 
-\begin{lemma}\label{redstable}
-Let $p$ be a process and $\sigma$ be a substitution for variables of any kind.
-If $p$ is $\delta$-like (resp. stuck, non-terminating) then $p\sigma$ is also
-$\delta$-like (resp. stuck, non-terminating).
-\end{lemma}
+\begin{lem}\label("redstable")
+Let $p$ be a process and $σ$ be a substitution for variables of any kind.
+If $p$ is stuck (resp. non-terminating) then $pσ$ is also stuck (resp.
+non-terminating).
 \begin{proof}
-  Immediate by definition.
+Immediate by definition.
 \end{proof}
+\end{lem}
 
-\begin{lemma}\label{remark}
-A stuck state is of one of the following forms, where $k \notin I$.
-\begin{center}
-\begin{tabular}{c}
-$
-C[v].l \ast \pi
-\quad\quad\quad
-(\lambda x\;t).l \ast \pi
-\quad\quad\quad
-C[v] \ast w.\pi
-\quad\quad\quad
-\{l_i = v_i\}_{i \in I} \ast v.\pi
-$
-\medskip
-\\
-$
-\tcase{\lambda x\;t}{C_i[x_i] \to t_i}_{i \in I} \ast \pi
-\quad\quad\quad
-\tcase{\{l_i = v_i\}_{i \in I}}{C_j[x_j] \to t_j}_{j \in J} \ast \pi
-$
-\medskip
-\\
-$
-\tcase{C_k[v]}{C_i[x_i] \to t_i}_{i \in I} \ast \pi
-\quad\quad\quad
-\{l_i = v_i\}_{i \in I}.l_k \ast \pi
-$
-\end{tabular}
-\end{center}
-\end{lemma}
+\begin{lem}\label("remark")
+A stuck state is of one of the following forms, where $k ∉ I$.
+$$
+{C[v].l ∗ π}
+\hspace(2.0)
+{(λx t).l ∗ π}
+\hspace(2.0)
+{C[v] ∗ w · π}
+\hspace(2.0)
+{\{(l_i = v_i)_{i∈I}\} ∗ v · π}
+$$
+
+$$
+{[λx t | (C_i → t_i)_{i∈I}] ∗ π}
+\hspace(4.0)
+{[\{(l_i = v_i)_{i∈I}\} | (C_j → t_j)_{i∈J}] ∗ π}
+$$
+
+$$
+[C_k[v] | (C_j → t_j)_{i∈J}] ∗ π
+\hspace(4.0)
+\{(l_i = v_i)_{i∈I}\}.l_k ∗ π
+$$
 \begin{proof}
   Simple case analysis.
 \end{proof}
+\end{lem}
 
-\begin{lemma}\label{possibilities}
-A blocked process $p \in \Lambda\times\Pi$ is either stuck, final,
-$\delta$-like, or of one of the following forms.
-\begin{center}
-\begin{tabular}{c}
-$
-x.l \ast \pi
-\quad\quad\quad
-x \ast v.\pi
-\quad\quad\quad
-\tcase{x}{C_i[x_i] \to t_i}_{i \in I} \ast \pi
-\quad\quad\quad
-a \ast \pi
-$
-\end{tabular}
-\end{center}
-\end{lemma}
+\begin{lem}\label("possibilities")
+A blocked process $p ∈ Λ×Π$ is either stuck, final or of one of the following
+forms.
+$$
+{x.l ∗ π}
+\hspace(2.0)
+{x ∗ v · π}
+\hspace(2.0)
+{[x | (C_i → t_i)_{i ∈ I}] ∗ π}
+\hspace(2.0)
+{a ∗ π}
+$$
 \begin{proof}
-Straight-forward case analysis using lemma \ref{remark}.
+Straight-forward case analysis using lemma \lemRef("remark").
 \end{proof}
+\end{lem}
 
-\subsection{Reduction of $\delta_{v,w}$ and equivalence}
+=<
 
-The idea now is to define a notion of observational equivalence over terms
-using a relation $(\equiv)$. We then extend the reduction relation with a rule
-reducing a state of the form $\delta_{v,w} \ast \pi$ to $v \ast \pi$ if
-$v \not\equiv w$. If $v \equiv w$ then $\delta_{v,w}$ is stuck. With this rule
-reduction and equivalence will become interdependent as equivalence will be
-defined using reduction.
-\begin{definition}
-Given a reduction relation $R$, we say that a process $p \in \Lambda\times\Pi$
-converges, and write $p \converge_R$, if there is a final state
-$q \in \Lambda\times\Pi$ such that $p R^{*} q$ (where $R^{*}$ is the
-reflexive-transitive closure of $R$). If $p$ does not converge we say that it
-diverges and write $p \diverge_R$. We will use the notations $p \converge_i$
-and $p \diverge_i$ when working with indexed notation symbols like $(\red_i)$.
-\end{definition}
-
-\begin{definition}
-For every natural number $i$ we define a reduction relation $(\red_i)$ and an
-equivalence relation $(\equiv_i)$ which negation will be denoted
-$(\not\equiv_i)$.
-$$ (\red_i) = (\succ) \cup \{(\delta_{v,w} \ast \pi, v \ast \pi) \;|\;
-  \exists j < i, v \not\equiv_j w\} $$
-$$ (\equiv_i) = \{(t,u) \;|\; \forall j \leq i, \forall \pi, \forall
-  \sigma, {t\sigma \ast \pi \converge_j} \Leftrightarrow 
-  {u\sigma \ast \pi \converge_j}\} $$
-\end{definition}
-It is easy to see that $(\red_0) = (\succ)$. For every natural number $i$,
-the relation $(\equiv_i)$ is indeed an equivalence relation as it can be
-seen as an intersection of equivalence relations. Its negation can be
-expressed as follows.
-$$ (\not\equiv_i) = \{(t,u), (u,t) \;|\; \exists j \leq i, \exists \pi,
-  \exists \sigma, {t\sigma \ast \pi \converge_j} \land
-  {u\sigma \ast \pi \diverge_j}\} $$
-
-\begin{definition}
-We define a reduction relation $(\red)$ and an equivalence relation $(\equiv)$
-which negation will be denoted $(\not\equiv)$.
-$$ (\red) = \bigcup_{i\in\bbN} {(\red_i)}
-   \;\;\;\;\;\;
-   \;\;\;\;\;\;
-   (\equiv) = \bigcap_{i\in\bbN} {(\equiv_i)} $$
-\end{definition}
-These relations can be expressed directly (i.e. without the need of a union or
-an intersection) in the following way.
-\begin{align*}
-(\equiv) &= \{(t,u) \;|\; \forall i, \forall \pi, \forall \sigma,
-  {t\sigma \ast \pi \converge_i} \Leftrightarrow 
-  {u\sigma \ast \pi \converge_i}\}\\
-(\not\equiv) &= \{(t,u), (u,t) \;|\; \exists i, \exists \pi, \exists \sigma,
-  {t\sigma \ast \pi \converge_i} \land {u\sigma \ast \pi \diverge_i}\}\\
-(\red) &= (\succ) \cup \{(\delta_{v,w} \ast \pi, v \ast \pi) \;|\;
-  v \not\equiv w\}
-\end{align*}
-
-\begin{remark}
-Obviously $(\red_i) \subseteq (\red_{i+1})$ and
-$(\equiv_{i+1}) \subseteq (\equiv_i)$.
-As a consequence the construction of $(\red_i)_{i\in\bbN}$ and
-$(\equiv_i)_{i\in\bbN}$ converges. In fact $(\red)$ and $(\equiv)$ form a
-fixpoint at ordinal $\omega$. Surprisingly, this property is not explicitly
-required.
-\end{remark}
-
-\begin{theorem}\label{equivpole}
-Let $t$ and $u$ be terms. If $t \equiv u$ then for every stack $\pi \in \Pi$
-and substitution $\sigma$ we have $t\sigma \ast \pi \converge_{\red}
-\Leftrightarrow u\sigma \ast \pi \converge_{\red}$.
-\end{theorem}
-\begin{proof}
-We suppose that $t \equiv u$ and we take $\pi_0 \in \Pi$ and a substitution
-$\sigma_0$. By symmetry we can assume that
-${t\sigma_0 \ast \pi_0} \converge_\red$ and show that
-${u\sigma_0 \ast \pi_0} \converge_\red$. By definition there is $i_0 \in \bbN$
-such that ${t\sigma_0 \ast \pi_0} \converge_{i_0}$. Since $t \equiv u$ we know
-that for every $i \in \bbN$, $\pi \in \Pi$ and substitution $\sigma$ we have
-${t\sigma \ast \pi} \converge_i \Leftrightarrow {u\sigma \ast \pi}
-\converge_i$. This is true in particular for $i = i_0$, $\pi = \pi_0$ and
-$\sigma = \sigma_0$. We hence obtain ${u\sigma_0 \ast \pi_0}
-\converge_{i_0}$ which give us ${u\sigma_0 \ast \pi_0} \converge_\red$.
-\end{proof}
-\begin{remark}
-The converse implication is not true in general: taking
-$t = \delta_{\lambda x\,x,\{\}}$ and $u = \lambda x\,x$ gives a
-counter-example. More generally
-${p\converge_\red} \Leftrightarrow {q\converge_\red}$ does not necessarily
-imply  ${p\converge_i} \Leftrightarrow {q\converge_i}$ for all
-$i\in\mathbb{N}$. 
-\end{remark}
-\begin{corollary}\label{eqconvconv}
-Let $t$ and $u$ be terms and $\pi$ be a stack. If $t \equiv u$ and
-${t \ast \pi} \converge_\red$ then ${u \ast \pi} \converge_\red$.
-\end{corollary}
-\begin{proof}
-Direct consequence of theorem \ref{equivpole} using $\pi$ and an empty
-substitution.
-\end{proof}
-
-\subsection{Extensionality of the language}
-
-In order to be able to work with the equivalence relation $(\equiv)$, we need
-to check that it is extensional. In other words, we need to be able to replace
-equals by equals at any place in terms without changing their observed
-behaviour. This property is summarized in the following two theorems.
-
-\begin{theorem}\label{extval}
-Let $v$ and $w$ be values, $E$ be a term and $x$ be a $\lambda$-variable. If
-$v \equiv w$ then $E[x := v] \equiv E[x := w]$.
-\end{theorem}
-\begin{proof}
-We are going to prove the contrapositive so we suppose
-$E[x := v] \not\equiv E[x := w]$ and show $v \not\equiv w$. By definition
-there is $i \in \bbN$, $\pi \in \Pi$ and a substitution $\sigma$ such
-that $(E[x := v])\sigma \ast \pi \converge_i$ and
-$(E[x := w])\sigma \ast \pi \diverge_i$ (up to symmetry). Since we can
-rename $x$ in such a way that it does not appear in $dom(\sigma)$, we can
-suppose $E\sigma[x := v\sigma] \ast \pi \converge_i$ and
-$E\sigma[x := w\sigma] \ast \pi \diverge_i$.
-In order to show $v \not\equiv w$ we need to find $i_0 \in \bbN$,
-$\pi_0 \in \Pi$ and a substitution $\sigma_0$ such that
-$v\sigma_0 \ast \pi_0 \converge_{i_0}$ and
-$w\sigma_0 \ast \pi_0 \diverge_{i_0}$ (up to symmetry). We take $i_0 = i$,
-$\pi_0 = [\lambda x\;E\sigma]\pi$ and $\sigma_0 = \sigma$. These
-values are suitable since by definition
-${v\sigma_0 \ast \pi_0 } \red_{i_0} {E\sigma[x := v\sigma] \ast \pi}
-\converge_{i_0}$ and
-${w\sigma_0 \ast \pi_0} \red_{i_0} {E\sigma[x := w\sigma] \ast \pi}
-\diverge_{i_0}$.
-\end{proof}
-
-\begin{lemma}\label{aposs}
-Let $s$ be a process, $t$ be a term, $a$ be a term variable and $k$ be a
-natural number. If $s[a := t] \converge_k$ then there is a blocked state
-$p$ such that $s \succ^{*} p$ and either
-\begin{itemize}
-\item $p = v \ast \alpha$ for some value $v$ and a stack variable $\alpha$,
-\item $p = a \ast \pi$ for some stack $\pi$,
-\item $k > 0$ and $p = \delta(v,w) \ast \pi$ for some values $v$ and $w$ and
-      stack $\pi$, and in this case $v[a := t] \not\equiv_j w[a := t]$ for
-      some $j < k$.
-\end{itemize}
-\end{lemma}
-\begin{proof}
-Let $\sigma$ be the substitution $[a := t]$. If $s$ is non-terminating, lemma
-\ref{redstable} tells us that $s\sigma$ is also non-terminating, which
-contradicts $s\sigma \converge_k$. Consequently, there is a blocked process
-$p$ such that $s \succ^{*} p$ since $(\succ) \subseteq (\red_k)$. Using lemma
-\ref{redcompatall} we get
-$s\sigma \succ^{*} p\sigma$ from which we obtain $p\sigma \converge_{k}$.
-The process $p$ cannot be stuck, otherwise $p\sigma$ would also be stuck
-by lemma \ref{redstable}, which would contradict $p\sigma \converge_{k}$.
-Let us now suppose that $p = \delta_{v,w} \ast \pi$ for some values $v$ and
-$w$ and some stack $\pi$. Since
-$\delta_{v\sigma,w\sigma} \ast \pi \converge_k$ there must be $i < k$ such
-that $v\sigma \not\equiv_j w\sigma$, otherwise this would contradict
-$\delta_{v\sigma,w\sigma} \ast \pi \converge_k$. In this case we necessarily
-have $k > 0$, otherwise there would be no possible candidate for $i$.
-According to lemma \ref{possibilities} we need to rule out four more forms of
-therms: $x.l \ast \pi$, $x \ast v.\pi$, $case_x\;B \ast \pi$ and $b \ast \pi$
-in the case where $b \not= a$. If $p$ was of one of these forms the
-substitution $\sigma$ would not be able to unblock the reduction of $p$, which
-would contradict again $p\sigma \converge_{k}$.
-\end{proof}
-
-\begin{lemma}\label{aextlem}
-Let $t_1$, $t_2$ and $E$ be terms and $a$ be a term variable. For every
-$k \in \bbN$, if $t_1 \equiv_k t_2$ then $E[a \!:=\! t_1] \equiv_k E[a
-\!:=\! t_2]$.
-\end{lemma}
-\begin{proof}
-Let us take $k \in \bbN$, suppose that $t_1 \equiv_k t_2$ and show that
-$E[a \!:=\! t_1] \equiv_k E[a \!:=\! t_1]$. By symmetry we can assume that
-we have $i \leq k$, $\pi \in \Pi$ and a substitution $\sigma$ such that
-$(E[a \!:=\! t_1])\sigma \ast \pi \converge_i$ and show that
-$(E[a \!:=\! t_2])\sigma \ast \pi \converge_i$. As we are free to rename
-$a$, we can suppose that it does not appear in $dom(\sigma)$, $TV(\pi)$,
-$TV(t_1)$ or $TV(t_2)$. In order to lighten the notations we define
-$E' = E\sigma$, $\sigma_1 = [a \!:=\! t_1\sigma]$ and
-$\sigma_2 = [a \!:=\! t_2\sigma]$. We are hence assuming
-$E'\sigma_1 \ast \pi \converge_i$ and trying to show
-$E'\sigma_2 \ast \pi \converge_i$.
-
-We will now build a sequence $(E_i,\pi_i,l_i)_{i \in I}$ in such a way that
-$E'\sigma_1 \ast \pi \reds_k E_i\sigma_1 \ast \pi_i\sigma_1$ in $l_i$ steps
-for every $i \in I$. Furthermore, we require that $(l_i)_{i \in I}$ is
-increasing and that it has a strictly increasing subsequence. Under this
-condition our sequence will necessarily be finite. If it was infinite the
-number of reduction steps that could be taken from the state
-$E'\sigma_1 \ast \pi$ would not be bounded, which would contradict
-$E'\sigma_1 \ast \pi \converge_i$. We now denote our finite sequence
-$(E_i,\pi_i,l_i)_{i \leq n}$ with $n \in \bbN$. In order to show that
-$(l_i)_{i \leq n}$ has a strictly increasing subsequence, we will ensure that
-it does not have three equal consecutive values. More formally, we will
-require that if $0 < i < n$ and $l_{i-1} = l_i$ then $l_{i+1} > l_i$.
-
-To define $(E_0,\pi_0,l_0)$ we consider the reduction of $E' \ast \pi$. Since
-we know that $(E' \ast \pi)\sigma_1 = E'\sigma_1 \ast \pi \converge_i$ we
-use lemma \ref{aposs} to obtain a blocked state $p$ such that
-${E' \ast \pi} \succ^j p$.
-We can now take $E_0 \ast \pi_0 = p$ and $l_0 = j$.
-By lemma \ref{redcompatall} we have
-$(E' \ast \pi)\sigma_1 \succ^j {E_0\sigma_1 \ast \pi_0\sigma_1}$ from which we
-can deduce that
-$(E' \ast \pi)\sigma_1 \reds_k {E_0\sigma_1 \ast \pi_0\sigma_1}$ in $l_0 = j$
-steps.
-
-To define $(E_{i+1},\pi_{i+1},l_{i+1})$ we consider the reduction of the
-process $E_i\sigma_1 \ast \pi_i$. By construction we know that
-${E'\sigma_1 \ast \pi}
-\reds_k {E_i\sigma_1 \ast \pi_i\sigma_1 = (E_i\sigma_1 \ast \pi_i)\sigma_1}$
-in $l_i$ steps. Using lemma \ref{aposs} we know that $E_i \ast \pi_i$ might be
-of three shapes.
-\begin{itemize}
-\item If ${E_i \ast \pi_i} = {v \ast \alpha}$ for some value $v$ and stack
-      variable $\alpha$ then the end of the sequence was reached with $n = i$.
-\item If $E_i = a$ then we consider the reduction of $E_i\sigma_1 \ast \pi_i$.
-      Since $(E_i\sigma_1 \ast \pi_i)\sigma_1 \converge_k$ we know from
-      lemma \ref{aposs} that there is a blocked process $p$ such that
-      ${E_i\sigma_1 \ast \pi_i} \succ^j p$. Using lemma \ref{redcompatall} we
-      obtain that ${E_i\sigma_1 \ast \pi_i\sigma_1} \succ^j p\sigma_1$ from which we
-      can deduce that ${E_i\sigma_1 \ast \pi_i\sigma_1} \red_k p\sigma_1$ in
-      $j$ steps. We then take $E_{i+1} \ast \pi_{i+1} = p$ and
-      $l_{i+1} = l_i + j$.
-
-      Is it possible to have $j=0$? This can only happen when
-      $E_i\sigma_1 \ast \pi_i$ is of one of the three forms of lemma
-      \ref{aposs}. It cannot be of the form $a \ast \pi$ as we assumed that
-      $a$ does not appear in $t_1$ or $\sigma$. If it is of the form $v \ast
-      \alpha$, then we reached the end of the sequence with $i + 1 = n$ so
-      there is no trouble. The process $E_i\sigma_1 \ast \pi_i$ may be of the
-      form $\delta(v,w) \ast \pi$, but we will have $l_{i+2} > l_{i+1}$.
-\item If $E_i = \delta(v,w)$ for some values $v$ and $w$ we have
-      $m < k$ such that $v\sigma_1 \not\equiv_m w\sigma_1$. Hence
-      ${E_i\sigma_1 \ast \pi_i = \delta(v\sigma_1,w\sigma_1) \ast \pi_i}
-      \red_k {v\sigma_1 \ast \pi_i}$ by definition. Moreover
-      ${E_i\sigma_1 \ast \pi_i\sigma_1} \red_k {v\sigma_1 \ast \pi_i\sigma_1}$
-      by lemma \ref{redcompatall}. Since
-      ${E'\sigma_1 \ast \pi} \reds_k {E_i\sigma_1 \ast \pi_i\sigma_1}$ in
-      $l_i$ steps we obtain that
-      ${E'\sigma_1 \ast \pi} \reds_k {v\sigma_1 \ast \pi_i\sigma_1}$ in
-      $l_i + 1$ steps. This also gives us ${(v\sigma_1 \ast \pi_i)\sigma_1 = 
-      v\sigma_1 \ast \pi_i\sigma_1} \converge_k$.
-      
-      We now consider the reduction of the process $v\sigma_1 \ast \pi_i$. By
-      lemma \ref{aposs} there is a blocked process $p$ such that
-      ${v\sigma_1 \ast \pi_i} \succ^j p$. Using lemma \ref{redcompatall} we
-      obtain ${v\sigma_1 \ast \pi_i\sigma_1} \succ^j p\sigma_1$ from which we
-      deduce that ${v\sigma_1 \ast \pi_i\sigma_1} \reds_k p\sigma_1$ in $j$
-      steps. We then take $E_{i+1} \ast \pi_{i+1} = p$ and
-      $l_{i+1} = l_i + j + 1$. Note that in this case we have $l_{i+1} > l_i$.
-\end{itemize}
-Intuitively $(E_i,\pi_i,l_i)_{i \leq n}$ mimics the reduction of
-$E'\sigma_1 \ast \pi$ while making explicit every substitution of $a$ and
-every reduction of a $\delta$-like state.
-
-To end the proof we show that for every $i \leq n$ we have
-${E_i\sigma_2 \ast \pi_i\sigma_2} \converge_k$. For $i = 0$ this will give
-us ${E'\sigma_2 \ast \pi} \converge_k$ which is the expected result. Since
-$E_n \ast \pi_n = v \ast \alpha$ we have $E_n\sigma_2 \ast \pi_n\sigma_2 =
-v\sigma_2 \ast \alpha$ from which we trivially obtain
-${E_n\sigma_2 \ast \pi_n\sigma_2} \converge_k$.
-We now suppose that ${E_{i+1}\sigma_2 \ast \pi_i\sigma_2} \converge_k$ for
-$0 \leq i < n$ and show that ${E_i\sigma_2 \ast \pi_i\sigma_2} \converge_k$.
-By construction $E_i \ast \pi_i$ can be of two shapes\footnote{Only
-$E_n \ast \pi_n$ can be of the form $v \ast \alpha$.}:
-\begin{itemize}
-\item If $E_i=a$ then ${t_1\sigma \ast \pi_i} \reds_k {E_{i+1} \ast \pi_{i+1}}$.
-  Using lemma \ref{redcompatall} we obtain
-  $t_1\sigma \ast \pi_i\sigma_2 \red_k E_{i+1}\sigma_2 \ast
-  \pi_i\sigma_2$ from which we deduce $t_1\sigma \ast \pi_i\sigma_2
-  \converge_k$ by induction hypothesis. Since $t_1 \equiv_k t_2$ we obtain
-  ${t_2\sigma \ast \pi_i\sigma_2 = (E_i \ast \pi_i)\sigma_2} \converge_k$.
-\item If $E_i = \delta(v,w)$ then ${v \ast \pi_i} \red_k {E_{i+1} \ast
-  \pi_{i+1}}$ and hence $v\sigma_2 \ast \pi_i\sigma_2 \red_k
-  E_{i+1}\sigma_2 \ast \pi_{i+1}\sigma_2$ by lemma \ref{redcompatall}. Using the
-  induction hypothesis we obtain ${v\sigma_2 \ast \pi_i\sigma_2} \converge_k$.
-  It remains to show that ${\delta(v\sigma_2,w\sigma_2) \ast \pi_i\sigma_2}
-  \reds_k {v\sigma_2 \ast \pi_i\sigma_2}$.
-  We need to find $j < k$ such that $v\sigma_2 \not\equiv_j w\sigma_2$.
-  By construction there is $m < k$ such that
-  $v\sigma_1 \not\equiv_m w\sigma_1$. We are going to show that
-  $v\sigma_2 \not\equiv_m w\sigma_2$. By using the global induction
-  hypothesis twice we obtain $v\sigma_1 \equiv_m v\sigma_2$ and
-  $w\sigma_1 \equiv_m v\sigma_2$. Now if $v\sigma_2 \equiv_m w\sigma_2$ then
-  $v\sigma_1 \equiv_m v\sigma_2 \equiv_m w\sigma_2 \equiv_m w\sigma_1$
-  contradicts $v\sigma_1 \not\equiv w\sigma_1$. Hence we must have
-  $v\sigma_2 \not\equiv_m w\sigma_2$.
-\end{itemize}
-\end{proof}
-
-\begin{theorem}\label{extterm}
-Let $t_1$, $t_2$ and $E$ be three terms and $a$ be a term variable. If
-$t_1 \equiv t_2$ then $E[a \!:=\! t_1] \equiv E[a \!:=\! t_2]$.
-\end{theorem}
-\begin{proof}
-We suppose that $t_1 \equiv t_2$ which means that $t_1 \equiv_i t_2$ for
-every $i \in \bbN$. We need to show that
-$E[a \!:=\! t_1] \equiv E[a \!:=\! t_2]$ so we take $i_0 \in \bbN$ and show
-$E[a \!:=\! t_1] \equiv_{i_0} E[a \!:=\! t_2]$. By hypothesis we have
-$t_1 \equiv_{i_0} t_2$ and hence we can conclude using lemma \ref{aextlem}.
-\end{proof}
-*)
+=<
