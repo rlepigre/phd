@@ -1,3 +1,5 @@
+FLAG := -package decap
+
 all: manuscrit.pdf
 
 TXPS=$(wildcard *.txp)

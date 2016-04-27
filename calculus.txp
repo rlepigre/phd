@@ -1,4 +1,59 @@
-\Caml(open Diagrams open ProofTree)
+\Caml(
+open Diagrams
+open ProofTree
+
+module LambdaCalculus =
+  struct
+    open Decap
+
+    type vari = string * int option
+    type term =
+      | Var of vari
+      | Abs of vari * term
+      | App of term * term
+      | Par of term
+      | Sub of term * (vari * bool * term)
+
+    let build_app = List.fold_left (fun t u -> App(t,u))
+
+    type prio = Atom | Appl
+    let parser lvar = ''[a-z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2}? _:relax
+    let parser lterm prio =
+      | x:lvar                           when prio = Atom -> Var(x)
+      | '(' t:(lterm Appl) ')'           when prio = Atom -> Par(t)
+      | "λ" x:lvar t:(lterm Appl)        when prio = Atom -> Abs(x,t)
+      | t:(lterm Atom) ts:(lterm Atom)*$ when prio = Appl -> build_app t ts
+    let lterm = lterm Appl
+
+    let parse_term =
+      let parse = parse_string lterm (blank_regexp ''[ ]*'') in
+      handle_exception parse
+
+    let str s = Maths.Ordinary (Maths.noad (Maths.glyphs s))
+
+    let v2m (s, io) =
+      match io with
+      | None   -> str s
+      | Some i -> let n = Maths.noad (Maths.glyphs s) in
+                  let i = str (string_of_int i) in
+                  let n = { n with subscript_right = [i] } in
+                  Maths.Ordinary n
+
+    let rec t2m t =
+      match t with
+      | Var(x)   -> [v2m x]
+      | Abs(x,t) -> [str "λ"; v2m x; str "."] @ (t2m t)
+      | App(t,u) -> (t2m t) @ [str " "] @ (t2m u)
+      | Par(t)   -> [str "("] @ (t2m t) @ [str ")"]
+      | Sub(t,s) -> let (x, s, u) = s in
+                    let sub = str (if s then "≔" else "←") in
+                    (t2m t) @ [str "["; v2m x; str sub] @ (t2m u) @ [str "]"]
+
+    let lterm s = t2m (parse_term s)
+  end
+
+let lterm = LambdaCalculus.lterm
+)
 \Include{Macros}
 
 => Untyped calculus and abstract machine \label("calculus")
@@ -24,23 +79,26 @@ alphabet of variables (or $λ$-variables) denoted $\cal{V}_λ=\{x,y,z...\}$.
 The set of all the $λ$-terms is denoted $Λ$ and is defined as the language
 recognised by the following ||bnf|| grammar.
 \Caml(
-let _ = sidenote << $t,u ::= {x} \| {λx t} \| {t u}$ >> << $x ∈ \cal{V}_λ$ >>
+let _ = sidenote
+  << $t,u ::= x \| \lterm("λx t") \| \lterm("t u")$ >>
+  << $x ∈ \cal{V}_λ$ >>
 )
-A term of the form $λx t$ is called an abstraction (or $λ$-abstractions)
-and a term of the form $t u$ is called an application.
+A term of the form $\lterm("λx t")$ is called an abstraction (or
+$λ$-abstractions) and a term of the form $\lterm("t u")$ is called an
+application.
 \end{def}
-Intuitively, a $λ$-abstraction $λx t$ forms a fonction by binding the
-variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
-mathematics. Similarly, a term of the form $t u$ denotes the application
-of (the function) $t$ to (the argument) $u$. This would be denoted $t(u)$
-in common mathematics. 
+Intuitively, a $λ$-abstraction $\lterm("λx t")$ forms a fonction by binding
+the variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
+mathematics. Similarly, a term of the form $\lterm("t u")$ denotes the
+application of (the function) $t$ to (the argument) $u$. This would be
+denoted $t(u)$ in common mathematics. 
 \begin{rem}
 As $λ$-terms have a tree-like structure, parenthesis are sometimes required
-for disambiguation. For example, the term $λx t u$ can be read both as
-$(λx t) u$ and as $λx (t u)$. To lighten the notations we will consider
-application to be left-associative and abstraction to bind stronger that
-application. As a consequence, we will always read the term $λx t x u$ as
-$λx ((t x) u)$.
+for disambiguation. For example, the term $\lterm("λx t u")$ can be read both
+as $\lterm("(λx t) u")$ and as $\lterm("λx (t u)")$. To lighten the notations
+we will consider application to be left-associative and abstraction to bind
+stronger that application. As a consequence, we will always read the term
+$\lterm("λx t x u")$ as $\lterm("λx ((t x) u)")$.
 \end{rem}
 \begin{rem}
 The syntax of the $λ$-calculus only allows for one-place functions. To form
@@ -48,15 +106,16 @@ a function of two arguments (or more) one must rely on Curryfication.
 Indeed, a function of two arguments can be seen as a function of one
 argument returning a function. Following this scheme, the multiple arguments
 of the function are given in turn, and not simultaneously. As an example,
-the function $(x,y) ↦ x$ can be encoded as $λx λy x$.
+the function $(x,y) ↦ x$ can be encoded as $\lterm("λx λy x")$.
 \end{rem}
 
 (* Free variables and bound variables. *)
 Although this is not reflected explicitely in the syntax of $λ$-terms,
 a $λ$-variable may play two very different roles. It can be used either as
-a constant, like $y$ in the constant function $λx y$, or as a reference to
-a binder, like $x$ in the identity function $λx x$. Variable binding and
-the associated notions of free and bound variable are hence essential.
+a constant, like $y$ in the constant function $\lterm("λx y")$, or as a
+reference to a binder, like $x$ in the identity function $\lterm("λx x")$.
+Variable binding and the associated notions of free and bound variable are
+hence essential.
 \begin{def}\label("freelvars")
 Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
 and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
@@ -65,12 +124,18 @@ inductively on the structure of the term $t$.
 \linesBefore(4) (* FIXME hack *)
 \diagram(
 let contents = two_cols
- [ [<$ FV_λ(x) $>   ; <$ = $>; <$ \{x\} $>                   ]
- ; [<$ FV_λ(λx t) $>; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
- ; [<$ FV_λ(t u) $> ; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $>       ]
- ; [<$ BV_λ(x) $>   ; <$ = $>; <$ ∅ $>                       ]
- ; [<$ BV_λ(λx t) $>; <$ = $>; <$ BV_λ(t) ∪ \{x\} $>         ]
- ; [<$ BV_λ(t u) $> ; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $>       ] ]
+ [ [ <$ FV_λ(x) $>
+   ; <$ = $>; <$ \{x\} $> ]
+ ; [ <$ FV_λ(\lterm("λx t")) $>
+   ; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
+ ; [ <$ FV_λ(\lterm("t u")) $>
+   ; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $> ]
+ ; [ <$ BV_λ(x) $>
+   ; <$ = $>; <$ ∅ $> ]
+ ; [ <$ BV_λ(\lterm("λx t")) $>
+   ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $> ]
+ ; [ <$ BV_λ(\lterm("t u")) $>
+   ; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $> ] ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
 )
@@ -78,18 +143,19 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 \end{def}
 \begin{rem}
 Nothing prevents a $λ$-variable to have both free and bound occurrences in
-a term. For example, in $t = λx y λy x y$ the first occurrence of $y$ is
-free while its second occurrence is bound. We have $y ∈ FV_λ(t) = \{y\}$
-and $y ∈ BV_λ(t) = \{x, y\}$.
+a term. For example, in $t = \lterm("λx y λy x y")$ the first occurrence of
+$y$ is free while its second occurrence is bound.
+We have $y ∈ FV_λ(t) = \{y\}$ and $y ∈ BV_λ(t) = \{x, y\}$.
 \end{rem}
 
 (* Substitution, α-equivalence and β-reduction. *)
 When a $λ$-abstraction (i.e. a function) is applied to an argument, we
-obtain a term of the form $(λx t) u$, called a $β$-redex. The reduction
-of such $β$-redexes plays an essential role in computation. Intuitively,
-the reduction of the $β$-redex $(λx t) u$ will be performed by replacing
-every occurence of the bound variable $x$ by $u$ in the term $t$. This
-operation, called substitution, is formally defined as follows.
+obtain a term of the form $\lterm("(λx t) u")$, called a $β$-redex. The
+reduction of such $β$-redexes plays an essential role in computation.
+Intuitively, the reduction of the $β$-redex $\lterm("(λx t) u")$ will be
+performed by replacing every occurence of the bound variable $x$ by $u$ in
+the term $t$. This operation, called substitution, is formally defined as
+follows.
 \begin{def}
 Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
 $λ$-variable. We denote $t[x ← u]$ the term $t$ in which every free
@@ -99,11 +165,16 @@ inductively on the structure of $t$.
 \linesBefore(5) (* FIXME hack *)
 \diagram(
 let contents = two_cols
- [ [<$ x[x ← u] $>      ; <$ = $>; <$ u $>                   ]
- ; [<$ y[x ← u] $>      ; <$ = $>; <$ y $>                   ]
- ; [<$ (λx t)[x ← u] $> ; <$ = $>; <$ λx t $>                ]
- ; [<$ (λy t)[x ← u] $> ; <$ = $>; <$ λy t[x ← u] $>         ]
- ; [<$ (t₁ t₂)[x ← u] $>; <$ = $>; <$ t₁[x ← u] t₂[x ← u] $> ]
+ [ [ <$ {\lterm("x")}[x ← u] $>
+   ; <$ = $>; <$ u $> ]
+ ; [ <$ {\lterm("y")}[x ← u] $>
+   ; <$ = $>; <$ y $> ]
+ ; [ <$ {\lterm("(λx t)")}[x ← u] $>
+   ; <$ = $>; <$ λx t $> ]
+ ; [ <$ {\lterm("(λy t)")}[x ← u] $>
+   ; <$ = $>; <$ λy t[x ← u] $> ]
+ ; [ <$ {\lterm("(t₁ t₂)")}[x ← u] $>
+   ; <$ = $>; <$ t₁[x ← u] t₂[x ← u] $> ]
  ]
 let _ =
   array [`East; `Main; `West; `East; `Main; `West] contents
