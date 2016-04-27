@@ -13,46 +13,94 @@ module LambdaCalculus =
       | App of term * term
       | Par of term
       | Sub of term * (vari * bool * term)
+      | Ctx of ctxt * term
+    and ctxt =
+      | Hole of vari option
+      | CPar of ctxt
+      | CAbs of vari * ctxt
+      | LApp of ctxt * term
+      | RApp of term * ctxt
 
     let build_app = List.fold_left (fun t u -> App(t,u))
+    let build_sub t = function
+      | None   -> t
+      | Some s -> Sub(t,s)
 
-    type prio = Atom | Appl
-    let parser lvar = ''[a-z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2}? _:relax
+    type prio = Atom | Subs | Appl
+    let parser lvar = ''[a-z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
+      | "₄" -> 4 | "₅" -> 5}? _:relax
+    let parser cvar = ''[A-Z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
+      | "₄" -> 4 | "₅" -> 5}? _:relax
+
     let parser lterm prio =
-      | x:lvar                           when prio = Atom -> Var(x)
-      | '(' t:(lterm Appl) ')'           when prio = Atom -> Par(t)
-      | "λ" x:lvar t:(lterm Appl)        when prio = Atom -> Abs(x,t)
-      | t:(lterm Atom) ts:(lterm Atom)*$ when prio = Appl -> build_app t ts
+      | x:lvar                             when prio = Atom -> Var(x)
+      | '(' t:(lterm Appl) ')'             when prio = Atom -> Par(t)
+      | "λ" x:lvar t:(lterm Appl)          when prio = Atom -> Abs(x,t)
+      | t:(lterm Subs) ts:(lterm Subs)*$   when prio = Appl -> build_app t ts
+      | t:(lterm Atom) s:{'[' subst ']'}?$ when prio = Subs -> build_sub t s
+      | e:(lctxt Atom) '[' t:(lterm Appl) ']' when prio = Atom -> Ctx(e,t)
+    and subst =
+      | x:lvar s:{"←" -> false | "≔" -> true} u:(lterm Appl)
+    and lctxt prio =
+      | "[]"                          when prio = Atom -> Hole(None)
+      | e:cvar                        when prio = Atom -> Hole(Some e)
+      | '(' e:(lctxt Appl) ')'        when prio = Atom -> CPar(e)
+      | "λ" x:lvar e:(lctxt Appl)     when prio = Atom -> CAbs(x,e)
+      | e:(lctxt Subs) t:(lterm Atom) when prio = Appl -> LApp(e,t)
+      | t:(lterm Atom) e:(lctxt Subs) when prio = Appl -> RApp(t,e)
+      | e:(lctxt Atom)                when prio = Subs -> e
+      | e:(lctxt Subs)                when prio = Appl -> e
+
     let lterm = lterm Appl
+    let lctxt = lctxt Appl
 
     let parse_term =
       let parse = parse_string lterm (blank_regexp ''[ ]*'') in
       handle_exception parse
 
-    let str s = Maths.Ordinary (Maths.noad (Maths.glyphs s))
+    let parse_ctxt =
+      let parse = parse_string lctxt (blank_regexp ''[ ]*'') in
+      handle_exception parse
+
+    let str s = [Maths.Ordinary (Maths.noad (Maths.glyphs s))]
 
     let v2m (s, io) =
       match io with
       | None   -> str s
       | Some i -> let n = Maths.noad (Maths.glyphs s) in
-                  let i = str (string_of_int i) in
-                  let n = { n with subscript_right = [i] } in
-                  Maths.Ordinary n
+                  let subscript_right = str (string_of_int i) in
+                  let n = { n with subscript_right } in
+                  [Maths.Ordinary n]
 
-    let rec t2m t =
-      match t with
-      | Var(x)   -> [v2m x]
-      | Abs(x,t) -> [str "λ"; v2m x; str "."] @ (t2m t)
-      | App(t,u) -> (t2m t) @ [str " "] @ (t2m u)
-      | Par(t)   -> [str "("] @ (t2m t) @ [str ")"]
+    let rec t2m = function
+      | Var(x)   -> v2m x
+      | Abs(x,t) -> (str "λ") @ (v2m x) @ (str ".") @ (t2m t)
+      | App(t,u) -> (t2m t) @ (str " ") @ (t2m u)
+      | Par(t)   -> (str "(") @ (t2m t) @ (str ")")
       | Sub(t,s) -> let (x, s, u) = s in
-                    let sub = str (if s then "≔" else "←") in
-                    (t2m t) @ [str "["; v2m x; str sub] @ (t2m u) @ [str "]"]
+                    let sub l r =
+                      let b =
+                        if s then MathFonts.asana "\\defeq" 798
+                        else Maths.glyphs "←";
+                      in
+                      [bin 2 (Normal(false, Maths.noad b,false)) l r]
+                    in
+                    (t2m t) @ (str "[") @ (sub (v2m x) (t2m u)) @ (str "]")
+      | Ctx(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
+    and c2m = function
+      | Hole(None)   -> <$[{\wc}]$>
+      | Hole(Some e) -> v2m e
+      | CPar(e)      -> (str "(") @ (c2m e) @ (str ")")
+      | CAbs(x,e)    -> (str "λ") @ (v2m x) @ (str ".") @ (c2m e)
+      | LApp(e,t)    -> (c2m e) @ (str " ") @ (t2m t)
+      | RApp(t,e)    -> (t2m t) @ (str " ") @ (c2m e)
 
+    let lctxt s = c2m (parse_ctxt s)
     let lterm s = t2m (parse_term s)
   end
 
 let lterm = LambdaCalculus.lterm
+let lctxt = LambdaCalculus.lctxt
 )
 \Include{Macros}
 
@@ -109,7 +157,6 @@ of the function are given in turn, and not simultaneously. As an example,
 the function $(x,y) ↦ x$ can be encoded as $\lterm("λx λy x")$.
 \end{rem}
 
-(* Free variables and bound variables. *)
 Although this is not reflected explicitely in the syntax of $λ$-terms,
 a $λ$-variable may play two very different roles. It can be used either as
 a constant, like $y$ in the constant function $\lterm("λx y")$, or as a
@@ -158,24 +205,22 @@ the term $t$. This operation, called substitution, is formally defined as
 follows.
 \begin{def}
 Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
-$λ$-variable. We denote $t[x ← u]$ the term $t$ in which every free
-occurrence of $x$ has been replaced by $u$. This operation is defined
+$λ$-variable. We denote $\lterm("t[x ← u]")$ the term $t$ in which every
+free occurrence of $x$ has been replaced by $u$. This operation is defined
 inductively on the structure of $t$.
 \begin{center}
 \linesBefore(5) (* FIXME hack *)
 \diagram(
-let contents = two_cols
- [ [ <$ {\lterm("x")}[x ← u] $>
-   ; <$ = $>; <$ u $> ]
- ; [ <$ {\lterm("y")}[x ← u] $>
-   ; <$ = $>; <$ y $> ]
- ; [ <$ {\lterm("(λx t)")}[x ← u] $>
-   ; <$ = $>; <$ λx t $> ]
- ; [ <$ {\lterm("(λy t)")}[x ← u] $>
-   ; <$ = $>; <$ λy t[x ← u] $> ]
- ; [ <$ {\lterm("(t₁ t₂)")}[x ← u] $>
-   ; <$ = $>; <$ t₁[x ← u] t₂[x ← u] $> ]
- ]
+let contents =
+  let line l r = [ <$ \lterm(l) $> ; <$ = $> ; <$ \lterm(r) $> ] in
+  let data =
+    [ line "x[x ← u]"       "u"
+    ; line "y[x ← u]"       "y"
+    ; line "(λx t)[x ← u]"    "λx t"
+    ; line "(λy t)[x ← u]"    "λy t[x ← u]"
+    ; line "(t₁ t₂)[x ← u]" "t₁[x ← u] t₂[x ← u]" ]
+  in two_cols data
+
 let _ =
   array [`East; `Main; `West; `East; `Main; `West] contents
     ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
@@ -183,17 +228,18 @@ let _ =
 \end{center}
 \end{def}
 Substitution is a subtle notion, and care should be taken to avoir capture
-of variables. For example, let us consider the function $λx λy x$ which
-takes an argument $x$ and returns a constant function with value $x$. If we
-apply this function to $y$, the expected result is a constant function with
-value $y$. However, if we blindly substitute $x$ with $y$ in $λy x$ we obtain
-the identity function $λy y$. Indeed, the free variable $y$ has been captured
-and now references a binder that had (coincidentally) the same name.
+of variables. For example, let us consider the function $\lterm("λx λy x")$
+which takes an argument $x$ and returns a constant function with value $x$.
+If we apply this function to $y$, the expected result is a constant function
+with value $y$. However, if we blindly substitute $x$ with $y$ in
+$\lterm("λy x")$ we obtain the identity function $\lterm("λy y")$. Indeed,
+the free variable $y$ has been captured and now references a binder that had
+(coincidentally) the same name.
 
 To solve this problem, we need to make sure that whenever a substitution
-$t[x ← u]$ is performed, no free variable of $u$ is bound in $t$ (i.e.
-$FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables of
-$u$, it is possible to rename the bound variables of $t$. Indeed, changing
+$\lterm("t[x ← u]")$ is performed, no free variable of $u$ is bound in $t$
+(i.e. $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables
+of $u$, it is possible to rename the bound variables of $t$. Indeed, changing
 the name of a bound variable has no effect on computational behaviour of a
 term. Two terms that are equivalent up to the names of their bound variables
 are said to be $α$-equivalent.
@@ -202,25 +248,27 @@ The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
 \cite("Krivine1990"), as the smallest relation such that:
 \begin{itemize}
 \item if $x ∈ \cal{V}_λ$ then $x ≡_α x$,
-\item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then ${t₁ u₁} ≡_α {t₂ u₂}$,
-\item if ${t₁[x₁ ← y]} \nequiv_α {t₂[x₂ ← y]}$ for only finitely many
-      $y ∈ \cal{V}_λ$ then ${λx₁ t₁} ≡_α {λx₂ t₂}$.
+\item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then
+      $\lterm("t₁ u₁") ≡_α \lterm("t₂ u₂")$,
+\item if $\lterm("t₁[x₁ ← y]") \nequiv_α \lterm("t₂[x₂ ← y]")$ for only
+      finitely many $y ∈ \cal{V}_λ$ then
+      $\lterm("λx₁ t₁") ≡_α \lterm("λx₂ t₂")$.
 \end{itemize}
 \end{def}
 \begin{lem}\label("alphalem")
 Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
-always possible to find a term $t' ∈ Λ$ such that $t' ≡_α t$ and
-$BV_λ(t') ∩ V = ∅$.
+always possible to find a term $t₀ ∈ Λ$ such that $t₀ ≡_α t$ and
+$BV_λ(t₀) ∩ V = ∅$.
 \begin{proof}
 A full proof is available in \cite("Krivine1990"), Lemma 1.11.
 \end{proof}
 \end{lem}
 \begin{def}
 Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
-$λ$-variable. We denote $t[x := u]$ the capture-avoiding substitution of
-$x$ by $u$ in $t$. It is defined as $t'[x ← u]$ where $t' ∈ Λ$ is
-a term such that $t' ≡_α t$ and $BV_λ(t') ∩ FV(u) = ∅$. Such a term exists
-according to \lemRef("alphalem").
+$λ$-variable. We denote $\lterm("t[x ≔ u]")$ the capture-avoiding
+substitution of $x$ by $u$ in $t$. It is defined as $\lterm("t₀[x ← u]")$
+where $t₀ ∈ Λ$ is a term such that $t₀ ≡_α t$ and $BV_λ(t₀) ∩ FV(u) = ∅$.
+Such a term exists according to \lemRef("alphalem").
 \end{def}
 
 =<
@@ -235,20 +283,27 @@ will allow us to focus on any particular subterm of a term.
 \begin{def}
 The set of evaluation contexts $[Λ]$ is defined as the language recognised
 by the following ||bnf|| grammar.
-$$ E ::= [{\wc}] \| {λx E} \| {E t} \| {t E} \hspace(4.0) x∈\cal{V}_λ, t∈Λ$$
+\Caml(
+let _ = sidenote
+  << $E ::= \lctxt("[]") \| \lctxt("λx E") \| \lctxt("E t") \|
+     \lctxt("t E")$ >>
+  << $x∈\cal{V}_λ, t∈Λ$ >>
+)
 \end{def}
 \begin{def}
-Given a term $u ∈ Λ$ and an evaluation context $E ∈ [Λ]$, we $E[u]$ the term
-formed by puting $u$ into the hole of the evaluation context $E$. It is
-defined by induction on the structure of $E$ as follows.
+Given a term $u ∈ Λ$ and an evaluation context $E ∈ [Λ]$, we $\lterm("E[u]")$
+the term formed by puting $u$ into the hole of the evaluation context $E$. It
+is defined by induction on the structure of $E$ as follows.
 \begin{center}
 \diagram(
-let contents = two_cols
- [ [<$ [{\wc}][u] $>; <$ = $>; <$ u       $> ]
- ; [<$ (λx E)[u]  $>; <$ = $>; <$ λx E[u] $> ]
- ; [<$ (E t)[u]   $>; <$ = $>; <$ E[u] t  $> ]
- ; [<$ (t E)[u]   $>; <$ = $>; <$ t E[u]  $> ]
- ]
+let contents =
+  let line l r = [ <$ \lterm(l) $> ; <$ = $> ; <$ \lterm(r) $> ] in
+  let data =
+    [ line "[][u]"     "u"
+    ; line "(λx E)[u]" "λx E[u]"
+    ; line "(E t)[u]"  "E[u] t"
+    ; line "(t E)[u]"  "t E[u]" ]
+  in two_cols data
 let _ =
   array [`East; `Main; `West; `East; `Main; `West] contents
     ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
@@ -260,7 +315,7 @@ The general $β$-reduction relation is defined as the smallest relation
 $({→}_β)$ such that for every evaluation context $E ∈ [Λ]$, for every terms
 $t ∈ Λ$ and $u ∈ Λ$, and for every variable $x ∈ \cal{V}_λ$ we have the
 following.
-$$ {E[(λx t) u]} →_β {E[t[x := u]]}$$
+$$ \lterm("E[(λx t) u]") →_β \lterm("E[t[x ≔ u]]") $$
 We say that the term $t ∈ Λ$ is in $β$-normal-form if there is no $u ∈ Λ$
 such that $t →_β u$. We denote $({→}_β^{∗})$ the reflexive, transitive
 closure of $({→}_β)$.
@@ -269,11 +324,13 @@ closure of $({→}_β)$.
 The general $β$-reduction relation $({→}_β)$ is non-deterministic. Indeed,
 given a term $t$, there might be two (different) terms $u₁$ and $u₂$ such
 that $t →_β u₁$ and $t →_β u₂$. For example, the term
-$((λx₁ x₁) λx₂ x₂) ((λx₃ x₃) λx₄ x₄)$ can either reduce to
-$(λx₂ x₂) ((λx₃ x₃) λx₄ x₄)$ or to $((λx₁ x₁) λx₂ x₂) (λx₄ x₄)$. Indeed,
-we can focus on the $β$-redex $(λx₁ x₁) λx₂ x₂$ using the evaluation context
-$[{\wc}] ((λx₃ x₃) λx₄ x₄)$, or on the $β$-redex $(λx₃ x₃) λx₄ x₄$ using the
-evaluation context $((λx₁ x₁) λx₂ x₂) [{\wc}]$.
+$\lterm("((λx₁ x₁) λx₂ x₂) ((λx₃ x₃) λx₄ x₄)")$ can either reduce to
+$\lterm("(λx₂ x₂) ((λx₃ x₃) λx₄ x₄)")$ or to
+$\lterm("((λx₁ x₁) λx₂ x₂) (λx₄ x₄)")$. Indeed, we can focus on the $β$-redex
+$\lterm("(λx₁ x₁) λx₂ x₂")$ using the evaluation context
+$\lctxt("[] ((λx₃ x₃) λx₄ x₄)")$, or on the $β$-redex
+$\lterm("(λx₃ x₃) λx₄ x₄")$ using the evaluation context
+$\lctxt("((λx₁ x₁) λx₂ x₂) []")$.
 
 Although it is non-deterministic, the general $β$-reduction relation
 $({→}_β)$ has the Church-Rosser property \cite("Church1936").
@@ -305,7 +362,7 @@ the application.
 The call-by-name reduction relation $({→}_N) ⊆ Λ×Λ$ is the smallest relation
 satisfying the following two rules.
 $$
-  \axiomR{{(λx t) u} →_N {t[x := u]}}
+  \axiomR{{(λx t) u} →_N {t[x ≔ u]}}
   \hspace(6.0)
   \unaryR{t →_N t'}{{t u} →_N {t' u}}
 $$
@@ -333,7 +390,7 @@ $λ$-abstraction. We will use the letters $v$ and $w$ to denote values.
 The left-to-right call-by-value reduction relation $({→}_S) ⊆ Λ×Λ$ is
 the smallest relation satisfying the following rules.
 $$
-  \unaryR{v value}{{(λx t) v} →_S {t[x := v]}}
+  \unaryR{v value}{{(λx t) v} →_S {t[x ≔ v]}}
   \hspace(4.0)
   \unaryR{t →_S t'}{{t u} →_S {t' u}}
   \hspace(4.0)
@@ -344,7 +401,7 @@ $$
 The right-to-left call-by-value reduction relation $({→}_V) ⊆ Λ×Λ$ is the
 smallest relation satisfying the following rules.
 $$
-  \unaryR{v value}{{(λx t) v} →_V {t[x := v]}}
+  \unaryR{v value}{{(λx t) v} →_V {t[x ≔ v]}}
   \hspace(4.0)
   \unaryR{u →_V u'}{{t u} →_V {t u'}}
   \hspace(4.0)
@@ -397,11 +454,11 @@ a stack $π$.
 As we are considering a call-by-value calculus, only values are (and should
 be) substituted to $λ$-variables during evaluation. From now on, we will
 hence work with the following definition of substitution. In particular,
-a substitution of the form $t[x := u]$ will be forbidden if $u$ is not a
+a substitution of the form $t[x ≔ u]$ will be forbidden if $u$ is not a
 syntactic value.
 \begin{def}
 Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v ∈ Λ_{val}$
-be a value. We denote $t[x := v]$ the capture-avoiding substitution of $x$
+be a value. We denote $t[x ≔ v]$ the capture-avoiding substitution of $x$
 by $v$ in $t$.
 \end{def}
 \begin{def}
@@ -415,7 +472,7 @@ let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
   [ [ <${t u} ∗ π$>     ; <$≻$>; <$u ∗ {[t]π}$>       ]
   ; [ <$v ∗ {[t] π}$>   ; <$≻$>; <$t ∗ {v·π}$>        ]
-  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x := v]} ∗ π$>  ] ]
+  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x ≔ v]} ∗ π$>  ] ]
 )
 \end{center}
 \end{def}
@@ -487,7 +544,7 @@ sets are defined in a similar way to \defRef("freelvars").
 \end{def}
 \begin{def}
 Let $t ∈ Λ$ be a term, $π ∈ Π$ be a stack and $α ∈ \cal{V}_μ$ be a
-$μ$-variable. We denote $t[α := π]$ the (capture-avoiding) substitution of
+$μ$-variable. We denote $t[α ≔ π]$ the (capture-avoiding) substitution of
 $α$ by $π$ in $t$.
 \end{def}
 \begin{def}
@@ -499,8 +556,8 @@ let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
   [ [ <${(t) u} ∗ π$>   ; <$≻$>; <$u ∗ {[t]π}$>       ]
   ; [ <$v ∗ {[t] π}$>   ; <$≻$>; <$t ∗ {v·π}$>        ]
-  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x := v]} ∗ π$>  ]
-  ; [ <$μα t ∗ π$>      ; <$≻$>; <${t[α := π]} ∗ π$>  ]
+  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x ≔ v]} ∗ π$>  ]
+  ; [ <$μα t ∗ π$>      ; <$≻$>; <${t[α ≔ π]} ∗ π$>  ]
   ; [ <$[ρ]t ∗ π$>      ; <$≻$>; <$t ∗ ρ$>            ] ]
 )
 \end{center}
@@ -598,7 +655,7 @@ We enforce values in constructors, record fields, projection and case
 analysis. This makes the calculus simpler because only $β$-reduction will
 manipulate the stack. We can define syntactic sugars such as the following
 to hide the restriction from the programmer.
-$$ t.l := (λx x.l) t \hspace(2.0) C[t] := (λx C[x]) t $$
+$$ t.l ≔ (λx x.l) t \hspace(2.0) C[t] ≔ (λx C[x]) t $$
 \end{rem}
 \begin{def}
 Given a value, term, stack or process $ψ$ we denote $FV_λ(ψ)$ (resp.
@@ -628,9 +685,9 @@ let _ = array [`East ; `Main ; `West]
   ; [ <$v ∗ {[t] π}$>
     ; <$≻$>; <$t ∗ {v·π}$> ]
   ; [ <$λx t ∗ {v · π}$>
-    ; <$≻$>; <${t[x := v]} ∗ π$> ]
+    ; <$≻$>; <${t[x ≔ v]} ∗ π$> ]
   ; [ <$μα t ∗ π$>
-    ; <$≻$>; <${t[α := π]} ∗ π$> ]
+    ; <$≻$>; <${t[α ≔ π]} ∗ π$> ]
   ; [ <$[ρ]t ∗ π$>
     ; <$≻$>; <$t ∗ ρ$> ]
   ; [ <$\{(l_i = v_i)_{i∈I}\}.l_k ∗ π$>
@@ -667,9 +724,9 @@ The reduction relation $({≻})$ is compatible with substitutions of variables
 of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
 then:
 \begin{itemize}
-\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$, $p[x := v] ≻ q[x := v]$,
-\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $p[α := π] ≻ q[α := π]$,
-\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $p[a := t] ≻ q[a := t]$.
+\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$, $p[x ≔ v] ≻ q[x ≔ v]$,
+\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $p[α ≔ π] ≻ q[α ≔ π]$,
+\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $p[a ≔ t] ≻ q[a ≔ t]$.
 \end{itemize}
 Consequently, if $σ$ is a substitution for variables of any kind and if
 $p ≻ q$ (resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $pσ ≻ qσ$ (resp.
