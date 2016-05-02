@@ -61,9 +61,9 @@ let corRef x = <<Corollary \generalRef("Corollary")(x)>>
 
 let chapter l = (tT "Chapter ") :: sectref l
 
-let tval : Typography.Document.environment Typography.Maths.math list =
+let tval : Typography.Maths.math list =
   let t = Maths.glyphs "val" in
-  [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.noad t)]]
+  [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
 (* Stuff to add side note. *)
 let sidenote text note =
@@ -102,6 +102,10 @@ let mcite : string list -> content list = fun l ->
 
 let cite : string -> content list = fun k ->
   mcite [k]
+
+let dcite : string -> string -> content list = fun k e ->
+  let txt = List.rev (List.tl (List.rev (cite k))) in
+  txt @ [tT ", "] @ (emph [tT e]) @ [tT "]"]
 
 let citen : string -> string -> content list = fun k n ->
   let act l =
@@ -158,7 +162,7 @@ let scissors_drawing : Document.environment -> drawingBox = fun env ->
   let cont _ = List.map (resize 3.2) raw_scissors in
   drawing ~offset:(-0.2) (cont env)
 
-let scissors : 'a math list =
+let scissors : math list =
   let glue w =
     { drawing_min_width     = w
     ; drawing_max_width     = w

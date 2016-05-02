@@ -62,12 +62,12 @@ module LambdaCalculus =
       let parse = parse_string lctxt (blank_regexp ''[ ]*'') in
       handle_exception parse
 
-    let str s = [Maths.Ordinary (Maths.noad (Maths.glyphs s))]
+    let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
 
     let v2m (s, io) =
       match io with
       | None   -> str s
-      | Some i -> let n = Maths.noad (Maths.glyphs s) in
+      | Some i -> let n = Maths.node (Maths.glyphs s) in
                   let subscript_right = str (string_of_int i) in
                   let n = { n with subscript_right } in
                   [Maths.Ordinary n]
@@ -83,7 +83,7 @@ module LambdaCalculus =
                         if s then MathFonts.asana "\\defeq" 798
                         else Maths.glyphs "←";
                       in
-                      [bin 2 (Normal(false, Maths.noad b,false)) l r]
+                      [bin 2 (Normal(false, Maths.node b,false)) l r]
                     in
                     (t2m t) @ (str "[") @ (sub (v2m x) (t2m u)) @ (str "]")
       | Ctx(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
@@ -117,7 +117,7 @@ In this thesis, we consider a programming language of the ML family, similar
 to OCaml or SML. Like every functional language, its syntax is based on the
 $λ$-calculus. Introduced by Alonzo Church in the Thirties, the $λ$-calculus
 \cite("Church1941") is a formalism for representing computable functions, and
-in particular reccursive functions. As shown by Alan Turing, the $λ$-calculus
+in particular recursive functions. As shown by Alan Turing, the $λ$-calculus
 is a //universal model of computation// \cite("Turing1937").
 
 (* The language of λ-terms. *)
@@ -135,7 +135,7 @@ A term of the form $\lterm("λx t")$ is called an abstraction (or
 $λ$-abstractions) and a term of the form $\lterm("t u")$ is called an
 application.
 \end{def}
-Intuitively, a $λ$-abstraction $\lterm("λx t")$ forms a fonction by binding
+Intuitively, a $λ$-abstraction $\lterm("λx t")$ forms a function by binding
 the variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
 mathematics. Similarly, a term of the form $\lterm("t u")$ denotes the
 application of (the function) $t$ to (the argument) $u$. This would be
@@ -157,7 +157,7 @@ of the function are given in turn, and not simultaneously. As an example,
 the function $(x,y) ↦ x$ can be encoded as $\lterm("λx λy x")$.
 \end{rem}
 
-Although this is not reflected explicitely in the syntax of $λ$-terms,
+Although this is not reflected explicitly in the syntax of $λ$-terms,
 a $λ$-variable may play two very different roles. It can be used either as
 a constant, like $y$ in the constant function $\lterm("λx y")$, or as a
 reference to a binder, like $x$ in the identity function $\lterm("λx x")$.
@@ -168,7 +168,7 @@ Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
 and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
 inductively on the structure of the term $t$.
 \begin{center}
-\linesBefore(4) (* FIXME hack *)
+\linesBefore(4)
 \diagram(
 let contents = two_cols
  [ [ <$ FV_λ(x) $>
@@ -200,7 +200,7 @@ When a $λ$-abstraction (i.e. a function) is applied to an argument, we
 obtain a term of the form $\lterm("(λx t) u")$, called a $β$-redex. The
 reduction of such $β$-redexes plays an essential role in computation.
 Intuitively, the reduction of the $β$-redex $\lterm("(λx t) u")$ will be
-performed by replacing every occurence of the bound variable $x$ by $u$ in
+performed by replacing every occurrence of the bound variable $x$ by $u$ in
 the term $t$. This operation, called substitution, is formally defined as
 follows.
 \begin{def}
@@ -227,7 +227,7 @@ let _ =
 )
 \end{center}
 \end{def}
-Substitution is a subtle notion, and care should be taken to avoir capture
+Substitution is a subtle notion, and care should be taken to avoid capture
 of variables. For example, let us consider the function $\lterm("λx λy x")$
 which takes an argument $x$ and returns a constant function with value $x$.
 If we apply this function to $y$, the expected result is a constant function
@@ -240,9 +240,9 @@ To solve this problem, we need to make sure that whenever a substitution
 $\lterm("t[x ← u]")$ is performed, no free variable of $u$ is bound in $t$
 (i.e. $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables
 of $u$, it is possible to rename the bound variables of $t$. Indeed, changing
-the name of a bound variable has no effect on computational behaviour of a
-term. Two terms that are equivalent up to the names of their bound variables
-are said to be $α$-equivalent.
+the name of a bound variable has no effect on the computational behaviour of
+a term. Two terms that are equivalent up to the names of their bound
+variables are said to be $α$-equivalent.
 \begin{def}
 The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
 \cite("Krivine1990"), as the smallest relation such that:
@@ -260,7 +260,7 @@ Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
 always possible to find a term $t₀ ∈ Λ$ such that $t₀ ≡_α t$ and
 $BV_λ(t₀) ∩ V = ∅$.
 \begin{proof}
-A full proof is available in \cite("Krivine1990"), Lemma 1.11.
+A full proof is available in \id(dcite "Krivine1990" "Lemma 1.11").
 \end{proof}
 \end{lem}
 \begin{def}
@@ -275,7 +275,7 @@ Such a term exists according to \lemRef("alphalem").
 
 => Evaluation contexts and reduction
 
-In order to define the most general notion of reduction over $λ$-terms, we
+To define the most general notion of reduction over $λ$-terms, we
 need to be able to refer to any $β$-redex in a term. To this aim, we
 introduce the notion of evaluation context. Intuitively, a context will
 consist in a term with a hole (i.e. a place-holder for a subterm) and it
@@ -291,9 +291,10 @@ let _ = sidenote
 )
 \end{def}
 \begin{def}
-Given a term $u ∈ Λ$ and an evaluation context $E ∈ [Λ]$, we $\lterm("E[u]")$
-the term formed by puting $u$ into the hole of the evaluation context $E$. It
-is defined by induction on the structure of $E$ as follows.
+Given a term $u ∈ Λ$ and an evaluation context $E ∈ [Λ]$, we denote
+$\lterm("E[u]")$ the term formed by putting $u$ into the hole of the
+evaluation context $E$. It is defined by induction on the structure of
+$E$ as follows.
 \begin{center}
 \diagram(
 let contents =
@@ -331,7 +332,6 @@ $\lterm("(λx₁ x₁) λx₂ x₂")$ using the evaluation context
 $\lctxt("[] ((λx₃ x₃) λx₄ x₄)")$, or on the $β$-redex
 $\lterm("(λx₃ x₃) λx₄ x₄")$ using the evaluation context
 $\lctxt("((λx₁ x₁) λx₂ x₂) []")$.
-
 Although it is non-deterministic, the general $β$-reduction relation
 $({→}_β)$ has the Church-Rosser property \cite("Church1936").
 \begin{thm}
@@ -342,22 +342,26 @@ ${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$.
 A full proof is available in \cite("Church1936").
 \end{proof}
 \end{thm}
-Intuitivly, the Church-Rosser property enforces a weak form of determinism.
+Intuitively, the Church-Rosser property enforces a weak form of determinism.
 Indeed, it implies that a program can only compute one particular result,
 even if it can be attained in several different ways.
 
-In this thesis, we consider a programming language that is effectful, hence
-it does not have the Church-Rosser property. As a consequence, we need to
-(* restrict the notion of reduction... *)
-choose an evaluation order for the language to remain deterministic enough
-(in our case completely deterministic). The two evaluation orders that are
-the most widely used in practice are call-by-name and call-by-value. They
-both reduce outermost $β$-redexes first, which means that they can be
-formalised without the use of evaluation contexts. In call-by-name, the terms
-that are in function position are reduced first. The computation of the terms
-that are in argument position is postponed to the time of their effective
-use. In call-by-value, the arguments are evaluated first, before performing
-the application.
+In the following, we are going to consider an effectful language, that does
+not have the Church-Rosser property. As a consequence, we will need to
+restrict ourselves to a deterministic subset of the general $β$-reduction
+relation. If we were to work with a non-deterministic reduction relation, it
+would be very difficult to reason about our language. Programs would not only
+compute different possible results, but also terminate in a non-deterministic
+way. Moreover, it would be silly to implement a non-deterministic evaluation
+procedure for a programming language.
+
+The two evaluation orders that are the most widely used in practice are
+called //call-by-name// and //call-by-value//. They both reduce the outermost
+$β$-redex first, and do not reduce $β$-redexes that are contained in the body
+of a $λ$-abstraction. In call-by-name, the terms that are in function
+position are reduced first. The computation of the terms that are in argument
+position is postponed to the time of their effective use. In call-by-value,
+the arguments are evaluated first, before performing the application.
 \begin{def}
 The call-by-name reduction relation $({→}_N) ⊆ Λ×Λ$ is the smallest relation
 satisfying the following two rules.
@@ -373,8 +377,8 @@ systems. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
 a conclusion $C$ separated by an horizontal bar.
 $$ \ternaryR{P₁}{...}{P_n}{C} $$
 The meaning of such a rules is that the conclusion $C$ can be deduced when
-all the premisses $P_i$ are true. Note that there might be no premisse, and
-in this case the conclusion can be deduced immediatly.
+all the premisses $P_i$ are true. Note that there might be no premise, and
+in this case the conclusion can be deduced immediately.
 \end{rem}
 In call-by-value, both the function and its argument need to be fully
 evaluated before the application can be performed. Consequently, two
@@ -417,7 +421,7 @@ machine will emulate the right-to-left evaluation relation $({→}_V)$.
 
 => Call-by-value Krivine machine
 
-In the previous section, we explicited the syntax of the $λ$-calculus and
+In the previous section, we introduced the syntax of the $λ$-calculus and
 the evaluation of $λ$-terms. We will now reformulate these definition in
 terms of a call-by-value Krivine abstract machine \cite("Krivine2007").
 Our presentation will differ from the original machine, which is
@@ -566,7 +570,7 @@ Now, when the abstract machine encounters a $μ$-abstraction $μα t$, the
 current stack $π$ is substituted to the $μ$-variables $α$. As a consequence,
 every subterm of the form $[α]u$ in $t$ becomes $[π]u$. When the machine
 then reaches a state of the form $[π]u ∗ ρ$, the current stack $ρ$ is erased,
-and computation resumes with the stored stack $π$. For example, the processus
+and computation resumes with the stored stack $π$. For example, the process
 $λx μα Ω_x [α]x ∗ v · ε$ where $Ω_x$ is an arbitrary term and $v$ is an
 arbitrary value reduces as follows.
 $$
@@ -581,7 +585,7 @@ $$
   {v ∗ ε}
 $$
 Note that when a stack is erased, arbitrary terms might be erased. In
-particular, we could have chosed $Ω_x = Ω = (λx x x) λx x x$ in the
+particular, we could have chose $Ω_x = Ω = (λx x x) λx x x$ in the
 previous example, although the reduction of this term does not terminate.
 Indeed, we have
 $$
@@ -615,7 +619,7 @@ We require three distinct, countable sets of variables:
 $\cal{V}_λ = \{x, y, z...\}$ for $λ$-variables,
 $\cal{V}_μ = \{α, β, γ...\}$ for $μ$-variables and
 $\cal{V}_ι = \{a, b, c...\}$ for term variables.
-We also require a contable set $\cal{L} = \{l, l₁, l₂...\}$ of labels to
+We also require a countable set $\cal{L} = \{l, l₁, l₂...\}$ of labels to
 name record fields and a countable set $\cal{C} = \{C, C₁, C₂...\}$ for
 naming constructors.
 \end{def}
