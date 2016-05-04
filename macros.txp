@@ -68,12 +68,11 @@ let tval : Typography.Maths.math list =
 (* Stuff to add side note. *)
 let sidenote text note =
   let environment env = {env with par_indent = []} in
-  let np =
-    newPar D.structure ~environment Complete.normal Patoline_Format.parameters
-  in
+  let np = newPar D.structure ~environment Complete.normal
+    Patoline_Format.parameters in
   let contents env =
     let width c =
-      let (x0,_,x1,_) = bounding_box (Document.draw env c) in
+      let (x0,_,x1,_) = bounding_box_full (Document.draw env c) in
       x1 -. x0
     in
     let textw = width text in
@@ -84,6 +83,60 @@ let sidenote text note =
     let glue w = [bB (fun _ -> [glue w w w])] in 
     (linesBefore 2) @ (glue pad1) @ text @ (glue pad2) @ note @ (linesAfter 2)
   in np [C contents]
+
+let bnfs ls =
+  let environment env = {env with par_indent = []} in
+  let np = newPar D.structure ~environment Complete.normal
+    Patoline_Format.parameters in
+  let contents (name, vars, rule, more) env =
+    let width c =
+      let (x0,_,x1,_) = bounding_box_full (Document.draw env c) in x1 -. x0
+    in
+    let glue w = [bB (fun _ -> [glue w w w])] in 
+    let wsname = List.map (fun (x,_,_,_) -> width x) ls in
+    let wsvars = List.map (fun (_,x,_,_) -> width x) ls in
+    let wsrule = List.map (fun (_,_,x,_) -> width x) ls in
+    let wsmore = List.map (fun (_,_,_,x) -> width x) ls in
+    let maxname = List.fold_left max 0.0 wsname in
+    let maxvars = List.fold_left max 0.0 wsvars in
+    let maxrule = List.fold_left max 0.0 wsrule in
+    let maxmore = List.fold_left max 0.0 wsmore in
+    let pad_sep = 2.0 in
+    let sep = << $::=$ >> in
+    let full_sep = (glue pad_sep) @ sep @ (glue pad_sep) in
+
+    let wsep = width sep in
+    let wname = width name in
+    let wvars = width vars in
+    let wrule = width rule in
+    let wmore = width more in
+
+    let pagew = env.normalMeasure in
+
+    let name = name @ (glue (maxname -. wname)) in
+    let vars = (glue (maxvars -. wvars)) @ vars in
+    let rule = rule @ (glue (maxrule -. wrule)) in
+    let more = (glue (maxmore -. wmore)) @ more in
+
+    let padl =
+      (pagew -. maxvars -. maxrule -. 2.0 *. wsep) /. 2.0 -. maxname
+    in
+    let padr =
+      pagew -. maxname -. padl -. maxvars -. maxrule -. 2.0 *. wsep
+      -. maxmore
+    in
+
+    name @ (glue padl) @ vars @ full_sep @ rule @ (glue padr) @ more
+  in
+  let line i l =
+    let hd =
+      if i = 0 then linesBefore 2
+      else if i = List.length ls - 1 then linesAfter 2
+      else []
+    in
+    np (hd @ [C (contents l)])
+  in
+  List.iteri line ls
 
 (* Bibliography stuff. *)
 let biblio = Minibib.from_name "biblio"

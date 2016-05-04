@@ -220,8 +220,12 @@ module Format (D:DocumentStructure) = struct
   module Default = DefaultFormat.Format(D)
 
   let parameters = Default.parameters
+  let verbatim = Default.verbatim
   module Make_theorem = Default.Make_theorem
   module Env_itemize = Default.Env_itemize
+  module Env_env = Default.Env_env
+  module Env_center = Default.Env_center
+  module Env_proof = Default.Env_proof
 
   (* Secial page. *)
   let special_page pages_after contents =
@@ -427,14 +431,9 @@ module Format (D:DocumentStructure) = struct
     let env = envFamily alegreya Default.defaultEnv in
     let (size, lead) = (env.size, env.lead) in
     (* let (size, lead) = (3.5, 5.0) in (* 10pt *) *)
-    {  env with
-         size=size;
-         show_boxes=false;
-         lead=lead;
-         mathsEnvironment=
-        (* Array.map (fun x->{x with Mathematical.kerning=false }) *)
-          env.mathsEnvironment;
-         word_substitutions=
+    { env with size ; lead
+    ; show_boxes = false
+    ; word_substitutions=
         (fun x->List.fold_left (fun y f->f y) x
            [
              replace_utf8 (Str.regexp_string "``") 8220;

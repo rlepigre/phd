@@ -21,6 +21,11 @@ module LambdaCalculus =
       | LApp of ctxt * term
       | RApp of term * ctxt
 
+    type stac =
+      | Alp of string
+      | Psh of term * stac
+      | Frm of term * stac
+
     let build_app = List.fold_left (fun t u -> App(t,u))
     let build_sub t = function
       | None   -> t
@@ -51,6 +56,17 @@ module LambdaCalculus =
       | e:(lctxt Atom)                when prio = Subs -> e
       | e:(lctxt Subs)                when prio = Appl -> e
 
+    let parser mvar = "ε" -> "ε" | "α" -> "α" | "β" -> "β" | "γ" -> "γ"
+      | "π" -> "π" | "ρ" -> "ρ"
+
+    let parser stack =
+      | a:mvar                          -> Alp(a)
+      | t:(lterm Appl) "." pi:stack     -> Psh(t,pi)
+      | '[' t:(lterm Appl) ']' pi:stack -> Frm(t,pi)
+
+    let parser proc =
+      | t:(lterm Appl) "∗" pi:stack
+
     let lterm = lterm Appl
     let lctxt = lctxt Appl
 
@@ -60,6 +76,14 @@ module LambdaCalculus =
 
     let parse_ctxt =
       let parse = parse_string lctxt (blank_regexp ''[ ]*'') in
+      handle_exception parse
+
+    let parse_stac =
+      let parse = parse_string stack (blank_regexp ''[ ]*'') in
+      handle_exception parse
+
+    let parse_proc =
+      let parse = parse_string proc (blank_regexp ''[ ]*'') in
       handle_exception parse
 
     let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
@@ -95,12 +119,28 @@ module LambdaCalculus =
       | LApp(e,t)    -> (c2m e) @ (str " ") @ (t2m t)
       | RApp(t,e)    -> (t2m t) @ (str " ") @ (c2m e)
 
+    let rec s2m = function
+      | Alp(a)    -> [Maths.Ordinary (Maths.node (Maths.glyphs a))]
+      | Psh(v,pi) -> let sym = Maths.glyphs "·" in
+                     let sym = Maths.node sym in
+                     [bin 4 (Normal(false, sym, false)) (t2m v) (s2m pi)]
+      | Frm(t,pi) -> (str "[") @ (t2m t) @ (str "]") @ (s2m pi)
+
+    let p2m (t,pi) =
+      let sym = Maths.glyphs "∗" in
+      let sym = Maths.node sym in
+      [bin 2 (Normal(false, sym, false)) (t2m t) (s2m pi)]
+
     let lctxt s = c2m (parse_ctxt s)
     let lterm s = t2m (parse_term s)
+    let stack s = s2m (parse_stac s)
+    let proc  s = p2m (parse_proc s)
   end
 
 let lterm = LambdaCalculus.lterm
 let lctxt = LambdaCalculus.lctxt
+let stack = LambdaCalculus.stack
+let proc  = LambdaCalculus.proc
 )
 \Include{Macros}
 
@@ -209,15 +249,15 @@ $λ$-variable. We denote $\lterm("t[x ← u]")$ the term $t$ in which every
 free occurrence of $x$ has been replaced by $u$. This operation is defined
 inductively on the structure of $t$.
 \begin{center}
-\linesBefore(5) (* FIXME hack *)
+\linesBefore(5)
 \diagram(
 let contents =
   let line l r = [ <$ \lterm(l) $> ; <$ = $> ; <$ \lterm(r) $> ] in
   let data =
     [ line "x[x ← u]"       "u"
     ; line "y[x ← u]"       "y"
-    ; line "(λx t)[x ← u]"    "λx t"
-    ; line "(λy t)[x ← u]"    "λy t[x ← u]"
+    ; line "(λx t)[x ← u]"  "λx t"
+    ; line "(λy t)[x ← u]"  "λy t[x ← u]"
     ; line "(t₁ t₂)[x ← u]" "t₁[x ← u] t₂[x ← u]" ]
   in two_cols data
 
@@ -276,7 +316,7 @@ Such a term exists according to \lemRef("alphalem").
 => Evaluation contexts and reduction
 
 To define the most general notion of reduction over $λ$-terms, we
-need to be able to refer to any $β$-redex in a term. To this aim, we
+need to be able to refer to any $β$-redex. To this aim, we
 introduce the notion of evaluation context. Intuitively, a context will
 consist in a term with a hole (i.e. a place-holder for a subterm) and it
 will allow us to focus on any particular subterm of a term.
@@ -367,12 +407,11 @@ They both reduce outermost $β$-redexes first, and do not reduce $β$-redexes
 that are contained in the body of a $λ$-abstraction. This means that the
 term $\lterm("λx (λy y) x")$ is considered to be in normal form and cannot
 be evaluated further. In call-by-name, terms that are in function position
-are reduced first, and the computation of the terms that are in argument
-position is postponed to the time of their effective use. In call-by-value,
-the arguments are evaluated first, before performing the $β$-reduction. One
-way to formalize these evaluation strategies is to restrict the notion of
-evaluation context, to only allow focusing on the $β$-redex that is going to
-be reduced next.
+are reduced first, and the computation of their arguments is delayed to the
+time of their effective use. In call-by-value, both arguments and functions
+are evaluated before performing the $β$-reduction. One way to formalize
+these evaluation strategies is to restrict the notion of evaluation context,
+to only allow focusing on the $β$-redex that is going to be reduced next.
 \begin{def}
 The set of call-by-name evaluation contexts $[N] ⊆ [Λ]$ is defined as the
 language recognised by the following ||bnf|| grammar.
@@ -393,10 +432,10 @@ terms that are in function position first and the latter evaluates the
 terms that are in argument position first. Although left-to-right
 call-by-value evaluation is most widely used, some practical languages
 like OCaml use right-to-left evaluation. In this thesis, we make the
-samek choice and only consider right-to-left call-by-value evaluation.
+same choice and only consider right-to-left call-by-value evaluation.
 \begin{def}
 A term $t$ is said to be a value if it is either a $λ$-variable or a
-$λ$-abstraction. The set $Λ_{val}$ of all the values is generated by the
+$λ$-abstraction. The set $Λ_{val} ⊆ Λ$ of all the values is generated by the
 following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
@@ -416,53 +455,40 @@ The right-to-left call-by-value reduction relation $({→}_V) ⊆ Λ×Λ$ is
 defined as $\cal{R}([V])$.
 \end{def}
 \begin{rem}
-Left-to-right call-by-value evaluation can be defined usin evaluation
+Left-to-right call-by-value evaluation can be defined using evaluation
 contexts generated by the following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
   << $E ::= \lctxt("[]") \| \lctxt("E t") \| \lctxt("v E") $ >>
-  << $v∈Λ_{val}$, $t∈Λ$ >>
+  << $t∈Λ$, $v∈Λ_{val}$ >>
 )
 \end{rem}
 
+A given term of the $λ$-calculus may reduce in a very different way with
+different evaluation strategies. For example, the evaluation of the term
+$\lterm("(λy z) ((λx x x) (λx x x))")$ stops in one step in call-by-name
+$$ \lterm("(λy z) ((λx x x) (λx x x))") →_N \lterm("z") $$
+and it goes into a loop in call-by-value.
+$$ \lterm("(λy z) ((λx x x) (λx x x))") →_V
+   \lterm("(λy z) ((λx x x) (λx x x))") $$
 
-
-
-
-
-(* TODO from here *)
-\begin{def}
-The call-by-name reduction relation $({→}_N) ⊆ Λ×Λ$ is the smallest relation
-satisfying the following two rules.
+\begin{rem}
+Our reduction relations can be alternatively defined using a deduction rule
+system. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
+a conclusion $C$ separated by an horizontal bar.
+$$ \ternaryR{P₁}{...}{P_n}{C} $$
+The meaning of such a rules is that the conclusion $C$ can be deduced when
+all the premisses $P_i$ are true. In particular, if there is no premise then
+the conclusion can be deduced immediately. Using this formalism, the
+call-by-value reduction corresponds to the smallest relation satisfying the
+following two rules.
 $$
   \axiomR{\lterm("(λx t) u") →_N \lterm("t[x ≔ u]")}
   \hspace(6.0)
   \unaryR{\lterm("t₁") →_N \lterm("t₂")}{\lterm("t₁ u") →_N \lterm("t₂ u")}
 $$
-\end{def}
-\begin{rem}
-In this thesis, we will often define relations using deduction rule
-systems. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
-a conclusion $C$ separated by an horizontal bar.
-$$ \ternaryR{P₁}{...}{P_n}{C} $$
-The meaning of such a rules is that the conclusion $C$ can be deduced when
-all the premisses $P_i$ are true. Note that there might be no premise, and
-in this case the conclusion can be deduced immediately.
-\end{rem}
-\begin{def}
-The left-to-right call-by-value reduction relation $({→}_S) ⊆ Λ×Λ$ is
-the smallest relation satisfying the following rules.
-$$
-  \axiomR{\lterm("(λx t) v") →_S \lterm("t[x ≔ v]")}
-  \hspace(4.0)
-  \unaryR{\lterm("t₁") →_S \lterm("t₂")}{\lterm("t₁ u") →_S \lterm("t₂ u")}
-  \hspace(4.0)
-  \unaryR{\lterm("u₁") →_S \lterm("u₂")}{\lterm("v u₁") →_S \lterm("v u₂")}
-$$
-\end{def}
-\begin{def}
-The right-to-left call-by-value reduction relation $({→}_V) ⊆ Λ×Λ$ is the
-smallest relation satisfying the following rules.
+Similarly, the right-to-left call-by-value reduction relation $({→}_V)$
+corresponds to the smallest relation satisfying the following three rules.
 $$
   \axiomR{\lterm("(λx t) v") →_V \lterm("t[x ≔ v]")}
   \hspace(4.0)
@@ -470,11 +496,13 @@ $$
   \hspace(4.0)
   \unaryR{\lterm("t₁") →_V \lterm("t₂")}{\lterm("t₁ v") →_V \lterm("t₂ v")}
 $$
-\end{def}
+\end{rem}
 
 In this thesis, $λ$-terms and programs in general will be evaluated in an
 abstract machine called a Krivine machine \cite("Krivine2007"). This
-machine will emulate the right-to-left evaluation relation $({→}_V)$.
+machine will emulate the right-to-left evaluation relation $({→}_V)$. It
+will provide us with a computational framework in which programs and their
+evaluation contexts can be manipulated easily.
 
 =<
 
@@ -490,18 +518,26 @@ published, they are well-known among classical realizability experts.
 \begin{def}
 Values, terms, stacks and processes are generated by the following four
 ||bnf|| grammars. The names of the corresponding sets are displayed on
-the right.
-\begin{center}
-\linesBefore(6)
-\diagram(
-let _ = array [`East ; `East ; `West; `West]
-  ~horizontal_padding:(function 3 -> 20.0 | _ -> 1.0)
-  [ [ <$v,w$>; <$::=$>; <$ x \| {λx t} $>          ; <$(Λ_{val})$> ]
-  ; [ <$t,u$>; <$::=$>; <$ v \| {t u} $>           ; <$(Λ)$>       ]
-  ; [ <$π,ρ$>; <$::=$>; <$ ε \| {v ⋅ π} \| [t] π $>; <$(Π)$>       ]
-  ; [ <$p,q$>; <$::=$>; <$ t ∗ π $>                ; <$(Λ × Π)$>   ] ]
+the left.
+\Caml(
+let _ = bnfs
+  [ ( << $(Λ_{val})$ >>
+    , << $v, w$ >>
+    , << $x \| \lterm("λx t")$ >>
+    , << $x∈\cal{V}_λ$ >> )
+  ; ( << $(Λ)$ >>
+    , << $t, u$ >>
+    , << $v \| \lterm("t u")$ >>
+    , [] )
+  ; ( << $(Π)$ >>
+    , << $π, ρ$ >>
+    , << $ε \| \stack("v . π") \| \stack("[t] π")$ >>
+    , [] )
+  ; ( << $(Λ × Π)$ >>
+    , << $p, q$ >>
+    , << $\proc("t ∗ π")$ >>
+    , [] ) ]
 )
-\end{center}
 \end{def}
 The syntactic distinction between terms and values is specific to the
 call-by-value presentation, they would be collapsed in call-by-name.
@@ -516,13 +552,13 @@ a stack $π$.
 
 As we are considering a call-by-value calculus, only values are (and should
 be) substituted to $λ$-variables during evaluation. From now on, we will
-hence work with the following definition of substitution. In particular,
-a substitution of the form $t[x ≔ u]$ will be forbidden if $u$ is not a
-syntactic value.
+hence work with the following definition of substitution. In particular, a
+substitution of the form $\lterm("t[x ≔ u]")$ will be forbidden if $u$ is not
+a syntactic value.
 \begin{def}
 Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v ∈ Λ_{val}$
-be a value. We denote $t[x ≔ v]$ the capture-avoiding substitution of $x$
-by $v$ in $t$.
+be a value. We denote $\lterm("t[x ≔ v]")$ the capture-avoiding substitution
+of $x$ by $v$ in $t$.
 \end{def}
 \begin{def}
 The reduction relation $({≻}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest
@@ -533,9 +569,9 @@ reflexive and transitive closure.
 \diagram(
 let _ = array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
-  [ [ <${t u} ∗ π$>     ; <$≻$>; <$u ∗ {[t]π}$>       ]
-  ; [ <$v ∗ {[t] π}$>   ; <$≻$>; <$t ∗ {v·π}$>        ]
-  ; [ <$λx t ∗ {v · π}$>; <$≻$>; <${t[x ≔ v]} ∗ π$>  ] ]
+  [ [ <$\proc("t u ∗ π")$>   ; <$≻$>; <$\proc("u ∗ [t]π")$>     ]
+  ; [ <$\proc("v ∗ [t] π")$> ; <$≻$>; <$\proc("t ∗ v.π") $>     ]
+  ; [ <$\proc("λx t ∗ v.π")$>; <$≻$>; <$\proc("t[x ≔ v] ∗ π")$> ] ]
 )
 \end{center}
 \end{def}
