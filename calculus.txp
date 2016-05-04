@@ -7,6 +7,7 @@ module LambdaCalculus =
     open Decap
 
     type vari = string * int option
+
     type term =
       | Var of vari
       | Abs of vari * term
