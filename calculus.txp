@@ -20,8 +20,8 @@ module KAM =
       | TAppl of term * term        (* t u    *)
       | TSave of vari * term        (* μα t   *)
       | TRest of stac * term        (* [π]t   *)
-      | TSubs of term * vari * valu (* t[x≔v] *)
       | TCtxt of ctxt * term        (* E[t]   *)
+      | TSubs of term * (vari * bool * valu) (* t[x≔v] of t[x←v] *)
     and  ctxt =
       | CHole                       (* [-]    *)
       | CMeta of vari               (* E, F   *)
@@ -71,8 +71,8 @@ module KAM =
       | t:(term Subs) ts:(term Subs)*$ when prio = Appl -> appl t ts
       | "μ" a:svari t:(term Appl)      when prio = Atom -> TSave(a,t)
       | '[' s:stac ']' t:(term Appl)   when prio = Atom -> TRest(s,t)
-      | t:(term Atom) '[' x:vvari "≔" v:valu ']'
-                                       when prio = Subs -> TSubs(t,x,v)
+      | t:(term Atom) '[' x:vvari s:{"≔" -> true | "←" -> false} v:valu ']'
+                                       when prio = Subs -> TSubs(t,(x,s,v))
       | c:(ctxt Atom) '[' t:(term Appl) ']'
                                        when prio = Atom -> TCtxt(c,t)
       | t:(term Atom)                  when prio = Subs -> t
@@ -119,42 +119,46 @@ module KAM =
                   [Maths.Ordinary n]
 
     let rec v2m : valu -> Maths.math list = function
-      | VVari(x)     -> vari2m x
-      | VMeta(v)     -> vari2m v
-      | VLAbs(x,t)   -> (str "λ") @ (vari2m x) @ (str ".") @ (t2m t)
+      | VVari(x)   -> vari2m x
+      | VMeta(v)   -> vari2m v
+      | VLAbs(x,t) -> (str "λ") @ (vari2m x) @ (str ".") @ (t2m t)
     and     t2m : term -> Maths.math list = function
-      | TVari(a)     -> vari2m a
-      | TMeta(t)     -> vari2m t
-      | TValu(v)     -> v2m v
-      | TGrou(t)     -> (str "(") @ (t2m t) @ (str ")")
-      | TAppl(t,u)   -> (t2m t) @ (str " ") @ (t2m u)
-      | TSave(a,t)   -> (str "μ") @ (vari2m a) @ (str ".") @ (t2m t)
-      | TRest(s,t)   -> (str "[") @ (s2m s) @ (str "]") @ (t2m t)
-      | TSubs(t,x,v) -> let sub l r =
-                          let b = MathFonts.asana "\\defeq" 798 in
-                          [bin 2 (Normal(false, Maths.node b,false)) l r]
+      | TVari(a)   -> vari2m a
+      | TMeta(t)   -> vari2m t
+      | TValu(v)   -> v2m v
+      | TGrou(t)   -> (str "(") @ (t2m t) @ (str ")")
+      | TAppl(t,u) -> (t2m t) @ (str " ") @ (t2m u)
+      | TSave(a,t) -> (str "μ") @ (vari2m a) @ (str ".") @ (t2m t)
+      | TRest(s,t) -> (str "[") @ (s2m s) @ (str "]") @ (t2m t)
+      | TSubs(t,s) -> let (x,s,v) = s in
+                      let sub l r =
+                        let b =
+                          if s then MathFonts.asana "\\defeq" 798
+                          else Maths.glyphs "←"
                         in
-                        let sub = sub (vari2m x) (v2m v) in
-                        (t2m t) @ (str "[") @ sub @ (str "]")
-      | TCtxt(e,t)   -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
+                        [bin 2 (Normal(false, Maths.node b,false)) l r]
+                      in
+                      let sub = sub (vari2m x) (v2m v) in
+                      (t2m t) @ (str "[") @ sub @ (str "]")
+      | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
     and     c2m : ctxt -> Maths.math list = function
-      | CHole        -> <$ε$>
-      | CMeta(e)     -> vari2m e
-      | CGrou(e)     -> (str "(") @ (c2m e) @ (str ")")
-      | CLAbs(x,e)   -> (str "λ") @ (vari2m x) @ (str ".") @ (c2m e)
-      | CAppL(e,t)   -> (c2m e) @ (str " ") @ (t2m t)
-      | CAppR(t,e)   -> (t2m t) @ (str " ") @ (c2m e)
+      | CHole      -> <$[{\wc}]$>
+      | CMeta(e)   -> vari2m e
+      | CGrou(e)   -> (str "(") @ (c2m e) @ (str ")")
+      | CLAbs(x,e) -> (str "λ") @ (vari2m x) @ (str ".") @ (c2m e)
+      | CAppL(e,t) -> (c2m e) @ (str " ") @ (t2m t)
+      | CAppR(t,e) -> (t2m t) @ (str " ") @ (c2m e)
     and     s2m : stac -> Maths.math list = function
-      | SEmpt        -> <$[{\wc}]$>
-      | SVari(a)     -> vari2m a
-      | SMeta(s)     -> vari2m s
-      | SPush(v,s)   -> let sym = Maths.node (Maths.glyphs "·") in
-                        [bin 4 (Normal(false, sym, false)) (v2m v) (s2m s)]
-      | SFram(t,s)   -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
+      | SEmpt      -> <$ε$>
+      | SVari(a)   -> vari2m a
+      | SMeta(s)   -> vari2m s
+      | SPush(v,s) -> let sym = Maths.node (Maths.glyphs "·") in
+                      [bin 2 (Normal(false, sym, false)) (v2m v) (s2m s)]
+      | SFram(t,s) -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
     and     p2m : proc -> Maths.math list = function
-      | PMeta(p)     -> vari2m p
-      | PProc(t,s)   -> let sym = Maths.node (Maths.glyphs "∗") in
-                        [bin 2 (Normal(false, sym, false)) (t2m t) (s2m s)]
+      | PMeta(p)   -> vari2m p
+      | PProc(t,s) -> let sym = Maths.node (Maths.glyphs "∗") in
+                      [bin 2 (Normal(false, sym, false)) (t2m t) (s2m s)]
 
     let valu : string -> Maths.math list = fun s -> v2m (parse_valu s)
     let term : string -> Maths.math list = fun s -> t2m (parse_term s)
@@ -336,25 +340,25 @@ The set of all the $λ$-terms is denoted $Λ$ and is defined as the language
 recognised by the following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
-  << $t,u ::= x \| \lterm("λx t") \| \lterm("t u")$ >>
+  << $t,u ::= x \| \t("λx t") \| \t("t u")$ >>
   << $x ∈ \cal{V}_λ$ >>
 )
-A term of the form $\lterm("λx t")$ is called an abstraction (or
-$λ$-abstractions) and a term of the form $\lterm("t u")$ is called an
+A term of the form $\t("λx t")$ is called an abstraction (or
+$λ$-abstractions) and a term of the form $\t("t u")$ is called an
 application.
 \end{def}
-Intuitively, a $λ$-abstraction $\lterm("λx t")$ forms a function by binding
+Intuitively, a $λ$-abstraction $\t("λx t")$ forms a function by binding
 the variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
-mathematics. Similarly, a term of the form $\lterm("t u")$ denotes the
+mathematics. Similarly, a term of the form $\t("t u")$ denotes the
 application of (the function) $t$ to (the argument) $u$. This would be
 denoted $t(u)$ in common mathematics. 
 \begin{rem}
 As $λ$-terms have a tree-like structure, parenthesis are sometimes required
-for disambiguation. For example, the term $\lterm("λx t u")$ can be read both
-as $\lterm("(λx t) u")$ and as $\lterm("λx (t u)")$. To lighten the notations
+for disambiguation. For example, the term $\t("λx t u")$ can be read both
+as $\t("(λx t) u")$ and as $\t("λx (t u)")$. To lighten the notations
 we will consider application to be left-associative and abstraction to bind
 stronger that application. As a consequence, we will always read the term
-$\lterm("λx t x u")$ as $\lterm("λx ((t x) u)")$.
+$\t("λx t x u")$ as $\t("λx ((t x) u)")$.
 \end{rem}
 \begin{rem}
 The syntax of the $λ$-calculus only allows for one-place functions. To form
@@ -362,13 +366,13 @@ a function of two arguments (or more) one must rely on Curryfication.
 Indeed, a function of two arguments can be seen as a function of one
 argument returning a function. Following this scheme, the multiple arguments
 of the function are given in turn, and not simultaneously. As an example,
-the function $(x,y) ↦ x$ can be encoded as $\lterm("λx λy x")$.
+the function $(x,y) ↦ x$ can be encoded as $\t("λx λy x")$.
 \end{rem}
 
 Although this is not reflected explicitly in the syntax of $λ$-terms,
 a $λ$-variable may play two very different roles. It can be used either as
-a constant, like $y$ in the constant function $\lterm("λx y")$, or as a
-reference to a binder, like $x$ in the identity function $\lterm("λx x")$.
+a constant, like $y$ in the constant function $\t("λx y")$, or as a
+reference to a binder, like $x$ in the identity function $\t("λx x")$.
 Variable binding and the associated notions of free and bound variable are
 hence essential.
 \begin{def}\label("freelvars")
@@ -381,15 +385,15 @@ inductively on the structure of the term $t$.
 let contents = two_cols
  [ [ <$ FV_λ(x) $>
    ; <$ = $>; <$ \{x\} $> ]
- ; [ <$ FV_λ(\lterm("λx t")) $>
+ ; [ <$ FV_λ(\t("λx t")) $>
    ; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
- ; [ <$ FV_λ(\lterm("t u")) $>
+ ; [ <$ FV_λ(\t("t u")) $>
    ; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $> ]
  ; [ <$ BV_λ(x) $>
    ; <$ = $>; <$ ∅ $> ]
- ; [ <$ BV_λ(\lterm("λx t")) $>
+ ; [ <$ BV_λ(\t("λx t")) $>
    ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $> ]
- ; [ <$ BV_λ(\lterm("t u")) $>
+ ; [ <$ BV_λ(\t("t u")) $>
    ; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $> ] ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
@@ -398,16 +402,16 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 \end{def}
 \begin{rem}
 Nothing prevents a $λ$-variable to have both free and bound occurrences in
-a term. For example, in $t = \lterm("λx y λy x y")$ the first occurrence of
+a term. For example, in $t = \t("λx y λy x y")$ the first occurrence of
 $y$ is free while its second occurrence is bound.
 We have $y ∈ FV_λ(t) = \{y\}$ and $y ∈ BV_λ(t) = \{x, y\}$.
 \end{rem}
 
 (* Substitution, α-equivalence and β-reduction. *)
 When a $λ$-abstraction (i.e. a function) is applied to an argument, we
-obtain a term of the form $\lterm("(λx t) u")$, called a $β$-redex. The
+obtain a term of the form $\t("(λx t) u")$, called a $β$-redex. The
 reduction of such $β$-redexes plays an essential role in computation.
-Intuitively, the reduction of the $β$-redex $\lterm("(λx t) u")$ will be
+Intuitively, the reduction of the $β$-redex $\t("(λx t) u")$ will be
 performed by replacing every occurrence of the bound variable $x$ by $u$ in
 the term $t$. This operation, called substitution, is formally defined as
 follows.
@@ -691,19 +695,19 @@ the left.
 let _ = bnfs
   [ ( << $(Λ_{val})$ >>
     , << $v, w$ >>
-    , << $x \| \lterm("λx t")$ >>
+    , << $\v("x") \| \v("λx t")$ >>
     , << $x∈\cal{V}_λ$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
-    , << $v \| \lterm("t u")$ >>
+    , << $\t("v") \| \t("t u")$ >>
     , [] )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
-    , << $ε \| \stack("v . π") \| \stack("[t] π")$ >>
+    , << $\s("ε") \| \s("v.π") \| \s("[t]π")$ >>
     , [] )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
-    , << $\proc("t ∗ π")$ >>
+    , << $\p("t ∗ π")$ >>
     , [] ) ]
 )
 \end{def}
@@ -713,10 +717,10 @@ Intuitively, a stack can be thought of as an evaluation context represented
 as a list of terms and values. The values are to be considered as arguments
 to be fed to the term in the context, and the terms are to be considered as
 functions to which the term in the context will be applied. The symbol $ε$
-is used to denote an empty stack. A process $t ∗ π$ is to be considered as
-the state of our abstract machine. Its reduction will consist in the
-interaction between the term $t$ and its evaluation context encoded into
-a stack $π$.
+is used to denote an empty stack. A process $\p("t ∗ π")$ is to be considered
+as the state of our abstract machine. Its reduction will consist in the
+interaction between the term $t$ and its evaluation context encoded into a
+stack $π$.
 
 As we are considering a call-by-value calculus, only values are (and should
 be) substituted to $λ$-variables during evaluation. From now on, we will
@@ -725,7 +729,7 @@ substitution of the form $\lterm("t[x ≔ u]")$ will be forbidden if $u$ is not
 a syntactic value.
 \begin{def}
 Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v ∈ Λ_{val}$
-be a value. We denote $\lterm("t[x ≔ v]")$ the capture-avoiding substitution
+be a value. We denote $\t("t[x ≔ v]")$ the capture-avoiding substitution
 of $x$ by $v$ in $t$.
 \end{def}
 \begin{def}
@@ -735,11 +739,12 @@ reflexive and transitive closure.
 \begin{center}
 \linesBefore(4)
 \diagram(
-let _ = array [`East ; `Main ; `West]
-  ~horizontal_padding:(function _ -> 5.0)
-  [ [ <$\proc("t u ∗ π")$>   ; <$≻$>; <$\proc("u ∗ [t]π")$>     ]
-  ; [ <$\proc("v ∗ [t] π")$> ; <$≻$>; <$\proc("t ∗ v.π") $>     ]
-  ; [ <$\proc("λx t ∗ v.π")$>; <$≻$>; <$\proc("t[x ≔ v] ∗ π")$> ] ]
+let _ =
+  let line l r = [ <$\p(l)$> ; <$≻$>; <$\p(r)$> ] in
+  array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
+    [ line "t u ∗ π"    "u ∗ [t]π"
+    ; line "v ∗ [t] π"  "t ∗ v.π"
+    ; line "λx t ∗ v.π" "t[x ≔ v] ∗ π" ]
 )
 \end{center}
 \end{def}
@@ -751,18 +756,21 @@ point the function can be evaluated and the value is stored in the stack
 ready to be consumed by the function as soon as it evaluates to a
 $λ$-abstraction. A capture-avoiding substitution can then be performed to
 effectively apply the argument to the function. For example, the process
-${(λx x y) λz z} ∗ ε$ reduces in the following way.
-$$
-  {{(λx x y) λz z} ∗ ε}
-  ≻
-  {{λz z} ∗ {[λx x y]ε}}
-  ≻
-  {{λx x y} ∗ {{λz z} · ε}}
-  ≻
-  {{(λz z) y} ∗ ε}
-  ≻
-  {y ∗ ε}
-$$
+$\p("(λx x y) λz z ∗ ε")$ reduces to $\p("y ∗ ε")$ in the following way.
+\begin{center}
+\linesBefore(7)
+\diagram(
+let _ =
+  let line s = [ []; <$≻$>; <$\p(s)$> ] in
+  array [`East ; `East ; `West]
+  [ [ <$\p("(λx x y) λz z ∗ ε")$>; <$≻$>; <$\p("λz z ∗ [λx x y]ε")$> ]
+  ; line "λx x y ∗ λz z . ε"
+  ; line "(λz z) y ∗ ε"
+  ; line "y ∗ [λz z] ε"
+  ; line "λz z ∗ y . ε"
+  ; line "y ∗ ε" ]
+)
+\end{center}
 \begin{rem}
 The choice of right-to-left call-by-value allows for a simpler abstract
 machine. Indeed, an additional stack constructor and reduction rule would
