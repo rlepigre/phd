@@ -1,4 +1,4 @@
-FLAG := -package decap
+FLAG := --verbose 1
 
 all: manuscrit.pdf
 

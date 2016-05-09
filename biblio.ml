@@ -227,6 +227,13 @@ let biblio =
               ++ "Volume 36, Number 3, pages 472–482"
   ; year    = "1936" };
 
+  { key     = "Huet1997"
+  ; authors = "Gérard Huet"
+  ; title   = "The Zipper"
+  ; notes   = "Journal of Functional Programming, Volume 7, Number 5, "
+              ++ "pages 549-554"
+  ; year    = "1997" };
+
   ]
 
 let init () =
