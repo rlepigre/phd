@@ -5,10 +5,11 @@ all: manuscrit.pdf
 TXPS=$(wildcard *.txp)
 
 manuscrit.pdf: $(TXPS) biblio.ml formatManuscrit.ml
-	patoline $(FLAG) manuscrit.txp
+	patoline2 --format FormatManuscrit -j 4 $(FLAG) manuscrit.txp
 
 clean:
-	rm -rf *~ _patobuild
+	patoline2 --clean
+	rm -f *~
 
 distclean: clean
-	rm -rf manuscrit.pdf
+	rm -f manuscrit.pdf

@@ -47,12 +47,12 @@ type biblio = string
 
 let create : string -> biblio =
   fun name ->
-    let bib = "_patobuild/" ^ name ^ ".minibib" in
+    let bib = ".patobuild/" ^ name ^ ".minibib" in
     File.create bib; bib
 
 let from_name : string -> biblio =
   fun name ->
-    let bib = "_patobuild/" ^ name ^ ".minibib" in
+    let bib = ".patobuild/" ^ name ^ ".minibib" in
     let _ = File.read bib in
     bib
 
