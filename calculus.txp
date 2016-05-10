@@ -297,9 +297,8 @@ module LambdaCalculus =
 
     let rec s2m = function
       | Alp(a)    -> [Maths.Ordinary (Maths.node (Maths.glyphs a))]
-      | Psh(v,pi) -> let sym = Maths.glyphs "·" in
-                     let sym = Maths.node sym in
-                     [bin 4 (Normal(false, sym, false)) (t2m v) (s2m pi)]
+      | Psh(v,pi) -> let sym = Maths.node (Maths.glyphs "·") in
+                     [bin 2 (Normal(false, sym, false)) (t2m v) (s2m pi)]
       | Frm(t,pi) -> (str "[") @ (t2m t) @ (str "]") @ (s2m pi)
 
     let p2m (t,pi) =
@@ -842,10 +841,27 @@ let _ =
 \end{center}
 
 \begin{rem}
-The choice of right-to-left call-by-value allows for a simpler abstract
-machine. Indeed, an additional stack constructor and reduction rule would
-be required to implement the more usual left-to-right evaluation.
+A left-to-right call-by-value machine could be defined in a similar way, but
+the roles of terms and values would be swapped in stacks. Stack frames would
+contain values, and terms would be pushed on the stack. The resulting
+reduction relation would be the following.
+\begin{center}
+\diagram(
+let _ =
+  let line l r = [ <$\proc(l)$> ; <$≻_{RL}$>; <$\proc(r)$> ] in
+  array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
+    [ line "t u ∗ π"     "t ∗ u.π"
+    ; line "v ∗ u.π"     "u ∗ [v]π"
+    ; line "v ∗ [λx t]π" "t[x ≔ v] ∗ π" ]
+)
+\end{center}
 \end{rem}
+
+The state of our abstract machine contains two parts: a term being evaluated
+(i.e. the term in head position) and its evaluation context (i.e. the stack).
+As a consequence, it is possible to define reduction rules that manipulate
+the stack (i.e. the evaluation context) as a first class object. Such
+reduction rules produce computational effects.
 
 =<
 

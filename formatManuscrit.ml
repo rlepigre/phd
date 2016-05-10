@@ -236,7 +236,8 @@ module Format (D:DocumentStructure) = struct
         left_margin = 0.0
       }
     in
-    newPar D.structure Complete.normal param contents
+    let environment env = {env with par_indent = []} in
+    newPar ~environment D.structure Complete.normal param contents
 
   module Output (M:Driver.OutputDriver) = struct
     include Default.Output(M)
@@ -348,7 +349,8 @@ module Format (D:DocumentStructure) = struct
                   | _ -> 1.0
                 in
                 let size = if minichap then sqrt phi *. size else size in
-                { (envAlternative feats alt env) with hyphenate; size })
+                { (envAlternative feats alt env) with hyphenate
+                ; size ; par_indent = [] })
             ; par_post_env = (fun env1 env2 ->
                 { env1 with names = env2.names
                 ; counters = env2.counters
