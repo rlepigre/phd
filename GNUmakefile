@@ -2,9 +2,9 @@ FLAG := --verbose 1
 
 all: manuscrit.pdf
 
-TXPS=$(wildcard *.txp)
+SRC=$(wildcard *.txp) $(wildcard *.ml)
 
-manuscrit.pdf: $(TXPS) biblio.ml formatManuscrit.ml
+manuscrit.pdf: $(SRC)
 	patoline2 --format FormatManuscrit -j 4 $(FLAG) manuscrit.txp
 
 clean:

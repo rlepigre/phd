@@ -59,7 +59,7 @@ let parser mvar = "ε" -> "ε" | "α" -> "α" | "β" -> "β" | "γ" -> "γ"
 
 let parser stack =
   | a:mvar                          -> Alp(a)
-  | t:(lterm Appl) "." pi:stack     -> Psh(t,pi)
+  | t:(lterm Appl) "·" pi:stack     -> Psh(t,pi)
   | '[' t:(lterm Appl) ']' pi:stack -> Frm(t,pi)
 
 let parser proc =

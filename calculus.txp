@@ -462,7 +462,7 @@ let _ = bnfs
     , [] )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
-    , << $\s("ε") \| \s("v.π") \| \s("[t]π")$ >>
+    , << $\s("ε") \| \s("v·π") \| \s("[t]π")$ >>
     , [] )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
@@ -502,8 +502,8 @@ let _ =
   let line l r = [ <$\p(l)$> ; <$≻$>; <$\p(r)$> ] in
   array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
     [ line "t u ∗ π"    "u ∗ [t]π"
-    ; line "v ∗ [t] π"  "t ∗ v.π"
-    ; line "λx t ∗ v.π" "t[x ≔ v] ∗ π" ]
+    ; line "v ∗ [t] π"  "t ∗ v·π"
+    ; line "λx t ∗ v·π" "t[x ≔ v] ∗ π" ]
 )
 \end{center}
 \end{def}
@@ -524,10 +524,10 @@ let _ =
   let line s = [ []; <$≻$>; <$\p(s)$> ] in
   array [`East ; `East ; `West]
   [ [ <$\p("(λx x y) λz z ∗ ε")$>; <$≻$>; <$\p("λz z ∗ [λx x y]ε")$> ]
-  ; line "λx x y ∗ λz z . ε"
+  ; line "λx x y ∗ λz z · ε"
   ; line "(λz z) y ∗ ε"
   ; line "y ∗ [λz z] ε"
-  ; line "λz z ∗ y . ε"
+  ; line "λz z ∗ y · ε"
   ; line "y ∗ ε" ]
 )
 \end{center}
@@ -542,8 +542,8 @@ reduction relation would be the following.
 let _ =
   let line l r = [ <$\proc(l)$> ; <$≻_{RL}$>; <$\proc(r)$> ] in
   array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
-    [ line "t u ∗ π"     "t ∗ u.π"
-    ; line "v ∗ u.π"     "u ∗ [v]π"
+    [ line "t u ∗ π"     "t ∗ u·π"
+    ; line "v ∗ u·π"     "u ∗ [v]π"
     ; line "v ∗ [λx t]π" "t[x ≔ v] ∗ π" ]
 )
 \end{center}
@@ -585,7 +585,7 @@ let _ = bnfs
     , [] )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
-    , << $\s("ε") \| \s("α") \| \s("v.π") \| \s("[t]π")$ >>
+    , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >>
     , << $α∈\cal{V}_μ$ >> )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
@@ -617,11 +617,11 @@ The reduction relation $({≻})$ is extended with two new reduction rules.
 let _ =
   let line l r = [ <$\p(l)$> ; <$≻$>; <$\p(r)$> ] in
   array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
-    [ line "t u ∗ π"    "u ∗ [t]π"
-    ; line "v ∗ [t] π"  "t ∗ v.π"
-    ; line "λx t ∗ v.π" "t[x ≔ v] ∗ π"
-    ; line "μα t ∗ π"   "t[α ≔ π] ∗ π"
-    ; line "[ρ]t ∗ π"   "t ∗ ρ" ]
+    [ line "t u ∗ π"      "u ∗ [t]π"
+    ; line "v ∗ [t] π"    "t ∗ v · π"
+    ; line "λx t ∗ v · π" "t[x ≔ v] ∗ π"
+    ; line "μα t ∗ π"     "t[α ≔ π] ∗ π"
+    ; line "[ρ]t ∗ π"     "t ∗ ρ" ]
 )
 \end{center}
 \end{def}
@@ -630,7 +630,7 @@ current stack $π$ is substituted to the $μ$-variables $α$. As a consequence,
 every subterm of the form $\t("[α]u")$ in $t$ becomes $\t("[π]u")$. When the
 machine then reaches a state of the form $\p("[π]u ∗ ρ")$, the current stack
 $ρ$ is erased, and computation resumes with the stored stack $π$. For
-example, the process $\p("λx μα t [α]x ∗ v.ε")$ where $t$ is an arbitrary
+example, the process $\p("λx μα t [α]x ∗ v·ε")$ where $t$ is an arbitrary
 term and $v$ is an arbitrary value reduces as follows.
 \begin{center}
 \linesBefore(5)
@@ -638,7 +638,7 @@ term and $v$ is an arbitrary value reduces as follows.
 let _ =
   let line s = [ []; <$≻$>; <$\p(s)$> ] in
   array [`East ; `East ; `West]
-  [ [ <$\p("λx μα t [α]x ∗ v.ε")$>; <$≻$>; <$\p("μα t[x ≔ v] [α]v ∗ ε")$> ]
+  [ [ <$\p("λx μα t [α]x ∗ v·ε")$>; <$≻$>; <$\p("μα t[x ≔ v] [α]v ∗ ε")$> ]
   ; line "t[x ≔ v] [ε]v ∗ ε"
   ; line "[ε]v ∗ [t[x ≔ v]]ε"
   ; line "v ∗ ε" ]
@@ -655,7 +655,7 @@ let _ =
   let line s = [ []; <$≻$>; <$\p(s)$> ] in
   array [`East ; `East ; `West]
   [ [ <$\p("Ω ∗ π")$>; <$≻$>; <$\p("λx x x ∗ [λx x x] π")$> ]
-  ; line "λx x x ∗ λx x x . π"
+  ; line "λx x x ∗ λx x x · π"
   ; line "Ω ∗ π" ]
 )
 \end{center}
@@ -688,41 +688,23 @@ corresponding sets are displayed on the right.
 let _ = bnfs
   [ ( << $(Λ_{val})$ >>
     , << $v, w$ >>
-    , << $\v("x") \| \v("λx t")$ >>
+    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{⋯ l = v ⋯}")$ >>
     , << $x∈\cal{V}_λ$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
-    , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[α]t")$ >>
+    , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[α]t")
+         \| \t("v.l") \| \t("[v | ⋯ C → v ⋯ ]") \| \t("Y(t, v)")
+         \| \t("U(v)") $ >>
     , << $a∈\cal{V}_ι$ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
-    , << $\s("ε") \| \s("α") \| \s("v.π") \| \s("[t]π")$ >>
+    , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >>
     , << $α∈\cal{V}_μ$ >> )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >>
     , [] ) ]
 )
-\begin{center}
-\linesBefore(6)
-\diagram(
-let _ = array [`East ; `East ; `West; `West]
-  ~horizontal_padding:(function 3 -> 10.0 | _ -> 1.0)
-  [ [ <$v,w$> ; <$::=$>
-    ; <$ x \| {λx t} \| \{(l_i = v_i)_{i∈I}\} \| {C[v]} $>
-    ; <$(Λ_{val})$> ]
-  ; [ <$t,u$> ; <$::=$>
-    ; <$a \| v \| {t u} \| {μα t} \| {[π]t} \| {v{.}l} \|
-       {[v \| (C_i → t_i)_{i∈I}]} \| {Y_{t,v}} \| {{unit}_v} $>
-    ; <$(Λ)$> ]
-  ; [ <$π,ρ$> ; <$::=$>
-    ; <$ ε \| α \| {v⋅π} \| {[t]π} $>
-    ; <$(Π)$> ]
-  ; [ <$p,s$> ; <$::=$>
-    ; <$ t ∗ π $>
-    ; <$(Λ × Π)$> ] ]
-)
-\end{center}
 \end{def}
 Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
 enriched with ML-like constructs (i.e. records and variants). One may note

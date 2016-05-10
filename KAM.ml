@@ -3,12 +3,15 @@ open DefaultFormat
 open Maths
 open Decap
 
-type vari = string * int option
+type vari = string * string option
 
 type valu =
   | VVari of vari               (* x, y   *)
   | VMeta of vari               (* v, w   *)
   | VLAbs of vari * term        (* λx t   *)
+  | VCons of vari * valu        (* C[v]   *)
+  | VERec of (vari * valu) list (* {l₁ = v₁; l₂ = v₂;} *)
+  | VIRec of vari * vari        (* {... l_i = v_i ...} *)
 and  term =
   | TVari of vari               (* a, b   *)
   | TMeta of vari               (* t, u   *)
@@ -20,6 +23,11 @@ and  term =
   | TCtxt of ctxt * term        (* E[t]   *)
   | TVSub of term * (vari * bool * valu) (* t[x≔v] of t[x←v] *)
   | TSSub of term * (vari * bool * stac) (* t[α≔π] of t[α←π] *)
+  | TProj of term * vari        (* t.l    *)
+  | TUnit of valu               (* U_v    *)
+  | TFixp of term * valu        (* Y(t,v) *)
+  | TECas of valu * (vari * valu) list (* [v | C₁ → v₁ | C₂ → v₂] *)
+  | TICas of valu * vari * vari (* [v | ... C_i → v_i ...] *)
 and  ctxt =
   | CHole                       (* [-]    *)
   | CPlug of ctxt * ctxt        (* E[F]   *)
@@ -39,8 +47,9 @@ and  proc =
   | PProc of term * stac        (* t ∗ π  *)
 
 let parser index =
-  | "₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3 | "₄" -> 4
-  | "₅" -> 5 | "₆" -> 6 | "₇" -> 7 | "₈" -> 8 | "₉" -> 9
+  | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
+  | "₅" -> "5" | "₆" -> "6" | "₇" -> "7" | "₈" -> "8" | "₉" -> "9"
+  | "i" -> "i" | "j" -> "j" | "k" -> "k"
 
 let parser vari p = x:p i:index? _:relax
 let vari ns = vari (alternatives (List.map (fun n -> string n n) ns))
@@ -53,6 +62,8 @@ let cmeta = vari ["E"; "F"]
 let svari = vari ["α"; "β"; "γ"]
 let smeta = vari ["π"; "ρ"]
 let pmeta = vari ["p"; "q"]
+let const = vari ["C"]
+let label = vari ["l"]
 
 let appl = List.fold_left (fun t u -> TAppl(t,u))
 
@@ -62,6 +73,9 @@ let parser valu =
   | x:vvari                                         -> VVari(x)
   | v:vmeta                                         -> VMeta(v)
   | "λ" x:vvari t:(term Appl)                       -> VLAbs(x,t)
+  | c:const '[' v:valu ']'                          -> VCons(c,v)
+  | "{⋯" l:label "=" v:vmeta "⋯}"                   -> VIRec(l,v)
+  | "{" ls:{l:label "=" v:valu ";"}* "}"            -> VERec(ls)
 and        term prio =
   | a:tvari                        when prio = Atom -> TVari(a)
   | t:tmeta                        when prio = Atom -> TMeta(t)
@@ -76,6 +90,14 @@ and        term prio =
                                    when prio = Subs -> TSSub(t,(x,s,pi))
   | c:(ctxt Atom) '[' t:(term Appl) ']'
                                    when prio = Atom -> TCtxt(c,t)
+  | t:(term Atom) '.' l:label      when prio = Atom -> TProj(t,l)
+  | "U(" v:valu ")"                when prio = Atom -> TUnit(v)
+  | "Y(" t:(term Appl) "," v:valu ")"
+                                   when prio = Atom -> TFixp(t,v)
+  | '[' v:valu ls:{'|' c:const "→" w:valu}+ ']'
+                                   when prio = Atom -> TECas(v,ls)
+  | '[' v:valu '|' "⋯" c:const "→" w:vmeta "⋯" ']'
+                                   when prio = Atom -> TICas(v,c,w)
   | t:(term Atom)                  when prio = Subs -> t
 and        ctxt prio =
   | "[]"                           when prio = Atom -> CHole
@@ -92,7 +114,7 @@ and        stac =
   | "ε"                                             -> SEmpt
   | a:svari                                         -> SVari(a)
   | s:smeta                                         -> SMeta(s)
-  | v:valu '.' s:stac                               -> SPush(v,s)
+  | v:valu "·" s:stac                               -> SPush(v,s)
   | '[' t:(term Appl) ']' s:stac                    -> SFram(t,s)
 and        proc =
   | p:pmeta                                         -> PMeta(p)
@@ -113,12 +135,15 @@ let parse_proc = parse proc
 
 let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
 let asana n i = [Maths.Ordinary (Maths.node (MathFonts.asana n i))]
+let bin p n (l, r) =
+  [bin p (Normal(false, Maths.node n, false)) l r]
+let bin' p n c = bin p (Maths.glyphs n) c
 
 let vari2m (s, io) =
   match io with
   | None   -> str s
   | Some i -> let n = Maths.node (Maths.glyphs s) in
-              let subscript_right = str (string_of_int i) in
+              let subscript_right = str i in
               let n = { n with subscript_right } in
               [Maths.Ordinary n]
 
@@ -126,6 +151,14 @@ let rec v2m : valu -> Maths.math list = function
   | VVari(x)   -> vari2m x
   | VMeta(v)   -> vari2m v
   | VLAbs(x,t) -> (str "λ") @ (vari2m x) @ (str ".") @ (t2m t)
+  | VCons(c,v) -> (vari2m c) @ (str "[") @ (v2m v) @ (str "]")
+  | VERec(fs)  -> let build (l,v) =
+                    (bin' 2 "=" (vari2m l, v2m v)) @ (str ";")
+                  in
+                  let fs = List.map build fs in
+                  (str "{") @ (List.concat fs) @ (str "}")
+  | VIRec(l,v) -> let l = vari2m l and v = vari2m v in
+                  (str "{⋯") @ (bin' 2 "=" (l, v)) @ (str ";") @ (str "⋯}")
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
@@ -140,21 +173,34 @@ and     t2m : term -> Maths.math list = function
                       if s then MathFonts.asana "\\defeq" 798
                       else Maths.glyphs "←"
                     in
-                    [bin 2 (Normal(false, Maths.node b,false)) l r]
+                    bin 2 b (l, r)
                   in
                   let sub = sub (vari2m x) (v2m v) in
                   (t2m t) @ (str "[") @ sub @ (str "]")
   | TSSub(t,s) -> let (x,s,pi) = s in
-                  let sub l r =
-                    let b =
-                      if s then MathFonts.asana "\\defeq" 798
-                      else Maths.glyphs "←"
-                    in
-                    [bin 2 (Normal(false, Maths.node b,false)) l r]
+                  let b =
+                    if s then MathFonts.asana "\\defeq" 798
+                    else Maths.glyphs "←"
                   in
-                  let sub = sub (vari2m x) (s2m pi) in
+                  let sub = bin 2 b (vari2m x, s2m pi) in
                   (t2m t) @ (str "[") @ sub @ (str "]")
   | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
+  | TProj(t,l) -> (t2m t) @ (str ".") @ (vari2m l)
+  | TUnit(v)   -> let n = Maths.node (Maths.glyphs "unit") in
+                  let n = { n with subscript_right = v2m v } in
+                  [Maths.Ordinary n]
+  | TFixp(t,v) -> let n = Maths.node (Maths.glyphs "Y") in
+                  let subscript_right = (t2m t) @ (str ",") @ (v2m v) in
+                  let n = { n with subscript_right } in
+                  [Maths.Ordinary n]
+  | TECas(v,l) -> let build (c,v) =
+                    (str "|") @ (vari2m c) @ (str "→") @ (v2m v)
+                  in
+                  let l = List.map build l in
+                  (str "[") @ (v2m v) @ (List.concat l) @ (str "]")
+  | TICas(v,c,w) ->
+                  let mid = bin' 2 "→" (vari2m c, vari2m w) in
+                  (str "[") @ (v2m v) @ (str "|⋯") @ mid @ (str "⋯]")
 and     c2m : ctxt -> Maths.math list = function
   | CHole      -> (str "[") @ (asana "wild card" 382) @ (str "]")
   | CPlug(e,f) -> (c2m e) @ (str "[") @ (c2m f) @ (str "]")
@@ -167,13 +213,11 @@ and     s2m : stac -> Maths.math list = function
   | SEmpt      -> str "ε"
   | SVari(a)   -> vari2m a
   | SMeta(s)   -> vari2m s
-  | SPush(v,s) -> let sym = Maths.node (Maths.glyphs "·") in
-                  [bin 2 (Normal(false, sym, false)) (v2m v) (s2m s)]
+  | SPush(v,s) -> bin 2 (Maths.glyphs ".") (v2m v, s2m s)
   | SFram(t,s) -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
 and     p2m : proc -> Maths.math list = function
   | PMeta(p)   -> vari2m p
-  | PProc(t,s) -> let sym = Maths.node (Maths.glyphs "∗") in
-                  [bin 2 (Normal(false, sym, false)) (t2m t) (s2m s)]
+  | PProc(t,s) -> bin 2 (Maths.glyphs "∗") (t2m t, s2m s)
 
 let v : string -> Maths.math list = fun s -> v2m (parse_valu s)
 let t : string -> Maths.math list = fun s -> t2m (parse_term s)
