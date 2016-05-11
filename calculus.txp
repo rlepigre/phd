@@ -660,7 +660,7 @@ let _ =
 )
 \end{center}
 for every possible stack $π$.
-(* TODO from here. *)
+(* TODO some text *)
 
 =<
 
@@ -717,7 +717,19 @@ We enforce values in constructors, record fields, projection and case
 analysis. This makes the calculus simpler because only $β$-reduction will
 manipulate the stack. We can define syntactic sugars such as the following
 to hide the restriction from the programmer.
-$$ t.l ≔ (λx x.l) t \hspace(2.0) C[t] ≔ (λx C[x]) t $$
+\Caml(
+let sugarproj =
+  let open KAM in
+  t2m (TProj (VMeta ("t", None), ("l", None)))
+let sugarcons =
+  let open KAM in
+  t2m (TValu (VCons (("C", None), VMeta ("t", None))))
+)
+$$
+  \sugarproj ≔ \t("(λx x.l) t")
+  \hspace(4.0)
+  \sugarcons ≔ \t("(λx C[x]) t")
+$$
 \end{rem}
 \begin{def}
 Given a value, term, stack or process $ψ$ we denote $FV_λ(ψ)$ (resp.
@@ -729,43 +741,36 @@ of closed terms are denoted $Λ_{val}^{∗}$ and $Λ^{∗}$ respectively.
 
 Processes form the internal state of our abstract machine. They are to be
 thought of as a term put in some evaluation context represented using a
-stack. Intuitively, the stack $π$ in the process $t ∗ π$ contains the
+stack. Intuitively, the stack $π$ in the process $\p("t ∗ π")$ contains the
 arguments to be fed to $t$. Since we are in call-by-value the stack also
 handles the storing of functions while their arguments are being evaluated.
-This is why we need stack frames (i.e. stacks of the form $[t]π$). The
+This is why we need stack frames (i.e. stacks of the form $\s("[t]π")$). The
 operational semantics of our language is given by a relation $({≻})$ over
 processes.
 \begin{def}
-The relation $({≻}) ⊆ (Λ×Π)²$ is defined as the smallest relation
+The relation $({≻}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest relation
 satisfying the following reduction rules.
 \begin{center}
 \diagram(
-let _ = array [`East ; `Main ; `West]
+let _ =
+  let line p1 p2 = [ <$\p(p1)$>; <$≻$>; <$\p(p2)$> ] in
+  array [`East ; `Main ; `West]
   ~horizontal_padding:(function _ -> 5.0)
-  [ [ <${t u} ∗ π$>
-    ; <$≻$>; <$u ∗ {[t]π}$> ]
-  ; [ <$v ∗ {[t] π}$>
-    ; <$≻$>; <$t ∗ {v·π}$> ]
-  ; [ <$λx t ∗ {v · π}$>
-    ; <$≻$>; <${t[x ≔ v]} ∗ π$> ]
-  ; [ <$μα t ∗ π$>
-    ; <$≻$>; <${t[α ≔ π]} ∗ π$> ]
-  ; [ <$[ρ]t ∗ π$>
-    ; <$≻$>; <$t ∗ ρ$> ]
-  ; [ <$\{(l_i = v_i)_{i∈I}\}.l_k ∗ π$>
-    ; <$≻$>; <$v_k ∗ π \hspace(2.6) when \hspace(0.4) k∈I$> ]
-  ; [ <$[C_k[v] \| (C_i → t_i)_{i∈I}] ∗ π$>
-    ; <$≻$>; <$t_k v ∗ π \hspace(2.) when \hspace(0.4) k∈I$> ]
-  ; [ <$Y_{t,v} ∗ π$>
-    ; <$≻$>; <$t ∗ {{λx Y_{t,x}}·v·π}$> ]
-  ; [ <${unit}_{\{\id([])\}} ∗ π$>
-    ; <$≻$>; <$\{\id([])\} ∗ π$> ]
-  ]
+  [ line "t u ∗ π"               "u ∗ [t]π"
+  ; line "v ∗ [t]π"              "t ∗ v·π"
+  ; line "λx t ∗ v·π"            "t[x ≔ v] ∗ π"
+  ; line "μα t ∗ π"              "t[α ≔ π] ∗ π"
+  ; line "[ρ]t ∗ π"              "t ∗ ρ"
+  ; line "{⋯ l = v ⋯}.l ∗ π"     "v ∗ π"
+  ; line "[C[v] |⋯ C → w ⋯] ∗ π" "w v ∗ π"
+  ; line "Y(t,v) ∗ π"            "t ∗ λx Y(t,x)·v·π"
+  ; line "U({}) ∗ π"             "{} ∗ π" ]
 )
 \end{center}
 We will denote $({≻}^{+})$ its transitive closure, $({≻}^{∗})$ its
 reflexive-transitive closure and $({≻}^k)$ its $k$-fold application.
 \end{def}
+(* TODO from here. *)
 The first three rules are those that handle $β$-reduction. When the abstract
 machine encounters an application, the function is stored in a stack-frame in
 order to evaluate its argument first. Once the argument has been completely

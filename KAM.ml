@@ -12,6 +12,7 @@ type valu =
   | VCons of vari * valu        (* C[v]   *)
   | VERec of (vari * valu) list (* {l₁ = v₁; l₂ = v₂;} *)
   | VIRec of vari * vari        (* {... l_i = v_i ...} *)
+  | VGrou of valu               (* (v)    *)
 and  term =
   | TVari of vari               (* a, b   *)
   | TMeta of vari               (* t, u   *)
@@ -23,7 +24,7 @@ and  term =
   | TCtxt of ctxt * term        (* E[t]   *)
   | TVSub of term * (vari * bool * valu) (* t[x≔v] of t[x←v] *)
   | TSSub of term * (vari * bool * stac) (* t[α≔π] of t[α←π] *)
-  | TProj of term * vari        (* t.l    *)
+  | TProj of valu * vari        (* v.l    *)
   | TUnit of valu               (* U_v    *)
   | TFixp of term * valu        (* Y(t,v) *)
   | TECas of valu * (vari * valu) list (* [v | C₁ → v₁ | C₂ → v₂] *)
@@ -67,36 +68,41 @@ let label = vari ["l"]
 
 let appl = List.fold_left (fun t u -> TAppl(t,u))
 
-type prio = Atom | Subs | Appl
+type vprio = Simp | Proj | Comp
+type tprio = Atom | Subs | Appl
 
-let parser valu =
-  | x:vvari                                         -> VVari(x)
-  | v:vmeta                                         -> VMeta(v)
-  | "λ" x:vvari t:(term Appl)                       -> VLAbs(x,t)
-  | c:const '[' v:valu ']'                          -> VCons(c,v)
-  | "{⋯" l:label "=" v:vmeta "⋯}"                   -> VIRec(l,v)
-  | "{" ls:{l:label "=" v:valu ";"}* "}"            -> VERec(ls)
+let parser valu prio =
+  | x:vvari                        when prio = Simp -> VVari(x)
+  | v:vmeta                        when prio = Simp -> VMeta(v)
+  | "λ" x:vvari t:(term Appl)      when prio = Comp -> VLAbs(x,t)
+  | c:const '[' v:(valu Comp) ']'  when prio = Comp -> VCons(c,v)
+  | "{⋯" l:label "=" v:vmeta "⋯}"  when prio = Simp -> VIRec(l,v)
+  | "{" ls:{l:label "=" v:(valu Comp) ";"}* "}"
+                                   when prio = Simp -> VERec(ls)
+  | '(' v:(valu Comp) ')'          when prio = Proj -> VGrou(v)
+  | v:(valu Simp)                  when prio = Comp -> v
+  | v:(valu Simp)                  when prio = Proj -> v
 and        term prio =
   | a:tvari                        when prio = Atom -> TVari(a)
   | t:tmeta                        when prio = Atom -> TMeta(t)
-  | v:valu                         when prio = Atom -> TValu(v)
+  | v:(valu Comp)                  when prio = Atom -> TValu(v)
   | '(' t:(term Appl) ')'          when prio = Atom -> TGrou(t)
   | t:(term Subs) ts:(term Subs)*$ when prio = Appl -> appl t ts
   | "μ" a:svari t:(term Appl)      when prio = Atom -> TSave(a,t)
   | '[' s:stac ']' t:(term Appl)   when prio = Atom -> TRest(s,t)
-  | t:(term Atom) '[' x:vvari s:{"≔" -> true | "←" -> false} v:valu ']'
+  | t:(term Atom) '[' x:vvari s:{"≔" -> true | "←" -> false} v:(valu Comp) ']'
                                    when prio = Subs -> TVSub(t,(x,s,v))
   | t:(term Atom) '[' x:svari s:{"≔" -> true | "←" -> false} pi:stac ']'
                                    when prio = Subs -> TSSub(t,(x,s,pi))
   | c:(ctxt Atom) '[' t:(term Appl) ']'
                                    when prio = Atom -> TCtxt(c,t)
-  | t:(term Atom) '.' l:label      when prio = Atom -> TProj(t,l)
-  | "U(" v:valu ")"                when prio = Atom -> TUnit(v)
-  | "Y(" t:(term Appl) "," v:valu ")"
+  | v:(valu Proj) '.' l:label      when prio = Atom -> TProj(v,l)
+  | "U(" v:(valu Comp) ")"         when prio = Atom -> TUnit(v)
+  | "Y(" t:(term Appl) "," v:(valu Comp) ")"
                                    when prio = Atom -> TFixp(t,v)
-  | '[' v:valu ls:{'|' c:const "→" w:valu}+ ']'
+  | '[' v:(valu Comp) ls:{'|' c:const "→" w:(valu Comp)}+ ']'
                                    when prio = Atom -> TECas(v,ls)
-  | '[' v:valu '|' "⋯" c:const "→" w:vmeta "⋯" ']'
+  | '[' v:(valu Comp) '|' "⋯" c:const "→" w:vmeta "⋯" ']'
                                    when prio = Atom -> TICas(v,c,w)
   | t:(term Atom)                  when prio = Subs -> t
 and        ctxt prio =
@@ -114,7 +120,7 @@ and        stac =
   | "ε"                                             -> SEmpt
   | a:svari                                         -> SVari(a)
   | s:smeta                                         -> SMeta(s)
-  | v:valu "·" s:stac                               -> SPush(v,s)
+  | v:(valu Comp) "·" s:stac                        -> SPush(v,s)
   | '[' t:(term Appl) ']' s:stac                    -> SFram(t,s)
 and        proc =
   | p:pmeta                                         -> PMeta(p)
@@ -122,6 +128,7 @@ and        proc =
 
 let term = term Appl
 let ctxt = ctxt Appl
+let valu = valu Comp
 
 let parse g =
   let parse = parse_string g (blank_regexp ''[ ]*'') in
@@ -159,6 +166,7 @@ let rec v2m : valu -> Maths.math list = function
                   (str "{") @ (List.concat fs) @ (str "}")
   | VIRec(l,v) -> let l = vari2m l and v = vari2m v in
                   (str "{⋯") @ (bin' 2 "=" (l, v)) @ (str ";") @ (str "⋯}")
+  | VGrou(v)   -> (str "(") @ (v2m v) @ (str ")")
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
@@ -185,7 +193,7 @@ and     t2m : term -> Maths.math list = function
                   let sub = bin 2 b (vari2m x, s2m pi) in
                   (t2m t) @ (str "[") @ sub @ (str "]")
   | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
-  | TProj(t,l) -> (t2m t) @ (str ".") @ (vari2m l)
+  | TProj(v,l) -> (v2m v) @ (str ".") @ (vari2m l)
   | TUnit(v)   -> let n = Maths.node (Maths.glyphs "unit") in
                   let n = { n with subscript_right = v2m v } in
                   [Maths.Ordinary n]
