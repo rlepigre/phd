@@ -1,11 +1,11 @@
-FLAG := --verbose 1
+FLAG := -j 4
 
 all: manuscrit.pdf
 
 SRC=$(wildcard *.txp) $(wildcard *.ml)
 
 manuscrit.pdf: $(SRC)
-	patoline2 --format FormatManuscrit -j 4 $(FLAG) manuscrit.txp
+	patoline2 --format FormatManuscrit $(FLAG) manuscrit.txp
 
 clean:
 	patoline2 --clean

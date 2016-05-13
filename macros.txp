@@ -90,7 +90,7 @@ let bnfs ls =
     Patoline_Format.parameters in
   let contents (name, vars, rule, more) env =
     let width c =
-      let (x0,_,x1,_) = bounding_box_full (Document.draw env c) in x1 -. x0
+      let (x0,_,x1,_) = bounding_box (Document.draw env c) in x1 -. x0
     in
     let glue w = [bB (fun _ -> [glue w w w])] in 
     let wsname = List.map (fun (x,_,_,_) -> width x) ls in

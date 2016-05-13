@@ -235,7 +235,7 @@ $({→}_β)$.
 
 The general $β$-reduction relation $({→}_β)$ is non-deterministic. Indeed,
 given a term $t$, there might be two (different) terms $u₁$ and $u₂$ such
-that $t →_β u₁$ and $t →_β u₂$. For example, the term
+that $t →_β u₁$ and $t →_β u₂$. For example,
 $\lterm("((λx₁ x₁) λx₂ x₂) ((λx₃ x₃) λx₄ x₄)")$ can either reduce to
 $\lterm("(λx₂ x₂) ((λx₃ x₃) λx₄ x₄)")$ or to
 $\lterm("((λx₁ x₁) λx₂ x₂) (λx₄ x₄)")$. Indeed, we can focus on the $β$-redex
@@ -660,15 +660,29 @@ let _ =
 )
 \end{center}
 for every possible stack $π$.
-(* TODO some text *)
+
+The abstract machine defined in this section can be used for evaluating
+terms of the \lmcalc. Although this language is very elegant and concise,
+it is not suitable for practical programming. In the following section,
+our language will be extend with records (i.e. tuples with named fields)
+and variants (i.e. constructors and pattern-matching). Consequently, we
+will obtain a simple language with a concise formal definition, but that
+will be closer to beging a practical programming language.
 
 =<
 
 => Full syntax and operational semantics
 
-The programming language that is considered in this thesis is expressed in
-terms of a //Krivine Abstract Machine// \cite("Krivine2007"). It is formed
-using four syntactic entities: values, terms, stacks and processes. The
+In this section, we present the syntax and the reduction relation of the
+abstract machine that will be considered throughout this thesis. Although
+the following extends definitions given in the previous secitons, we
+choose not to avoid repetitions so that this section remains completely
+self-contained.
+
+In this thesis, we consider a language that is expressed in terms of a
+//Krivine Abstract Machine// \cite("Krivine2007"). As our machine has the
+specificity of being call-by-value, which requires a syntax formed with
+four entities: values, terms, stacks and processes. Note that the
 distinction between terms and values is specific to our call-by-value
 presentation, they would be collapsed in call-by-name.
 \begin{def}
@@ -683,7 +697,7 @@ naming constructors.
 \begin{def}
 Value, terms, stacks and processes are mutually inductively defined as the
 languages recognised by the following grammars. The names of the
-corresponding sets are displayed on the right.
+corresponding sets are displayed on the left.
 \Caml(
 let _ = bnfs
   [ ( << $(Λ_{val})$ >>
@@ -693,7 +707,7 @@ let _ = bnfs
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[α]t")
-         \| \t("v.l") \| \t("[v | ⋯ C → v ⋯ ]") \| \t("Y(t, v)")
+         \| \t("v.l") \| \t("[v | ⋯ C → t ⋯ ]") \| \t("Y(t, v)")
          \| \t("U(v)") $ >>
     , << $a∈\cal{V}_ι$ >> )
   ; ( << $(Π)$ >>
@@ -755,22 +769,22 @@ satisfying the following reduction rules.
 let _ =
   let line p1 p2 = [ <$\p(p1)$>; <$≻$>; <$\p(p2)$> ] in
   array [`East ; `Main ; `West]
-  ~horizontal_padding:(function _ -> 5.0)
+  ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
   [ line "t u ∗ π"               "u ∗ [t]π"
   ; line "v ∗ [t]π"              "t ∗ v·π"
   ; line "λx t ∗ v·π"            "t[x ≔ v] ∗ π"
   ; line "μα t ∗ π"              "t[α ≔ π] ∗ π"
   ; line "[ρ]t ∗ π"              "t ∗ ρ"
   ; line "{⋯ l = v ⋯}.l ∗ π"     "v ∗ π"
-  ; line "[C[v] |⋯ C → w ⋯] ∗ π" "w v ∗ π"
+  ; line "[C[v] |⋯ C → t ⋯] ∗ π" "t ∗ v·π"
   ; line "Y(t,v) ∗ π"            "t ∗ λx Y(t,x)·v·π"
   ; line "U({}) ∗ π"             "{} ∗ π" ]
 )
+\linesAfter(2)
 \end{center}
 We will denote $({≻}^{+})$ its transitive closure, $({≻}^{∗})$ its
 reflexive-transitive closure and $({≻}^k)$ its $k$-fold application.
 \end{def}
-(* TODO from here. *)
 The first three rules are those that handle $β$-reduction. When the abstract
 machine encounters an application, the function is stored in a stack-frame in
 order to evaluate its argument first. Once the argument has been completely
@@ -782,22 +796,26 @@ effectively apply the argument to the function. The fourth and fifth rules
 rules handle the classical part of computation. When a $μ$-abstraction is
 reached, the current stack (i.e. the current evaluation context) is captured
 and substituted for the corresponding $μ$-variable. Conversely, when a
-process is reached, the current stack is thrown away and evaluation resumes
-with the process. The last two rules perform projection and case analysis in
-the expected way.
+term of the form $\t("[ρ]t")$, the current stack is thrown away and
+evaluation resumes with the process $\p("t ∗ ρ")$.
+(* *)
+In addition to the reduction rules for $β$-reduction and stack manipulation,
+we provide reduction rules for handling record projection, case analysis and
+recursion using a fixpoint operator.
 
 \begin{lem}\label{redcompatall}
 The reduction relation $({≻})$ is compatible with substitutions of variables
 of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
 then:
 \begin{itemize}
-\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$, $p[x ≔ v] ≻ q[x ≔ v]$,
-\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $p[α ≔ π] ≻ q[α ≔ π]$,
-\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $p[a ≔ t] ≻ q[a ≔ t]$.
+\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$,
+      $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$,
+\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$,
+\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$.
 \end{itemize}
-Consequently, if $σ$ is a substitution for variables of any kind and if
-$p ≻ q$ (resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $pσ ≻ qσ$ (resp.
-$pσ ≻^{∗} qσ$, $pσ ≻^{+} qσ$, $pσ ≻^k qσ$).
+Consequently, if $σ$ is a substitution for variables of any kind and if $p≻q$
+(resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pσ") ≻ \p("qσ")$ (resp.
+$\p("pσ") ≻^{∗} \p("qσ")$, $\p("pσ") ≻^{+} \p("qσ")$, $\p("pσ") ≻^k \p("qσ")$).
 \begin{proof}
 Immediate case analysis on the reduction rules.
 \end{proof}
@@ -810,10 +828,10 @@ those that are to be recognised as expressing failure.
 \begin{def}
 A process $p ∈ Λ×Π$ is said to be:
 \begin{itemize}
-\item //final// if there is a value $v ∈ Λ_{val}$ such that $p = v ∗ α$,
+\item //final// if there is a value $v ∈ Λ_{val}$ such that $p = \p("v ∗ ε")$,
 \item //blocked// if there is no $q ∈ Λ×Π$ such that $p ≻ q$,
-\item //stuck// if it is not final and if for every substitution $σ$, $pσ$
-      is blocked,
+\item //stuck// if it is not final and if for every substitution $σ$,
+      $\p("pσ")$ is blocked,
 \item //non-terminating// if there is no blocked process $q ∈ Λ×Π$ such that
       $p ≻^{∗} q$.
 \end{itemize}
@@ -831,25 +849,24 @@ Immediate by definition.
 \begin{lem}\label("remark")
 A stuck state is of one of the following forms, where $k ∉ I$.
 $$
-{C[v].l ∗ π}
+\p("C[v].l ∗ π")
 \hspace(2.0)
-{(λx t).l ∗ π}
+\p("(λx t).l ∗ π")
 \hspace(2.0)
-{C[v] ∗ w · π}
+\p("C[v] ∗ w·π")
 \hspace(2.0)
-{\{(l_i = v_i)_{i∈I}\} ∗ v · π}
+\p("{⋯ l = v ⋯} ∗ v·π")
 $$
-
 $$
-{[λx t | (C_i → t_i)_{i∈I}] ∗ π}
+\p("[λx t |⋯ C → t ⋯] ∗ π")
 \hspace(4.0)
-{[\{(l_i = v_i)_{i∈I}\} | (C_j → t_j)_{i∈J}] ∗ π}
+\p("[{⋯ l = v ⋯} |⋯ C → t ⋯] ∗ π")
 $$
-
 $$
-[C_k[v] | (C_j → t_j)_{i∈J}] ∗ π
-\hspace(4.0)
-\{(l_i = v_i)_{i∈I}\}.l_k ∗ π
+\p("[D[v] |⋯ C → t ⋯] ∗ π") \hspace(2.0) with D not matched
+$$
+$$
+\p("{⋯ l = v ⋯}.k ∗ π") \hspace(2.0)  with k not mapped
 $$
 \begin{proof}
   Simple case analysis.
@@ -860,13 +877,15 @@ $$
 A blocked process $p ∈ Λ×Π$ is either stuck, final or of one of the following
 forms.
 $$
-{x.l ∗ π}
+\p("x.l ∗ π")
 \hspace(2.0)
-{x ∗ v · π}
+\p("x ∗ v·π")
 \hspace(2.0)
-{[x | (C_i → t_i)_{i ∈ I}] ∗ π}
+\p("[x |⋯ C → t ⋯] ∗ π")
 \hspace(2.0)
-{a ∗ π}
+\p("a ∗ π")
+\hspace(2.0)
+\p("U(x) ∗ π")
 $$
 \begin{proof}
 Straight-forward case analysis using lemma \lemRef("remark").
