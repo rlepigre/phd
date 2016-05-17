@@ -1,3 +1,6 @@
+\Caml(open Diagrams open ProofTree)
+\Include{Macros}
+
 => Higher-order classical \sc{ml} \label("typeSystem")
 
 This chapter introduces the formalisms of type theory and classical
@@ -6,11 +9,242 @@ and the semantics of a functional programming language similar to
 \sc{ml}. Its type-system will be built upon in the following chapters
 to incorporate the author's original contributions.
 
-\Include{Simpletypes}
+=> Simple types and classical logic
 
-\Include{Polymorphism}
+In order to prevent undesired computational behaviours such as runtime
+errors, functional programming languages rely on syntactic checks. We
+will here consider a small type system for our language, with only one
+type constructor for functions and type constants.
+\begin{def}
+The set of types (or formulas) $\cal{F}$ is built from the countable set of
+type variables (or type constants) $\cal{V}₀ = \{X,Y,Z...\}$ using
+the following BNF grammar.
+$$A,B ::= {X} \| {A ⇒ B} \hspace(4.0) X ∈ \cal{V}₀$$
+We denote $FV_\cal{F}(A)$ the set of all the (free) type variables appearing
+in the type $A$.
+\end{def}
+\begin{rem}
+To lighten the notations, we will consider the function type to be right
+associative. That is, we will always read a type of the form $A ⇒ B ⇒ C$
+as $A ⇒ (B ⇒ C)$.
+\end{rem}
 
-\Include{ValueRestriction}
+To be able to give a type to terms containing free variables, we need to
+use contexts. A context will map every free variable of a given term to its
+assumed type. Additionally, we also include the (free) type variables in
+our contexts.
+\begin{def}
+Given a term $t ∈ Λ$ and a type $A ∈ \cal{F}$, a context over $t$ and $A$
+is a finite map $Γ$ with $FV_λ(t) ∪ FV_μ(t) ∪ FV_\cal{F}(A) ⊆ dom(Γ)$ such
+that for all $λ$-variable $x ∈ FV_λ(t)$ we have $Γ(x) ∈ \cal{F}$ and for
+all $μ$-variable $α∈FV_μ(t)$ we have $Γ(α) ∈ \cal{F}$. For convenience, we
+will represent contexts using lists generated using the following BNF
+grammar.
+$$ Γ, Δ ::= {\bullet} \| {Γ, x : A} \| {Γ, α : A^\bot} \| {Γ, X} $$
+However, we need to keep in mind that variables can only be mapped once in a
+context and that the order in the list is not relevent.
+\end{def}
+\begin{def}
+A typing judgement is a triple of a term $t$, a type $A$ and a context $Γ$
+over $t$ and $A$ that is denoted $Γ ⊢ t : A$. We say that a judgement is
+valid if it can be derived using the following rules.
+$$
+  \axiomRN{Ax}{Γ, x : A ⊢ x : A}
+  \hspace(2.0)
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ λx t: A ⇒ B}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
+$$
+$$
+  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
+  \hspace(2.0)
+  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
+$$
+\end{def}
+
+As an example, we can show that the term $λx λy x$ can be given the type
+$X ⇒ Y ⇒ X$, where $X$ and $Y$ are type variables, in the following way.
+$$
+  \proofTree{
+    \unaryN{⇒_i}{
+      X, Y ⊢ λx λy x : X ⇒ Y ⇒ X
+    }{
+      \unaryN{⇒_i}{
+        X, Y, x : X ⊢ λy x : Y ⇒ X
+      }{
+        \axiomN{Ax}{X, Y, x : X, y : Y ⊢ x : X}
+      }
+    }
+  }
+$$
+Similarly, we can show that the term $λx λy x y$ has type $(X ⇒ Y) ⇒ X ⇒ Y$.
+$$
+  \proofTree{
+    \unaryN{⇒_i}{
+      X, Y ⊢ λx λy x y : (X ⇒ Y) ⇒ X ⇒ Y
+    }{
+      \unaryN{⇒_i}{
+        X, Y, x : X ⇒ Y ⊢ λy x y : X ⇒ Y
+      }{
+        \binaryN{⇒_e}{
+          X, Y, x : X ⇒ Y, x : Y ⊢ x y : Y
+        }{
+          \axiomN{Ax}{X, Y, x : X ⇒ Y, x : Y ⊢ x : X ⇒ Y}
+        }{
+          \axiomN{Ax}{X, Y, x : X ⇒ Y, x : Y ⊢ y : X}
+        }
+      }
+    }
+  }
+$$
+
+\begin{rem}
+Intuitively, free type variables may stand for arbitary type. To discharche
+these type variables from the context, we can use universal quantification
+(i.e. polymorphism). It will be introduced introduced in the next section.
+\end{rem}
+
+Throught the Curry-Howard isomorphism, our type system can be seen as a
+logic. Types then correspond to formulas that can be proved using deduction
+rules. In our simple type system, the structure of a defivation is completely
+determined by the terms of the $λμ$-calculus. Consequently, we may think of
+a well-typed term as a proof of the formula corresponding to its type.
+
+As our calculus contains control structures, the logic corresponding to our
+type system is not limited to intuitionisticaly valid formulas. Indeed,
+control structures have been shown to give a computational interpretation to
+classical logic by Timothy Griffin \cite("Griffin1990"). As an example, the
+following type derivation shows that the term $λf μα f λx [α]x$ inhabits a
+type corresponding to Peirce's Law.
+\begin{env}(scale 0.75)
+$$
+  \proofTree{
+    \unaryN{⇒_i}{
+      X, Y ⊢ λf μα f λx [α]x : ((X ⇒ Y) ⇒ X) ⇒ X
+    }{
+      \unaryN{μ}{
+        X, Y, f : (X ⇒ Y) ⇒ X ⊢ μα f λx [α]x : X
+      }{
+        \binaryN{⇒_e}{
+          X, Y, f : (X ⇒ Y) ⇒ X, α : X^\bot ⊢ f λx [α]x : X
+        }{
+          \axiomN{Ax}{X, Y, f : (X ⇒ Y) ⇒ X, α : X^\bot ⊢ f : (X ⇒ Y) ⇒ X}
+        }{
+          \unaryN{⇒_i}{
+            X, Y, f : (X ⇒ Y) ⇒ X, α : X^\bot ⊢ λx [α]x : X ⇒ Y
+          }{
+            \unaryN{[{-}]}{
+              X, Y, f : (X ⇒ Y) ⇒ X, α : X^\bot, x : X ⊢ [α]x : Y
+            }{
+              \axiomN{Ax}{X, Y, f : (X ⇒ Y) ⇒ X, α : X^\bot, x : X ⊢ x : X}
+            }
+          }
+        }
+      }
+    }
+  }
+$$
+\end{env}
+This type cannot be inhabited by a term not containing control structures.
+
+=<
+
+=> Polymorphism and universal quantification
+
+Let us consider the term $λx λy x$, which can be given the type $X ⇒ Y ⇒ X$
+as show in the previous section. This term really corresponds to a function
+taking as input two arguments, and returning the first directly. Note that
+we do not need to say anything about the nature of the arguments this
+function may accepts. In fact, this function can be applied to arguments
+of any two types. This information is not conveyed by the type $X ⇒ Y ⇒ X$,
+as it only specifies that the function takes arguments of two particular
+types $X$ and $Y$, and returns an element of type $X$.
+
+To solve this expressivity problem, we extend our type system with a new
+type constructor for universal quantification, or polymorphism. We will then
+be able to use types like $∀X ∀Y X ⇒ Y ⇒ X$. The obtained system is called
+System F, it was introduced by Jean-Yves Girard and John Reynolds
+independently \mcite(["Girard1972";"Reynolds1974"]).
+
+\begin{def}
+The set of types (or formulas) is extended with universal quantification. It
+is now defined using the following BNF grammar.
+$$A,B ::= {X} \| {A ⇒ B} \| {∀X A} \hspace(4.0) X ∈ \cal{V}_\cal{F}$$
+\end{def}
+\begin{rem}
+To lighten the notations, we will consider that universal quantification
+binds stronger than the function type. As a consequence, we will read
+$∀X ∀Y X ⇒ Y ⇒ X$ as $∀X (∀Y (X ⇒ (Y ⇒ X)))$.
+\end{rem}
+
+$$
+  \binaryRN{{∀}_i}{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A}
+  \hspace(2.0)
+  \unaryRN{{∀}_e}{Γ ⊢ t : ∀X A}{Γ ⊢ t : A[X := B]}
+$$
+
+$$
+  \proofTree{
+    \binaryN{∀_i}{⊢ λx λy x : ∀X ∀Y X ⇒ Y ⇒ X}{
+      \binaryN{∀_i}{X ⊢ λx λy x : ∀Y X ⇒ Y ⇒ X}{
+        \unaryN{⇒_i}{X, Y ⊢ λx λy x : X ⇒ Y ⇒ X}{
+          \unaryN{⇒_i}{X, Y, x : X ⊢ λy x : Y ⇒ X}{
+            \axiomN{Ax}{X, Y, x : X, y : Y ⊢ x : X}
+          }
+        }
+      }{\hyp{Y ∉ FV(X,Y)}}
+    }{\hyp{X ∉ FV(X)}}
+  }
+$$
+
+=<
+
+=> Value restriction
+
+A soundness issue related to side-effects and call-by-value evaluation
+arose in the seventies with the advent of ML. The problem stems from a
+bad interaction between side-effects and Hindley-Milner polymorphism. It was
+first formulated in terms of references \citen("Wright1995")("Section 2"),
+and many alternative type systems were designed (e.g. \mcite(["Tofte1990";
+"Damas1982"; "Leroy1991"; "Leroy1993"])) However, they all introduced a
+complexity that contrasted with the elegance and simplicity of ML's type
+system (for a detailed account, see \citen("Wright1995")("Section 2") and
+\citen("Garrigue2004")("Section 2")).
+
+A simple and elegant solution was finally found by Andrew Wright in the
+nineties. He suggested restricting generalization in let-bindings to cases
+where the bound term is a syntactic value \mcite(["Wright1994";"Wright1995"]).
+In ML the polymorphism mechanism is strongly linked with let-bindings. In
+OCaml syntax, they are expressions of the form ##let x = u in t##. In slightly
+more expressive type systems, this restriction appears in the typing rule for
+the introduction of the universal quantifier.
+$$ \binaryR{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A} $$
+This rule cannot be proved safe (in a call-by-value system with side-effects)
+if $t$ is not a syntactic value.
+(* *)
+Similarly, the elimination rule for dependent product (shown previously)
+requires value restriction. It is possible to exhibit a counter-example
+breaking the type safety of our system if it is omitted. (* TODO *)
+
+In this paper, we consider control structures, which have been shown to give
+a computational interpretation to classical logic by Timothy Griffin
+\cite("Griffin1990").
+(* *)
+In 1991, Robert Harper and Mark Lillibridge found a complex program breaking
+the type safety of ML extended with \emph{call/cc} \cite("Harper1991").
+As with references, value restriction solves the inconsistency and yields a
+sound type system. 
+(* *)
+Instead of using control operators like \emph{call/cc}, we adopt the syntax
+of Michel Parigot's $λμ$-calculus \cite("Parigot1992"). Our language hence
+contains a new binder $μα t$ capturing the continuation in the $μ$-variable
+$α$. The continuation can then be restored in $t$ using the syntax $[α]u$.
+(* *)
+In the context of the $λμ$-calculus, the soundness issue arises when
+evaluating $t (μα u)$ when $μα u$ has a polymorphic type. Such a situation
+cannot happen with value restriction since $μα u$ is not a value.
+
+=<
 
 => Sums and products
 
@@ -18,9 +252,95 @@ to incorporate the author's original contributions.
 
 =<
 
-\Include{HigherOrder}
+=> Higher-order logic
 
-\Include{BaseSystem}
+\begin{def}
+The set of sorts $\cal{S}$ is generated from a set of atomic sorts $\cal{S}₀$
+with $ο ∈ \cal{S}₀$, using the following BNF grammar.
+$$ s,r ::= {s → r} \| ξ \hspace(4.0) ξ ∈ \cal{S}₀ $$
+\end{def}
+\begin{def}
+The set of types (or formulas) $\cal{F}$ is generated from a set of type
+variables $\cal{F}₀$ using the following BNF grammar.
+$$
+  A,B ::= χ \| (χ^s ↦ A) \| A(B) \| {∀χ^s A} \| {∃χ^s A} \| {A ⇒ B} \|
+          \{l_i : A_i\}_{i∈I} \| [l_i : A_i]_{i∈I}
+$$
+\end{def}
+
+(* Sorting rules. *)
+$$
+\binaryR{Δ ⊢ A : ο}{Δ ⊢ B : ο}{Δ ⊢ A ⇒ B : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ \{l_i : A_i\}_{i∈I} : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ [C_i : A_i]_{i∈I} : ο}
+$$
+$$
+\axiomR{Δ, χ : s ⊢ χ : s}
+\hspace(3.0)
+\unaryR{Δ, χ : s ⊢ E : r}{Δ ⊢ (χ^s ↦ E) : s → r}
+\hspace(3.0)
+\binaryR{Δ ⊢ E : s → r}{Δ ⊢ F : s}{Δ ⊢ E(F) : r}
+$$
+$$
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∀χ^s A : ο}
+\hspace(3.0)
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∃χ^s A : ο}
+$$
+$$
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ μX A : ο}
+\hspace(3.0)
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ νX A : ο}
+$$
+(* TODO *)
+
+=<
+
+=> Global view of the type system
+
+$$
+  \axiomRN{Ax}{Γ, x : A ⊢_\tval x : A}
+  \hspace(2.0)
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢_\tval λx t: A ⇒ B}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
+$$
+$$
+  \unaryRN{↑}{Γ ⊢_\tval v : A}{Γ ⊢ v : A}
+  \hspace(4.0)
+  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
+  \hspace(4.0)
+  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
+$$
+$$
+  \binaryRN{∀_i}{Γ, X_n ⊢_\tval v : A}{X_n ∉ FV(Γ)}{Γ ⊢_\tval v : ∀X_n A}
+  \hspace(4.0)
+  \unaryRN{∀_e}{Γ ⊢ t : ∀X_n A}{Γ ⊢ t : A[X_n := P_n]}
+$$
+$$
+  \unaryRN{∃_i}{Γ ⊢ t : A[X_n := P_n]}{Γ ⊢ t : ∃X_n A}
+  \hspace(4.0)
+  \binaryRN{∃_e}{Γ, X_n, x : A ⊢ t : B}{X_n ∉ FV(Γ,B)}{Γ, x : ∃X_n A ⊢ t : B}
+$$
+$$
+  \unaryRN{×_i}{[Γ ⊢_\tval v_i : A_i]_{1≤i≤n}}{
+    Γ ⊢_\tval \{l_i = v_i\}_{1≤i≤n} : \{l_i : A_i\}_{1≤i≤n}
+  }
+  \hspace(4.0)
+  \unaryRN{×_e}{Γ ⊢_\tval v : \{l_i : A_i\}_{1≤i≤n}}{Γ ⊢ v{.}l_i : A_i}
+$$
+$$
+  \unaryRN{+_i}{Γ ⊢_\tval v : A_i}{Γ ⊢ C_i[v] : [C_i : A_i]_{1≤i≤n}}
+  \hspace(1.0)
+  \binaryRN{+_e}{Γ ⊢_\tval v : [C_i : A_i]_{1≤i≤n}}{
+    [Γ, x_i : A_i ⊢ t_i : B]_{1≤i≤n}
+  }{
+    Γ ⊢ case_v [C_i[x_i] → t_i]_{1≤i≤n} : B
+  }
+$$
+
+=<
 
 => Call-by-value realisability model
 
