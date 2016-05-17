@@ -175,7 +175,7 @@ Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
 $λ$-variable. We denote $\lterm("t[x ≔ u]")$ the capture-avoiding
 substitution of $x$ by $u$ in $t$. It is defined as $\lterm("t₀[x ← u]")$
 where $t₀ ∈ Λ$ is a term such that $t₀ ≡_α t$ and $BV_λ(t₀) ∩ FV(u) = ∅$.
-Such a term exists according to \lemRef("alphalem").
+Such a term exists according to \lemma("alphalem").
 \end{def}
 
 =<
@@ -602,7 +602,7 @@ the full details this time.
 Given a value, term, stack or process $ψ$, we denote $FV_λ(ψ)$ (resp.
 $BV_λ(ψ)$) the set of its free (resp. bound) $λ$-variables and $FV_μ(ψ)$
 (resp. $BV_μ(ψ)$) the set of its free (resp. bound) $μ$-variables. These
-sets are defined in a similar way to \defRef("freelvars").
+sets are defined in a similar way to \definition("freelvars").
 \end{def}
 \begin{def}
 Let $t ∈ Λ$ be a term, $π ∈ Π$ be a stack and $α ∈ \cal{V}_μ$ be a
@@ -690,10 +690,15 @@ We require three distinct, countable sets of variables:
 $\cal{V}_λ = \{x, y, z...\}$ for $λ$-variables,
 $\cal{V}_μ = \{α, β, γ...\}$ for $μ$-variables and
 $\cal{V}_ι = \{a, b, c...\}$ for term variables.
-We also require a countable set $\cal{L} = \{l, l₁, l₂...\}$ of labels to
-name record fields and a countable set $\cal{C} = \{C, C₁, C₂...\}$ for
+We also require a countable set $\cal{L} = \{l, k...\}$ of labels to
+name record fields and a countable set $\cal{C} = \{C, D...\}$ for
 naming constructors.
 \end{def}
+As usual, our $λ$-variables and $μ$-variables will be bound in terms to
+respectively form functions and capture continuations. Term variables
+will always appear free in terms, but they will be bound in types starting
+from \chapter("newSystem").
+
 \begin{def}
 Value, terms, stacks and processes are mutually inductively defined as the
 languages recognised by the following grammars. The names of the
@@ -706,9 +711,9 @@ let _ = bnfs
     , << $x∈\cal{V}_λ$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
-    , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[α]t")
+    , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
          \| \t("v.l") \| \t("[v | ⋯ C → t ⋯ ]") \| \t("Y(t, v)")
-         \| \t("U(v)") $ >>
+         \| \t("U(v)") \| \t("δ(v,w)") $ >>
     , << $a∈\cal{V}_ι$ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
@@ -721,11 +726,31 @@ let _ = bnfs
 )
 \end{def}
 Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
-enriched with ML-like constructs (i.e. records and variants). One may note
-that values are terms. A stack can be either the empty stack $ε$, a stack
-variable, a value pushed on top of a stack, or a stack frame containing a
-term on top of a stack. These two constructors are specific to the
-call-by-value presentation, only one would be required in call-by-name.
+enriched with ML-like constructs (i.e. records and variants). A value of
+the form $\v("C[v]")$ corresponds to a constructor, which always has
+exactly one argument in our language. Pattern-matching on constructors is
+done using a syntax of the form $\t("[v |⋯ C → t ⋯]")$, which includes a
+finite list of patterns associating a constructor $C$ to a term $t$.
+Similarly, values of the form $\v("{⋯ l = v ⋯}")$ correspond to records,
+which are tuples with named fields. The empty tuple (i.e. the tuple with
+no field) will be denoted $\v("{}")$. A term of the form $\t("Y(t,v)")$
+denotes a fixpoint combinator, which roughly corresponds to OCaml's
+“##let rec##” construct. The terms of the form $\t("U(v)")$ of
+$\t("δ(v,w)")$ are only included for technical purposes that are going to
+be explained later. They are not intended to be used for programming, and
+are not even included in the implementation.
+
+A stack can be either the empty stack $ε$, a stack variable, a value pushed
+on top of a stack, or a stack frame containing a term on top of a stack.
+These two constructors are specific to the call-by-value presentation, only
+one would be required in call-by-name.
+\begin{rem}
+The syntax $\t("[v |⋯ C → t ⋯]")$ for pattern-matching and the syntax
+$\v("{⋯ l = v ⋯}")$ for records are part of our meta-language. We only use
+them as shortcuts to designate pattern-matching on arbitrary patterns and
+records with arbitrary fields. In the actual syntax, the full list of
+pattern or the full list of fields always need to be specified.
+\end{rem}
 \begin{rem}
 We enforce values in constructors, record fields, projection and case
 analysis. This makes the calculus simpler because only $β$-reduction will
@@ -747,10 +772,20 @@ $$
 \end{rem}
 \begin{def}
 Given a value, term, stack or process $ψ$ we denote $FV_λ(ψ)$ (resp.
-$FV_μ(ψ)$, $TV(ψ)$) the set of free $λ$-variables (resp. free $μ$-variables,
-term variables) contained in $ψ$. We say that $ψ$ is closed if it does not
-contain any free variable of any kind. The set of closed values and the set
-of closed terms are denoted $Λ_{val}^{∗}$ and $Λ^{∗}$ respectively.
+$FV_μ(ψ)$, $FV_ι(ψ)$) the set of free $λ$-variables (resp. free
+$μ$-variables, term variables) contained in $ψ$. We also denote
+$BV_λ(ψ)$ (resp. $BV_μ(ψ)$) the set of bound $λ$-variables (resp.
+$μ$-variables) contained in $ψ$. We say that $ψ$ is closed if
+$FV_λ(ψ) ∪ FV_μ(ψ) ∪ FV_ι(ψ) = ∅$.
+\end{def}
+\begin{def}
+Let $ψ$ be a value, term, stack or process. Given a $λ$-variable
+$x ∈ \cal{V}_λ$ and a value $w ∈ Λ_{val}$, we denote $\p("ψ[x ≔ v]")$
+the capture-avoiding substitution of $x$ by $v$ in $ψ$. Given a
+$μ$-variable $α ∈ \cal{V}_μ$ and a stack $π ∈ Π$, we denote
+$\p("ψ[α ≔ π]")$ the capture-avoiding substitution of $α$ by $π$ in $ψ$.
+Given a term variable $a ∈ \cal{V}_ι$ and a term $t ∈ Λ$, we denote
+$\p("ψ[a ≔ t]")$ the substitution of $a$ by $t$ in $ψ$.
 \end{def}
 
 Processes form the internal state of our abstract machine. They are to be
@@ -806,48 +841,54 @@ recursion using a fixpoint operator.
 \begin{lem}\label{redcompatall}
 The reduction relation $({≻})$ is compatible with substitutions of variables
 of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
-then:
-\begin{itemize}
-\item for all $x ∈ \cal{V}_λ$ and $v ∈ Λ_{val}$,
-      $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$,
-\item for all $α ∈ \cal{V}_μ$ and $π ∈ Π$, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$,
-\item for all $a ∈ \cal{V}_ι$ and $t ∈ Λ$, $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$.
-\end{itemize}
-Consequently, if $σ$ is a substitution for variables of any kind and if $p≻q$
-(resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pσ") ≻ \p("qσ")$ (resp.
-$\p("pσ") ≻^{∗} \p("qσ")$, $\p("pσ") ≻^{+} \p("qσ")$, $\p("pσ") ≻^k \p("qσ")$).
+then $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$ for all $x∈\cal{V}_λ$ and $v∈Λ_{val}$.
+Similarly, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_μ$ and
+$π ∈ Π$, and $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$ for all $a ∈ \cal{V}_ι$ and
+$t ∈ Λ$.
 \begin{proof}
 Immediate case analysis on the reduction rules.
+\end{proof}
+\end{lem}
+\begin{lem}
+If $σ$ is a substitution for variables of any kind and if $p≻q$ (resp.
+$p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pσ") ≻ \p("qσ")$ (resp.
+$\p("pσ") ≻^{∗} \p("qσ")$, $\p("pσ") ≻^{+} \p("qσ")$,
+$\p("pσ") ≻^k \p("qσ")$).
+\begin{proof}
+Immediate consequence of \lemma("redcompatall") and the definition of the
+relations.
 \end{proof}
 \end{lem}
 
 We are now going to give the vocabulary that will be used to describe some
 specific classes of processes. In particular we need to identify processes
 that are to be considered as the evidence of a successful computation, and
-those that are to be recognised as expressing failure.
+those that are to be recognised as the expression of a failure of the
+machine (i.e. a crash).
 \begin{def}
 A process $p ∈ Λ×Π$ is said to be:
 \begin{itemize}
 \item //final// if there is a value $v ∈ Λ_{val}$ such that $p = \p("v ∗ ε")$,
+\item //$δ$-like// if there are values $v,w ∈ Λ_{val}$ and a stack $π ∈ Π$
+      such that $\p("p") = \p("δ(v,w) ∗ π")$,
 \item //blocked// if there is no $q ∈ Λ×Π$ such that $p ≻ q$,
-\item //stuck// if it is not final and if for every substitution $σ$,
-      $\p("pσ")$ is blocked,
+\item //stuck// if it is not final nor $δ$-like and if for every substitution
+      $σ$, $\p("pσ")$ is blocked,
 \item //non-terminating// if there is no blocked process $q ∈ Λ×Π$ such that
       $p ≻^{∗} q$.
 \end{itemize}
 \end{def}
-
 \begin{lem}\label("redstable")
 Let $p$ be a process and $σ$ be a substitution for variables of any kind.
-If $p$ is stuck (resp. non-terminating) then $pσ$ is also stuck (resp.
-non-terminating).
+If $p$ is stuck (resp. non-terminating, resp. $δ$-like) then $pσ$ is also
+stuck (resp. non-terminating, resp. $δ$-like).
 \begin{proof}
 Immediate by definition.
 \end{proof}
 \end{lem}
 
 \begin{lem}\label("remark")
-A stuck state is of one of the following forms, where $k ∉ I$.
+A stuck state can only be of one of the following forms.
 $$
 \p("C[v].l ∗ π")
 \hspace(2.0)
@@ -868,14 +909,23 @@ $$
 $$
 \p("{⋯ l = v ⋯}.k ∗ π") \hspace(2.0)  with k not mapped
 $$
+$$
+\p("U(λx t) ∗ π")
+\hspace(2.0)
+\p("U(C[v]) ∗ π")
+\hspace(2.0)
+\p("{⋯ l = v ⋯} ∗ π")
+\hspace(2.0)
+\p("[x] ∗ π")
+$$
 \begin{proof}
   Simple case analysis.
 \end{proof}
 \end{lem}
 
 \begin{lem}\label("possibilities")
-A blocked process $p ∈ Λ×Π$ is either stuck, final or of one of the following
-forms.
+A blocked process $p ∈ Λ×Π$ is either stuck, final, $δ$-like, or of one of
+the following forms.
 $$
 \p("x.l ∗ π")
 \hspace(2.0)
@@ -886,9 +936,11 @@ $$
 \p("a ∗ π")
 \hspace(2.0)
 \p("U(x) ∗ π")
+\hspace(2.0)
+\p("v ∗ α")
 $$
 \begin{proof}
-Straight-forward case analysis using lemma \lemRef("remark").
+Straight-forward case analysis using \lemma("remark").
 \end{proof}
 \end{lem}
 

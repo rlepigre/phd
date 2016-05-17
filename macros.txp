@@ -59,6 +59,12 @@ let lemRef x = <<Lemma \generalRef("Lemma")(x)>>
 let thmRef x = <<Theorem \generalRef("Theorem")(x)>>
 let corRef x = <<Corollary \generalRef("Corollary")(x)>>
 
+let definition = defRef
+let remark     = remRef
+let lemma      = lemRef
+let theorem    = thmRef
+let corollary  = corRef
+
 let chapter l = (tT "Chapter ") :: sectref l
 
 let tval : Typography.Maths.math list =

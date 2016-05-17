@@ -25,6 +25,7 @@ and  term =
   | TCtxt of ctxt * term               (* E[t]   *)
   | TProj of valu * vari               (* v.l    *)
   | TUnit of valu                      (* U_v    *)
+  | TDelt of valu * valu               (* δ(v,w) *)
   | TFixp of term * valu               (* Y(t,v) *)
   | TECas of valu * (vari * term) list (* [v | C₁ → t₁ | C₂ → t₂] *)
   | TICas of valu * vari * vari        (* [v | ... C_i → t_i ...] *)
@@ -59,7 +60,7 @@ and  subs =
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
   | "₅" -> "5" | "₆" -> "6" | "₇" -> "7" | "₈" -> "8" | "₉" -> "9"
-  | "i" -> "i" | "j" -> "j" | "k" -> "k"
+  | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n"
 
 let parser vari p = x:p i:index? _:relax
 let vari ns = vari (alternatives (List.map (fun n -> string n n) ns))
@@ -71,7 +72,7 @@ let tmeta = vari ["t"; "u"; "Ω"]
 let cmeta = vari ["E"; "F"]
 let svari = vari ["α"; "β"; "γ"]
 let smeta = vari ["π"; "ρ"]
-let pmeta = vari ["p"; "q"]
+let pmeta = vari ["p"; "q"; "ψ"]
 let const = vari ["C"; "D"]
 let label = vari ["l"; "k"]
 let subsm = vari ["σ"]
@@ -109,9 +110,11 @@ and        term prio =
   | c:(ctxt Atom) '[' t:(term Appl) ']'  when prio = Atom -> TCtxt(c,t)
   | v:(valu Proj) '.' l:label            when prio = Atom -> TProj(v,l)
   | "U(" v:(valu Comp) ")"               when prio = Atom -> TUnit(v)
+  | "δ(" v:(valu Comp) "," w:(valu Comp) ")"
+                                         when prio = Atom -> TDelt(v,w)
   | "Y(" t:(term Appl) "," v:(valu Comp) ")"
                                          when prio = Atom -> TFixp(t,v)
-  | '[' v:(valu Comp) ls:{'|' c:const "→" t:(term Appl)}+ ']'
+  | '[' v:(valu Comp) ls:{'|' c:const "→" t:(term Appl)}* ']'
                                          when prio = Atom -> TECas(v,ls)
   | '[' v:(valu Comp) '|' "⋯" c:const "→" t:tmeta "⋯" ']'
                                          when prio = Atom -> TICas(v,c,t)
@@ -216,8 +219,12 @@ and     t2m : term -> Maths.math list = function
   | TRest(s,t) -> (str "[") @ (s2m s) @ (str "]") @ (t2m t)
   | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
   | TProj(v,l) -> (v2m v) @ (str ".") @ (vari2m l)
-  | TUnit(v)   -> let n = Maths.node (Maths.glyphs "unit") in
+  | TUnit(v)   -> let n = Maths.node (Maths.glyphs "U") in
                   let n = { n with subscript_right = v2m v } in
+                  [Maths.Ordinary n]
+  | TDelt(v,w) -> let n = Maths.node (Maths.glyphs "δ") in
+                  let subscript_right = (v2m v) @ (str ",") @ (v2m w) in
+                  let n = { n with subscript_right } in
                   [Maths.Ordinary n]
   | TFixp(t,v) -> let n = Maths.node (Maths.glyphs "Y") in
                   let subscript_right = (t2m t) @ (str ",") @ (v2m v) in
