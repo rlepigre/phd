@@ -5,13 +5,15 @@ open Decap
 
 type vari = string * string option
 
+type cond = (string * vari * bool) option
+
 type valu =
   | VVari of vari                      (* x, y   *)
   | VMeta of vari                      (* v, w   *)
   | VLAbs of vari * term               (* λx t   *)
   | VCons of vari * valu               (* C[v]   *)
   | VERec of (vari * valu) list        (* {l₁ = v₁; l₂ = v₂;} *)
-  | VIRec of vari * vari               (* {... l_i = v_i ...} *)
+  | VIRec of vari * vari * cond        (* {... l_i = v_i ...} *)
   | VGrou of valu                      (* (v)    *)
   | VSubs of valu * subs               (* vσ     *)
 and  term =
@@ -28,7 +30,7 @@ and  term =
   | TDelt of valu * valu               (* δ(v,w) *)
   | TFixp of term * valu               (* Y(t,v) *)
   | TECas of valu * (vari * term) list (* [v | C₁ → t₁ | C₂ → t₂] *)
-  | TICas of valu * vari * vari        (* [v | ... C_i → t_i ...] *)
+  | TICas of valu * vari * vari * cond (* [v | ... C_i → t_i ...] *)
   | TSubs of term * subs               (* tσ     *)
 and  stac =
   | SEmpt                              (* ε      *)
@@ -76,6 +78,7 @@ let pmeta = vari ["p"; "q"; "ψ"]
 let const = vari ["C"; "D"]
 let label = vari ["l"; "k"]
 let subsm = vari ["σ"]
+let vfset = vari ["I"; "J"]
 
 let appl = List.fold_left (fun t u -> TAppl(t,u))
 
@@ -86,12 +89,17 @@ type pprio = PAtom | PFull
 
 let parser subcon = "≔" -> true | "←" -> false
 
+let parser cond =
+  | i:index "∈" s:vfset c:{"≠" "∅"}? -> Some(i,s,c <> None)
+
 let parser valu prio =
   | x:vvari                              when prio = Simp -> VVari(x)
   | v:vmeta                              when prio = Simp -> VMeta(v)
   | "λ" x:vvari t:(term Appl)            when prio = Comp -> VLAbs(x,t)
   | c:const '[' v:(valu Comp) ']'        when prio = Simp -> VCons(c,v)
-  | "{⋯" l:label "=" v:vmeta "⋯}"        when prio = Simp -> VIRec(l,v)
+  | "{⋯" l:label "=" v:vmeta "⋯}"        when prio = Simp -> VIRec(l,v,None)
+  | "{(" l:label "=" v:vmeta ")" c:cond "}"
+                                         when prio = Simp -> VIRec(l,v,c)
   | "{" ls:{l:label "=" v:(valu Comp) ";"}* "}"
                                          when prio = Simp -> VERec(ls)
   | '(' v:(valu Comp) ')'                when prio = Proj -> VGrou(v)
@@ -117,7 +125,9 @@ and        term prio =
   | '[' v:(valu Comp) ls:{'|' c:const "→" t:(term Appl)}* ']'
                                          when prio = Atom -> TECas(v,ls)
   | '[' v:(valu Comp) '|' "⋯" c:const "→" t:tmeta "⋯" ']'
-                                         when prio = Atom -> TICas(v,c,t)
+                                         when prio = Atom -> TICas(v,c,t,None)
+  | '[' v:(valu Comp) '|' "(" c:const "→" t:tmeta ")" cnd:cond ']'
+                                         when prio = Atom -> TICas(v,c,t,cnd)
   | t:(term Atom)                        when prio = Subs -> t
 and        ctxt prio =
   | "[]"                                 when prio = Atom -> CHole
@@ -200,13 +210,30 @@ let rec v2m : valu -> Maths.math list = function
   | VLAbs(x,t) -> (str "λ") @ (vari2m x) @ (str ".") @ (t2m t)
   | VCons(c,v) -> (vari2m c) @ (str "[") @ (v2m v) @ (str "]")
   | VERec(fs)  -> let build (l,v) =
-                    (bin' 2 "=" (vari2m l, v2m v)) @ (str ";")
+                    (sp 0.6) @ (str ";") @ (sp 0.6) @
+                      (bin' 2 "=" (vari2m l, v2m v))
                   in
-                  let fs = List.map build fs in
-                  (str "{") @ (List.concat fs) @ (str "}")
-  | VIRec(l,v) -> let l = vari2m l and v = vari2m v in
+                  let c =
+                    match fs with
+                    | []    -> []
+                    | f::fs -> let fs = List.map build fs in
+                               let fs = List.concat fs in
+                               (bin' 2 "=" (vari2m (fst f), v2m (snd f))) @ fs
+                  in
+                  (str "{") @ c @ (str "}")
+  | VIRec(l,v,None) ->
+                  let l = vari2m l and v = vari2m v in
                   (str "{⋯") @ (sp 0.6) @ (bin' 2 "=" (l, v))
                   @ (sp 0.6) @ (str "⋯}")
+  | VIRec(l,v,Some(i,s,ne)) ->
+                  let l = vari2m l and v = vari2m v in
+                  let c = (str "(") @ (bin' 2 "=" (l, v)) @ (str ")") in
+                  let s = vari2m s in
+                  let s = if ne then bin' 2 "≠" (s, str "∅") else s in
+                  let sub = bin' 2 "∈" (str i, s) in
+                  let c = Maths.node (fun env _ -> Maths.draw [env] c) in
+                  let c = { c with subscript_right = sub } in
+                  (str "{") @ [Maths.Ordinary c] @ (str "}")
   | VGrou(v)   -> (str "(") @ (v2m v) @ (str ")")
   | VSubs(v,s) -> (v2m v) @ (subs2m s)
 and     t2m : term -> Maths.math list = function
@@ -231,14 +258,29 @@ and     t2m : term -> Maths.math list = function
                   let n = { n with subscript_right } in
                   [Maths.Ordinary n]
   | TECas(v,l) -> let build (c,t) =
-                    (str "|") @ (vari2m c) @ (str "→") @ (t2m t)
+                    (sp 0.6) @ (str "|") @ (sp 0.6) @ (vari2m c) @
+                      (str "→") @ (t2m t)
                   in
-                  let l = List.map build l in
-                  (str "[") @ (v2m v) @ (List.concat l) @ (str "]")
-  | TICas(v,c,w) ->
+                  let c =
+                    match l with
+                    | [] -> (sp 0.6) @ (str "|")
+                    | _  -> List.concat (List.map build l)
+                  in
+                  (str "[") @ (v2m v) @ c @ (str "]")
+  | TICas(v,c,w,None) ->
                   let mid = bin' 2 "→" (vari2m c, vari2m w) in
                   (str "[") @ (v2m v) @ (sp 0.6) @ (str "|") @ (sp 0.6)
                   @ (str "⋯") @ (sp 0.6) @ mid @ (sp 0.6) @ (str "⋯]")
+  | TICas(v,c,w,Some(i,s,ne)) ->
+                  let mid = bin' 2 "→" (vari2m c, vari2m w) in
+                  let mid = (str "(") @ mid @ (str ")") in
+                  let s = vari2m s in
+                  let s = if ne then bin' 2 "≠" (s, str "∅") else s in
+                  let sub = bin' 2 "∈" (str i, s) in
+                  let mid = Maths.node (fun env _ -> Maths.draw [env] mid) in
+                  let mid = { mid with subscript_right = sub } in
+                  (str "[") @ (v2m v) @ (sp 0.6) @ (str "|") @ (sp 0.6)
+                  @ [Maths.Ordinary mid] @ (str "]")
   | TSubs(t,s) -> (t2m t) @ (subs2m s)
 and     s2m : stac -> Maths.math list = function
   | SEmpt      -> str "ε"

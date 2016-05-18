@@ -707,12 +707,12 @@ corresponding sets are displayed on the left.
 let _ = bnfs
   [ ( << $(Λ_{val})$ >>
     , << $v, w$ >>
-    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{⋯ l = v ⋯}")$ >>
+    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{(li = vi) i∈I}")$ >>
     , << $x∈\cal{V}_λ$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
-         \| \t("v.l") \| \t("[v | ⋯ C → t ⋯ ]") \| \t("Y(t, v)")
+         \| \t("v.l") \| \t("[v | (Ci → ti) i∈I]") \| \t("Y(t, v)")
          \| \t("U(v)") \| \t("δ(v,w)") $ >>
     , << $a∈\cal{V}_ι$ >> )
   ; ( << $(Π)$ >>
@@ -729,9 +729,10 @@ Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
 enriched with ML-like constructs (i.e. records and variants). A value of
 the form $\v("C[v]")$ corresponds to a constructor, which always has
 exactly one argument in our language. Pattern-matching on constructors is
-done using a syntax of the form $\t("[v |⋯ C → t ⋯]")$, which includes a
-finite list of patterns associating a constructor $C$ to a term $t$.
-Similarly, values of the form $\v("{⋯ l = v ⋯}")$ correspond to records,
+done using a syntax of the form $\t("[v | (Ci → ti) i∈I]")$, which includes
+a finite list of patterns associating the constructor $C_i$ to the term
+$t_i$ for all $i$ in $I$.
+Similarly, values of the form $\v("{(li = vi) i∈I}")$ correspond to records,
 which are tuples with named fields. The empty tuple (i.e. the tuple with
 no field) will be denoted $\v("{}")$. A term of the form $\t("Y(t,v)")$
 denotes a fixpoint combinator, which roughly corresponds to OCaml's
@@ -743,13 +744,15 @@ are not even included in the implementation.
 A stack can be either the empty stack $ε$, a stack variable, a value pushed
 on top of a stack, or a stack frame containing a term on top of a stack.
 These two constructors are specific to the call-by-value presentation, only
-one would be required in call-by-name.
+one is required in call-by-name.
 \begin{rem}
-The syntax $\t("[v |⋯ C → t ⋯]")$ for pattern-matching and the syntax
-$\v("{⋯ l = v ⋯}")$ for records are part of our meta-language. We only use
+The syntax $\t("[v | (Ci → ti) i∈I]")$ for pattern-matching and the syntax
+$\v("{(l = v) i∈I}")$ for records are part of our meta-language. We only use
 them as shortcuts to designate pattern-matching on arbitrary patterns and
 records with arbitrary fields. In the actual syntax, the full list of
-pattern or the full list of fields always need to be specified.
+pattern or the full list of fields always need to be specified. For example,
+we would write $\t("{l₁ = v₁; l₂ = v₂;}")$ or $\t("[v | C₁ → t₁ | C₂ → t₂]")$
+if $I = \{1, 2\}$.
 \end{rem}
 \begin{rem}
 We enforce values in constructors, record fields, projection and case
@@ -896,25 +899,25 @@ $$
 \hspace(2.0)
 \p("C[v] ∗ w·π")
 \hspace(2.0)
-\p("{⋯ l = v ⋯} ∗ v·π")
+\p("{(li = vi) i∈I} ∗ v·π")
 $$
 $$
-\p("[λx t |⋯ C → t ⋯] ∗ π")
+\p("[λx t | (Ci → ti) i∈I] ∗ π")
 \hspace(4.0)
-\p("[{⋯ l = v ⋯} |⋯ C → t ⋯] ∗ π")
+\p("[{(li = vi) i∈I} | (Cj → tj) j∈J] ∗ π")
 $$
 $$
-\p("[D[v] |⋯ C → t ⋯] ∗ π") \hspace(2.0) with D not matched
+\p("[D[v] | (Ci → ti) i∈I] ∗ π") \hspace(2.0) with {D ≠ C_i} for all i∈I
 $$
 $$
-\p("{⋯ l = v ⋯}.k ∗ π") \hspace(2.0)  with k not mapped
+\p("{(li = vi) i∈I}.k ∗ π")      \hspace(2.0) with {k ≠ l_i} for all i∈I
 $$
 $$
 \p("U(λx t) ∗ π")
 \hspace(2.0)
 \p("U(C[v]) ∗ π")
 \hspace(2.0)
-\p("{⋯ l = v ⋯} ∗ π")
+\p("U({(li = vi) i∈I≠∅}) ∗ π")
 \hspace(2.0)
 \p("[x] ∗ π")
 $$
@@ -931,7 +934,7 @@ $$
 \hspace(2.0)
 \p("x ∗ v·π")
 \hspace(2.0)
-\p("[x |⋯ C → t ⋯] ∗ π")
+\p("[x | (Ci → ti) i∈I≠∅] ∗ π")
 \hspace(2.0)
 \p("a ∗ π")
 \hspace(2.0)

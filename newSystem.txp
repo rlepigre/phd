@@ -1,3 +1,9 @@
+\Caml(
+  open ProofTree
+  let (v,t,c,s,p) = KAM.(v,t,c,s,p)
+)
+\Include{Macros}
+
 => Proof programming system \label("newSystem")
 
 In this chapter, the type system previously presented will be extended to
@@ -27,8 +33,6 @@ will be used to identify programs with the same computational behaviour.
 =<
 => Membership and typed quantification
 
-\Caml(open ProofTree)
-\Include{Macros}
 \pagesBefore(1)
 (* ⇒_i rule *)
 $$
@@ -121,6 +125,73 @@ $$
 \pagesAfter(1)
 
 (* TODO *)
+
+=<
+=> Typing rules
+
+(* Ax rule *)
+$$
+\axiomRN{Ax}{
+  {Σ, x:ι_{val}}; {Γ, x:A}; Δ; Ξ ⊢_\tval \t("x") : A
+}
+$$
+
+(* Coercion rules. *)
+$$
+\unaryRN{↑}{
+  Σ; Γ; Δ; Ξ ⊢_\tval \v("v") : A
+}{
+  Σ; Γ; Δ; Ξ ⊢ \t("v") : A
+}
+\hspace(4.0)
+\unaryRN{↓}{
+  Σ; Γ; Δ; Ξ ⊢ \t("v") : A
+}{
+  Σ; Γ; Δ; Ξ ⊢_\tval \v("v") : A
+}
+$$
+
+(* ⇒_i rule *)
+$$
+\binaryRN{⇒_i}{
+  {Σ, x:ι_{val}}; {Γ, x:A}; Δ; Ξ ⊢ \t("t") : B
+}{
+  x ∉ FV(A, B)
+}{
+  Σ; Γ; Δ; Ξ ⊢_\tval \v("λx t") : A ⇒ B
+}
+$$
+
+(* ⇒_e rule *)
+$$
+\binaryRN{⇒_e}{
+  Σ; Γ; Δ; Ξ ⊢ \t("t") : A ⇒ B
+}{
+  Σ; Γ; Δ; Ξ ⊢ \t("u") : A
+}{
+  Σ; Γ; Δ; Ξ ⊢ \t("t u") : B
+}
+$$
+
+(* μ rule *)
+$$
+\binaryRN{μ}{
+  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("t") : A
+}{
+  α ∉ FV(A)
+}{
+  Σ; Γ; Δ; Ξ ⊢ \t("μα t") : A
+}
+$$
+
+(* ∗ rule *)
+$$
+\unaryRN{[\wc]}{
+  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("t") : A
+}{
+  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("[α]t") : B
+}
+$$
 
 =<
 => Soundness of the dependent product

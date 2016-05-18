@@ -1,20 +1,84 @@
-\Caml(open Diagrams open ProofTree)
+\Caml(
+  open Diagrams
+  open ProofTree
+  let (v,t,c,s,p) = KAM.(v,t,c,s,p)
+)
 \Include{Macros}
 
 => Higher-order classical \sc{ml} \label("typeSystem")
 
-This chapter introduces the formalisms of type theory and classical
-realizability. These theories are used here to account for the syntax
-and the semantics of a functional programming language similar to
-\sc{ml}. Its type-system will be built upon in the following chapters
-to incorporate the author's original contributions.
+In this chapter, we introduce the formalisms of type theory and classical
+realizability. These theories are used here to build a higher-order type
+system for the language defined in \chapter("calculus"). Our types will be
+interpreted using standard realisability techniques, which will allow us
+to give a semantical justification to our typing rules.
 
-=> Simple types and classical logic
+=> Simple types
 
 In order to prevent undesired computational behaviours such as runtime
 errors, functional programming languages rely on syntactic checks. We
-will here consider a small type system for our language, with only one
-type constructor for functions and type constants.
+will first consider a small type system with only three type constructors:
+functions, products (in the form of records) and sums (in the form of
+variants).
+\begin{def}
+The set of all types $\cal{F}$ is built using the following ||bnf|| grammar.
+$$ A,B ::= {A⇒B} \| {\{l₁:A₁; ⋯ ; l_n:A_n\}} \| {[C₁:A₁ \| ⋯ \| C_n:A_n]}$$
+\end{def}
+\begin{rem}
+To lighten the notations, we will consider the function type to be right
+associative. That is, we will always read a type of the form $A ⇒ B ⇒ C$
+as $A ⇒ (B ⇒ C)$.
+\end{rem}
+To be able to give a type to terms containing free variables, we need to
+use contexts. A context will map variables to their assumed type.
+\begin{def}
+A context over $t$ is a finite map $Γ$ over $\cal{V}_λ$ such that for all
+$λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
+represent contexts using lists generated using the following ||bnf|| grammar.
+$$ Γ ::= {\bullet} \| {Γ, x : A} $$
+However, we need to keep in mind that variables can only be mapped once in a
+context. In particular, their order is irrelevant.
+\end{def}
+\begin{def}
+A typing judgement is a triple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$ and
+a context $Γ$ that is denoted $Γ ⊢ t : A$. Such a judgment is said to be
+//well-formed// if $FV_λ(t) ⊆ dom(Γ)$ and if $FV(t) \setminus FV_λ(t) = ∅$.
+\end{def}
+\begin{rem}
+Note that a well-formed judgment can only assign a type to a term that do
+not contain free $μ$-variables or term variables. The mechanism for handling
+such variables will be introduced progressively in the following sections.
+\end{rem}
+
+\begin{def}
+We say that a well-formed judgement is //valid// if and only if it can be
+derived using the following deduction rule system.
+$$
+  \axiomRN{Ax}{Γ, x : A ⊢ x : A}
+  \hspace(2.0)
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ \t("λx t") : A ⇒ B}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ \t("t u") : B}
+$$
+$$
+  \unaryRN{×_i}{⋯ Γ ⊢ v : A ⋯}{Γ ⊢ \t("{⋯ l = v ⋯}") : \{⋯ l : A ⋯\}}
+  \hspace(2.0)
+  \unaryRN{×_e}{Γ ⊢ v : \{⋯ l : A ⋯\}}{Γ ⊢ \t("v.l") : A}
+$$
+$$
+  \unaryRN{+_i}{Γ ⊢ v : A}{Γ ⊢ \t("C[v]") : [⋯ C : A ⋯]}
+  \hspace(2.0)
+  \binaryRN{+_e}{Γ ⊢ v : [⋯ C : A ⋯]}{⋯ Γ ⊢ t : A ⇒ B ⋯}{
+    Γ ⊢ \t("[v |⋯ C → t ⋯]") : B}
+$$
+\end{def}
+\begin{rem}
+In the following, we will only consider well-formed judgements. This
+information will be kept implicit most of the time.
+\end{rem}
+
+
+(*
 \begin{def}
 The set of types (or formulas) $\cal{F}$ is built from the countable set of
 type variables (or type constants) $\cal{V}₀ = \{X,Y,Z...\}$ using
@@ -61,6 +125,7 @@ $$
   \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
 $$
 \end{def}
+*)
 
 As an example, we can show that the term $λx λy x$ can be given the type
 $X ⇒ Y ⇒ X$, where $X$ and $Y$ are type variables, in the following way.
