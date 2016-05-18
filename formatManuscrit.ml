@@ -47,7 +47,7 @@ module Cover = struct
       | None   -> []
       | Some p -> [(p, "codirecteur de thèse")]
     in
-    let reviewers = List.map (fun p -> (p, "raporteur")) data.reviewers in
+    let reviewers = List.map (fun p -> (p, "rapporteur")) data.reviewers in
     let examinors = List.map (fun p -> (p, "examinateur")) data.examinors in
     president @ advisor @ coadvisor @ reviewers @ examinors
   
