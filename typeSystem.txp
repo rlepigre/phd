@@ -2,6 +2,7 @@
   open Diagrams
   open ProofTree
   let (v,t,c,s,p) = KAM.(v,t,c,s,p)
+  let f = Type.f
 )
 \Include{Macros}
 
@@ -22,12 +23,12 @@ functions, products (in the form of records) and sums (in the form of
 variants).
 \begin{def}
 The set of all types $\cal{F}$ is built using the following ||bnf|| grammar.
-$$ A,B ::= {A⇒B} \| {\{l₁:A₁; ⋯ ; l_n:A_n\}} \| {[C₁:A₁ \| ⋯ \| C_n:A_n]}$$
+$$ A,B ::= \f("A ⇒ B") \| {\{(l_i : A_i)_{i∈I}\}} \| {[(C_i : A_i)_{i∈I}]}$$
 \end{def}
 \begin{rem}
 To lighten the notations, we will consider the function type to be right
-associative. That is, we will always read a type of the form $A ⇒ B ⇒ C$
-as $A ⇒ (B ⇒ C)$.
+associative. That is, we will always read a type of the form
+$\f("A ⇒ B ⇒ C")$ as $\f("A ⇒ (B ⇒ C)")$.
 \end{rem}
 To be able to give a type to terms containing free variables, we need to
 use contexts. A context will map variables to their assumed type.
@@ -61,15 +62,17 @@ $$
   \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ \t("t u") : B}
 $$
 $$
-  \unaryRN{×_i}{⋯ Γ ⊢ v : A ⋯}{Γ ⊢ \t("{⋯ l = v ⋯}") : \{⋯ l : A ⋯\}}
+  \unaryRN{×_i}{(Γ ⊢ v_i : A_i)_{i∈I}}{
+    Γ ⊢ \t("{(li = vi) i∈I}") : \{(l_i : A_i)_{i∈I}\}
+  }
   \hspace(2.0)
-  \unaryRN{×_e}{Γ ⊢ v : \{⋯ l : A ⋯\}}{Γ ⊢ \t("v.l") : A}
+  \unaryRN{×_e}{Γ ⊢ v : \{(l_i : A_i)_{i∈I}\}}{Γ ⊢ \t("v.lj") : A_j}
 $$
 $$
-  \unaryRN{+_i}{Γ ⊢ v : A}{Γ ⊢ \t("C[v]") : [⋯ C : A ⋯]}
+  \unaryRN{+_i}{Γ ⊢ v : A_j}{Γ ⊢ \t("Cj[v]") : [(C_i : A_i)_{i∈I}]}
   \hspace(2.0)
-  \binaryRN{+_e}{Γ ⊢ v : [⋯ C : A ⋯]}{⋯ Γ ⊢ t : A ⇒ B ⋯}{
-    Γ ⊢ \t("[v |⋯ C → t ⋯]") : B}
+  \binaryRN{+_e}{Γ ⊢ v : [(C_i : A_i)_{i∈I}]}{(Γ ⊢ t_i : A_i ⇒ B)_{i∈I}}{
+    Γ ⊢ \t("[v | (Ci → ti) i∈I]") : B}
 $$
 \end{def}
 \begin{rem}
