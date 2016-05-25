@@ -67,7 +67,7 @@ let parser index =
 let parser vari p = x:p i:index? _:relax
 let vari ns = vari (alternatives (List.map (fun n -> string n n) ns))
 
-let vvari = vari ["x"; "y"; "z"]
+let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
 let vmeta = vari ["v"; "w"]
 let tvari = vari ["a"; "b"; "c"]
 let tmeta = vari ["t"; "u"; "Ω"]

@@ -72,7 +72,7 @@ let tval : Typography.Maths.math list =
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
 (* Stuff to add side note. *)
-let sidenote text note =
+let sidenote_wr lbef laft text note =
   let environment env = {env with par_indent = []} in
   let np = newPar D.structure ~environment Complete.normal
     Patoline_Format.parameters in
@@ -87,8 +87,11 @@ let sidenote text note =
     let pad1 = (pagew -. textw) /. 2.0 in
     let pad2 = pagew -. pad1 -. textw -. notew in
     let glue w = [bB (fun _ -> [glue w w w])] in 
-    (linesBefore 2) @ (glue pad1) @ text @ (glue pad2) @ note @ (linesAfter 2)
+    (linesBefore lbef) @ (glue pad1) @ text @ (glue pad2) @ note @
+    (linesAfter laft)
   in np [C contents]
+
+let sidenote = sidenote_wr 2 2
 
 let bnfs ls =
   let environment env = {env with par_indent = []} in
@@ -282,4 +285,28 @@ module PMLVerbatim : sig
       *)
       verb_text (handle_word {keywords = []; symbols})
   end
+
+let lmcalc =
+  let lm = [Maths.Ordinary (Maths.node (Maths.glyphs "λμ"))] in
+  << $\lm$-calculus >>
+
+let br, mbr =
+  let dr1 env =
+    { empty_drawing_box with drawing_min_width = 0.0
+    ; drawing_max_width = env.normalMeasure
+    ; drawing_nominal_width = 0.0 }
+  in
+  let dr2 env =
+    { empty_drawing_box with drawing_min_width = 0.0
+    ; drawing_max_width = 0.0 ; drawing_nominal_width = 0.0
+    ; drawing_badness = (fun _ -> infinity) }
+  in
+  let br =
+    let open Box in
+    [bB (fun env -> [Glue (dr1 env); Glue (dr2 env)])]
+  in
+  let mbr =
+    let open Maths in
+    [Scope (fun env _ -> [Glue (dr1 env); Glue (dr2 env)])]
+  in (br, mbr)
 )

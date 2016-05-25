@@ -1,6 +1,7 @@
 \Caml(
   open ProofTree
   let (v,t,c,s,p) = KAM.(v,t,c,s,p)
+  let f = Type.f
 )
 \Include{Macros}
 
@@ -9,11 +10,16 @@
 In this chapter, the type system previously presented will be extended to
 enable the specification and the proof of program properties. The proof
 mechanism will rely on an untyped notion of equivalence over programs. It
-will be used to identify programs with the same computational behaviour.
+will be used to identify programs with the same computational behaviour and
+will enable equational reasoning.
 
 => Observational equivalence type
 
-... (* TODO *)
+To be able to specify program properties, we extend our type system with
+equality types of the form $t ≡ u$, where $t$ and $u$ are (possibly untyped)
+terms. Equality types are then interpreted as $⊤$ if the denoted equivalence
+is true and as $⊥$ otherwise.
+(* TODO *)
 
 =<
 => Realisers as individuals
@@ -127,71 +133,101 @@ $$
 (* TODO *)
 
 =<
-=> Typing rules
+=> Extended type system
+
+\begin{def}
+A typing judgment is a tuple of context $Γ$ for $λ$-variables, a context $Δ$
+for $μ$-variable, an equational context $Ξ$, a term $t$ and a type $A$. It
+is denoted $Γ;Δ;Ξ ⊢ t : A$ and read as "$t$ has type $A$ in the context
+$Γ;Δ;Ξ$".
+\end{def}
+\begin{def}
+Given a sorting context $Σ$, we say that the typeing judgment $Γ;Δ;Ξ ⊢ t:A$
+is valid and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when...
+\end{def}
 
 (* Ax rule *)
 $$
 \axiomRN{Ax}{
-  {Σ, x:ι_{val}}; {Γ, x:A}; Δ; Ξ ⊢_\tval \t("x") : A
+  Σ, x:ι ⊢ (Γ, x:A; Δ; Ξ ⊢_\tval \t("x") : A)
 }
 $$
 
 (* Coercion rules. *)
 $$
 \unaryRN{↑}{
-  Σ; Γ; Δ; Ξ ⊢_\tval \v("v") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
 }{
-  Σ; Γ; Δ; Ξ ⊢ \t("v") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)
 }
-\hspace(4.0)
+$$
+
+$$
 \unaryRN{↓}{
-  Σ; Γ; Δ; Ξ ⊢ \t("v") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)
 }{
-  Σ; Γ; Δ; Ξ ⊢_\tval \v("v") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
 }
 $$
 
 (* ⇒_i rule *)
 $$
-\binaryRN{⇒_i}{
-  {Σ, x:ι_{val}}; {Γ, x:A}; Δ; Ξ ⊢ \t("t") : B
+\unaryRN{⇒_i}{
+  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ ⊢ \t("t") : B)
 }{
-  x ∉ FV(A, B)
-}{
-  Σ; Γ; Δ; Ξ ⊢_\tval \v("λx t") : A ⇒ B
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("λx t") : A ⇒ B)
 }
 $$
 
 (* ⇒_e rule *)
 $$
 \binaryRN{⇒_e}{
-  Σ; Γ; Δ; Ξ ⊢ \t("t") : A ⇒ B
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : A ⇒ B)
 }{
-  Σ; Γ; Δ; Ξ ⊢ \t("u") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("u") : A)
 }{
-  Σ; Γ; Δ; Ξ ⊢ \t("t u") : B
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t u") : B)
 }
 $$
 
 (* μ rule *)
 $$
-\binaryRN{μ}{
-  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("t") : A
+\unaryRN{μ}{
+  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)
 }{
-  α ∉ FV(A)
-}{
-  Σ; Γ; Δ; Ξ ⊢ \t("μα t") : A
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("μα t") : A)
 }
 $$
 
 (* ∗ rule *)
 $$
 \unaryRN{[\wc]}{
-  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("t") : A
+  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)
 }{
-  {Σ, α:σ}; Γ; {Δ, α:A}; Ξ ⊢ \t("[α]t") : B
+  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("[α]t") : B)
 }
 $$
+
+(* ∀i rule *)
+$$
+\unaryRN{∀_i}{
+  Σ, χ:s ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A"))
+}
+$$
+
+(* ∀e rule *)
+$$
+\binaryRN{∀_e}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∀χ^s A"))
+}{
+  Σ ⊢ B : s
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]"))
+}
+$$
+
 
 =<
 => Soundness of the dependent product

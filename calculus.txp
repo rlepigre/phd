@@ -4,10 +4,6 @@ open ProofTree
 
 let (lterm, lctxt, stack, proc) = LCKAM.(lterm, lctxt, stack, proc)
 let (v,t,c,s,p) = KAM.(v,t,c,s,p)
-
-let lmcalc =
-  let lm = [Maths.Ordinary (Maths.node (Maths.glyphs "λμ"))] in
-  << $\lm$-calculus >>
 )
 \Include{Macros}
 
