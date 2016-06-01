@@ -9,6 +9,8 @@ type form =
   | FVari of vari                      (* χ       *)
   | FLamb of vari * form               (* (χ ↦ A) *)
   | FSubs of form * vari * form        (* A[χ≔B]  *)
+  | FTSub of form * vari * term        (* A[a≔t]  *)
+  | FVSub of form * vari * valu        (* A[x≔v]  *)
   | FAppl of form * form               (* A(B)    *)
   | FFunc of form * form               (* A ⇒ B   *)
   | FGrou of form                      (* (A)     *)
@@ -20,11 +22,14 @@ type form =
   | FExis of vari * vari option * form (* ∃χ^s A  *)
   | FLFix of vari * form               (* μX A    *)
   | FGFix of vari * form               (* νX A    *)
+  | FMemb of term * form               (* t∈A     *)
+  | FRest of form option * term * term (* A | t≡u *)
 
 let fmeta = vari ["A"; "B"; "C"]
 let fvari = vari ["χ"]
 let ovari = vari ["X"; "Y"; "Z"]
 let svari = vari ["s"]
+let parser qvari = ovari | fvari | tvari | vvari
 
 let rec ffunc = function
   | []    -> assert false
@@ -35,10 +40,12 @@ type fprio = FAtom | FFull
 
 let parser form prio =
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
-  | x:fvari                                   when prio = FAtom -> FVari(x)
+  | x:qvari                                   when prio = FAtom -> FVari(x)
   | '(' x:fvari "↦" a:(form FFull) ')'        when prio = FAtom -> FLamb(x,a)
   | a:(form FAtom) '[' x:fvari "≔" b:(form FFull) ']'
                                               when prio = FAtom -> FSubs(a,x,b)
+  | a:(form FAtom) '[' x:vvari "≔" b:valu ']' when prio = FAtom -> FVSub(a,x,b)
+  | a:(form FAtom) '[' x:tvari "≔" b:term ']' when prio = FAtom -> FTSub(a,x,b)
   | a:(form FAtom) '(' b:(form FFull) ')'     when prio = FAtom -> FAppl(a,b)
   | '(' a:(form FFull) ')'                    when prio = FAtom -> FGrou(a)
   | a:(form FAtom) fs:{"⇒" b:(form FAtom)}*$  when prio = FFull -> ffunc (a::fs)
@@ -46,10 +53,12 @@ let parser form prio =
   | "{(" l:label ':' a:fmeta ")" cd:cond '}'  when prio = FAtom -> FIPrd(l,a,cd)
   | '[' fs:{const ':' (form FFull) ';'}* ']'  when prio = FAtom -> FESum(fs)
   | "[(" c:const ':' a:fmeta ")" cd:cond ']'  when prio = FAtom -> FISum(c,a,cd)
-  | "∀" x:fvari s:{"^" svari}? a:(form FFull) when prio = FAtom -> FUniv(x,s,a)
-  | "∃" x:fvari s:{"^" svari}? a:(form FFull) when prio = FAtom -> FExis(x,s,a)
+  | "∀" x:qvari s:{"^" svari}? a:(form FFull) when prio = FAtom -> FUniv(x,s,a)
+  | "∃" x:qvari s:{"^" svari}? a:(form FFull) when prio = FAtom -> FExis(x,s,a)
   | "μ" x:ovari a:(form FFull)                when prio = FAtom -> FLFix(x,a)
   | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
+  | t:term "∈" a:(form FAtom)                 when prio = FAtom -> FMemb(t,a)
+  | a:{a:(form FAtom) '|'}? t:term "≡" u:term when prio = FAtom -> FRest(a,t,u)
 
 let form = form FFull
 
@@ -67,6 +76,12 @@ let rec f2m : form -> Maths.math list = function
   | FFunc(a,b)     -> bin' 2 "⇒" (f2m a, f2m b)
   | FSubs(a,x,b)   -> let s = MathFonts.asana "\\defeq" 798 in
                       let s = bin 2 s (vari2m x, f2m b) in
+                      (f2m a) @ (str "[") @ s @ (str "]")
+  | FTSub(a,x,b)   -> let s = MathFonts.asana "\\defeq" 798 in
+                      let s = bin 2 s (vari2m x, t2m b) in
+                      (f2m a) @ (str "[") @ s @ (str "]")
+  | FVSub(a,x,b)   -> let s = MathFonts.asana "\\defeq" 798 in
+                      let s = bin 2 s (vari2m x, v2m b) in
                       (f2m a) @ (str "[") @ s @ (str "]")
   | FGrou(a)       -> (str "(") @ (f2m a) @ (str ")")
   | FEPrd(ls)      -> let build_field (l,a) =
@@ -141,15 +156,23 @@ let rec f2m : form -> Maths.math list = function
                         match s with
                         | None   -> x
                         | Some s -> with_rsup x (vari2m s)
-                      in (str "∀") @ c @ (f2m a)
+                      in (str "∀") @ c @ (str ".") @ (f2m a)
   | FExis(x,s,a)   -> let c =
                         let x = vari2m x in
                         match s with
                         | None   -> x
                         | Some s -> with_rsup x (vari2m s)
-                      in (str "∃") @ c @ (f2m a)
+                      in (str "∃") @ c @ (str ".") @ (f2m a)
   | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (f2m a)
   | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (f2m a)
+  | FMemb(t,a)     -> bin' 2 "∈" (t2m t, f2m a)
+  | FRest(a,t,u)   -> let eq = bin' 2 "≡" (t2m t, t2m u) in
+                      begin
+                        match a with
+                        | None   -> eq
+                        | Some a -> let sep = MathFonts.euler "↾" 248 in
+                                    bin 2 sep (f2m a, eq)
+                      end
 
 
 let f : string -> Maths.math list = fun s -> f2m (parse_form s)

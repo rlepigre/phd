@@ -5,7 +5,7 @@
 )
 \Include{Macros}
 
-=> Proof programming system \label("newSystem")
+=> Proving programs using equational reasoning \label("newSystem")
 
 In this chapter, the type system previously presented will be extended to
 enable the specification and the proof of program properties. The proof
@@ -17,8 +17,10 @@ will enable equational reasoning.
 
 To be able to specify program properties, we extend our type system with
 equality types of the form $t ≡ u$, where $t$ and $u$ are (possibly untyped)
-terms. Equality types are then interpreted as $⊤$ if the denoted equivalence
-is true and as $⊥$ otherwise.
+terms. Equality types are then interpreted as $⊤ = \f("∃X X")$ if the denoted
+equivalence is true and as $⊥ = \f("∀X X")$ otherwise. For example, the type
+$\f("(λx x) λx x ≡ (λx x)")$ will be inhabited if and only if the identity
+function applied to itself is equivalent to the identity function.
 (* TODO *)
 
 =<
@@ -135,6 +137,8 @@ $$
 =<
 => Extended type system
 
+We will now give the formal definition of our new type system.
+
 \begin{def}
 A typing judgment is a tuple of context $Γ$ for $λ$-variables, a context $Δ$
 for $μ$-variable, an equational context $Ξ$, a term $t$ and a type $A$. It
@@ -142,9 +146,21 @@ is denoted $Γ;Δ;Ξ ⊢ t : A$ and read as "$t$ has type $A$ in the context
 $Γ;Δ;Ξ$".
 \end{def}
 \begin{def}
-Given a sorting context $Σ$, we say that the typeing judgment $Γ;Δ;Ξ ⊢ t:A$
+Given a sorting context $Σ$, we say that the typing judgment $Γ;Δ;Ξ ⊢ t:A$
 is valid and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when...
 \end{def}
+\begin{def}
+A valuation over a sorting context $Σ$ is a map $σ$ such that $σ(χ) ∈ ⟦Σ(χ)⟧$
+for every $χ ∈ dom(Σ)$. In particular $dom(Σ) ⊆ dom(σ)$.
+\end{def}
+
+(* Adequacy lemma. *)
+\begin{thm}
+Let $Σ$ be a sorting context and $σ$ be a valuation over $Σ$. If the typing
+judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ (resp. $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$) is derivable
+and if $σ ⊩ Γ;Δ;Ξ$ then $tρ ∈ ⟦Aρ⟧^{\bot\bot}$ (resp. $vρ ∈ ⟦Aρ⟧$).
+\end{thm}
+
 
 (* Ax rule *)
 $$
@@ -227,6 +243,146 @@ $$
   Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]"))
 }
 $$
+
+(* ∃i rule *)
+$$
+\binaryRN{∃_i}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ≔B]"))
+}{
+  Σ ⊢ B : s
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∃χ^s A"))
+}
+$$
+
+(* ∃e rule *)
+$$
+\binaryRN{∃_e}{
+  Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Δ;Ξ ⊢ \t("t") : \f("C"))
+}{
+  Σ ⊢ B : s
+}{
+  Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Δ;Ξ ⊢ \t("t") : \f("C"))
+}
+$$
+
+(* ∈i rule *)
+$$
+\unaryRN{∈_i}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("v∈A"))
+}
+$$
+
+(* ∈e rule *)
+$$
+\unaryRN{∈_e}{
+  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,x≡t ⊢ \t("t") : C)
+}{
+  Σ, x:ι ⊢ (Γ,x:\f("t∈A");Δ;Ξ ⊢ \t("t") : C)
+}
+$$
+
+(* ↾i rule *)
+$$
+\unaryRN{↾_i}{
+  Σ ⊢ (Γ;Δ;Ξ,t≡u ⊢ \t("t") : A)
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A | t≡u"))
+}
+$$
+
+(* ↾e rule *)
+$$
+\unaryRN{↾_e}{
+  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,t≡u ⊢ \t("t") : C)
+}{
+  Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Δ;Ξ ⊢ \t("t") : C)
+}
+$$
+
+(* ×i *)
+$$
+\unaryRN{×_i}{
+  [Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("vi") : \f("Ai"))]_{i∈I}
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"))
+}
+$$
+
+(* ×e *)
+$$
+\binaryRN{×_e}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}"))
+}{
+  k∈I
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v.lk") : A_k)
+}
+$$
+
+(* +i *)
+$$
+\binaryRN{+_i}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("Ak"))
+}{
+  k∈I
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ci[v]") : \f("[(Ci : Ai) i∈I]"))
+}
+$$
+
+(* +e *)
+$$
+\binaryRN{+_e}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]"))
+}{
+  [Σ ⊢ (Γ,x_i:A_i;Δ;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B)]_{i∈I}
+}{
+  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("[v | (Ci → ti) i∈I]") : B)
+}
+$$
+
+(* ≡ *)
+$$
+\unaryRN{≡_{l, {val}}}{
+  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔v]") : A)
+}{
+  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔w]") : A)
+}
+$$
+
+$$
+\unaryRN{≡_{l}}{
+  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A)
+}{
+  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A)
+}
+$$
+
+$$
+\unaryRN{≡_{r, {val}}}{
+  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔v]"))
+}{
+  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔w]"))
+}
+$$
+
+$$
+\unaryRN{≡_{r}}{
+  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]"))
+}{
+  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]"))
+}
+$$
+
+
+
+
+
+
+
 
 
 =<
