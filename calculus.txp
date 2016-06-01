@@ -708,7 +708,7 @@ let _ = bnfs
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
-         \| \t("v.l") \| \t("[v | (Ci → ti) i∈I]") \| \t("Y(t, v)")
+         \| \t("v.l") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
          \| \t("U(v)") \| \t("δ(v,w)") $ >>
     , << $a∈\cal{V}_ι$ >> )
   ; ( << $(Π)$ >>
@@ -725,8 +725,8 @@ Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
 enriched with ML-like constructs (i.e. records and variants). A value of
 the form $\v("C[v]")$ corresponds to a constructor, which always has
 exactly one argument in our language. Pattern-matching on constructors is
-done using a syntax of the form $\t("[v | (Ci → ti) i∈I]")$, which includes
-a finite list of patterns associating the constructor $C_i$ to the term
+done using a syntax of the form $\t("[v | (Ci[xi] → ti) i∈I]")$, which
+includes a finite list of patterns associating $\v("Ci[xi]")$ to the term
 $t_i$ for all $i$ in $I$.
 Similarly, values of the form $\v("{(li = vi) i∈I}")$ correspond to records,
 which are tuples with named fields. The empty tuple (i.e. the tuple with
@@ -742,13 +742,13 @@ on top of a stack, or a stack frame containing a term on top of a stack.
 These two constructors are specific to the call-by-value presentation, only
 one is required in call-by-name.
 \begin{rem}
-The syntax $\t("[v | (Ci → ti) i∈I]")$ for pattern-matching and the syntax
-$\v("{(l = v) i∈I}")$ for records are part of our meta-language. We only use
-them as shortcuts to designate pattern-matching on arbitrary patterns and
-records with arbitrary fields. In the actual syntax, the full list of
-pattern or the full list of fields always need to be specified. For example,
-we would write $\t("{l₁ = v₁; l₂ = v₂;}")$ or $\t("[v | C₁ → t₁ | C₂ → t₂]")$
-if $I = \{1, 2\}$.
+The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for pattern-matching and the
+syntax $\v("{(l = v) i∈I}")$ for records are part of our meta-language. We
+only use them as shortcuts to designate pattern-matching on arbitrary
+patterns and records with arbitrary fields. In the actual syntax, the full
+list of pattern or the full list of fields always need to be specified. For
+example, we would write $\t("{l₁ = v₁; l₂ = v₂;}")$ or
+$\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ if $I = \{1, 2\}$.
 \end{rem}
 \begin{rem}
 We enforce values in constructors, record fields, projection and case
@@ -804,15 +804,15 @@ let _ =
   let line p1 p2 = [ <$\p(p1)$>; <$≻$>; <$\p(p2)$> ] in
   array [`East ; `Main ; `West]
   ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
-  [ line "t u ∗ π"               "u ∗ [t]π"
-  ; line "v ∗ [t]π"              "t ∗ v·π"
-  ; line "λx t ∗ v·π"            "t[x ≔ v] ∗ π"
-  ; line "μα t ∗ π"              "t[α ≔ π] ∗ π"
-  ; line "[ρ]t ∗ π"              "t ∗ ρ"
-  ; line "{⋯ l = v ⋯}.l ∗ π"     "v ∗ π"
-  ; line "[C[v] |⋯ C → t ⋯] ∗ π" "t ∗ v·π"
-  ; line "Y(t,v) ∗ π"            "t ∗ λx Y(t,x)·v·π"
-  ; line "U({}) ∗ π"             "{} ∗ π" ]
+  [ line "t u ∗ π"                  "u ∗ [t]π"
+  ; line "v ∗ [t]π"                 "t ∗ v·π"
+  ; line "λx t ∗ v·π"               "t[x ≔ v] ∗ π"
+  ; line "μα t ∗ π"                 "t[α ≔ π] ∗ π"
+  ; line "[ρ]t ∗ π"                 "t ∗ ρ"
+  ; line "{⋯ l = v ⋯}.l ∗ π"        "v ∗ π"
+  ; line "[C[v] |⋯ C[x] → t ⋯] ∗ π" "t[x≔v] ∗ π"
+  ; line "Y(t,v) ∗ π"               "t ∗ λx Y(t,x)·v·π"
+  ; line "U({}) ∗ π"                "{} ∗ π" ]
 )
 \linesAfter(2)
 \end{center}
@@ -898,12 +898,12 @@ $$
 \p("{(li = vi) i∈I} ∗ v·π")
 $$
 $$
-\p("[λx t | (Ci → ti) i∈I] ∗ π")
+\p("[λx t | (Ci[xi] → ti) i∈I] ∗ π")
 \hspace(4.0)
-\p("[{(li = vi) i∈I} | (Cj → tj) j∈J] ∗ π")
+\p("[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π")
 $$
 $$
-\p("[D[v] | (Ci → ti) i∈I] ∗ π") \hspace(2.0) with {D ≠ C_i} for all i∈I
+\p("[D[v] | (Ci[xi] → ti) i∈I] ∗ π") \hspace(2.0) with {D ≠ C_i} for all i∈I
 $$
 $$
 \p("{(li = vi) i∈I}.k ∗ π")      \hspace(2.0) with {k ≠ l_i} for all i∈I
@@ -930,7 +930,7 @@ $$
 \hspace(2.0)
 \p("x ∗ v·π")
 \hspace(2.0)
-\p("[x | (Ci → ti) i∈I≠∅] ∗ π")
+\p("[x | (Ci[xi] → ti) i∈I≠∅] ∗ π")
 \hspace(2.0)
 \p("a ∗ π")
 \hspace(2.0)

@@ -14,7 +14,7 @@ system for the language defined in \chapter("calculus"). Our types will be
 interpreted using standard realisability techniques, which will allow us
 to give a semantical justification to our typing rules.
 
-=> Simple types and classical logic
+=> Simple types
 
 In order to prevent undesired computational behaviours such as runtime
 errors, functional programming languages rely on syntactic checks. We
@@ -30,62 +30,62 @@ To lighten the notations, we will consider the function type to be right
 associative. That is, we will always read a type of the form
 $\f("A ⇒ B ⇒ C")$ as $\f("A ⇒ (B ⇒ C)")$.
 \end{rem}
-To be able to give a type to terms containing free variables, we need to
-use contexts. A context will map variables to their assumed type.
+Through the Curry-Howard isomorphism, it is possible to see our type system
+as a logic. In particular, a type can be read as a formula in which the
+arrow type corresponds to logical implication. Similarly, product and sum
+types can be interpreted as logical conjunction and disjunction.
+
+To be able to assign a type to terms containing free variables, we need to
+use typing contexts. A typing context will map variables to their assumed
+type. Logically, a context will simply correspond to a set of hypothesis.
+That is, a set of formulas that are assumed to be true.
 \begin{def}
-A context over $t$ is a finite map $Γ$ over $\cal{V}_λ$ and $\cal{V}_μ$ such
-that for all $λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$ and for all
-$μ$-variable $α ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
+A typing context is a finite map $Γ$ over $\cal{V}_λ$ such that for all
+$λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
 represent contexts using lists generated using the following ||bnf|| grammar.
-$$ Γ ::= • \| {Γ, x : A} \| {Γ, α : A^⊥} $$
+$$ Γ ::= • \| {Γ, x : A} $$
 However, we need to keep in mind that variables can only be mapped once in a
 context and that their order is irrelevant.
 \end{def}
+
 \begin{def}
 A typing judgement is a triple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$ and
 a context $Γ$ that is denoted $Γ ⊢ t : A$. A judgment is said to be
-//well-formed// if $FV_λ(t) ∪ FV_μ(t) ⊆ dom(Γ)$ and if $FV_ι(t) = ∅$.
+//well-formed// if $FV_λ(t) ⊆ dom(Γ)$ and if $FV_ι(t) ∪ FV_μ(t) = ∅$.
 \end{def}
 \begin{rem}
-Well-formed judgment can only assign a type to a term that do not contain
-term variables. Terms that are beging typed will never contain free term
-variables, however term variable will appear free in formulas in a later
-section.
+Our first type system will only be able to work with terms not containing
+$μ$-variables or term variables. The mechanism for handling such variables
+will be introduced in later sections.
 \end{rem}
 \begin{rem}
 In the following, we will only consider well-formed judgements. This
 information will be kept implicit most of the time.
 \end{rem}
-
 \begin{def}
 We say that a well-formed judgement is //valid// if and only if it can be
 derived using the following deduction rule system.
 $$
   \axiomRN{Ax}{Γ, x : A ⊢ x : A}
   \hspace(2.0)
-  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ \t("λx t") : A ⇒ B}
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ \t("λx t") : \f("A ⇒ B")}
   \hspace(2.0)
   \binaryRN{{→}_e}{Γ ⊢ t : \f("A ⇒ B")}{Γ ⊢ u : A}{Γ ⊢ \t("t u") : B}
 $$
 $$
-  \unaryRN{μ}{Γ, α : A^⊥ ⊢ t : A}{Γ ⊢ \t("μα t") : A}
-  \hspace(4.0)
-  \unaryRN{[\wc]}{Γ, α : A^⊥ ⊢ t : A}{Γ, α : A^⊥ ⊢ \t("[α]t") : B}
-$$
-$$
-  \unaryRN{×_i}{(Γ ⊢ v_i : A_i)_{i∈I}}{
+  \unaryRN{×_i}{[Γ ⊢ v_i : A_i]_{i∈I}}{
     Γ ⊢ \t("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")
   }
-  \hspace(4.0)
+  \hspace(6.0)
   \unaryRN{×_e}{Γ ⊢ v : \f("{(li : Ai) i∈I}")}{Γ ⊢ \t("v.lj") : A_j}
 $$
 $$
   \unaryRN{+_i}{Γ ⊢ v : A_j}{Γ ⊢ \t("Cj[v]") : \f("[(Ci : Ai) i∈I]")}
   \hspace(2.0)
   \binaryRN{+_e}{Γ ⊢ v : \f("[(Ci : Ai) i∈I]")}{
-    (Γ ⊢ t_i : \f("Ai ⇒ B"))_{i∈I}
+    [Γ, x_i : A_i ⊢ t_i : B]_{i∈I}
   }{
-    Γ ⊢ \t("[v | (Ci → ti) i∈I]") : B
+    Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B
   }
 $$
 \end{def}
@@ -133,6 +133,26 @@ $$
     }
   }
 $$
+
+
+(*
+\begin{def}
+A context over $t$ is a finite map $Γ$ over $\cal{V}_λ$ and $\cal{V}_μ$ such
+that for all $λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$ and for all
+$μ$-variable $α ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
+represent contexts using lists generated using the following ||bnf|| grammar.
+$$ Γ ::= • \| {Γ, x : A} \| {Γ, α : A^⊥} $$
+However, we need to keep in mind that variables can only be mapped once in a
+context and that their order is irrelevant.
+\end{def}
+
+$$
+  \unaryRN{μ}{Γ, α : A^⊥ ⊢ t : A}{Γ ⊢ \t("μα t") : A}
+  \hspace(4.0)
+  \unaryRN{[\wc]}{Γ, α : A^⊥ ⊢ t : A}{Γ, α : A^⊥ ⊢ \t("[α]t") : B}
+$$
+*)
+
 
 Throught the Curry-Howard isomorphism, our type system can be seen as a
 logic. Types then correspond to formulas that can be proved using deduction

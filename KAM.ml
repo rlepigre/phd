@@ -8,56 +8,57 @@ type vari = string * string option
 type cond = (string * vari * bool) option
 
 type valu =
-  | VVari of vari                      (* x, y   *)
-  | VMeta of vari                      (* v, w   *)
-  | VLAbs of vari * term               (* λx t   *)
-  | VCons of vari * valu               (* C[v]   *)
-  | VERec of (vari * valu) list        (* {l₁ = v₁; l₂ = v₂;} *)
-  | VIRec of vari * vari * cond        (* {... l_i = v_i ...} *)
-  | VGrou of valu                      (* (v)    *)
-  | VSubs of valu * subs               (* vσ     *)
+  | VVari of vari               (* x, y   *)
+  | VMeta of vari               (* v, w   *)
+  | VLAbs of vari * term        (* λx t   *)
+  | VCons of vari * valu        (* C[v]   *)
+  | VERec of (vari * valu) list (* {l₁ = v₁; l₂ = v₂;} *)
+  | VIRec of vari * vari * cond (* {... l_i = v_i ...} *)
+  | VGrou of valu               (* (v)    *)
+  | VSubs of valu * subs        (* vσ     *)
 and  term =
-  | TVari of vari                      (* a, b   *)
-  | TMeta of vari                      (* t, u   *)
+  | TVari of vari               (* a, b   *)
+  | TMeta of vari               (* t, u   *)
   | TValu of valu
-  | TGrou of term                      (* (t)    *)
-  | TAppl of term * term               (* t u    *)
-  | TSave of vari * term               (* μα t   *)
-  | TRest of stac * term               (* [π]t   *)
-  | TCtxt of ctxt * term               (* E[t]   *)
-  | TProj of valu * vari               (* v.l    *)
-  | TUnit of valu                      (* U_v    *)
-  | TDelt of valu * valu               (* δ(v,w) *)
-  | TFixp of term * valu               (* Y(t,v) *)
-  | TECas of valu * (vari * term) list (* [v | C₁ → t₁ | C₂ → t₂] *)
-  | TICas of valu * vari * vari * cond (* [v | ... C_i → t_i ...] *)
-  | TSubs of term * subs               (* tσ     *)
+  | TGrou of term               (* (t)    *)
+  | TAppl of term * term        (* t u    *)
+  | TSave of vari * term        (* μα t   *)
+  | TRest of stac * term        (* [π]t   *)
+  | TCtxt of ctxt * term        (* E[t]   *)
+  | TProj of valu * vari        (* v.l    *)
+  | TUnit of valu               (* U_v    *)
+  | TDelt of valu * valu        (* δ(v,w) *)
+  | TFixp of term * valu        (* Y(t,v) *)
+  | TECas of valu * patt list   (* [v | C₁[x₁] → t₁ | C₂[x₂] → t₂] *)
+  | TICas of valu * patt * cond (* [v | ... C_i[x_i] → t_i ...] *)
+  | TSubs of term * subs        (* tσ     *)
 and  stac =
-  | SEmpt                              (* ε      *)
-  | SVari of vari                      (* α, β   *)
-  | SMeta of vari                      (* π, ρ   *)
-  | SPush of valu * stac               (* v.π    *)
-  | SFram of term * stac               (* [t]π   *)
-  | SGrou of stac                      (* (π)    *)
-  | SSubs of stac * subs               (* sσ     *)
+  | SEmpt                       (* ε      *)
+  | SVari of vari               (* α, β   *)
+  | SMeta of vari               (* π, ρ   *)
+  | SPush of valu * stac        (* v.π    *)
+  | SFram of term * stac        (* [t]π   *)
+  | SGrou of stac               (* (π)    *)
+  | SSubs of stac * subs        (* sσ     *)
 and  proc =
-  | PMeta of vari                      (* p, q   *)
-  | PProc of term * stac               (* t ∗ π  *)
-  | PGrou of proc                      (* (p)    *)
+  | PMeta of vari               (* p, q   *)
+  | PProc of term * stac        (* t ∗ π  *)
+  | PGrou of proc               (* (p)    *)
   | PSubs of proc * subs
 and  ctxt =
-  | CHole                              (* [-]    *)
-  | CPlug of ctxt * ctxt               (* E[F]   *)
-  | CMeta of vari                      (* E, F   *)
-  | CGrou of ctxt                      (* (E)    *)
-  | CLAbs of vari * ctxt               (* λx E   *)
-  | CAppL of ctxt * term               (* E t    *)
-  | CAppR of term * ctxt               (* t E    *)
+  | CHole                       (* [-]    *)
+  | CPlug of ctxt * ctxt        (* E[F]   *)
+  | CMeta of vari               (* E, F   *)
+  | CGrou of ctxt               (* (E)    *)
+  | CLAbs of vari * ctxt        (* λx E   *)
+  | CAppL of ctxt * term        (* E t    *)
+  | CAppR of term * ctxt        (* t E    *)
 and  subs =
-  | SubsV of vari * bool * valu        (* [x ≔ v] *)
-  | SubsT of vari * bool * term        (* [a ≔ t] *)
-  | SubsS of vari * bool * stac        (* [α ≔ π] *)
-  | SubsM of vari                      (* σ       *)
+  | SubsV of vari * bool * valu (* [x ≔ v] *)
+  | SubsT of vari * bool * term (* [a ≔ t] *)
+  | SubsS of vari * bool * stac (* [α ≔ π] *)
+  | SubsM of vari               (* σ       *)
+and patt = vari * vari * term
 
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
@@ -122,13 +123,14 @@ and        term prio =
                                          when prio = Atom -> TDelt(v,w)
   | "Y(" t:(term Appl) "," v:(valu Comp) ")"
                                          when prio = Atom -> TFixp(t,v)
-  | '[' v:(valu Comp) ls:{'|' c:const "→" t:(term Appl)}* ']'
-                                         when prio = Atom -> TECas(v,ls)
-  | '[' v:(valu Comp) '|' "⋯" c:const "→" t:tmeta "⋯" ']'
-                                         when prio = Atom -> TICas(v,c,t,None)
-  | '[' v:(valu Comp) '|' "(" c:const "→" t:tmeta ")" cnd:cond ']'
-                                         when prio = Atom -> TICas(v,c,t,cnd)
+  | '[' v:(valu Comp) ls:{'|' patt}* ']' when prio = Atom -> TECas(v,ls)
+  | '[' v:(valu Comp) '|' "⋯" p:patt "⋯" ']'
+                                         when prio = Atom -> TICas(v,p,None)
+  | '[' v:(valu Comp) '|' "(" p:patt ")" cnd:cond ']'
+                                         when prio = Atom -> TICas(v,p,cnd)
   | t:(term Atom)                        when prio = Subs -> t
+and        patt =
+  | c:const '[' x:vvari ']' "→" t:(term Appl)
 and        ctxt prio =
   | "[]"                                 when prio = Atom -> CHole
   | e:(ctxt Atom) '[' f:(ctxt Appl) ']'  when prio = Atom -> CPlug(e,f)
@@ -257,9 +259,8 @@ and     t2m : term -> Maths.math list = function
                   let subscript_right = (t2m t) @ (str ",") @ (v2m v) in
                   let n = { n with subscript_right } in
                   [Maths.Ordinary n]
-  | TECas(v,l) -> let build (c,t) =
-                    (sp 0.6) @ (str "|") @ (sp 0.6) @ (vari2m c) @
-                      (str "→") @ (t2m t)
+  | TECas(v,l) -> let build p =
+                    (sp 0.6) @ (str "|") @ (sp 0.6) @ (patt2m p)
                   in
                   let c =
                     match l with
@@ -267,13 +268,11 @@ and     t2m : term -> Maths.math list = function
                     | _  -> List.concat (List.map build l)
                   in
                   (str "[") @ (v2m v) @ c @ (str "]")
-  | TICas(v,c,w,None) ->
-                  let mid = bin' 2 "→" (vari2m c, vari2m w) in
+  | TICas(v,p,None) ->
                   (str "[") @ (v2m v) @ (sp 0.6) @ (str "|") @ (sp 0.6)
-                  @ (str "⋯") @ (sp 0.6) @ mid @ (sp 0.6) @ (str "⋯]")
-  | TICas(v,c,w,Some(i,s,ne)) ->
-                  let mid = bin' 2 "→" (vari2m c, vari2m w) in
-                  let mid = (str "(") @ mid @ (str ")") in
+                  @ (str "⋯") @ (sp 0.6) @ (patt2m p) @ (sp 0.6) @ (str "⋯]")
+  | TICas(v,p,Some(i,s,ne)) ->
+                  let mid = (str "(") @ (patt2m p) @ (str ")") in
                   let s = vari2m s in
                   let s = if ne then bin' 2 "≠" (s, str "∅") else s in
                   let sub = bin' 2 "∈" (str i, s) in
@@ -282,6 +281,9 @@ and     t2m : term -> Maths.math list = function
                   (str "[") @ (v2m v) @ (sp 0.6) @ (str "|") @ (sp 0.6)
                   @ [Maths.Ordinary mid] @ (str "]")
   | TSubs(t,s) -> (t2m t) @ (subs2m s)
+and  patt2m : patt -> Maths.math list = fun (c,x,t) ->
+  let pat = (vari2m c) @ (str "[") @ (vari2m x) @ (str "]") in
+  bin' 2 "→" (pat, t2m t)
 and     s2m : stac -> Maths.math list = function
   | SEmpt      -> str "ε"
   | SVari(a)   -> vari2m a
