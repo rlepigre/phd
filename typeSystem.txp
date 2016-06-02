@@ -52,6 +52,8 @@ context and that their order is irrelevant.
 A typing judgement is a triple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$ and
 a context $Γ$ that is denoted $Γ ⊢ t : A$. A judgment is said to be
 //well-formed// if $FV_λ(t) ⊆ dom(Γ)$ and if $FV_ι(t) ∪ FV_μ(t) = ∅$.
+To lighten the notations we will write $⊢ t : A$ instead of $Γ ⊢ t : A$ when
+$Γ = •$.
 \end{def}
 \begin{rem}
 Our first type system will only be able to work with terms not containing
@@ -89,51 +91,116 @@ $$
   }
 $$
 \end{def}
+\begin{rem}
+The derivability of a judgement $⊢ t : A$ is equivalent to the provability
+of the logical formula corresponding to $A$ in intuitionistic propositional
+logic. As $t$ alone sufices to recover the derivation (only one rule can be
+applied for every term constructor), we may think of it as a proof of $A$.
+Consequently, we associate a computational behavious to a proof. For example,
+a term $t$ of type $\f("A ⇒ B")$ will correspond to a procedure turning a
+proof of the formula $A$ into a proof of the formula $B$.
+\end{rem}
 
-As a first example, we can show that the term $\t("λx λy {l₁ = x; l₂ = y;}")$
-can be given the type $\f("A ⇒ B ⇒ {l₁ : A; l₂ : B;}")$ in any context $Γ$
-and for any given types $A$ and $B$.
+Let us now consider a few examples of typing derivations. First, we can show
+that the term $t = \t("λf λx λy f {l₁ = x; l₂ = y;}")$ has type
+$\f("({l₁ : A; l₂ : B;} ⇒ C) ⇒ A ⇒ B ⇒ C")$ for any given types $A$, $B$
+and $C$.
+\begin{env}(scale 0.52)
 $$
-  \proofTree{
-    \unaryN{⇒_i}{
-      Γ ⊢ \t("λx λy {l₁ = x; l₂ = y;}") : \f("A ⇒ B ⇒ {l₁ : A; l₂ : B;}")
-    }{
-      \unaryN{⇒_i}{
-        Γ, x : A ⊢ \t("λy {l₁ = x; l₂ = y;}") : \f("B ⇒ {l₁ : A; l₂ : B;}")
-      }{
-        \binaryN{×_i}{
-          Γ, x : A, y : B ⊢ \t("{l₁ = x; l₂ = y;}") : \f("{l₁ : A; l₂ : B;}")
-        }{
-          \axiomN{Ax}{Γ, x : A, y : B ⊢ x : A}
-        }{
-          \axiomN{Ax}{Γ, x : A, y : B ⊢ y : B}
-        }
-      }
-    }
-  }
+\proofTree{
+ \unaryN{⇒_i}{
+   ⊢ \t("λf λx λy f {l₁ = x; l₂ = y;}")
+     : \f("({l₁ : A; l₂ : B;} ⇒ C) ⇒ A ⇒ B ⇒ C")
+ }{
+ \unaryN{⇒_i}{
+   f : \f("{l₁ : A; l₂ : B;} ⇒ C") ⊢ \t("λx λy f {l₁ = x; l₂ = y;}")
+     : \f("A ⇒ B ⇒ C")
+ }{
+ \unaryN{⇒_i}{
+   f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A ⊢ \t("λy f {l₁ = x; l₂ = y;}")
+     : \f("B ⇒ C")
+ }{
+   \binaryN{⇒_e}{
+     f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ \t("f {l₁ = x; l₂ = y;}") : C
+   }{
+     \axiomN{Ax}{
+       f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ f
+         : \f("{l₁ : A; l₂ : B;} ⇒ C")
+     }
+   }{
+     \binaryN{×_i}{
+       f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ \t("{l₁ = x; l₂ = y;}")
+         : \f("{l₁ : A; l₂ : B;}")
+     }{
+       \axiomN{Ax}{
+         f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ x : A
+       }
+     }{
+       \axiomN{Ax}{
+         f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ y : B
+       }
+     }
+   }
+  }}}}
 $$
-Similarly, we can show that the term $λx λy x y$ has type $(A ⇒ B) ⇒ A ⇒ B$
-in any context $Γ$ and for any given types $A$ and $B$.
+\end{env}
+Similarly, we can show that the term $u = \t("λf λx f x.l₁ x.l₂")$ is also
+typable. It can be given the type $\f("(A ⇒ B ⇒ C) ⇒ {l₁ : A; l₂ : B;} ⇒ C")$
+for any given types $A$, $B$ and $C$.
+\begin{env}(scale 0.52)
 $$
-  \proofTree{
-    \unaryN{⇒_i}{
-      Γ ⊢ \t("λx λy x y") : \f("(A ⇒ B) ⇒ A ⇒ B")
-    }{
-      \unaryN{⇒_i}{
-        Γ, x : \f("A ⇒ B") ⊢ \t("λy x y") : \f("A ⇒ B")
-      }{
-        \binaryN{⇒_e}{
-          Γ, x : \f("A ⇒ B"), y : A ⊢ \t("x y") : B
-        }{
-          \axiomN{Ax}{Γ, x : \f("A ⇒ B"), y : A ⊢ x : \f("A ⇒ B")}
-        }{
-          \axiomN{Ax}{Γ, x : \f("A ⇒ B"), y : A ⊢ y : A}
-        }
-      }
-    }
-  }
+\proofTree{
+ \unaryN{⇒_i}{
+   ⊢ \t("λf λx f x.l₁ x.l₂") : \f("(A ⇒ B ⇒ C) ⇒ {l₁ : A; l₂ : B;} ⇒ C")
+ }{
+ \unaryN{⇒_i}{
+   f : \f("A ⇒ B ⇒ C") ⊢ \t("λx f x.l₁ x.l₂") : \f("{l₁ : A; l₂ : B;} ⇒ C")
+ }{
+   \binaryN{⇒_e}{
+     f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("f x.l₁ x.l₂") : C
+   }{
+     \binaryN{⇒_e}{
+       f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("f x.l₁")
+         : \f("B ⇒ C")
+     }{
+       \axiomN{Ax}{
+         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ f
+           : \f("A ⇒ B ⇒ C")
+       }
+     }{
+       \unaryN{×_e}{
+         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("x.l₁") : A
+       }{
+         \axiomN{Ax}{
+           f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ x
+             : \f("{l₁ : A; l₂ : B;}")
+         }
+       }
+     }
+   }{
+     \unaryN{×_e}{
+       f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("x.l₂") : B
+     }{
+       \axiomN{Ax}{
+         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ x
+           : \f("{l₁ : A; l₂ : B;}")
+       }
+     }
+   }
+  }}}
 $$
+\end{env}
+The terms $t$ and $u$ correspond respectively to the curryfication operation
+and its inverse. The former turns a function taking as input a couple into
+a function of two arguments, and the latter turns a function of two arguments
+into a function taking as input a couple. Logically, these terms correspond
+to both sides of a proof of the following theorem of intuitionistic
+propositional logic.
+$$ (A \land B ⇒ C) ⇔ (A ⇒ B ⇒ C) $$
 
+=<
+
+=> First extension: classical logic and \lmcalc
 
 (*
 \begin{def}
