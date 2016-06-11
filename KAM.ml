@@ -78,7 +78,7 @@ let smeta = vari ["π"; "ρ"]
 let pmeta = vari ["p"; "q"; "ψ"]
 let const = vari ["C"; "D"]
 let label = vari ["l"; "k"]
-let subsm = vari ["σ"]
+let subsm = vari ["σ"; "ρ"]
 let vfset = vari ["I"; "J"]
 
 let appl = List.fold_left (fun t u -> TAppl(t,u))

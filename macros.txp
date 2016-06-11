@@ -286,6 +286,13 @@ module PMLVerbatim : sig
       verb_text (handle_word {keywords = []; symbols})
   end
 
+let verb_OCaml fn lines =
+  let open Verbatim in
+  lines_to_file lines fn;
+  let build_word = handle_word param_OCaml in
+  let build_line l = hspace 2.0 @ handle_spaces build_word l in
+  line_per_line D.structure build_line lines
+
 let lmcalc =
   let lm = [Maths.Ordinary (Maths.node (Maths.glyphs "λμ"))] in
   << $\lm$-calculus >>

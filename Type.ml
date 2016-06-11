@@ -11,6 +11,7 @@ type form =
   | FSubs of form * vari * form        (* A[χ≔B]  *)
   | FTSub of form * vari * term        (* A[a≔t]  *)
   | FVSub of form * vari * valu        (* A[x≔v]  *)
+  | FGSub of form * vari               (* Aρ      *)
   | FAppl of form * form               (* A(B)    *)
   | FFunc of form * form               (* A ⇒ B   *)
   | FGrou of form                      (* (A)     *)
@@ -30,6 +31,7 @@ let fvari = vari ["χ"]
 let ovari = vari ["X"; "Y"; "Z"]
 let svari = vari ["s"]
 let parser qvari = ovari | fvari | tvari | vvari
+let parser fovari = fvari | ovari
 
 let rec ffunc = function
   | []    -> assert false
@@ -42,8 +44,9 @@ let parser form prio =
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
   | x:qvari                                   when prio = FAtom -> FVari(x)
   | '(' x:fvari "↦" a:(form FFull) ')'        when prio = FAtom -> FLamb(x,a)
-  | a:(form FAtom) '[' x:fvari "≔" b:(form FFull) ']'
+  | a:(form FAtom) '[' x:fovari "≔" b:(form FFull) ']'
                                               when prio = FAtom -> FSubs(a,x,b)
+  | a:(form FAtom) s:subsm                    when prio = FAtom -> FGSub(a,s)
   | a:(form FAtom) '[' x:vvari "≔" b:valu ']' when prio = FAtom -> FVSub(a,x,b)
   | a:(form FAtom) '[' x:tvari "≔" b:term ']' when prio = FAtom -> FTSub(a,x,b)
   | a:(form FAtom) '(' b:(form FFull) ')'     when prio = FAtom -> FAppl(a,b)
@@ -83,6 +86,7 @@ let rec f2m : form -> Maths.math list = function
   | FVSub(a,x,b)   -> let s = MathFonts.asana "\\defeq" 798 in
                       let s = bin 2 s (vari2m x, v2m b) in
                       (f2m a) @ (str "[") @ s @ (str "]")
+  | FGSub(a,s)     -> (f2m a) @ (vari2m s)
   | FGrou(a)       -> (str "(") @ (f2m a) @ (str ")")
   | FEPrd(ls)      -> let build_field (l,a) =
                         bin' 2 ":" (vari2m l, f2m a)
@@ -175,4 +179,6 @@ let rec f2m : form -> Maths.math list = function
                       end
 
 
-let f : string -> Maths.math list = fun s -> f2m (parse_form s)
+let f : string -> Maths.math list = fun s ->
+  try f2m (parse_form s) with _ ->
+    Printf.eprintf "Unable to parse the formula \"%s\"\n%!" s; exit 1

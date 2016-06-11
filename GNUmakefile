@@ -1,4 +1,4 @@
-FLAG := -j 4
+FLAG := -j 4 --verbose 1
 
 all: manuscrit.pdf
 

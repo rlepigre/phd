@@ -5,7 +5,7 @@
 )
 \Include{Macros}
 
-=> Proving programs using equational reasoning \label("newSystem")
+=> Proofs of programs using equational reasoning \label("newSystem")
 
 In this chapter, the type system previously presented will be extended to
 enable the specification and the proof of program properties. The proof
@@ -21,6 +21,8 @@ terms. Equality types are then interpreted as $⊤ = \f("∃X X")$ if the denote
 equivalence is true and as $⊥ = \f("∀X X")$ otherwise. For example, the type
 $\f("(λx x) λx x ≡ (λx x)")$ will be inhabited if and only if the identity
 function applied to itself is equivalent to the identity function.
+
+
 (* TODO *)
 
 =<
@@ -138,27 +140,70 @@ $$
 => Extended type system
 
 We will now give the formal definition of our new type system.
+\begin{def}
+We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
+the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
+and the sort of stacks $σ$.
+\end{def}
+\begin{def}
+The set of all sorts $\cal{S}$ is generated from the set of atomic sorts
+$\cal{S}₀$ using the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 1 2 << $s,r ::= {s→r} \| ξ$ >> << $ξ∈\cal{S}₀$ >>)
+\end{def}
+\begin{def}
+Given a typing context $Γ$, a continuation context $Δ$ and an equational
+context $Ξ$ we consider two different forms of typing judgments:
+\begin{itemize}
+\item value judgments $Γ;Ξ;Δ ⊢_\tval v : A$ meaning that the value $v$ has
+      type $A$ and
+\item general term judgments $Γ;Ξ;Δ ⊢ t : A$ meaning that the term $t$ has
+      type $A$ in the context $Γ;Δ;Ξ$.
+\end{itemize}
+\end{def}
+\begin{def}
+Given a sorting context $Σ$ we say that $Γ;Δ;Ξ ⊢ t:A$ is a valid term
+judgment and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when
+\begin{itemize}
+\item $dom(Γ) ⊆ dom(Σ)$ and hence for all $x ∈ dom(Γ)$ we have $Σ(x) = ι$,
+\item $dom(Δ) ⊆ dom(Σ)$ and hence for all $α ∈ dom(Δ)$ we have $Σ(α) = σ$,
+\item $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$,
+\item $FV_ι(t) ⊆ dom(Γ)$, $FV_σ(t) ⊆ dom(Δ)$ and $FV_τ(t) = ∅$,
+\item for all $x ∈ dom(Γ)$ we have $Σ ⊢ Γ(x) : ο$,
+\item for all $α ∈ dom(Δ)$ we have $Σ ⊢ Δ(α) : ο$,
+\item for all $(t ≡ u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
+\end{itemize}
+\end{def}
 
 \begin{def}
-A typing judgment is a tuple of context $Γ$ for $λ$-variables, a context $Δ$
-for $μ$-variable, an equational context $Ξ$, a term $t$ and a type $A$. It
-is denoted $Γ;Δ;Ξ ⊢ t : A$ and read as "$t$ has type $A$ in the context
-$Γ;Δ;Ξ$".
-\end{def}
-\begin{def}
-Given a sorting context $Σ$, we say that the typing judgment $Γ;Δ;Ξ ⊢ t:A$
-is valid and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when...
-\end{def}
-\begin{def}
-A valuation over a sorting context $Σ$ is a map $σ$ such that $σ(χ) ∈ ⟦Σ(χ)⟧$
-for every $χ ∈ dom(Σ)$. In particular $dom(Σ) ⊆ dom(σ)$.
+A valuation over a sorting context $Σ$ is a map $ρ$ such that $ρ(χ) ∈ ⟦Σ(χ)⟧$
+for every $χ ∈ dom(Σ)$. In particular, this means that $dom(Σ) ⊆ dom(ρ)$.
 \end{def}
 
 (* Adequacy lemma. *)
 \begin{thm}
-Let $Σ$ be a sorting context and $σ$ be a valuation over $Σ$. If the typing
+Let $Σ$ be a sorting context and $ρ$ be a valuation over $Σ$. If the typing
 judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ (resp. $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$) is derivable
-and if $σ ⊩ Γ;Δ;Ξ$ then $tρ ∈ ⟦Aρ⟧^{\bot\bot}$ (resp. $vρ ∈ ⟦Aρ⟧$).
+and if $ρ ⊩ Γ;Δ;Ξ$ then $\t("tρ") ∈ |\f("Aρ")|$ (resp.
+$\t("vρ") ∈ ⟦\f("Aρ")⟧$).
+\begin{proof}
+We proceed by induction on the derivation of the judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$
+or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rule.
+\begin{itemize}
+\item In the case of the ($Ax$) rule we immediately obtain
+      $\t("xρ") = ρ(x) ∈ ⟦\f("Aρ")⟧$ by hypothesis.
+      \begin{center}
+        $ \axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Δ; Ξ ⊢_\tval \t("x") : A)} $
+      \end{center}
+\item If the last used rule is ($⇒_i$) then we need to show that
+      $\t("(λx t)ρ") ∈ ⟦\f("(A ⇒ B)ρ")⟧$. Let us take $v ∈ ⟦\f("Aρ")⟧$ and
+      show that $\t("(tρ)[x ≔ v]") ∈ |\f("Bρ")|$. We can then conclude by
+      induction hypothesis using the valuation $ρ[x ≔ v]$ to 
+      \begin{center}
+        $ \unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ ⊢ \t("t") : B)
+            }{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("λx t") : A ⇒ B)} $
+      \end{center}
+\end{itemize}
+\end{proof}
 \end{thm}
 
 
