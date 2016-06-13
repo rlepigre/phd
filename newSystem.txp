@@ -1,7 +1,6 @@
 \Caml(
   open ProofTree
-  let (v,t,c,s,p) = KAM.(v,t,c,s,p)
-  let f = Type.f
+  open Lang
 )
 \Include{Macros}
 

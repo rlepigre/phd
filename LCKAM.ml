@@ -129,7 +129,10 @@ let p2m (t,pi) =
   let sym = Maths.node sym in
   [bin 2 (Normal(false, sym, false)) (t2m t) (s2m pi)]
 
-let lterm s = t2m (parse_term s)
-let lctxt s = c2m (parse_ctxt s)
-let stack s = s2m (parse_stac s)
-let proc  s = p2m (parse_proc s)
+module Lang =
+  struct
+    let lterm s = t2m (parse_term s)
+    let lctxt s = c2m (parse_ctxt s)
+    let stack s = s2m (parse_stac s)
+    let proc  s = p2m (parse_proc s)
+  end
