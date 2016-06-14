@@ -20,6 +20,7 @@ type valu =
   | VReco of (vari * valu) fset        (* {l₁ = v₁; l₂ = v₂;} *)
   | VGrou of valu                      (* (v)    *)
   | VSubs of valu * subs               (* vσ     *)
+  | VASub of subs * vari               (* ρ(x)   *)
 and  term =
   | TVari of vari                      (* a, b   *)
   | TMeta of vari                      (* t, u   *)
@@ -43,6 +44,7 @@ and  stac =
   | SFram of term * stac               (* [t]π   *)
   | SGrou of stac                      (* (π)    *)
   | SSubs of stac * subs               (* sσ     *)
+  | SASub of subs * vari               (* ρ(α)   *)
 and  proc =
   | PMeta of vari                      (* p, q   *)
   | PProc of term * stac               (* t ∗ π  *)

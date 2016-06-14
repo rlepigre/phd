@@ -65,6 +65,7 @@ let rec v2m : valu -> Maths.math list = function
                   (str "{") @ (fset2m aux (str ";") fs) @ (str "}")
   | VGrou(v)   -> (str "(") @ (v2m v) @ (str ")")
   | VSubs(v,s) -> (v2m v) @ (subs2m s)
+  | VASub(s,x) -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
@@ -100,6 +101,7 @@ and     s2m : stac -> Maths.math list = function
   | SFram(t,s) -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
   | SGrou(s)   -> (str "(") @ (s2m s) @ (str ")")
   | SSubs(p,s) -> (s2m p) @ (subs2m s)
+  | SASub(s,a) -> (subs2m s) @ (str "(") @ (vari2m a) @ (str ")")
 and     p2m : proc -> Maths.math list = function
   | PMeta(p)   -> vari2m p
   | PProc(t,s) -> bin 2 (Maths.glyphs "∗") (t2m t, s2m s)

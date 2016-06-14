@@ -138,74 +138,6 @@ $$
 =<
 => Extended type system
 
-We will now give the formal definition of our new type system.
-\begin{def}
-We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
-the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
-and the sort of stacks $σ$.
-\end{def}
-\begin{def}
-The set of all sorts $\cal{S}$ is generated from the set of atomic sorts
-$\cal{S}₀$ using the following ||bnf|| grammar.
-\Caml(let _ = sidenote_wr 1 2 << $s,r ::= {s→r} \| ξ$ >> << $ξ∈\cal{S}₀$ >>)
-\end{def}
-\begin{def}
-Given a typing context $Γ$, a continuation context $Δ$ and an equational
-context $Ξ$ we consider two different forms of typing judgments:
-\begin{itemize}
-\item value judgments $Γ;Ξ;Δ ⊢_\tval v : A$ meaning that the value $v$ has
-      type $A$ and
-\item general term judgments $Γ;Ξ;Δ ⊢ t : A$ meaning that the term $t$ has
-      type $A$ in the context $Γ;Δ;Ξ$.
-\end{itemize}
-\end{def}
-\begin{def}
-Given a sorting context $Σ$ we say that $Γ;Δ;Ξ ⊢ t:A$ is a valid term
-judgment and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when
-\begin{itemize}
-\item $dom(Γ) ⊆ dom(Σ)$ and hence for all $x ∈ dom(Γ)$ we have $Σ(x) = ι$,
-\item $dom(Δ) ⊆ dom(Σ)$ and hence for all $α ∈ dom(Δ)$ we have $Σ(α) = σ$,
-\item $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$,
-\item $FV_ι(t) ⊆ dom(Γ)$, $FV_σ(t) ⊆ dom(Δ)$ and $FV_τ(t) = ∅$,
-\item for all $x ∈ dom(Γ)$ we have $Σ ⊢ Γ(x) : ο$,
-\item for all $α ∈ dom(Δ)$ we have $Σ ⊢ Δ(α) : ο$,
-\item for all $(t ≡ u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
-\end{itemize}
-\end{def}
-
-\begin{def}
-A valuation over a sorting context $Σ$ is a map $ρ$ such that $ρ(χ) ∈ ⟦Σ(χ)⟧$
-for every $χ ∈ dom(Σ)$. In particular, this means that $dom(Σ) ⊆ dom(ρ)$.
-\end{def}
-
-(* Adequacy lemma. *)
-\begin{thm}
-Let $Σ$ be a sorting context and $ρ$ be a valuation over $Σ$. If the typing
-judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ (resp. $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$) is derivable
-and if $ρ ⊩ Γ;Δ;Ξ$ then $\t("tρ") ∈ |\f("Aρ")|$ (resp.
-$\t("vρ") ∈ ⟦\f("Aρ")⟧$).
-\begin{proof}
-We proceed by induction on the derivation of the judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$
-or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rule.
-\begin{itemize}
-\item In the case of the ($Ax$) rule we immediately obtain
-      $\t("xρ") = ρ(x) ∈ ⟦\f("Aρ")⟧$ by hypothesis.
-      \begin{center}
-        $ \axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Δ; Ξ ⊢_\tval \t("x") : A)} $
-      \end{center}
-\item If the last used rule is ($⇒_i$) then we need to show that
-      $\t("(λx t)ρ") ∈ ⟦\f("(A ⇒ B)ρ")⟧$. Let us take $v ∈ ⟦\f("Aρ")⟧$ and
-      show that $\t("(tρ)[x ≔ v]") ∈ |\f("Bρ")|$. We can then conclude by
-      induction hypothesis using the valuation $ρ[x ≔ v]$ to 
-      \begin{center}
-        $ \unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ ⊢ \t("t") : B)
-            }{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("λx t") : A ⇒ B)} $
-      \end{center}
-\end{itemize}
-\end{proof}
-\end{thm}
-
-
 (* Ax rule *)
 $$
 \axiomRN{Ax}{
@@ -421,13 +353,217 @@ $$
 }
 $$
 
+=<
 
+=> Adequacy
 
+We will now give the formal definition of our new type system.
+\begin{def}
+We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
+the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
+and the sort of stacks $σ$.
+\end{def}
+\begin{def}
+The set of all sorts $\cal{S}$ is generated from the set of atomic sorts
+$\cal{S}₀$ using the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 1 2 << $s,r ::= {s→r} \| ξ$ >> << $ξ∈\cal{S}₀$ >>)
+\end{def}
+\begin{def}
+Given a typing context $Γ$, a continuation context $Δ$ and an equational
+context $Ξ$ we consider two different forms of typing judgments:
+\begin{itemize}
+\item value judgments $Γ;Ξ;Δ ⊢_\tval v : A$ meaning that the value $v$ has
+      type $A$ and
+\item general term judgments $Γ;Ξ;Δ ⊢ t : A$ meaning that the term $t$ has
+      type $A$ in the context $Γ;Δ;Ξ$.
+\end{itemize}
+\end{def}
+\begin{def}
+Given a sorting context $Σ$ we say that $Γ;Δ;Ξ ⊢ t:A$ is a valid term
+judgment and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when
+\begin{itemize}
+\item $dom(Γ) ⊆ dom(Σ)$ and hence for all $x ∈ dom(Γ)$ we have $Σ(x) = ι$,
+\item $dom(Δ) ⊆ dom(Σ)$ and hence for all $α ∈ dom(Δ)$ we have $Σ(α) = σ$,
+\item $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$,
+\item $FV_ι(t) ⊆ dom(Γ)$, $FV_σ(t) ⊆ dom(Δ)$ and $FV_τ(t) = ∅$,
+\item for all $x ∈ dom(Γ)$ we have $Σ ⊢ Γ(x) : ο$,
+\item for all $α ∈ dom(Δ)$ we have $Σ ⊢ Δ(α) : ο$,
+\item for all $(t ≡ u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
+\end{itemize}
+\end{def}
 
+\begin{def}
+A valuation over a sorting context $Σ$ is a map $ρ$ such that $ρ(χ) ∈ ⟦Σ(χ)⟧$
+for every $χ ∈ dom(Σ)$. In particular, this means that $dom(Σ) ⊆ dom(ρ)$.
+\end{def}
 
-
-
-
+(* Adequacy lemma. *)
+\begin{thm}
+Let $Σ$ be a sorting context and $ρ$ be a valuation over $Σ$. If the typing
+judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ (resp. $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$) is derivable
+and if $ρ ⊩ Γ;Δ;Ξ$ then $\t("tρ") ∈ |\f("Aρ")|$ (resp.
+$\t("vρ") ∈ ⟦\f("Aρ")⟧$).
+\begin{proof}
+We proceed by induction on the derivation of the judgment $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$
+or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rule.
+\begin{itemize}
+\item In the case of the ($Ax$) rule, we immediately obtain
+      $\t("xρ") = \t("ρ(x)") ∈ ⟦\f("Aρ")⟧$ by hypothesis.
+      \begin{center}
+        $ \axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Δ; Ξ ⊢_\tval \t("x") : A)} $
+      \end{center}
+\item If the last used rule is ($↑$) then we need to show
+      $\v("vρ") ∈ |\f("Aρ")|$. By induction hypothesis we know
+      $\v("vρ") ∈ ⟦\f("Aρ")⟧$, hence we can conclude using
+      \thmRef("orthosimple").
+      \begin{center}
+        $ \unaryRN{↑}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)}{
+           Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)} $
+      \end{center}
+\item If the last used rule is ($↓$) then we need to show
+      $\v("vρ") ∈ ⟦\f("Aρ")⟧$. By induction hypothesis we know
+      $\v("vρ") ∈ |\f("Aρ")|$, hence we can conclude using
+      \thmRef("orthonew").
+      \begin{center}
+        $ \unaryRN{↓}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)} $
+      \end{center}
+\item If the last used rule is ($⇒_i$) then we need to show that
+      $\t("(λx t)ρ") ∈ ⟦\f("(A ⇒ B)ρ")⟧$. Let us take $v ∈ ⟦\f("Aρ")⟧$ and
+      show that $\t("(tρ)[x ≔ v]") ∈ |\f("Bρ")|$. We can then conclude by
+      induction hypothesis using the valuation $\subs("ρ[x ≔ v]")$.
+      \begin{center}
+        $ \unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ ⊢ \t("t") : B)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("λx t") : A ⇒ B)} $
+      \end{center}
+\item If the last used rule is ($⇒_e$) then we need to show
+      $\t("(t u)ρ") = \t("tρ uρ") ∈ |\f("Bρ")|$. Let us take
+      $π ∈ ||\f("Bρ")||$ and show $\p("tρ uρ ∗ π") ∈ \dbot$. Since
+      $\p("tρ uρ ∗ π") ≻ \p("uρ ∗ [tρ]π")$ and $\dbot$ is saturated, is is
+      enough to show $\p("uρ ∗ [tρ]π") ∈ \dbot$. By induction hypothesis,
+      we know that $\t("uρ") ∈ |\f("Aρ")|$, hence it only remains to show
+      $\s("[tρ]π") ∈ ||\f("Aρ")||$. Let us now take $\v("v") ∈ ⟦\f("Aρ")⟧$
+      and show that $\p("v ∗ [tρ]π") ∈ \dbot$. Since
+      $\p("v ∗ [tρ]π") ≻ \p("tρ ∗ v·π")$ and $\dbot$ is saturated, it is
+      enough to show that $\p("tρ ∗ v·π") ∈  \dbot$. By induction hypothesis
+      $\t("tρ") ∈ |\f("(A ⇒ B)ρ")| = |\f("Aρ ⇒ Bρ")|$, hence it only remains
+      to show $\s("v·π") ∈ ||\f("Aρ ⇒ Bρ")||$. Let us now take a value
+      $\v("λx f") ∈ ⟦\f("Aρ ⇒ Bρ")⟧$ and show that $\p("λx f ∗ v·π") ∈ \dbot$.
+      Since $\p("λx f ∗ v·π") ≻ \p("f[x ≔ v] ∗ π")$ and $\dbot$ is saturated,
+      it is enough to show that $\p("f[x ≔ v] ∗ π") ∈ \dbot$. Since
+      $\s("π") ∈ ||\f("Bρ")||$ it only remains to show that
+      $\t("f[x ≔ v]") ∈ |\f("Bρ")|$. This is true by definition of
+      $⟦\f("Aρ ⇒ Bρ")⟧$ since we have $\v("v") ∈ ⟦\f("Aρ")⟧$.
+      \begin{center}
+        $ \binaryRN{⇒_e}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : A ⇒ B)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢ \t("u") : A)}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t u") : B)} $
+      \end{center}
+\item If the last used rule is ($μ$) then we need to show that
+      $\t("(μα t)ρ") = \t("μα tρ") ∈ |\f("Aρ")|$. Let us take
+      $π ∈ ||\f("Aρ")||$ and show $\p("μα tρ ∗ π") ∈ \dbot$. Since
+      $\p("μα tρ ∗ π") ≻ \p("tρ[α ≔ π] ∗ π")$ and $\dbot$ is saturated, it
+      is enough to show $\p("tρ[α ≔ π] ∗ π") ∈ \dbot$. We can then conclude
+      by induction hypothesis using the valuation $\subs("ρ[α ≔ π]")$.
+      \begin{center}
+        $ \unaryRN{μ}{Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢ \t("μα t") : A)} $
+      \end{center}
+\item If the last used rule is ($[\wc]$) then we need to show that
+      $\t("([α]t)ρ") = \t("[ρ(α)]tρ") ∈ |\f("Bρ")|$. Let us take
+      $π ∈ ||\f("Bρ")||$ and show $\p("[ρ(α)]tρ ∗ π") ∈ \dbot$. Since
+      $\p("[ρ(α)]tρ ∗ π") ≻ \p("tρ ∗ ρ(α)")$ and $\dbot$ is saturated, it
+      is enough to show $\p("tρ ∗ ρ(α)") ∈ \dbot$. By induction hypothesis,
+      we know that $\t("tρ") ∈ \f("Aρ")$, hence we only need to show that
+      $\s("ρ(α)") ∈ ||\f("Aρ")||$. This is true by hypothesis since we have
+      $α ∈ dom(Σ, α:σ)$ and $Δ(α) = A$.
+      \begin{center}
+        $ \unaryRN{[\wc]}{Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)}{
+          Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("[α]t") : B)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{∀_i}{Σ, χ:s ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{∀_e}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∀χ^s A"))}{
+          Σ ⊢ B : s}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{∃_i}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ≔B]"))}{
+          Σ ⊢ B : s}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∃χ^s A"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{∃_e}{Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Δ;Ξ ⊢ \t("t") : \f("C"))}{
+          Σ ⊢ B : s}{Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Δ;Ξ ⊢ \t("t") : \f("C"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{∈_i}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("v∈A"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,x≡t ⊢ \t("t") : C)}{
+          Σ, x:ι ⊢ (Γ,x:\f("t∈A");Δ;Ξ ⊢ \t("t") : C)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{↾_i}{Σ ⊢ (Γ;Δ;Ξ,t≡u ⊢ \t("t") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A | t≡u"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,t≡u ⊢ \t("t") : C)}{
+          Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Δ;Ξ ⊢ \t("t") : C)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{×_i}{[Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("vi") : \f("Ai"))]_{i∈I}}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{×_e}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}"))}{
+          k∈I}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v.lk") : A_k)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{+_i}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("Ak"))}{k∈I}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ci[v]") : \f("[(Ci : Ai) i∈I]"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \binaryRN{+_e}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]"))}{
+          [Σ ⊢ (Γ,x_i:A_i;Δ;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B)]_{i∈I}}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔v]") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔w]") : A)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{≡_{l}}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A)} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔v]"))}{
+          Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔w]"))} $
+      \end{center}
+\item ... (* TODO *)
+      \begin{center}
+        $ \unaryRN{≡_{r}}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]"))}{
+          Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]"))} $
+      \end{center}
+\end{itemize}
+\end{proof}
+\end{thm}
 
 =<
 => Soundness of the dependent product
