@@ -135,6 +135,7 @@ and        form prio =
   | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
   | t:(term TAppl) "∈" a:(form FAtom)         when prio = FAtom -> FMemb(t,a)
   | a:{a:(form FAtom) '|'}? e:equa            when prio = FAtom -> FRest(a,e)
+  | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
 and ffield = l:label ':' a:(form FFull)
 and fpatt  = c:const ':' a:(form FFull)
 and equa   = t:(term TAppl) "≡" u:(term TAppl)

@@ -453,7 +453,7 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
       it is enough to show that $\p("f[x ≔ v] ∗ π") ∈ \dbot$. Since
       $\s("π") ∈ ||\f("Bρ")||$ it only remains to show that
       $\t("f[x ≔ v]") ∈ |\f("Bρ")|$. This is true by definition of
-      $⟦\f("Aρ ⇒ Bρ")⟧$ since we have $\v("v") ∈ ⟦\f("Aρ")⟧$.
+      $⟦\f("Aρ ⇒ Bρ")⟧$ since $\v("v") ∈ ⟦\f("Aρ")⟧$.
       \begin{center}
         $ \binaryRN{⇒_e}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : A ⇒ B)}{
           Σ ⊢ (Γ;Δ;Ξ ⊢ \t("u") : A)}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t u") : B)} $
@@ -468,7 +468,7 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
         $ \unaryRN{μ}{Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)}{
           Σ ⊢ (Γ;Δ;Ξ ⊢ \t("μα t") : A)} $
       \end{center}
-\item If the last used rule is ($[\wc]$) then we need to show that
+\item If the last used rule is ($[\wc]$) then we need to show
       $\t("([α]t)ρ") = \t("[ρ(α)]tρ") ∈ |\f("Bρ")|$. Let us take
       $π ∈ ||\f("Bρ")||$ and show $\p("[ρ(α)]tρ ∗ π") ∈ \dbot$. Since
       $\p("[ρ(α)]tρ ∗ π") ≻ \p("tρ ∗ ρ(α)")$ and $\dbot$ is saturated, it
@@ -480,85 +480,136 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
         $ \unaryRN{[\wc]}{Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)}{
           Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("[α]t") : B)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∀_i$) then we need to show
+      $\v("vρ") ∈ ⟦\f("(∀χ^s A)ρ")⟧$. By definition we have
+      $⟦\f("(∀χ^s A)ρ")⟧ = \bigcap_{\f("B")∈⟦s⟧} ⟦\f("Aρ[χ ≔ B]")⟧$,
+      hence it is enough to take $\f("B") ∈ ⟦s⟧$ and show
+      $\v("vρ") ∈ ⟦\f("Aρ[χ ≔ B]")⟧$. Note that $\v("vρ") = \v("vρ[χ ≔ B]")$
+      as $\f("χ")$ cannot appear in $\v("v")$ for the conclusion judgment to
+      be well-formed. We conclude by induction hypothesis with the
+      valuation $\subs("ρ[χ ≔ B]")$.
       \begin{center}
         $ \unaryRN{∀_i}{Σ, χ:s ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)}{
           Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∀_e$) then we need to show
+      $\t("tρ") ∈ |\f("(A[χ ≔ B])ρ")|$. By induction hypothesis
+      $\t("tρ") ∈ |\f("(∀χ^s A)ρ")|$, hence it is enough to show
+      $|\f("(∀χ^s A)ρ")| ⊆ |\f("(A[χ ≔ B])ρ")|$, or
+      $⟦\f("(∀χ^s A)ρ")⟧ ⊆ ⟦\f("(A[χ ≔ B])ρ")⟧$ according to
+      \thmRef("orthoincl"). Up to renaming, we can assume that $χ ∉ dom(Σ)$,
+      hence our goal rewrites to $⟦\f("∀χ^s Aρ")⟧ ⊆ ⟦\f("Aρ[χ ≔ Bρ]")⟧$. The
+      inclusion follows since
+      $⟦\f("∀χ^s Aρ")⟧ = \bigcap_{\f("B")∈⟦s⟧} ⟦\f("Aρ[χ ≔ B]")⟧$ and
+      $\f("Bρ") ∈ ⟦s⟧$.
       \begin{center}
         $ \binaryRN{∀_e}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∀χ^s A"))}{
           Σ ⊢ B : s}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∃_i$) then we need to show
+      $\t("tρ") ∈ |\f("(∃χ^s A)ρ")|$. By induction hypothesis
+      $\t("tρ") ∈ |\f("(A[χ ≔ B])ρ")|$, hence it is enough to show
+      $|\f("(A[χ ≔ B])ρ")| ⊆ |\f("(∃χ^s A)ρ")|$, or
+      $⟦\f("(A[χ ≔ B])ρ")⟧ ⊆ ⟦\f("(∃χ^s A)ρ")⟧$ according to
+      \thmRef("orthoincl"). Up to renaming, we can assume $χ ∉ dom(Σ)$,
+      hence our goal rewrites to $⟦\f("Aρ[χ ≔ Bρ]")⟧ ⊆ ⟦\f("∃χ^s Aρ")⟧$. Now,
+      the inclusion follows since
+      $⟦\f("∃χ^s Aρ")⟧ = \bigcup_{\f("B")∈⟦s⟧} ⟦\f("Aρ[χ ≔ B]")⟧$ and
+      $\f("Bρ") ∈ ⟦s⟧$.
       \begin{center}
         $ \binaryRN{∃_i}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ≔B]"))}{
           Σ ⊢ B : s}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∃χ^s A"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∃_e$) then we need to show
+      $\t("tρ") ∈ |\f("Cρ")|$. To apply the induction hypothesis,
+      we need to check that $\v("ρ(x)") ∈ ⟦\f("(A[χ ≔ B])ρ")⟧$ provided
+      $\v("ρ(x)") ∈ ⟦\f("(∃χ^s A)ρ")⟧$. In other words, we need to show
+      $⟦\f("(A[χ ≔ B])ρ")⟧ ⊆ ⟦\f("(∀χ^s A)ρ")⟧$. Up to renaming, we can
+      assume $χ ∉ dom(Σ)$, hence our goal rewrites to 
+      $⟦\f("Aρ[χ ≔ Bρ]")⟧ ⊆ ⟦\f("∃χ^s Aρ")⟧$. The inclusion follows since
+      $⟦\f("∃χ^s Aρ")⟧ = \bigcup_{\f("B")∈⟦s⟧} ⟦\f("Aρ[χ ≔ B]")⟧$ and
+      $\f("Bρ") ∈ ⟦s⟧$.
       \begin{center}
         $ \binaryRN{∃_e}{Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Δ;Ξ ⊢ \t("t") : \f("C"))}{
           Σ ⊢ B : s}{Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Δ;Ξ ⊢ \t("t") : \f("C"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∈_i$) then we need to show
+      $\v("vρ") ∈ ⟦\f("(v ∈ A)ρ")⟧$. By induction hypothesis we know
+      $\v("vρ") ∈ ⟦\f("Aρ")⟧$, hence it is enough to show
+      $⟦\f("(v∈A)ρ")⟧ ⊆ ⟦\f("Aρ")⟧$. This is immediate as
+      $⟦\f("(v∈A)ρ")⟧ = ⟦\f("vρ∈Aρ")⟧ = \{w∈⟦\f("Aρ")⟧ \st w≡\v("vρ")\}$
+      by definition.
       \begin{center}
         $ \unaryRN{∈_i}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)}{
           Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("v∈A"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($∈_e$) then we need to show
+      $\t("uρ") ∈ |\f("Cρ")|$. To apply the induction hypothesis,
+      we need to check that $\v("ρ(x)") ∈ ⟦\f("aρ")⟧$ and that
+      $\v("ρ(x)")≡\t("tρ")$, provided that we have
+      $\v("xρ") ∈ ⟦\f("(t∈A)ρ")⟧$. By definition
+      $⟦\f("(t∈A)ρ")⟧ = ⟦\f("tρ∈Aρ")⟧ = \{v∈⟦\f("Aρ")⟧ \st v≡\t("tρ")\}$,
+      and hence $\v("ρ(x)") ∈ ⟦\f("Aρ")⟧$ and $\v("ρ(x)")≡\t("tρ")$.
       \begin{center}
-        $ \unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,x≡t ⊢ \t("t") : C)}{
-          Σ, x:ι ⊢ (Γ,x:\f("t∈A");Δ;Ξ ⊢ \t("t") : C)} $
+        $ \unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,x≡t ⊢ \t("u") : C)}{
+          Σ, x:ι ⊢ (Γ,x:\f("t∈A");Δ;Ξ ⊢ \t("u") : C)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($↾_i$) then we need to show
+      $\t("tρ") ∈ |\f("(A | u₁≡u₂)ρ")|$. By hypothesis, we know that
+      $\t("u₁ρ") ≡ \t("u₂ρ")$, and hence
+      $|\f("(A|u₁≡u₂)ρ")| = |\f("Aρ | u₁ρ ≡ u₂ρ")| = |\f("Aρ")|$. As a
+      (* FIXME u₁ρ does not display... *)
+      consequence, we can immediatly conclude by induction hypothesis.
       \begin{center}
-        $ \unaryRN{↾_i}{Σ ⊢ (Γ;Δ;Ξ,t≡u ⊢ \t("t") : A)}{
-          Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A | t≡u"))} $
+        $ \unaryRN{↾_i}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t") : \f("A | u₁≡u₂"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($↾_e$) then we need to show... (* TODO *)
       \begin{center}
         $ \unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,t≡u ⊢ \t("t") : C)}{
           Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Δ;Ξ ⊢ \t("t") : C)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($×_i$) then we need to show... (* TODO *)
       \begin{center}
         $ \unaryRN{×_i}{[Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("vi") : \f("Ai"))]_{i∈I}}{
           Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($×_e$) then we need to show... (* TODO *)
       \begin{center}
         $ \binaryRN{×_e}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}"))}{
           k∈I}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v.lk") : A_k)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($+_i$) then we need to show... (* TODO *)
       \begin{center}
         $ \binaryRN{+_i}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("Ak"))}{k∈I}{
           Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ci[v]") : \f("[(Ci : Ai) i∈I]"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($+_e$) then we need to show... (* TODO *)
       \begin{center}
         $ \binaryRN{+_e}{Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]"))}{
           [Σ ⊢ (Γ,x_i:A_i;Δ;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B)]_{i∈I}}{
           Σ ⊢ (Γ;Δ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($≡_{l, {val}}$) then we need to show...
+      (* TODO *)
       \begin{center}
         $ \unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔v]") : A)}{
           Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔w]") : A)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($≡_l$) then we need to show... (* TODO *)
       \begin{center}
-        $ \unaryRN{≡_{l}}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A)}{
+        $ \unaryRN{≡_l}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A)}{
           Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A)} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($≡_{r, {val}}$) then we need to show...
+      (* TODO *)
       \begin{center}
         $ \unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔v]"))}{
           Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔w]"))} $
       \end{center}
-\item ... (* TODO *)
+\item If the last used rule is ($≡_r$) then we need to show... (* TODO *)
       \begin{center}
-        $ \unaryRN{≡_{r}}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]"))}{
+        $ \unaryRN{≡_r}{Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]"))}{
           Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]"))} $
       \end{center}
 \end{itemize}

@@ -82,6 +82,7 @@ and form =
   | FGFix of vari * form               (* νX A    *)
   | FMemb of term * form               (* t∈A     *)
   | FRest of form option * equa        (* A | t≡u *)
+  | FASub of subs * vari               (* ρ(χ)   *)
 and equa = term * term
 
 (* Smart constructor for multiple application of terms. *)

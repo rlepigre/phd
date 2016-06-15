@@ -160,3 +160,4 @@ and f2m : form -> Maths.math list = function
                         | Some a -> let sep = MathFonts.euler "↾" 248 in
                                     bin 2 sep (f2m a, eq)
                       end
+  | FASub(s,x)      -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
