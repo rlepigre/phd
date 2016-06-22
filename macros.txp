@@ -289,6 +289,10 @@ module PMLVerbatim : sig
 let verb_OCaml fn lines =
   let open Verbatim in
   lines_to_file lines fn;
+  let extra = ["ref"; "throw"; "callcc"] in
+  let param_OCaml =
+    { param_OCaml with keywords = extra @ param_OCaml.keywords }
+  in
   let build_word = handle_word param_OCaml in
   let build_line l = hspace 2.0 @ handle_spaces build_word l in
   line_per_line D.structure build_line lines

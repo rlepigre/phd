@@ -319,7 +319,7 @@ $$
 }
 $$
 The term $\t("λx λy x")$ really corresponds to a function taking as input
-two arguments, and returning the first directly. Note that we do not need
+two arguments, and returning the first one directly. Note that we do not need
 to say anything about the nature of the arguments this function may accepts.
 In fact, this function can be applied to arguments of any two types. This
 information is not conveyed by the type $\f("X ⇒ Y ⇒ X")$, as it only
@@ -384,7 +384,7 @@ $$
 As an example, the proof that $\t("λx λy x")$ has type $\f("∀X ∀Y X ⇒ Y ⇒ X")$
 can be derived as follows in the system. Note that this type is fully
 specified, in the sense that we did not say anything like
-"for all give types".
+"for all given types".
 $$
   \proofTree{
     \binaryN{∀_i}{⊢ \t("λx λy x") : \f("∀X ∀Y X ⇒ Y ⇒ X")}{
@@ -415,7 +415,7 @@ arose in the seventies with the advent of ML. The problem stems from a
 bad interaction between side-effects and Hindley-Milner polymorphism. It was
 first formulated in terms of references \citen("Wright1995")("Section 2").
 To extend ||ml|| with reference, the naive approach consist in providing the
-following three polymorphic procedures (in ||OCaml|| syntax).
+following three primitive polymorphic procedures (in ||OCaml|| syntax).
 ### OCaml
   val ref  : 'a -> 'a ref
   val (:=) : 'a ref -> 'a -> unit
@@ -440,10 +440,26 @@ of ||ml|| systems (see \citen("Wright1995")("Section 2") and
 \citen("Garrigue2004")("Section 2") for a detailed account).
 (* *)
 A simple and elegant solution was finally found by Andrew Wright in the
-nineties. He suggested restricting generalization in let-bindings (i.e.
-expressions of the form ##let x = u in t##) to cases where the bound term
-is a syntactic value \mcite(["Wright1994";"Wright1995"]). Indeed,
+nineties. He suggested restricting generalization (i.e. introduction of
+polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]). In
+||ml||, generalization usually happens in expressions of the form
+##let x = u in t##, called let-bindings. The type-checking of such an
+expression proceeds by infering the type of the term ##u##, which may
+contain unification variables. The type of ##u## is then generalized by
+introducing universal quantification in the place of the unification
+variables. Finally, the term ##t## is type-checked under the assumption
+that ##x## has the most general type of ##u##. With value restriction,
+the generalization of the type of ##u## happens in the case where ##u##
+is a syntactic value. Consequently, the example above is rejected since
+##ref []## is not a value, which means that the type of ##l## will
+contains a unification variable. Thus, it will not be unifiable with both
+##bool list ref## and ##nat list ref##.
+
+(*
+to cases where the bound term
+is a syntactic value  Indeed,
 polymorphism is strongly related to let-bindings in ||ml||.
+*)
 (* *)
 In slightly more expressive type systems, this restriction appears in the
 typing rule for the introduction of the universal quantifier.
@@ -467,8 +483,8 @@ the type safety of ML extended with the control operator \emph{call/cc}
 ###
 
 ### OCaml
-  callcc : ('a cont -> 'a) -> 'a
-  throw  : 'a cont -> 'a -> 'b
+  val callcc : ('a cont -> 'a) -> 'a
+  val throw  : 'a cont -> 'a -> 'b
 ###
 As with references, value restriction solves the inconsistency and yields a
 sound type system. 
