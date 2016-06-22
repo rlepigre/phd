@@ -1,5 +1,7 @@
 open Lang_ast
 
+let debug = true
+
 (* Parser for symbols allowed as index. *)
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
@@ -37,7 +39,12 @@ let parser fovari = fvari | ovari
 let parse name g =
   let parse = Decap.parse_string g (Decap.blank_regexp ''[ ]*'') in
   (fun s ->
-    try Decap.handle_exception parse s with _ ->
+    try
+      if debug then Printf.eprintf "Parsing \"%s\" as a %s...\n%!" s name;
+      let res = Decap.handle_exception parse s in
+      if debug then Printf.eprintf "Done.\n%!";
+      res
+    with _ ->
       Printf.eprintf "Could not parse the %s \"%s\".\n%!" name s;
       exit 1)
 
@@ -115,7 +122,7 @@ and        stac prio =
   | s:subs '(' a:svari ')'                    when prio = SAtom -> SASub(s,a)
 and        proc prio =
   | p:pmeta                                   when prio = PAtom -> PMeta(p)
-  | t:(term TAppl) "∗" s:(stac SFull)         when prio = PFull -> PProc(t,s)
+  | t:(term TAppl)$ "∗" s:(stac SFull)        when prio = PFull -> PProc(t,s)
   | '(' p:(proc PFull) ')'                    when prio = PAtom -> PGrou(p)
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
@@ -138,7 +145,7 @@ and        form prio =
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
 and ffield = l:label ':' a:(form FFull)
 and fpatt  = c:const ':' a:(form FFull)
-and equa   = t:(term TAppl) "≡" u:(term TAppl)
+and equa   = t:(term TAppl)$ "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
 and        subs =
   | s:subsm                                                     -> SubsM(s)
   | s:subs?[NoSub] '[' v:(vsub vvari  (valu VComp)) ']'         -> SubsV(s,v)
