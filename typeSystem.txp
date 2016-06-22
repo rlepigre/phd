@@ -441,57 +441,124 @@ of ||ml|| systems (see \citen("Wright1995")("Section 2") and
 (* *)
 A simple and elegant solution was finally found by Andrew Wright in the
 nineties. He suggested restricting generalization (i.e. introduction of
-polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]). In
-||ml||, generalization usually happens in expressions of the form
+polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]).
+
+In ||ml||, generalization usually happens in expressions of the form
 ##let x = u in t##, called let-bindings. The type-checking of such an
 expression proceeds by infering the type of the term ##u##, which may
 contain unification variables. The type of ##u## is then generalized by
-introducing universal quantification in the place of the unification
-variables. Finally, the term ##t## is type-checked under the assumption
-that ##x## has the most general type of ##u##. With value restriction,
-the generalization of the type of ##u## happens in the case where ##u##
-is a syntactic value. Consequently, the example above is rejected since
-##ref []## is not a value, which means that the type of ##l## will
-contains a unification variable. Thus, it will not be unifiable with both
+introducing universal quantification over the unification variables.
+Finally, the term ##t## is type-checked under the assumption that ##x##
+has the most general type of ##u##. With value restriction, the
+generalization of the type of ##u## only happens if ##u## is a
+syntactic value. Consequently, the example above is rejected since
+##ref []## is not a value, and hence its infered type ##'_a list ref##
+is only weakly polymorphic. Thus, it cannot be unified with both
 ##bool list ref## and ##nat list ref##.
 
-(*
-to cases where the bound term
-is a syntactic value  Indeed,
-polymorphism is strongly related to let-bindings in ||ml||.
-*)
-(* *)
-In slightly more expressive type systems, this restriction appears in the
-typing rule for the introduction of the universal quantifier.
-$$ \binaryR{Γ ⊢ t : A}{X ∉ FV(Γ)}{Γ ⊢ t : ∀X A} $$
-This rule cannot be proved safe (in a call-by-value system with side-effects)
-if $t$ is not a syntactic value.
-
-In this thesis, we consider control structures, which have been shown to give
-a computational interpretation to classical logic by Timothy Griffin
-\cite("Griffin1990").
-(* *)
-In 1991, Robert Harper and Mark Lillibridge found a complex program breaking
-the type safety of ML extended with the control operator \emph{call/cc}
-\cite("Harper1991").
-### OCaml
-  let later = callcc
-    (fun k -> ((fun x -> x), (fun f -> throw k (f, (fun _ -> ())))))
-  in
-  print_string ((fst later) "hello world!");
-  (snd later) (fun x -> x+2)
-###
-
+In this thesis, we consider control structures, which have been shown to
+give a computational interpretation to classical logic by Timothy Griffin
+\cite("Griffin1990"). One way of extending ||ml|| with control structures
+is to introduce the following two primitive polymorphic procedures.
 ### OCaml
   val callcc : ('a cont -> 'a) -> 'a
   val throw  : 'a cont -> 'a -> 'b
 ###
-As with references, value restriction solves the inconsistency and yields a
-sound type system. 
-(* *)
+The function ##callcc## corresponds to the control operator //call/cc//,
+which was first introduced in the //Scheme// programming language. When
+called, this function saves the current continuation (i.e. the current
+state of the programs environment) and feeds it to the function it is
+given as an argument. The continuation can be restored in the body of
+this function using the ##throw## function.
+
+In 1991, Robert Harper and Mark Lillibridge found a complex program
+breaking the type safety of ||ml|| with //call/cc// \cite("Harper1991").
+### OCaml
+  let c = callcc
+    (fun k -> ((fun x -> x), (fun f -> throw k (f, (fun _ -> ())))))
+  in print_string ((fst c) "Hello world!"); (snd c) (fun x -> x+2)
+###
+Intuitively, this program saves the continuation and then builds a couple
+##c## containing two functions. The first one is simply the identity
+function. The second one takes a function ##f## as argument, uses
+##throw## to restore the previously saved continuation and replaces the
+two functions by ##f## and a constant function returning the only value
+of type ##unit##. Consequently, the first element of the couple ##c## can
+be used as the identity function as long as the second element of ##c##
+has not been used. If the second element of ##c## is called with a
+function ##g##, then ##g## becomes the first element of ##c## and the
+computation restarts. This leads to a crash since the function
+##fun x -> x+2## is applied to a value of type ##string##.
+
+The infered type for ##c## is ##('_a -> '_a) * (('_a -> '_a) -> unit)##
+prior to generalization. This means that without value restriction, the
+last line of the example is type-checked in a context where ##c## has
+the polymorphic type ##('a -> 'a) * (('a -> 'a) -> unit)##. As a
+consequence, the type ##'a -> 'a## can be unified with
+##string -> string## and ##int -> int##. As with references, value
+restriction solves the inconsistency and yields a sound type system. 
+Indeed, ##'_a -> '_a## cannot be unified to ##string -> string## and
+to ##int -> int##.
+
+(*
 In the context of the \lmcalc, the soundness issue arises when evaluating
-$\t("t (μα u)")$ when $\t("μα u")$ has a polymorphic type. Such a situation
+$\t("t μα u")$ when $\t("μα u")$ has a polymorphic type. Such a situation
 cannot happen with value restriction since $\t("μα u")$ is not a value.
+*)
+
+=<
+
+=> Encoding value restriction
+
+In slightly more expressive type systems like System F, the value
+restriction appears in the typing rule for the introduction of the
+universal quantifier. The ususal typing rule
+$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
+cannot be proved safe (in a call-by-value system with side-effects) if
+$t$ is not a syntactic value.
+
+$$
+  \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}
+  \hspace(2.0)
+  \unaryRN{↑}{Σ;Γ ⊢_\tval v : A; Δ}{Σ;Γ ⊢ v : A; Δ}
+$$
+$$
+  \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B; Δ}{
+    Σ; Γ ⊢_\tval \t("λx t") : \f("A ⇒ B"); Δ}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B"); Δ}{Σ; Γ ⊢ u : A; Δ}{
+    Σ; Γ ⊢ \t("t u") : B; Δ}
+$$
+$$
+  \unaryRN{μ}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("μα t") : A; Δ}
+  \hspace(4.0)
+  \unaryRN{[\wc]}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("[α]t") : B; α : A, Δ}
+$$
+$$
+  \unaryRN{×_i}{[Σ; Γ ⊢_\tval v_i : A_i; Δ]_{i∈I}}{
+    Σ; Γ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"); Δ
+  }
+  \hspace(4.0)
+  \unaryRN{×_e}{Σ;Γ ⊢_\tval v : \f("{(li : Ai) i∈I}"); Δ}{
+    Σ;Γ ⊢ \t("v.lj") : A_j; Δ}
+$$
+$$
+  \unaryRN{+_i}{Σ ⊢ (Γ ⊢_\tval v : A_j; Δ)}{
+    Σ ⊢ (Γ ⊢_\tval \v("Cj[v]") : \f("[(Ci : Ai) i∈I]")); Δ}
+$$
+$$
+  \binaryRN{+_e}{Σ; Γ ⊢_\tval v : \f("[(Ci : Ai) i∈I]"); Δ}{
+    [Σ; Γ, x_i : A_i ⊢ t_i : B; Δ]_{i∈I}
+  }{
+    Σ; Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B; Δ
+  }
+$$
+$$
+  \binaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{X ∉ FV(Γ) ∪ FV(Δ)}{
+    Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
+  \hspace(2.0)
+  \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A"); Δ}{Σ; Γ ⊢ t : \f("A[X≔B]"); Δ}
+$$
 
 =<
 
