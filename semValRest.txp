@@ -1,5 +1,13 @@
-\Caml(open Diagrams open ProofTree)
+\Caml(open Diagrams open ProofTree open Lang)
 \Include{Macros}
+
+=> A model for a semantical value restriction
+
+=> Reduction, equivalence and $\t("δ(v,w)")$
+
+... (* TODO *)
+
+=<
 
 => Extensionality of equivalence
 
@@ -10,23 +18,26 @@ observed behaviour. This property is summarized in the following two
 theorems.
 
 \begin{thm}\label("extval")
-Let $v$ and $w$ be values, $E$ be a term and $x$ be a $λ$-variable. If
-$v ≡ w$ then we have $E[x := v] ≡ E[x := w]$.
+Let $v$ and $w$ be values, $t$ be a term and $x$ be a $λ$-variable. If
+$v ≡ w$ then we have $\t("t[x≔v]") ≡ \t("t[x≔w]")$.
 \begin{proof}
-We are going to prove the contrapositive so we suppose $E[x := v] \nequiv
-E[x := w]$ and show $v \nequiv w$. By definition there is a natural number
-$i$, a stack $π$ and a substitution $σ$ such that we have ${(E[x := v])σ ∗
-π} {\converge}_i$ and ${(E[x := w])σ ∗ π} {\diverge}_i$ (up to symmetry).
+We are going to prove the contrapositive so we suppose
+$\t("t[x≔v]") \nequiv \t("t[x≔w]")$ and show $v \nequiv w$. By definition
+there is a natural number $i$, a stack $π$ and a substitution $σ$ such that
+we have ${\p("(t[x≔v])σ ∗ π")} {\converge}_i$ and
+${\p("(t[x≔w])σ ∗ π")} {\diverge}_i$ (up to symmetry).
 Since we can rename $x$ in such a way that it does not appear in $dom(σ)$,
-we can suppose that we have ${Eσ[x := vσ] ∗ π} {\converge}_i$ and ${Eσ[x
-:= wσ] ∗ π} {\diverge}_i$. To show $v \nequiv w$ we need $i₀$, $π₀$ and
-$σ₀$ such that ${vσ₀ ∗ π₀} {\converge}_{i₀}$ and ${wσ₀ ∗ π₀} {\diverge}_{
-i₀}$ (up to symmetry). We can take $i₀ = i$, $π₀ = [λx Eσ]π$ and $σ₀ = σ$
-as ${{vσ₀ ∗ π₀} \epi {Eσ[x := vσ] ∗ π}}_{i₀}$ and
-${{wσ₀ ∗ π₀} \epi {Eσ[x := wσ] ∗ π}}_{i₀}$.
+we can suppose that we have ${\p("tσ[x≔vσ] ∗ π")} {\converge}_i$ and
+${\p("tσ[x≔wσ] ∗ π")} {\diverge}_i$. To show $v \nequiv w$ we need $i₀$,
+$π₀$ and $σ₀$ such that ${\p("vσ₀ ∗ π")₀} {\converge}_{i₀}$ and
+${\p("wσ₀ ∗ π₀")} {\diverge}_{i₀}$ (up to symmetry). We take
+$i₀ = i$, $π₀ = \s("[λx tσ]π")$ and $σ₀ = σ$ as
+${\p("vσ₀ ∗ [λx tσ]π") \epi \p("tσ[x≔vσ] ∗ π")}_i$ and
+${\p("wσ₀ ∗ [λx tσ]π") \epi \p("tσ[x≔wσ] ∗ π")}_i$.
 \end{proof}
 \end{thm}
 
+(* TODO macros from here *)
 \begin{lem}\label("aposs")
 Let $s$ be a process, $t$ be a term, $a$ be a term variable and $k$ be a
 natural number. If $s[a := t] {\converge}_k$ then there is a blocked state
@@ -173,5 +184,7 @@ $i₀ ∈ \bbN$ and show ${E[a := t₁] ≡ E[a := t₂]}_{i₀}$. By hypothesis
 have ${t₁ ≡ t₂}_{i₀}$ and hence we can conclude using \lemRef("aextlem").
 \end{proof}
 \end{thm}
+
+=<
 
 =<
