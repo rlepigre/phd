@@ -222,10 +222,11 @@ module Format (D:DocumentStructure) = struct
   let parameters = Default.parameters
   let verbatim = Default.verbatim
   module Make_theorem = Default.Make_theorem
-  module Env_itemize = Default.Env_itemize
-  module Env_env = Default.Env_env
-  module Env_center = Default.Env_center
-  module Env_proof = Default.Env_proof
+  module Env_itemize  = Default.Env_itemize
+  module Env_env      = Default.Env_env
+  module Env_center   = Default.Env_center
+  module Env_proof    = Default.Env_proof
+  module Env_noindent = Default.Env_noindent
 
   (* Secial page. *)
   let special_page pages_after contents =
