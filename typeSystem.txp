@@ -2,6 +2,10 @@
   open Diagrams
   open ProofTree
   open Lang
+
+  let vs a = <$ ⟦\f(a)⟧ $>
+  let ss a = <$ ⟦\f(a)⟧^\bot $>
+  let ts a = <$ ⟦\f(a)⟧^{\bot\bot} $>
 )
 \Include{Macros}
 
@@ -728,7 +732,537 @@ $$
 
 => Call-by-value realisability model
 
-... (* TODO *)
+The abstract machine presented in \chapter("calculus") is part of a
+//classical realizability// machinery that will be built upon here.
+We aim at obtaining a semantical interpretation of our higher-order
+type system. As always in classical realizability, the model is
+parametrized by a pole, which serves as an exchange point between
+the world of programs and the world of execution contexts, which are
+represented as stacks.
+\begin{def}
+A //pole// is a set of processes $\dbot ⊆ Λ×Π$ which is //saturated//
+(i.e. closed under backward reduction). More formally, if we have
+$q ∈ \dbot$ and $p ≻ q$ then $p ∈ \dbot$.
+\end{def}
+
+The notion of //orthogonality// is central in Krivine's classical
+realizability. In this framework a type is interpreted (or realized) by
+programs computing corresponding values. This interpretation is spread
+in a three-layered construction, even though it is fully determined by
+the first layer and the choice of the pole. The first layer consists of
+a set of values that we will call the //raw semantics//. It gathers all
+the syntactic values that should be considered as having the corresponding
+type. As an example, if we were to consider the type of natural numbers,
+its raw semantics would be the set $\{\hat{n} \| n ∈ \bbN\}$ where
+$\hat{n}$ is some encoding of $n$.
+(* *)
+The second layer, called //falsity value//, is a set containing every
+stack that is a candidate for building a valid process using any value
+from the raw semantics. The notion of validity depends on the choice of
+the pole. The third layer, called //truth value// is a set of terms that
+is built by iterating the process once more. The formalism for the two
+levels of orthogonality is given in the following definition.
+\begin{def}\label("orthodef")
+For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^\bot ⊆ Π$ and a set
+$Φ^{\bot\bot} ⊆ Λ$ as follows.
+$$
+  Φ^\bot = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
+  \hspace(3.0)
+  Φ^{\bot\bot} = \{t∈Λ \| ∀π∈Φ^\bot \p("t ∗ π") ∈ \dbot\}
+$$
+\end{def}
+
+We now give two general properties of orthogonality that are true in
+every classical realizability model. They will be useful when proving
+the soundness of our type system.
+\begin{lem}\label("orthosimple")
+If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{\bot\bot}$.
+\begin{proof}
+We take $v ∈ Φ$ and show $v ∈ Φ^{\bot\bot}$. By definition we need to
+show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^\bot$. This is immediate
+by definition of $Φ^\bot$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoinclstack")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
+$Ψ^\bot ⊆ Φ^\bot$.
+\begin{proof}
+Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^\bot$ and show that $π ∈ Φ^\bot$.
+By definition, we know that for all $v ∈ Ψ$ we have $\p("v ∗ π") ∈ \dbot$.
+Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^\bot$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoinclterm")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If
+$Ψ^\bot ⊆ Φ^\bot$ then $Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+\begin{proof}
+Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
+$t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
+$\p("t ∗ π") ∈ \dbot$. Since $Ψ^⊥ ⊆ Φ^⊥$, this is also true for all
+$π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoblabla")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
+$Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+\begin{proof}
+Let us suppose that $Φ ⊆ Ψ$ and apply \lemRef("orthoinclstack") to obtain
+$Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
+\end{proof}
+\end{lem}
+
+
+(*
+Here, for the sake of simplicity and brevity, we are only going to use the
+$$ \dbot = \{p \in \Lambda\times\Pi \;|\; p \converge_\red \} $$
+which is clearly saturated. Note that this particular pole is also closed
+under the reduction relation $(\red)$, even though this is not a general
+property. In particular $\dbot$ contains all final processes.
+
+The construction involving the terms of the form $\delta_{v,x}$ and
+$(\equiv)$ in the previous section is now going to gain meaning. The
+following theorem, which is our central result, does not hold in every
+classical realizability model. Obtaining a proof required us to internalize
+observational equivalence, which introduces a non-computable reduction
+rule.
+\begin{theorem}\label{biortho}
+If $\Phi \subseteq \Lambda_v$ is a set of values closed under $(\equiv)$, then
+$\Phi^{\bot\bot} \cap \Lambda_v = \Phi$.
+\end{theorem}
+\begin{proof}
+The direction $\Phi \subseteq \Phi^{\bot\bot} \cap \Lambda_v$ is
+straight-forward using lemma \ref{orthosimple}. We are going to
+show that $\Phi^{\bot\bot} \cap \Lambda_v \subseteq \Phi$, which amounts to
+showing that for every value $v \in \Phi^{\bot\bot}$ we have $v \in \Phi$.
+We are going to show the contrapositive, so let us assume $v \not\in \Phi$ and
+show $v \not\in \Phi^{\bot\bot}$. We need to find a stack $\pi_0$ such that
+$v \ast \pi_0 \not\in \dbot$ and for every value $w \in \Phi$,
+$w \ast \pi_0 \in \dbot$. We take $\pi_0 = [\lambda x\;\delta_{x,v}]\;\alpha$
+and show that is is suitable. By definition of the reduction relation
+$v \ast \pi_0$ reduces to $\delta_{v,v} \ast \alpha$ which is not in $\dbot$
+(it is stuck as $v \equiv v$ by reflexivity). Let us now take $w \in \Phi$.
+Again by definition, $w \ast \pi_0$ reduces to $\delta_{w,v} \ast \alpha$,
+but this time we have $w \not\equiv v$ since $\Phi$ was supposed to be closed
+under $(\equiv)$ and $v \not\in \Phi$. Hence $w \ast \pi_0$ reduces to
+${w \ast \alpha} \in \dbot$.
+\end{proof}
+\medskip
+
+It is important to check that the pole we chose does not yield a degenerate
+model. In particular we check that no term is able to face every stacks. If
+it were the case, such a term could be use as a proof of $\bot$.
+\begin{theorem}\label{poleconsist}
+The pole $\dbot$ is consistent, which means that for every closed term $t$
+there is a stack $\pi$ such that $t \ast \pi \not\in \dbot$.
+\end{theorem}
+\begin{proof}
+Let $t$ be a closed term and $\alpha$ be a stack constant. If we do not have
+$t \ast \alpha \converge_\red$ then we can directly take $\pi = \alpha$.
+Otherwise we know that $t \ast \alpha \reds v \ast \alpha$ for some value
+$v$. Since $t$ is closed $\alpha$ is the only available stack variable. We now
+show that $\pi = [\lambda x\;\{\}]\{\}.\beta$ is suitable. We denote $\sigma$
+the substitution $[\alpha := \pi]$. Using a trivial extension of lemma
+\ref{redcompatall} to the $(\red)$ relation we obtain $t \ast \pi = (t \ast
+\alpha)\sigma \reds (v \ast \alpha)\sigma = v\sigma \ast \pi$. We hence have
+$t \ast \pi \reds v\sigma \ast [\lambda x\;\{\}]\{\}.\beta \red^2 \{\} \ast
+\{\}.\beta \not\in \dbot$.
+\end{proof}
+\medskip
+
+\subsection{Formulas and their semantics}
+
+In this paper we limit ourselves to second-order logic, even though the system
+can easily be extended to higher-order. For every natural number $n$ we
+require a countable set ${\mathcal{V}}_n = \{{X}_n, {Y}_n, {Z}_n ...\}$ of
+$n$-ary predicate variables.
+\begin{definition}
+The syntax of formulas is given by the following grammar.
+\begin{align*} 
+A,B
+  \bnfeq &{X}_n(t_1, ..., t_n)
+  \bnfor A \Rightarrow B
+  \bnfor \forall a\; A
+  \bnfor \exists a\; A
+  \bnfor \forall X_n\; A
+  \bnfor \exists X_n\; A
+\\
+  \bnfor &\{l_i : A_i\}_{i \in I}
+  \bnfor [C_i : A_i]_{i \in I}
+  \bnfor t \in A
+  \bnfor A \restriction t \equiv u
+\end{align*}
+\end{definition}
+Terms appear in several places in formulas, in particular, they form the
+individuals of the logic. They can be quantified over and are used as
+arguments for predicate variables. Besides the ML-like formers for sums and
+products (i.e. records and variants) we add a membership predicate and a
+restriction
+operation. The membership predicate $t \in A$ is used to express the fact that
+the term $t$ has type $A$. It provides a way to encode the dependent product
+type using universal quantification and the arrow type. In this sense, it is
+inspired and related to Krivine's relativization of quantifiers.
+$$ \Pi_{a:A}\;B \quad:=\quad \forall a (a \in A \Rightarrow B) $$
+The restriction operator can be thought of as a kind of conjunction with no
+algorithmic content. The formula $A \restriction t \equiv u$ is to be
+interpreted in the same way as $A$ if the equivalence $t \equiv u$ holds, and
+as $\bot$ otherwise\footnote{We use the standard second-order encoding:
+$\bot = \forall X_0\; X_0$ and $\top = \exists X_0\; X_0$.}. In particular,
+we will define the following types:
+$$
+A \restriction t \not\equiv u := A \restriction t \equiv u \Rightarrow \bot
+\quad\quad
+t \equiv u := \top \restriction t \equiv u
+\quad\quad
+t \not\equiv u := \top \restriction t \not\equiv u
+$$
+
+To handle free variables in formulas we will need to generalize the
+notion of substitution to allow the substitution of predicate variables.
+\begin{definition}
+A substitution is a finite map $\sigma$ ranging over $\lambda$-variables,
+$\mu$-variables, term and predicate variables such that:
+\begin{itemize}
+  \item if $x \in dom(\sigma)$ then $\sigma(x) \in \Lambda_v$,
+  \item if $\alpha \in dom(\sigma)$ then $\sigma(\alpha) \in \Pi$,
+  \item if $a \in dom(\sigma)$ then $\sigma(a) \in \Lambda$,
+  \item if $X_n \in dom(\sigma)$ then
+    $\sigma(X_n) \in {\Lambda^n \to \mathcal{P}({{\Lambda}_v}/\!\!\equiv)}$.
+\end{itemize}
+\end{definition}
+\begin{remark}
+A predicate variable of arity $n$ will be substituted by a $n$-ary predicate.
+Semantically, such predicate will correspond to some total (set-theoretic)
+function building a subset of $\Lambda_v/\!\!\equiv$ from $n$ terms. In the
+syntax, the binding of the arguments of a predicate variables will happen
+implicitly during its substitution.
+\end{remark}
+\begin{definition}
+Given a formula $A$ we denote $FV(A)$ the set of its free variables. Given a
+substitution $\sigma$ such that $FV(A) \subseteq dom(\sigma)$ we write
+$A[\sigma]$ the closed formula built by applying $\sigma$ to $A$.
+\end{definition}
+
+In the semantics we will interpret closed formulas by sets of values closed
+under the equivalence relation $(\equiv)$.
+\begin{definition}
+Given a formula $A$ and a substitution $\sigma$ such that $A[\sigma]$ is
+closed, we define the \emph{raw semantics}
+$\llbracket A \rrbracket_\sigma \subseteq \Lambda_v/\!\!\equiv$ of $A$ under
+the substitution $\sigma$ as follows.
+\begin{align*}
+\llbracket X_n(t_1, ..., t_n) \rrbracket_\sigma =&\;
+  \sigma(X_n)(t_1\sigma, ..., t_n\sigma)\\
+\llbracket A \Rightarrow B \rrbracket_\sigma =&\;
+  \{\lambda x\; t \;\;|\;\; \forall v \in \llbracket A \rrbracket_\sigma,
+  t[x := v] \in \llbracket B \rrbracket_\sigma^{\bot\bot} \} \\
+\llbracket \forall a\; A \rrbracket_\sigma =&\;
+  \cap_{t \in \Lambda^\ast}{\llbracket A \rrbracket_{\sigma[a := t]}}\\
+\llbracket \exists a\; A \rrbracket_\sigma =&\;
+  \cup_{t \in \Lambda^\ast}{\llbracket A \rrbracket_{\sigma[a := t]}}\\
+\llbracket \forall X_n\; A \rrbracket_\sigma =&\;
+  \cap_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
+  {\llbracket A \rrbracket_{\sigma[X_n := P]}}\\
+\llbracket \exists X_n\; A \rrbracket_\sigma =&\;
+  \cup_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
+  {\llbracket A \rrbracket_{\sigma[X_n := P]}}\\
+\llbracket \{l_i : A_i\}_{i \in I} \rrbracket_\sigma =&\;
+  \{\{l_i = v_i\}_{i \in I} \;\;|\;\; {\forall i \in I}\;\; v_i \in
+  \llbracket A_i \rrbracket_\sigma\}\\
+\llbracket [C_i : A_i]_{i \in I} \rrbracket_\sigma =&\;
+  \cup_{i \in I}\{C_i[v] \;\;|\;\; v \in \llbracket A_i \rrbracket_\sigma\}\\
+\llbracket t \in A \rrbracket_\sigma =&\;
+  \{v \in \llbracket A \rrbracket_\sigma \;\;|\;\; t\sigma \equiv v\}\\
+\llbracket A \restriction t \equiv u \rrbracket_\sigma =&\;
+  \left\{ 
+    \begin{array}{l l}
+      \llbracket A \rrbracket_\sigma & \text{if $t\sigma \equiv u\sigma$}\\
+      \emptyset & \text{otherwise}
+     \end{array} \right.
+\end{align*}
+\end{definition}
+
+In the model, programs will realize closed formulas in two different ways
+according to their syntactic class. The interpretation of values will be
+given in terms of raw semantics, and the interpretation of terms in general
+will be given in terms of truth values.
+\begin{definition}
+Let $A$ be a formula and $\sigma$ a substitution such that $A[\sigma]$ is closed.
+We say that:
+\begin{itemize}
+\item $v \in \Lambda_v$ realizes $A[\sigma]$ if
+  $v \in \llbracket A \rrbracket_\sigma$,
+\item $t \in \Lambda$ realizes $A[\sigma]$ if
+  $t \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
+\end{itemize}
+\end{definition}
+
+\subsection{Contexts and typing rules}
+
+Before giving the typing rules of our system we need to define contexts and
+judgements. As explained in the introduction, several typing rules require a
+value restriction in our context. This is reflected in typing rule by the
+presence of two forms of judgements.
+
+\begin{definition}
+A context is an ordered list of hypotheses. In particular, it contains type
+declarations for $\lambda$-variables and $\mu$-variables, and declaration of
+term variables and predicate variables. In our case, a context also contains
+term equivalences and inequivalences. A context is built using the following
+grammar.
+\begin{align*}
+\Gamma, \Delta \bnfeq &\bullet
+  \bnfor \Gamma, x : A
+  \bnfor \Gamma, \alpha : \lnot A
+  \bnfor \Gamma, a : Term
+\\
+  \bnfor &\Gamma, X_n : Pred_n
+  \bnfor \Gamma, t \equiv u
+  \bnfor \Gamma, t \not\equiv u
+\end{align*}
+A context $\Gamma$ is said to be valid if it is possible to derive
+$\Gamma\;\text{Valid}$ using the rules of figure \ref{valid_context}. In
+the following, every context will be considered valid implicitly.
+\end{definition}
+\begin{figure}
+\center
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$x \not\in dom(\Gamma)$}
+\AxiomC{$FV(A) \subseteq dom(\Gamma) \cup \{x\}$}
+\TrinaryInfC{$\Gamma, x : A \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$\alpha \not\in dom(\Gamma)$}
+\AxiomC{$FV(A) \subseteq dom(\Gamma)$}
+\TrinaryInfC{$\Gamma, \alpha : \lnot A \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$a \not\in dom(\Gamma)$}
+\BinaryInfC{$\Gamma, a : Term \;\; \text{Valid}$}
+\DisplayProof\quad\quad\quad
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$X_n \not\in dom(\Gamma)$}
+\BinaryInfC{$\Gamma, X_n : Pred_n \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
+\BinaryInfC{$\Gamma, t \equiv u \;\; \text{Valid}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \;\; \text{Valid}$}
+\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
+\BinaryInfC{$\Gamma, t \not\equiv u \;\; \text{Valid}$}
+\DisplayProof\quad\quad\quad
+\AxiomC{\vbox{\vspace{0.96em}}} % hack to align lines
+\UnaryInfC{$\bullet \;\; \text{Valid}$}
+\end{prooftree}
+\caption{Rules allowing the construction of a valid context.}
+\label{valid_context}
+\end{figure}
+
+\begin{definition}
+There are two forms of typing judgements:
+\begin{itemize}
+\item $\Gamma \vvdash v : A$ meaning that the value $v$ has type $A$ in
+  context $\Gamma$,
+\item $\Gamma \vdash t : A$ meaning that the term $t$ has type $A$ in
+  context $\Gamma$.
+\end{itemize}
+\end{definition}
+\input{rules.tex}
+
+The typing rules of the system are given in figure \ref{pml2rules}. Although
+most of them are fairly usual, our type system differs in several ways. For
+instance the last four rules are related to the extensionality of the
+calculus. One can note the value restriction in several places: both
+universal quantification introduction rules and the introduction of the
+membership predicate. In fact, some value restriction is also hidden in the
+rules for the elimination of the existential quantifiers and the elimination
+rule for the restriction connective. These rules are presented in their
+left-hand side variation, and only values can appear on the left of the
+sequent. It is not surprising that elimination of an existential quantifier
+requires value restriction as it is the dual of the introduction rule of a
+universal quantifier.
+
+An important and interesting difference with existing type systems
+is the presence of $\uparrow$ and $\downarrow$. These two rules
+allow one to go from one kind of sequent to the other when working on values.
+Going from $\Gamma \vvdash v : A$ to $\Gamma \vdash v : A$ is
+straight-forward. Going the other direction is the main motivation for our
+model. This allows us to lift the value restriction expressed in the syntax
+to a restriction expressed in terms of equivalence. For example, the two rules
+\begin{prooftree}
+\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
+\AxiomC{$a \not\in FV(\Gamma)$}
+\RightLabel{$\forall_{i,\equiv}$}
+\BinaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
+\end{prooftree}
+\begin{prooftree}
+\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
+\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
+\RightLabel{$\Pi_{e,\equiv}$}
+\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
+\end{prooftree}
+can be derived in the system (see figure \ref{deriv}).
+The value restriction can be removed similarly on every other rule. Thus,
+judgements on values can be completely ignored by the user of the system.
+Transition to value judgements will only happen internally.
+
+\begin{figure}
+\begin{prooftree}
+\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash v : A$}
+\RightLabel{$\downarrow$}
+\UnaryInfC{$\Gamma, t \equiv v \vvdash v : A$}
+\AxiomC{$a \not\in FV(\Gamma)$}
+\RightLabel{$\forall_i$}
+\BinaryInfC{$\Gamma, t \equiv v \vvdash v : \forall a\;A$}
+\RightLabel{$\uparrow$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash v : \forall a\;A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
+\end{prooftree}
+\begin{prooftree}
+\alwaysDoubleLine
+\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash t : \forall a (a \in A \Rightarrow B)$}
+\alwaysSingleLine
+\RightLabel{$\forall_e$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash t : u \in A \Rightarrow B[a := u]$}
+\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash v : A$}
+\RightLabel{$\downarrow$}
+\UnaryInfC{$\Gamma, u \equiv v \vvdash v : A$}
+\RightLabel{$\in_i$}
+\UnaryInfC{$\Gamma, u \equiv v \vvdash v : v \in A$}
+\RightLabel{$\uparrow$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash v : v \in A$}
+\RightLabel{$\equiv_{t,l}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash u : v \in A$}
+\RightLabel{$\equiv_{t,r}$}
+\UnaryInfC{$\Gamma, u \equiv v \vdash u : u \in A$}
+\RightLabel{$\Rightarrow_e$}
+\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
+\end{prooftree}
+\caption{Derivation of the rules $\forall_{i,\equiv}$ and $\Pi_{e,\equiv}$.}
+\label{deriv}
+\end{figure}
+
+\subsection{Adequacy}
+
+We are now going to prove the soundness of our type system by showing that it
+is compatible with our realizability model. This property is specified by the
+following theorem which is traditionally called the adequacy lemma.
+\begin{definition}
+Let $\Gamma$ be a (valid) context. We say that the substitution $\sigma$
+realizes $\Gamma$ if:
+\begin{itemize}
+\item for every $x : A$ in $\Gamma$ we have
+  $\sigma(x) \in \llbracket A \rrbracket_\sigma$,
+\item for every $\alpha : \lnot A$ in $\Gamma$ we have
+  $\sigma(\alpha) \in \llbracket A \rrbracket_\sigma^\bot$,
+\item for every $a : Term$ in $\Gamma$ we have
+  $\sigma(a) \in \Lambda$,
+\item for every $X_n : Pred_n$ in $\Gamma$ we have
+  $\sigma(X_n) \in \Lambda^n \to \Lambda_v/\!\!\equiv$,
+\item for every $t \equiv u$ in $\Gamma$ we have
+  $t\sigma \equiv u\sigma$ and
+\item for every $t \not\equiv u$ in $\Gamma$ we have
+  $t\sigma \not\equiv u\sigma$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}{\emph{(Adequacy.)}}\label{adequacy}
+Let $\Gamma$ be a (valid) context, $A$ be a formula such that
+$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a substitution realizing
+$\Gamma$.
+\begin{itemize}
+\item If $\Gamma \vvdash v : A$ then
+  $v\sigma \in \llbracket A \rrbracket_\sigma$,
+\item if $\Gamma \vdash t  : A$ then
+  $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
+\end{itemize}
+\end{theorem}
+\input{adequacy}
+
+\begin{remark}
+For the sake of simplicity we fixed a pole $\dbot$ at the beginning of the
+current section. However, many of the properties presented here (including
+the adequacy lemma) remain valid with similar poles. We will make use of
+this fact in the proof of the following theorem.
+\end{remark}
+
+\begin{theorem}{\emph{(Safety.)}}\label{safety}
+Let $\Gamma$ be a context, $A$ be a formula such that
+$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a substitution realizing
+$\Gamma$. If $t$ is a term such that $\Gamma \vdash t : A$ and if $A[\sigma]$
+is pure (i.e. it does not contain any $\_ \Rightarrow \_$), then for every
+stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ there is a value
+$v \in \llbracket A \rrbracket_\sigma$ and $\alpha \in \mathcal{V}_\mu$ such
+that ${t\sigma \ast \pi} \reds {v \ast \alpha}$.
+\end{theorem}
+\begin{proof}
+We do a proof by realizability using the following pole.
+$$\dbot_A = \{ p \in \Lambda\times\Pi\;|\;p \reds v \ast \alpha \;\land\; v
+\in \llbracket A \rrbracket_\sigma\}$$
+It is well-defined as $A$ is pure and hence $\llbracket A \rrbracket_\sigma$
+does not depend on the pole. Using the adequacy lemma (theorem \ref{adequacy})
+with $\dbot_A$ we obtain $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$. Hence for
+every stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ we have
+${t\sigma \ast \pi} \in \dbot_A$. We can then conclude using the definition
+of the pole $\dbot_A$.
+\end{proof}
+\begin{remark}
+It is easy to see that if $A[\sigma]$ is closed and pure then
+$v \in \llbracket A \rrbracket_\sigma$ implies that $\bullet \vdash v : A$.
+\end{remark}
+
+\begin{theorem}{\emph{(Consistency.)}}\label{consistency}
+There is no $t$ such that $\bullet \vdash t : \bot$.
+\end{theorem}
+\begin{proof}
+Let us suppose that $\bullet \vdash t : \bot$. Using adequacy (theorem
+\ref{adequacy}
+) we obtain that $t \in \llbracket \bot \rrbracket_\sigma^{\bot\bot}$. Since
+$\llbracket \bot \rrbracket_\sigma = \emptyset$ we know that
+$\llbracket \bot \rrbracket_\sigma^\bot = \Pi$ by definition. Now using
+theorem \ref{poleconsist} we obtain
+$\llbracket \bot \rrbracket_\sigma^{\bot\bot} = \emptyset$. This is a
+contradiction.
+\end{proof}
+*)
+
+\begin{def}
+Given a closed parametric type $A ∈ \cal{F}$
+The raw semantics of all types is defined as follows
+\begin{center}
+\diagram(
+let _ =
+  let line s m = [ vs s; <$=$>; m ] in
+  array [`East ; `East ; `West]
+  [ line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
+  ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
+  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A")
+                                 \t("t[x≔v]") ∈ \ts("B")\} $>
+  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I
+                                 \v("vi")∈\vs("Ai")\} $>
+  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
+  ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
+  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
+  ; line "μX A"            <$ ... $>
+  ; line "νX A"            <$ ... $> ]
+)
+\end{center}
+\end{def}
 
 =<
 
