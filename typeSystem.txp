@@ -811,6 +811,15 @@ $Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
 \end{proof}
 \end{lem}
 
+When choosing a pole, it is important to check that it does not yield a
+degenerate model. In particular we need to check that no term is able to
+face every stacks. If it were the case, such a term could be use as a
+proof of $⊥$.
+\begin{def}
+A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
+$t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
+\end{def}
+
 
 (*
 Here, for the sake of simplicity and brevity, we are only going to use the
@@ -1242,14 +1251,16 @@ contradiction.
 *)
 
 \begin{def}
-Given a closed parametric type $A ∈ \cal{F}$
-The raw semantics of all types is defined as follows
+To every type $A ∈ \cal{F}$ we associate a set of value $\vs("A") ⊆ Λ_{val}$
+called its raw semantics. It is defined inductively on the structure of $A$
+as follows.
 \begin{center}
 \diagram(
 let _ =
   let line s m = [ vs s; <$=$>; m ] in
   array [`East ; `East ; `West]
-  [ line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
+  [ line "Φ"               <$ Φ $>
+  ; line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
   ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A")
                                  \t("t[x≔v]") ∈ \ts("B")\} $>

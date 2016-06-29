@@ -150,8 +150,8 @@ and f2m : form -> Maths.math list = function
                         | None   -> x
                         | Some s -> with_rsup x (vari2m s)
                       in (str "∃") @ c @ (str ".") @ (f2m a)
-  | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (f2m a)
-  | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (f2m a)
+  | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (str ".") @ (f2m a)
+  | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (str ".") @ (f2m a)
   | FMemb(t,a)     -> bin' 2 "∈" (t2m t, f2m a)
   | FRest(a,(t,u)) -> let eq = bin' 2 "≡" (t2m t, t2m u) in
                       begin
