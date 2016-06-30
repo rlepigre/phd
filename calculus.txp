@@ -973,47 +973,37 @@ Immediate.
 \end{proof}
 \end{lem}
 
-Our equivalence relation... (* TODO *)
-
-=<
-
-=<
-
-
-(*
-
-In order to be able to work with the equivalence relation $(\equiv)$, we need
-to check that it is extensional. In other words, we need to be able to replace
+To be able to work with the equivalence relation $({≡})_{≻}$, we need to
+check that it is extensional. In other words, we need to be able to replace
 equals by equals at any place in terms without changing their observed
 behaviour. This property is summarized in the following two theorems.
-
-\begin{theorem}\label{extval}
-Let $v$ and $w$ be values, $E$ be a term and $x$ be a $\lambda$-variable. If
-$v \equiv w$ then $E[x := v] \equiv E[x := w]$.
-\end{theorem}
+\begin{thm}\label("sextval")
+Let $v₁ ∈ Λ_{val}$ and $v₂ ∈ Λ_{val}$ be values, $t ∈ Λ$ be a term and
+$x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
+$\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
 \begin{proof}
 We are going to prove the contrapositive so we suppose
-$E[x := v] \not\equiv E[x := w]$ and show $v \not\equiv w$. By definition
-there is $i \in \bbN$, $\pi \in \Pi$ and a substitution $\sigma$ such
-that $(E[x := v])\sigma \ast \pi \converge_i$ and
-$(E[x := w])\sigma \ast \pi \diverge_i$ (up to symmetry). Since we can
-rename $x$ in such a way that it does not appear in $dom(\sigma)$, we can
-suppose $E\sigma[x := v\sigma] \ast \pi \converge_i$ and
-$E\sigma[x := w\sigma] \ast \pi \diverge_i$.
-In order to show $v \not\equiv w$ we need to find $i_0 \in \bbN$,
-$\pi_0 \in \Pi$ and a substitution $\sigma_0$ such that
-$v\sigma_0 \ast \pi_0 \converge_{i_0}$ and
-$w\sigma_0 \ast \pi_0 \diverge_{i_0}$ (up to symmetry). We take $i_0 = i$,
-$\pi_0 = [\lambda x\;E\sigma]\pi$ and $\sigma_0 = \sigma$. These
-values are suitable since by definition
-${v\sigma_0 \ast \pi_0 } \red_{i_0} {E\sigma[x := v\sigma] \ast \pi}
-\converge_{i_0}$ and
-${w\sigma_0 \ast \pi_0} \red_{i_0} {E\sigma[x := w\sigma] \ast \pi}
-\diverge_{i_0}$.
+$\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
+By definition, there is a stack $π$ and a substitution $σ$ such that we
+have ${\p("(t[x≔v₁])σ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])σ ∗ π")} {⇑}_{≻}$
+(up to symmetry). As $x$ is bound we can rename it so that
+$\t("(t[x≔v₁])σ") = \t("tσ[x≔v₁σ]")$ and
+$\t("(t[x≔v₂])σ") = \t("tσ[x≔v₂σ]")$. To finish the proof, we need to find
+a stack $π₀$ and a substitution $σ₀$ such that ${\p("v₁σ₀ ∗ π₀")} {⇓}_{≻}$
+and ${\p("v₂σ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
+$π₀ = \s("[λx tσ]π")$ and $σ₀ = σ$ since by definition we know that
+${\p("v₁σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₁σ] ∗ π")} {⇓}_{≻}$ and
+${\p("v₂σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₂σ] ∗ π")} {⇑}_{≻}$.
 \end{proof}
+\end{thm}
+\begin{thm}\label("sextterm")
+Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
+term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+\begin{proof}
+Blop blop... (* TODO *)
+\end{proof}
+\end{thm}
 
-\begin{theorem}\label{extterm}
-Let $t_1$, $t_2$ and $E$ be three terms and $a$ be a term variable. If
-$t_1 \equiv t_2$ then $E[a \!:=\! t_1] \equiv E[a \!:=\! t_2]$.
-\end{theorem}
-*)
+=<
+
+=<
