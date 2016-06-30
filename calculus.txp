@@ -946,4 +946,326 @@ Straight-forward case analysis using \lemma("remark").
 
 =<
 
+=> Observational equivalence
+
+In this section, we define an equivalence relation on terms... (* TODO *)
+
+\begin{def}
+Given a reduction relation $R$, we say that a process $p ∈ Λ×Π$ converges,
+and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such that
+$(p,q) ∈ {R^{∗}}$ (where $R^{∗}$ is the reflexive-transitive closure of $R$).
+If $p$ does not converge we say that it diverges and write $p {⇑}_R$. Note
+that we will use the notations $p {⇓}_i$ and $p {⇑}_i$ when working with
+indexed relation symbols such as $({\epi}_i)$.
+\end{def}
+
+\begin{def}
+The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
+$$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π},
+     {{\p("t∗π")} {⇓}_{≻}} ⇔ {{\p("u∗π")} {⇓}_{≻}}\} $$
+\end{def}
+\begin{lem}
+$({≡}_{≻})$ is an equivalence relation.
+\begin{proof}
+Immediate.
+\end{proof}
+\end{lem}
+
 =<
+
+=<
+
+
+(*
+The idea now is to define a notion of observational equivalence over terms
+using a relation $(\equiv)$. We then extend the reduction relation with a rule
+reducing a state of the form $\delta_{v,w} \ast \pi$ to $v \ast \pi$ if
+$v \not\equiv w$. If $v \equiv w$ then $\delta_{v,w}$ is stuck. With this rule
+reduction and equivalence will become interdependent as equivalence will be
+defined using reduction.
+
+\begin{definition}
+For every natural number $i$ we define a reduction relation $(\red_i)$ and an
+equivalence relation $(\equiv_i)$ which negation will be denoted
+$(\not\equiv_i)$.
+$$ (\red_i) = (\succ) \cup \{(\delta_{v,w} \ast \pi, v \ast \pi) \;|\;
+  \exists j < i, v \not\equiv_j w\} $$
+$$ (\equiv_i) = \{(t,u) \;|\; \forall j \leq i, \forall \pi, \forall
+  \sigma, {t\sigma \ast \pi \converge_j} \Leftrightarrow 
+  {u\sigma \ast \pi \converge_j}\} $$
+\end{definition}
+It is easy to see that $(\red_0) = (\succ)$. For every natural number $i$,
+the relation $(\equiv_i)$ is indeed an equivalence relation as it can be
+seen as an intersection of equivalence relations. Its negation can be
+expressed as follows.
+$$ (\not\equiv_i) = \{(t,u), (u,t) \;|\; \exists j \leq i, \exists \pi,
+  \exists \sigma, {t\sigma \ast \pi \converge_j} \land
+  {u\sigma \ast \pi \diverge_j}\} $$
+
+\begin{definition}
+We define a reduction relation $(\red)$ and an equivalence relation $(\equiv)$
+which negation will be denoted $(\not\equiv)$.
+$$ (\red) = \bigcup_{i\in\bbN} {(\red_i)}
+   \;\;\;\;\;\;
+   \;\;\;\;\;\;
+   (\equiv) = \bigcap_{i\in\bbN} {(\equiv_i)} $$
+\end{definition}
+These relations can be expressed directly (i.e. without the need of a union or
+an intersection) in the following way.
+\begin{align*}
+(\equiv) &= \{(t,u) \;|\; \forall i, \forall \pi, \forall \sigma,
+  {t\sigma \ast \pi \converge_i} \Leftrightarrow 
+  {u\sigma \ast \pi \converge_i}\}\\
+(\not\equiv) &= \{(t,u), (u,t) \;|\; \exists i, \exists \pi, \exists \sigma,
+  {t\sigma \ast \pi \converge_i} \land {u\sigma \ast \pi \diverge_i}\}\\
+(\red) &= (\succ) \cup \{(\delta_{v,w} \ast \pi, v \ast \pi) \;|\;
+  v \not\equiv w\}
+\end{align*}
+
+\begin{remark}
+Obviously $(\red_i) \subseteq (\red_{i+1})$ and
+$(\equiv_{i+1}) \subseteq (\equiv_i)$.
+As a consequence the construction of $(\red_i)_{i\in\bbN}$ and
+$(\equiv_i)_{i\in\bbN}$ converges. In fact $(\red)$ and $(\equiv)$ form a
+fixpoint at ordinal $\omega$. Surprisingly, this property is not explicitly
+required.
+\end{remark}
+
+\begin{theorem}\label{equivpole}
+Let $t$ and $u$ be terms. If $t \equiv u$ then for every stack $\pi \in \Pi$
+and substitution $\sigma$ we have $t\sigma \ast \pi \converge_{\red}
+\Leftrightarrow u\sigma \ast \pi \converge_{\red}$.
+\end{theorem}
+\begin{proof}
+We suppose that $t \equiv u$ and we take $\pi_0 \in \Pi$ and a substitution
+$\sigma_0$. By symmetry we can assume that
+${t\sigma_0 \ast \pi_0} \converge_\red$ and show that
+${u\sigma_0 \ast \pi_0} \converge_\red$. By definition there is $i_0 \in \bbN$
+such that ${t\sigma_0 \ast \pi_0} \converge_{i_0}$. Since $t \equiv u$ we know
+that for every $i \in \bbN$, $\pi \in \Pi$ and substitution $\sigma$ we have
+${t\sigma \ast \pi} \converge_i \Leftrightarrow {u\sigma \ast \pi}
+\converge_i$. This is true in particular for $i = i_0$, $\pi = \pi_0$ and
+$\sigma = \sigma_0$. We hence obtain ${u\sigma_0 \ast \pi_0}
+\converge_{i_0}$ which give us ${u\sigma_0 \ast \pi_0} \converge_\red$.
+\end{proof}
+\begin{remark}
+The converse implication is not true in general: taking
+$t = \delta_{\lambda x\,x,\{\}}$ and $u = \lambda x\,x$ gives a
+counter-example. More generally
+${p\converge_\red} \Leftrightarrow {q\converge_\red}$ does not necessarily
+imply  ${p\converge_i} \Leftrightarrow {q\converge_i}$ for all
+$i\in\mathbb{N}$. 
+\end{remark}
+\begin{corollary}\label{eqconvconv}
+Let $t$ and $u$ be terms and $\pi$ be a stack. If $t \equiv u$ and
+${t \ast \pi} \converge_\red$ then ${u \ast \pi} \converge_\red$.
+\end{corollary}
+\begin{proof}
+Direct consequence of theorem \ref{equivpole} using $\pi$ and an empty
+substitution.
+\end{proof}
+
+\subsection{Extensionality of the language}
+
+In order to be able to work with the equivalence relation $(\equiv)$, we need
+to check that it is extensional. In other words, we need to be able to replace
+equals by equals at any place in terms without changing their observed
+behaviour. This property is summarized in the following two theorems.
+
+\begin{theorem}\label{extval}
+Let $v$ and $w$ be values, $E$ be a term and $x$ be a $\lambda$-variable. If
+$v \equiv w$ then $E[x := v] \equiv E[x := w]$.
+\end{theorem}
+\begin{proof}
+We are going to prove the contrapositive so we suppose
+$E[x := v] \not\equiv E[x := w]$ and show $v \not\equiv w$. By definition
+there is $i \in \bbN$, $\pi \in \Pi$ and a substitution $\sigma$ such
+that $(E[x := v])\sigma \ast \pi \converge_i$ and
+$(E[x := w])\sigma \ast \pi \diverge_i$ (up to symmetry). Since we can
+rename $x$ in such a way that it does not appear in $dom(\sigma)$, we can
+suppose $E\sigma[x := v\sigma] \ast \pi \converge_i$ and
+$E\sigma[x := w\sigma] \ast \pi \diverge_i$.
+In order to show $v \not\equiv w$ we need to find $i_0 \in \bbN$,
+$\pi_0 \in \Pi$ and a substitution $\sigma_0$ such that
+$v\sigma_0 \ast \pi_0 \converge_{i_0}$ and
+$w\sigma_0 \ast \pi_0 \diverge_{i_0}$ (up to symmetry). We take $i_0 = i$,
+$\pi_0 = [\lambda x\;E\sigma]\pi$ and $\sigma_0 = \sigma$. These
+values are suitable since by definition
+${v\sigma_0 \ast \pi_0 } \red_{i_0} {E\sigma[x := v\sigma] \ast \pi}
+\converge_{i_0}$ and
+${w\sigma_0 \ast \pi_0} \red_{i_0} {E\sigma[x := w\sigma] \ast \pi}
+\diverge_{i_0}$.
+\end{proof}
+
+\begin{lemma}\label{aposs}
+Let $s$ be a process, $t$ be a term, $a$ be a term variable and $k$ be a
+natural number. If $s[a := t] \converge_k$ then there is a blocked state
+$p$ such that $s \succ^{*} p$ and either
+\begin{itemize}
+\item $p = v \ast \alpha$ for some value $v$ and a stack variable $\alpha$,
+\item $p = a \ast \pi$ for some stack $\pi$,
+\item $k > 0$ and $p = \delta(v,w) \ast \pi$ for some values $v$ and $w$ and
+      stack $\pi$, and in this case $v[a := t] \not\equiv_j w[a := t]$ for
+      some $j < k$.
+\end{itemize}
+\end{lemma}
+\begin{proof}
+Let $\sigma$ be the substitution $[a := t]$. If $s$ is non-terminating, lemma
+\ref{redstable} tells us that $s\sigma$ is also non-terminating, which
+contradicts $s\sigma \converge_k$. Consequently, there is a blocked process
+$p$ such that $s \succ^{*} p$ since $(\succ) \subseteq (\red_k)$. Using lemma
+\ref{redcompatall} we get
+$s\sigma \succ^{*} p\sigma$ from which we obtain $p\sigma \converge_{k}$.
+The process $p$ cannot be stuck, otherwise $p\sigma$ would also be stuck
+by lemma \ref{redstable}, which would contradict $p\sigma \converge_{k}$.
+Let us now suppose that $p = \delta_{v,w} \ast \pi$ for some values $v$ and
+$w$ and some stack $\pi$. Since
+$\delta_{v\sigma,w\sigma} \ast \pi \converge_k$ there must be $i < k$ such
+that $v\sigma \not\equiv_j w\sigma$, otherwise this would contradict
+$\delta_{v\sigma,w\sigma} \ast \pi \converge_k$. In this case we necessarily
+have $k > 0$, otherwise there would be no possible candidate for $i$.
+According to lemma \ref{possibilities} we need to rule out four more forms of
+therms: $x.l \ast \pi$, $x \ast v.\pi$, $case_x\;B \ast \pi$ and $b \ast \pi$
+in the case where $b \not= a$. If $p$ was of one of these forms the
+substitution $\sigma$ would not be able to unblock the reduction of $p$, which
+would contradict again $p\sigma \converge_{k}$.
+\end{proof}
+
+\begin{lemma}\label{aextlem}
+Let $t_1$, $t_2$ and $E$ be terms and $a$ be a term variable. For every
+$k \in \bbN$, if $t_1 \equiv_k t_2$ then $E[a \!:=\! t_1] \equiv_k E[a
+\!:=\! t_2]$.
+\end{lemma}
+\begin{proof}
+Let us take $k \in \bbN$, suppose that $t_1 \equiv_k t_2$ and show that
+$E[a \!:=\! t_1] \equiv_k E[a \!:=\! t_1]$. By symmetry we can assume that
+we have $i \leq k$, $\pi \in \Pi$ and a substitution $\sigma$ such that
+$(E[a \!:=\! t_1])\sigma \ast \pi \converge_i$ and show that
+$(E[a \!:=\! t_2])\sigma \ast \pi \converge_i$. As we are free to rename
+$a$, we can suppose that it does not appear in $dom(\sigma)$, $TV(\pi)$,
+$TV(t_1)$ or $TV(t_2)$. In order to lighten the notations we define
+$E' = E\sigma$, $\sigma_1 = [a \!:=\! t_1\sigma]$ and
+$\sigma_2 = [a \!:=\! t_2\sigma]$. We are hence assuming
+$E'\sigma_1 \ast \pi \converge_i$ and trying to show
+$E'\sigma_2 \ast \pi \converge_i$.
+
+We will now build a sequence $(E_i,\pi_i,l_i)_{i \in I}$ in such a way that
+$E'\sigma_1 \ast \pi \reds_k E_i\sigma_1 \ast \pi_i\sigma_1$ in $l_i$ steps
+for every $i \in I$. Furthermore, we require that $(l_i)_{i \in I}$ is
+increasing and that it has a strictly increasing subsequence. Under this
+condition our sequence will necessarily be finite. If it was infinite the
+number of reduction steps that could be taken from the state
+$E'\sigma_1 \ast \pi$ would not be bounded, which would contradict
+$E'\sigma_1 \ast \pi \converge_i$. We now denote our finite sequence
+$(E_i,\pi_i,l_i)_{i \leq n}$ with $n \in \bbN$. In order to show that
+$(l_i)_{i \leq n}$ has a strictly increasing subsequence, we will ensure that
+it does not have three equal consecutive values. More formally, we will
+require that if $0 < i < n$ and $l_{i-1} = l_i$ then $l_{i+1} > l_i$.
+
+To define $(E_0,\pi_0,l_0)$ we consider the reduction of $E' \ast \pi$. Since
+we know that $(E' \ast \pi)\sigma_1 = E'\sigma_1 \ast \pi \converge_i$ we
+use lemma \ref{aposs} to obtain a blocked state $p$ such that
+${E' \ast \pi} \succ^j p$.
+We can now take $E_0 \ast \pi_0 = p$ and $l_0 = j$.
+By lemma \ref{redcompatall} we have
+$(E' \ast \pi)\sigma_1 \succ^j {E_0\sigma_1 \ast \pi_0\sigma_1}$ from which we
+can deduce that
+$(E' \ast \pi)\sigma_1 \reds_k {E_0\sigma_1 \ast \pi_0\sigma_1}$ in $l_0 = j$
+steps.
+
+To define $(E_{i+1},\pi_{i+1},l_{i+1})$ we consider the reduction of the
+process $E_i\sigma_1 \ast \pi_i$. By construction we know that
+${E'\sigma_1 \ast \pi}
+\reds_k {E_i\sigma_1 \ast \pi_i\sigma_1 = (E_i\sigma_1 \ast \pi_i)\sigma_1}$
+in $l_i$ steps. Using lemma \ref{aposs} we know that $E_i \ast \pi_i$ might be
+of three shapes.
+\begin{itemize}
+\item If ${E_i \ast \pi_i} = {v \ast \alpha}$ for some value $v$ and stack
+      variable $\alpha$ then the end of the sequence was reached with $n = i$.
+\item If $E_i = a$ then we consider the reduction of $E_i\sigma_1 \ast \pi_i$.
+      Since $(E_i\sigma_1 \ast \pi_i)\sigma_1 \converge_k$ we know from
+      lemma \ref{aposs} that there is a blocked process $p$ such that
+      ${E_i\sigma_1 \ast \pi_i} \succ^j p$. Using lemma \ref{redcompatall} we
+      obtain that ${E_i\sigma_1 \ast \pi_i\sigma_1} \succ^j p\sigma_1$ from which we
+      can deduce that ${E_i\sigma_1 \ast \pi_i\sigma_1} \red_k p\sigma_1$ in
+      $j$ steps. We then take $E_{i+1} \ast \pi_{i+1} = p$ and
+      $l_{i+1} = l_i + j$.
+
+      Is it possible to have $j=0$? This can only happen when
+      $E_i\sigma_1 \ast \pi_i$ is of one of the three forms of lemma
+      \ref{aposs}. It cannot be of the form $a \ast \pi$ as we assumed that
+      $a$ does not appear in $t_1$ or $\sigma$. If it is of the form $v \ast
+      \alpha$, then we reached the end of the sequence with $i + 1 = n$ so
+      there is no trouble. The process $E_i\sigma_1 \ast \pi_i$ may be of the
+      form $\delta(v,w) \ast \pi$, but we will have $l_{i+2} > l_{i+1}$.
+\item If $E_i = \delta(v,w)$ for some values $v$ and $w$ we have
+      $m < k$ such that $v\sigma_1 \not\equiv_m w\sigma_1$. Hence
+      ${E_i\sigma_1 \ast \pi_i = \delta(v\sigma_1,w\sigma_1) \ast \pi_i}
+      \red_k {v\sigma_1 \ast \pi_i}$ by definition. Moreover
+      ${E_i\sigma_1 \ast \pi_i\sigma_1} \red_k {v\sigma_1 \ast \pi_i\sigma_1}$
+      by lemma \ref{redcompatall}. Since
+      ${E'\sigma_1 \ast \pi} \reds_k {E_i\sigma_1 \ast \pi_i\sigma_1}$ in
+      $l_i$ steps we obtain that
+      ${E'\sigma_1 \ast \pi} \reds_k {v\sigma_1 \ast \pi_i\sigma_1}$ in
+      $l_i + 1$ steps. This also gives us ${(v\sigma_1 \ast \pi_i)\sigma_1 = 
+      v\sigma_1 \ast \pi_i\sigma_1} \converge_k$.
+      
+      We now consider the reduction of the process $v\sigma_1 \ast \pi_i$. By
+      lemma \ref{aposs} there is a blocked process $p$ such that
+      ${v\sigma_1 \ast \pi_i} \succ^j p$. Using lemma \ref{redcompatall} we
+      obtain ${v\sigma_1 \ast \pi_i\sigma_1} \succ^j p\sigma_1$ from which we
+      deduce that ${v\sigma_1 \ast \pi_i\sigma_1} \reds_k p\sigma_1$ in $j$
+      steps. We then take $E_{i+1} \ast \pi_{i+1} = p$ and
+      $l_{i+1} = l_i + j + 1$. Note that in this case we have $l_{i+1} > l_i$.
+\end{itemize}
+Intuitively $(E_i,\pi_i,l_i)_{i \leq n}$ mimics the reduction of
+$E'\sigma_1 \ast \pi$ while making explicit every substitution of $a$ and
+every reduction of a $\delta$-like state.
+
+To end the proof we show that for every $i \leq n$ we have
+${E_i\sigma_2 \ast \pi_i\sigma_2} \converge_k$. For $i = 0$ this will give
+us ${E'\sigma_2 \ast \pi} \converge_k$ which is the expected result. Since
+$E_n \ast \pi_n = v \ast \alpha$ we have $E_n\sigma_2 \ast \pi_n\sigma_2 =
+v\sigma_2 \ast \alpha$ from which we trivially obtain
+${E_n\sigma_2 \ast \pi_n\sigma_2} \converge_k$.
+We now suppose that ${E_{i+1}\sigma_2 \ast \pi_i\sigma_2} \converge_k$ for
+$0 \leq i < n$ and show that ${E_i\sigma_2 \ast \pi_i\sigma_2} \converge_k$.
+By construction $E_i \ast \pi_i$ can be of two shapes\footnote{Only
+$E_n \ast \pi_n$ can be of the form $v \ast \alpha$.}:
+\begin{itemize}
+\item If $E_i=a$ then ${t_1\sigma \ast \pi_i} \reds_k {E_{i+1} \ast \pi_{i+1}}$.
+  Using lemma \ref{redcompatall} we obtain
+  $t_1\sigma \ast \pi_i\sigma_2 \red_k E_{i+1}\sigma_2 \ast
+  \pi_i\sigma_2$ from which we deduce $t_1\sigma \ast \pi_i\sigma_2
+  \converge_k$ by induction hypothesis. Since $t_1 \equiv_k t_2$ we obtain
+  ${t_2\sigma \ast \pi_i\sigma_2 = (E_i \ast \pi_i)\sigma_2} \converge_k$.
+\item If $E_i = \delta(v,w)$ then ${v \ast \pi_i} \red_k {E_{i+1} \ast
+  \pi_{i+1}}$ and hence $v\sigma_2 \ast \pi_i\sigma_2 \red_k
+  E_{i+1}\sigma_2 \ast \pi_{i+1}\sigma_2$ by lemma \ref{redcompatall}. Using the
+  induction hypothesis we obtain ${v\sigma_2 \ast \pi_i\sigma_2} \converge_k$.
+  It remains to show that ${\delta(v\sigma_2,w\sigma_2) \ast \pi_i\sigma_2}
+  \reds_k {v\sigma_2 \ast \pi_i\sigma_2}$.
+  We need to find $j < k$ such that $v\sigma_2 \not\equiv_j w\sigma_2$.
+  By construction there is $m < k$ such that
+  $v\sigma_1 \not\equiv_m w\sigma_1$. We are going to show that
+  $v\sigma_2 \not\equiv_m w\sigma_2$. By using the global induction
+  hypothesis twice we obtain $v\sigma_1 \equiv_m v\sigma_2$ and
+  $w\sigma_1 \equiv_m v\sigma_2$. Now if $v\sigma_2 \equiv_m w\sigma_2$ then
+  $v\sigma_1 \equiv_m v\sigma_2 \equiv_m w\sigma_2 \equiv_m w\sigma_1$
+  contradicts $v\sigma_1 \not\equiv w\sigma_1$. Hence we must have
+  $v\sigma_2 \not\equiv_m w\sigma_2$.
+\end{itemize}
+\end{proof}
+
+\begin{theorem}\label{extterm}
+Let $t_1$, $t_2$ and $E$ be three terms and $a$ be a term variable. If
+$t_1 \equiv t_2$ then $E[a \!:=\! t_1] \equiv E[a \!:=\! t_2]$.
+\end{theorem}
+\begin{proof}
+We suppose that $t_1 \equiv t_2$ which means that $t_1 \equiv_i t_2$ for
+every $i \in \bbN$. We need to show that
+$E[a \!:=\! t_1] \equiv E[a \!:=\! t_2]$ so we take $i_0 \in \bbN$ and show
+$E[a \!:=\! t_1] \equiv_{i_0} E[a \!:=\! t_2]$. By hypothesis we have
+$t_1 \equiv_{i_0} t_2$ and hence we can conclude using lemma \ref{aextlem}.
+\end{proof}
+*)
