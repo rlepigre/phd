@@ -6,7 +6,7 @@ let debug = true
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
   | "₅" -> "5" | "₆" -> "6" | "₇" -> "7" | "₈" -> "8" | "₉" -> "9"
-  | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n"
+  | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n" | "i+1" -> "i+1"
 
 (* Generic parser for variables. *)
 let parser vari p = x:p i:index? _:Decap.relax
@@ -71,7 +71,7 @@ let fset elt sep =
 let parser valu prio =
   | x:vvari                                   when prio = VSimp -> VVari(x)
   | v:vmeta                                   when prio = VSimp -> VMeta(v)
-  | "λ" x:vvari t:(term TAppl)                when prio = VComp -> VLAbs(x,t)
+  | "λ" x:vvari t:(term TAppl)$               when prio = VComp -> VLAbs(x,t)
   | c:const '[' v:(valu VComp) ']'            when prio = VSimp -> VCons(c,v)
   | "{" fs:(fset field ";") ';'? "}"          when prio = VSimp -> VReco(fs)
   | '(' v:(valu VComp) ')'                    when prio = VProj -> VGrou(v)
@@ -86,8 +86,8 @@ and        term prio =
   | v:(valu VComp)                            when prio = TAtom -> TValu(v)
   | '(' t:(term TAppl) ')'                    when prio = TAtom -> TGrou(t)
   | t:(term TSubs) ts:(term TSubs)*$          when prio = TAppl -> tappl t ts
-  | "μ" a:svari t:(term TAppl)                when prio = TAtom -> TSave(a,t)
-  | '[' s:(stac SFull) ']' t:(term TAppl)     when prio = TAtom -> TRest(s,t)
+  | "μ" a:svari t:(term TAppl)$               when prio = TAtom -> TSave(a,t)
+  | '[' s:(stac SFull) ']' t:(term TAppl)$    when prio = TAtom -> TRest(s,t)
   | t:(term TAtom) s:subs                     when prio = TSubs -> TSubt(t,s)
   | c:(ctxt TAtom) '[' t:(term TAppl) ']'     when prio = TAtom -> TCtxt(c,t)
   | v:(valu VProj) '.' l:label                when prio = TAtom -> TProj(v,l)

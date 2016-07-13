@@ -880,8 +880,8 @@ A process $p ∈ Λ×Π$ is said to be:
 \end{def}
 \begin{lem}\label("redstable")
 Let $p$ be a process and $σ$ be a substitution for variables of any kind.
-If $p$ is stuck (resp. non-terminating, resp. $δ$-like) then $pσ$ is also
-stuck (resp. non-terminating, resp. $δ$-like).
+If $p$ is final (resp. stuck, resp. non-terminating, resp. $δ$-like) then
+$pσ$ is also final (resp. stuck, resp. non-terminating, resp. $δ$-like).
 \begin{proof}
 Immediate by definition.
 \end{proof}
@@ -932,12 +932,15 @@ $$
 \p("x ∗ v·π")
 \hspace(2.0)
 \p("[x | (Ci[xi] → ti) i∈I≠∅] ∗ π")
-\hspace(2.0)
+$$
+$$
 \p("a ∗ π")
 \hspace(2.0)
 \p("U(x) ∗ π")
 \hspace(2.0)
 \p("v ∗ α")
+\hspace(2.0)
+\p("v ∗ ε")
 $$
 \begin{proof}
 Straight-forward case analysis using \lemma("remark").
@@ -996,13 +999,104 @@ ${\p("v₁σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₁σ] ∗ π")} {⇓}_{≻}
 ${\p("v₂σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₂σ] ∗ π")} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
+\begin{lem}\label("sexttermaux")
+Let $p ∈ Λ×Π$ be a process, $a ∈ \cal{V}_τ$ be a term variable and $t$ be
+a term such that ${\p("p[a≔t]")} {⇓}_{≻}$. Either there is a value
+$v ∈ Λ_{val}$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈ Π$
+such that $p ≻^{∗} \p("a ∗ π")$.
+\begin{proof}
+There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
+the case $p$ would be non-termination, and hence $\p("p[a≔t]")$ would also
+be non-termination according to \lemRef("redstable"). This would hence
+contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
+$\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
+\lemRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We then
+proceed by case analysis according to \lemRef("possibilities"). If $q$ is
+not of the form $\p("v ∗ ε")$ or $\p("a ∗ π")$ then $\p("q[a≔t]")$ cannot
+be reduced, which contradicts ${\p("q[a≔t]")} {⇓}_{≻}$.
+\end{proof}
+\end{lem}
 \begin{thm}\label("sextterm")
 Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
 term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+
 \begin{proof}
-Blop blop... (* TODO *)
+Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+We take a stack $π$, a substitution $σ$ and we show
+${{\p("(t[a≔u₁])σ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])σ ∗ π")} {⇓}_{≻}}$. As we
+are free to rename $a$ we may assume $\t("(t[a≔u₁])σ") = \t("tσ[a≔u₁σ]")$,
+$\t("(t[a≔u₂])σ") = \t("tσ[a≔u₂σ]")$ and $a ∉ FV(π)$. Consequently our goal
+is now ${{\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}}$.
+By symmetry we can suppose that ${\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}$ and show
+${\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
+process $\p("tσ ∗ π")$. According to \lemRef("sexttermaux") there are two
+possibilities.
+\begin{itemize}
+\item If $\p("tσ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_{val}$ then
+  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \lemRef("redcompatall").
+  This rewrites to $\p("tσ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
+  $a ∉ FV(π)$, and hence we obtain ${\p("tσ[a≔u₂] ∗ π")} {⇓}_{≻}$.
+\item If $\p("tσ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
+  $\p("(tσ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
+  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
+  \lemRef("redcompatall"). As a consequence, it is enough to show
+  ${{\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}} ⇒ {{\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}}$.
+  We assume ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
+  ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
+  stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
+  $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
+  that the sequence has to be finite, otherwise the reduction of
+  $\p("(a ∗ π₀)[a≔u₁]")$ would be infinite and this would contradict
+  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$. To define $π_{i+1}$ we consider
+  $\p("u₁ ∗ πi")$. By transitivity
+  $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
+  and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
+  \lemRef("sexttermaux") there are two possibilities for the reduction of
+  $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
+  $v$ and the sequence ends with $n = i$, or
+  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ρ")$ for some stack $ρ$ and we define
+  $π_{i+1} = ρ$.
+  
+  To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
+  $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
+  which is the expected result. For $i = n$ we know that
+  $\p("u₁ ∗ πn") ≻^{∗} {\p("v ∗ ε")} {⇓}_{≻}$, and hence
+  ${\p("u₂ ∗ πn")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
+  that ${\p("(a ∗ πn)[a≔u₂]")} = {\p("(u₂ ∗ πn)[a≔u₂]")} {⇓}_{≻}$ by
+  \lemRef("redstable"). Let us now suppose that we have
+  ${\p("(a ∗ πi+1)[a≔u₂]")} = {\p("u₂ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$ for some
+  $i<n$ and show that
+  ${\p("(a ∗ πi)[a≔u₂]")} = {\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$. Since we know
+  $u₁ ≡_{≻} u₂$ we can deduce that ${\p("u₁ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$.
+  Moreover, since $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ πi+1")$ we may use
+  \lemRef("redcompatall") to obtain
+  $\p("u₁ ∗ πi[a≔u₂]") = \p("(u₁ ∗ πi)[a≔u₂]") ≻^{∗} \p("(a ∗ πi+1)[a≔u₂]")
+  = \p("u₂ ∗ πi+1[a≔u₂]")$. As a consequence, we have
+  ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
+  ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
+\end{itemize}
 \end{proof}
 \end{thm}
+
+It is not enough for our equivalence relation to be extentional. As we want
+to identify programs with the same computational behaviour, we expect
+equivalence to be preserved by evaluation.
+
+\begin{lem}\label("redequiv")
+Let $t$ and $u$ be two terms. If for every stack $π ∈Π$ there is a process
+$p ∈ {Λ × Π}$ such that $\p("t ∗ π") ≻^{∗} p$ and $\p("u ∗ π") ≻^{∗} p$ then
+$t ≡_{≻} u$.
+\begin{proof}
+Let use take a stack $π₀$ and a substitution $σ₀$. By hypothesis, there is a
+process $p₀$ such that $\p("t ∗ π₀") ≻^{∗} p₀$ and $\p("u ∗ π₀") ≻^{∗} p₀$.
+Using \lemRef("redcompatall") we obtain $\p("tσ₀ ∗ π₀") ≻^{∗} p₀σ₀$ and
+$\p("uσ₀ ∗ π₀") ≻^{∗} p₀$. Consequently,
+${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$ and
+${{\p("uσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$. We hence have
+${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("uσ₀ ∗ π₀")} {⇓}_{≻}}$, which gives us
+$t ≡_{≻} u$.
+\end{proof}
+\end{lem}
 
 =<
 
