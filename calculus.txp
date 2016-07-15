@@ -1083,11 +1083,11 @@ to identify programs with the same computational behaviour, we expect
 equivalence to be preserved by evaluation.
 
 \begin{lem}\label("redequiv")
-Let $t$ and $u$ be two terms. If for every stack $π ∈Π$ there is a process
+Let $t$ and $u$ be two terms. If for all stack $π ∈Π$ there is a process
 $p ∈ {Λ × Π}$ such that $\p("t ∗ π") ≻^{∗} p$ and $\p("u ∗ π") ≻^{∗} p$ then
 $t ≡_{≻} u$.
 \begin{proof}
-Let use take a stack $π₀$ and a substitution $σ₀$. By hypothesis, there is a
+Let us take a stack $π₀$ and a substitution $σ₀$. By hypothesis, there is a
 process $p₀$ such that $\p("t ∗ π₀") ≻^{∗} p₀$ and $\p("u ∗ π₀") ≻^{∗} p₀$.
 Using \lemRef("redcompatall") we obtain $\p("tσ₀ ∗ π₀") ≻^{∗} p₀σ₀$ and
 $\p("uσ₀ ∗ π₀") ≻^{∗} p₀$. Consequently,
@@ -1097,6 +1097,34 @@ ${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("uσ₀ ∗ π₀")} {⇓}_{≻
 $t ≡_{≻} u$.
 \end{proof}
 \end{lem}
+\begin{cor}\label("redtosame")
+Let $t$ and $u$ be two terms. If for all $π$ we have
+$\p("t ∗ π") ≻ \p("u ∗ π")$ then $t ≡_{≻} u$.
+\begin{proof}
+Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
+\end{proof}
+\end{cor}
+
+\begin{thm}
+For every $t ∈ Λ$, $v ∈ Λ_{val}$ and $x ∈ \cal{V}_ι$ we have
+$\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
+\begin{proof}
+Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p("t[x≔v]∗π")$
+for all $π$ we can apply \corRef("redtosame").
+\end{proof}
+\end{thm}
+
+\begin{thm}
+Let $I$ be a finite set of index with $k ∈ I$. If $v_i ∈ Λ_{val}$ and
+$l_i ∈ \cal{L}$ for all $i ∈ I$ then
+$\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
+\begin{proof}
+Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
+can use \corRef("redtosame").
+\end{proof}
+\end{thm}
+
+(* TODO case and easy inequivalences *)
 
 =<
 

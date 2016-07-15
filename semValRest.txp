@@ -5,7 +5,106 @@
 
 => Reduction, equivalence and $\t("δ(v,w)")$
 
-... (* TODO *)
+The idea now is to define a notion of observational equivalence over terms
+using a relation $({≡})$. We then extend the reduction relation with a rule
+reducing a state of the form $\p("δ(v,w) ∗ π")$ to $\p("v ∗ π")$ if
+$v \nequiv w$. If $v ≡ w$ then $\p("δ(v,w) ∗ π")$ is stuck. With such a
+reduction rule, the definitions of reduction and equivalence become
+interdependent. Consequently, we need to be very careful when changing
+our definitions so that everything remains well-defined. We will rely on
+a stratified construction of both reduction and equivalence.
+\begin{def}
+For every $i ∈ \bbN$ we define two relations $({↠}_i)$ and $({≡}_i)$
+as follows.
+$$ ({↠}_i) = ({≻}) ∪ \{(\p("δ(v,w) ∗ π"), \p("v ∗ π")) \st ∃j < i,
+   v \nequiv_j w\} $$
+$$ ({≡}_i) = \{(t,u) \st ∀j ≤ i, ∀π, ∀σ,
+   {{\p("tσ∗π")} {⇓}_j} ⇔ {{\p("uσ∗π")} {⇓}_j}\} $$
+\end{def}
+\begin{rem}
+Note that $({↠}₀) = ({≻})$ since there is no $j < 0$.
+\end{rem}
+\begin{thm}\label("isequiv")
+For every $i ∈ \bbN$, the relation $({≡}_i)$ is an equivalence relation.
+\begin{proof}
+Immediate.
+\end{proof}
+\end{thm}
+
+We can then define our actual reduction relation and equivalence relation
+as a union and an intersection over the previously defined relations.
+\begin{def}
+We define a reduction relation $({↠})$ and an equivalence relation $({≡})$.
+$$
+  ({↠}) = \bigcup_{i∈\bbN} ({↠}_i)
+  \hspace(4.0)
+  ({≡}) = \bigcap_{i∈\bbN} ({≡}_i)
+$$
+\end{def}
+\begin{thm}
+The relation $({≡})$ is an equivalence relation.
+\begin{proof}
+Immediate using \lemRef("isequiv") since an intersection of equivalence
+relation is an equivalence relation.
+\end{proof}
+\end{thm}
+
+These relations can be expressed directly (i.e. without the need of a
+union or an intersection) in the following way.
+\begin{center}
+\diagram(
+let _ =
+  let line e1 e2 = [ e1 ; <$=$> ; e2 ] in
+  array [`East ; `Main ; `West]
+  ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
+  [ line <$({≡})$>
+      <$ \{(t,u) \st ∀i, ∀π, ∀σ,
+         {{\p("tσ∗π")} {⇓}_i} ⇔ {{\p("uσ∗π")} {⇓}_i}\} $>
+  ; line <$({\nequiv})$>
+      <$ \{(t,u), (u,t) \st ∃i, ∃π, ∃σ,
+         {{\p("tσ∗π")} {⇓}_i} ∧ {{\p("uσ∗π")} {⇑}_i}\}$>
+  ; line <$({↠})$>
+      <$({≻}) ∪ \{(\p("δ(v,w)∗π"), \p("v∗π")) \st v \nequiv w\}$> ]
+)
+\linesAfter(2)
+\end{center}
+
+\begin{rem}
+Obviously $({↠}_i) ⊆ ({↠}_{i+1})$ and $({≡}_{i+1}) ⊆ ({≡}_i)$. As a
+consequence the construction of $({↠}_i)_{i∈\bbN}$ and $({≡}_i)_{i∈\bbN}$
+converges. In fact $({↠})$ and $({≡})$ form a fixpoint at ordinal $ω$.
+Surprisingly, this property is not explicitly required here.
+\end{rem}
+
+\begin{thm}\label("equivpole")
+Let $t$ and $u$ be terms. If $t ≡ u$ then for every stack $π ∈ Π$ and
+substitution $σ$ we have ${{\p("tσ∗π")} {⇓}_{↠}} ⇔ {{\p("uσ∗π")} {⇓}_{↠}}$.
+\begin{proof}
+We suppose that $t ≡ u$ and we take $π₀ ∈ Π$ and a substitution $σ₀$. By
+symmetry we can assume that ${\p("tσ₀∗π₀")} {⇓}_{↠}$ and show that
+${\p("uσ₀∗π₀")} {⇓}_{↠}$. By definition there is $i₀ ∈ \bbN$ such that
+${\p("tσ₀∗π₀")} {⇓}_{i₀}$. Since $t ≡ u$ we know that for every $i ∈ \bbN$,
+$π ∈ Π$ and substitution $σ$ we have
+${{\p("tσ∗π")} {⇓}_i} ⇔ {{\p("uσ∗π")} {⇓}_i}$. This is true in particular
+for $i = i₀$, $π = π₀$ and $σ = σ₀$. We hence obtain
+${\p("uσ₀∗π₀")} {⇓}_{i₀}$ which give us ${\p("uσ₀∗π₀")} {⇓}_{↠}$.
+\end{proof}
+\end{thm}
+
+\begin{rem}
+The converse implication is not true in general: taking
+$t = \t("δ(λx x, {})")$ and $u = \t("λx x")$ gives a counter-example.
+More generally ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does not necessarily imply
+${p {⇓}_i} ⇒ {q {⇓}_i}$ for all $i ∈ \bbN$.
+\end{rem}
+\begin{cor}\label("eqconvconv")
+Let $t$ and $u$ be terms and $π$ be a stack. If $t ≡ u$ and
+${\p("t∗π")} {⇓}_{↠}$ then ${\p("u∗π")} {⇓}_{↠}$.
+\begin{proof}
+Direct consequence of \thmRef("equivpole") using $π$ and an empty
+substitution.
+\end{proof}
+\end{cor}
 
 =<
 
