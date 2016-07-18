@@ -13,8 +13,8 @@ let bob  = ("Robert Harper", "Carnegie Mellon University, United States")
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
   { author    = "Rodolphe Lepigre"
-  ; title     = [ "Restriction Sémantique par Valeurs et" (* FIXME *)
-                ; "dans un Système à la Curry" ]
+  ; title     = [ "Restriction Sémantique par Valeurs" (* FIXME *)
+                ; "pour la Preuve de Programmes" ]
   ; def_date  = "XX XXXXX 2016" (* FIXME *)
   ; lab       = "LAMA, " ^ usmb
   ; advisor   = ("Christophe Raffalli", usmb)

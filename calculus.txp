@@ -1098,7 +1098,7 @@ $t ≡_{≻} u$.
 \end{proof}
 \end{lem}
 \begin{cor}\label("redtosame")
-Let $t$ and $u$ be two terms. If for all $π$ we have
+Let $t$ and $u$ be terms. If for all $π$ we have
 $\p("t ∗ π") ≻ \p("u ∗ π")$ then $t ≡_{≻} u$.
 \begin{proof}
 Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.

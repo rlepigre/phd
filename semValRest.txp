@@ -3,6 +3,12 @@
 
 => A model for a semantical value restriction
 
+=> The limits of value restriction
+
+... (* TODO *)
+
+=<
+
 => Reduction, equivalence and $\t("δ(v,w)")$
 
 The idea now is to define a notion of observational equivalence over terms

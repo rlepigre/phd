@@ -337,15 +337,18 @@ called System F, it was introduced by Jean-Yves Girard and John Reynolds
 independently \mcite(["Girard1972";"Reynolds1974"]).
 
 \begin{def}
-The set of types (or formulas) $\cal{F}$ is built from a countable set of
-type variables $\cal{V}_ο = \{X, Y, Z...\}$ using the following ||bnf||
-grammar.
+The set of all types (or formulas) $\cal{F}$ is now built from a countable
+set of type variables $\cal{V}_ο = \{X, Y, Z...\}$ using the following
+||bnf|| grammar.
 \Caml(
 let _ = sidenote
-  << $ A,B ::= \f("X") \| \f("A ⇒ B") \| \f("∀X A") $ >>
+  << $ A,B ::= \f("X") \| \f("A ⇒ B") \| \f("∀X A") \|
+    \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") $ >>
   << $ X ∈ \cal{V}_ο $ >>
 )
-We denote $FV(A)$ the set of tree type variables contained in $A$.
+We denote $FV_ο(A)$ the set of free type variables contained in $A$. Given
+a typing context $Γ$ we will write $FV_ο(Γ)$ the set of free type variables
+contained in the types of $Γ$.
 \end{def}
 \begin{rem}
 To lighten the notations, we will consider that universal quantification
@@ -353,12 +356,38 @@ binds stronger than the function type. As a consequence, we will read
 $\f("∀X ∀Y X ⇒ Y ⇒ X")$ as $\f("∀X (∀Y (X ⇒ (Y ⇒ X)))")$.
 \end{rem}
 
+As types can now contain free variables, our typing judgments will carry
+a list of type variables with the invariant that only these type variables
+can appera free in the judgement.
+\begin{def}
+A type variable context is a finite set of type variables denoted $Σ$. For
+convenience, we will represent type variable contexts using lists generated
+using the following ||bnf|| grammar.
+\Caml(let _ = sidenote << $ Σ ::= • \| {Σ, X} $ >> << $ X ∈ \cal{V}_ο $ >>)
+However, we need to keep in mind that type variables can only appear once
+in a type variable context, and that their order is irrelevant.
+\end{def}
+
+\begin{def}
+A typing judgment is a quadruple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$,
+a typing context $Γ$ and a type variable context $Γ$ that is denoted
+$Σ; Γ ⊢ t : A$. A judgment is sait do be //well-formed// if
+$FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) = ∅$, $FV_ι(t) = ∅$, $FV_ο(A) ⊆ Σ$ and
+$FV_ο(Γ) ⊆ Σ$. To lighten the notations we will write $Γ ⊢ t : A$ (resp.
+$Σ ⊢ t : A$, resp. $⊢ t : A$) instead of $Σ; Γ ⊢ t : A$ when $Γ = •$ (resp.
+$Δ = •$, resp. $Γ = •$ and $Δ = •$).
+\end{def}
+
+\begin{def}
+We say that a well-formed judgement is //valid// if and only if it can be
+derived using the following deduction rule system. Note that a rule only
+applies if all the involved judgments are well-formed.
 $$
   \axiomRN{Ax}{Σ; Γ, x : A ⊢ x : A}
 $$
 $$
   \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B}{Σ; Γ ⊢ \t("λx t") : \f("A ⇒ B")}
-  \hspace(2.0)
+  \hspace(4.0)
   \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B")}{Σ; Γ ⊢ u : A}{Σ; Γ ⊢ \t("t u") : B}
 $$
 $$
@@ -380,10 +409,16 @@ $$
   }
 $$
 $$
-  \binaryRN{{∀}_i}{Σ, X; Γ ⊢ t : A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : \f("∀X A")}
-  \hspace(2.0)
+  \unaryRN{{∀}_i}{Σ, X; Γ ⊢ t : A}{Σ; Γ ⊢ t : \f("∀X A")}
+  \hspace(4.0)
   \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A")}{Σ; Γ ⊢ t : \f("A[X≔B]")}
 $$
+\end{def}
+\begin{rem}
+The condition on the well-formedness of all the judgments imply that the
+$∀_i$ rule may only apply when $X ∉ FV_ο(Γ)$. If it were not the case then
+the conclusion judgments of the rule could not be well-formed.
+\end{rem}
 
 As an example, the proof that $\t("λx λy x")$ has type $\f("∀X ∀Y X ⇒ Y ⇒ X")$
 can be derived as follows in the system. Note that this type is fully
@@ -391,16 +426,12 @@ specified, in the sense that we did not say anything like
 "for all given types".
 $$
   \proofTree{
-    \binaryN{∀_i}{⊢ \t("λx λy x") : \f("∀X ∀Y X ⇒ Y ⇒ X")}{
-      \binaryN{∀_i}{X ⊢ \t("λx λy x") : \f("∀Y X ⇒ Y ⇒ X")}{
-        \unaryN{⇒_i}{X, Y ⊢ \t("λx λy x") : \f("X ⇒ Y ⇒ X")}{
-          \unaryN{⇒_i}{X, Y; x : X ⊢ \t("λy x") : \f("Y ⇒ X")}{
-            \axiomN{Ax}{X, Y; x : X, y : Y ⊢ x : X}
-          }
-        }
-      }{\hyp{Y ∉ FV(•)}}
-    }{\hyp{X ∉ FV(•)}}
-  }
+    \unaryN{∀_i}{⊢ \t("λx λy x") : \f("∀X ∀Y X ⇒ Y ⇒ X")}{
+    \unaryN{∀_i}{X ⊢ \t("λx λy x") : \f("∀Y X ⇒ Y ⇒ X")}{
+      \unaryN{⇒_i}{X, Y ⊢ \t("λx λy x") : \f("X ⇒ Y ⇒ X")}{
+        \unaryN{⇒_i}{X, Y; x : X ⊢ \t("λy x") : \f("Y ⇒ X")}{
+          \axiomN{Ax}{X, Y; x : X, y : Y ⊢ x : X}
+  }}}}}
 $$
 
 It would seem that polymophism and classical logic are two rather orthogonal
@@ -501,25 +532,55 @@ the polymorphic type ##('a -> 'a) * (('a -> 'a) -> unit)##. As a
 consequence, the type ##'a -> 'a## can be unified with
 ##string -> string## and ##int -> int##. As with references, value
 restriction solves the inconsistency and yields a sound type system. 
-Indeed, ##'_a -> '_a## cannot be unified to ##string -> string## and
-to ##int -> int##.
+Indeed, ##'_a -> '_a## cannot be unified with ##string -> string## and
+with ##int -> int## at the same time.
 
-(*
+It is relatively easy to translate the counter example of Robert Harper
+and Mark Lillibridge into our language. Indeed, a term of the form
+##callcc (fun k -> t)## will be translated into $\t("μα t")$ where $t$
+is the translation of ##t## in which every subterm of the form
+##throw k u## has replaced by $\t("[α]u")$.
 In the context of the \lmcalc, the soundness issue arises when evaluating
 $\t("t μα u")$ when $\t("μα u")$ has a polymorphic type. Such a situation
 cannot happen with value restriction since $\t("μα u")$ is not a value.
-*)
 
 =<
 
 => Encoding value restriction
+
+As mentioned in the previous section, the languages of the ||ml|| family
+need a restriction on polymorphism to remain type-safe. With the value
+restriction, the typing rule for ||ml|| polymorphism becomes the following.
+$$
+  \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
+    {Γ ⊢ let x = v in t : A}
+$$
+When the value that is bound by a let-binding is not a value its type is
+not generalized and the following rule applies.
+$$
+  \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A}
+$$
 
 In slightly more expressive type systems like System F, the value
 restriction appears in the typing rule for the introduction of the
 universal quantifier. The ususal typing rule
 $$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
 cannot be proved safe (in a call-by-value system with side-effects) if
-$t$ is not a syntactic value.
+$t$ is not a syntactic value. This will also be the case in our system
+when we bring together polymorphism and the \lmcalc.
+
+\begin{def}
+A value judgement is a quadruple of a value $v ∈ Λ_{val}$, a type
+$A ∈ \cal{F}$, a typing context $Γ$ and a continuation context $Δ$.
+It is denoted $Γ ⊢_\tval v : A; Δ$.
+\end{def}
+\begin{def}
+A term judgement is a quadruple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$,
+a typing context $Γ$ and a continuation context $Δ$. It is denoted
+$Γ ⊢ t : A; Δ$.
+\end{def}
+
+
 
 $$
   \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}

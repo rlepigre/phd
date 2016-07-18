@@ -679,15 +679,4 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
 \end{thm}
 
 =<
-=> Soundness of the dependent product
-
-... (* TODO *)
-
-=<
-=> The limits of value restriction
-
-... (* TODO *)
-
-=<
-
 =<
