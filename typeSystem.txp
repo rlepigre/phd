@@ -551,15 +551,11 @@ cannot happen with value restriction since $\t("μα u")$ is not a value.
 As mentioned in the previous section, the languages of the ||ml|| family
 need a restriction on polymorphism to remain type-safe. With the value
 restriction, the typing rule for ||ml|| polymorphism becomes the following.
-$$
-  \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
-    {Γ ⊢ let x = v in t : A}
-$$
+$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
+    {Γ ⊢ let x = v in t : A} $$
 When the value that is bound by a let-binding is not a value its type is
 not generalized and the following rule applies.
-$$
-  \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A}
-$$
+$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
 
 In slightly more expressive type systems like System F, the value
 restriction appears in the typing rule for the introduction of the
@@ -570,27 +566,27 @@ $t$ is not a syntactic value. This will also be the case in our system
 when we bring together polymorphism and the \lmcalc.
 
 \begin{def}
-A value judgement is a quadruple of a value $v ∈ Λ_{val}$, a type
-$A ∈ \cal{F}$, a typing context $Γ$ and a continuation context $Δ$.
-It is denoted $Γ ⊢_\tval v : A; Δ$.
+A value judgement (resp. term judgment) is a tuple of a value $v ∈ Λ_{val}$
+(resp. a term $t ∈ Λ$), a type $A ∈ \cal{F}$, a typing context $Γ$, a
+continuation context $Δ$ and a type variable context $Σ$ that is denoted
+$Σ; Γ ⊢_\tval v : A; Δ$ (resp. $Σ; Γ ⊢ t : A; Δ$). A judgment is sait do be
+//well-formed// if $FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) ⊆ dom(Δ)$, $FV_ι(t) = ∅$,
+$FV_ο(A) ⊆ Σ$, $FV_ο(Γ) ⊆ Σ$ and $FV_ο(Δ) ⊆ Σ$. To lighten the notations,
+we will sometimes ommit empty contexts.
 \end{def}
 \begin{def}
-A term judgement is a quadruple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$,
-a typing context $Γ$ and a continuation context $Δ$. It is denoted
-$Γ ⊢ t : A; Δ$.
-\end{def}
-
-
-
+We say that a well-formed judgement is //valid// if and only if it can be
+derived using the following deduction rule system. Note that a rule only
+applies if all the involved judgments are well-formed.
 $$
   \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}
-  \hspace(2.0)
+  \hspace(4.0)
   \unaryRN{↑}{Σ;Γ ⊢_\tval v : A; Δ}{Σ;Γ ⊢ v : A; Δ}
 $$
 $$
   \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B; Δ}{
     Σ; Γ ⊢_\tval \t("λx t") : \f("A ⇒ B"); Δ}
-  \hspace(2.0)
+  \hspace(4.0)
   \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B"); Δ}{Σ; Γ ⊢ u : A; Δ}{
     Σ; Γ ⊢ \t("t u") : B; Δ}
 $$
@@ -619,11 +615,46 @@ $$
   }
 $$
 $$
-  \binaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{X ∉ FV(Γ) ∪ FV(Δ)}{
-    Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
-  \hspace(2.0)
+  \unaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
+  \hspace(4.0)
   \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A"); Δ}{Σ; Γ ⊢ t : \f("A[X≔B]"); Δ}
 $$
+\end{def}
+Here again, the $∀_i$ rule does not apply if $X ∈ FV_ο(Γ)$ or $X ∈ FV_ο(Δ)$.
+\begin{rem}
+The $↑$ rule is essential for building proofs. It arises naturally as values
+are terms, and hence a value judgement subsumes the corresponding term
+judgment.
+\end{rem}
+
+As an example, we can derive again the type of $\t("λf μα f λx [α]x")$ as
+follows. Its type still corresponds to Peirce's Law, but we are now able to
+polymorphism.
+\begin{env}(scale 0.86)
+$$
+  \proofTree{
+    \unaryN{∀_i}{⊢ \t("λf μα f λx [α]x") : \f("∀X ∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{∀_i}{X ⊢ \t("λf μα f λx [α]x") : \f("∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{⇒_i}{X,Y ⊢ \t("λf μα f λx [α]x") : \f("((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{μ}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("μα f λx [α]x") : X}{
+      \binaryN{⇒_e}{
+        X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("f λx [α]x") : X; α:X
+      }{
+        \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ f : \f("(X ⇒ Y) ⇒ X"); α:X}
+      }{
+        \unaryN{⇒_i}{
+          X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("λx [α]x") : \f("X ⇒ Y"); α:X
+        }{
+          \unaryN{[{-}]}{
+            X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ \t("[α]x") : X; α : X
+          }{
+            \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ x : X; α:X}
+          }
+        }
+      }
+  }}}}}
+$$
+\end{env}
 
 =<
 
