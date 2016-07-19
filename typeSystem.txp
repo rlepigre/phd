@@ -665,35 +665,29 @@ a base for the work presented in this thesis. Although the following extends
 definitions given in the previous sections, we choose not to avoid
 repetitions so that this section remains completely self-contained.
 
-In this thesis, we consider a programming language that is very similar to
-the functional programming languages of the ||ml|| family (e.g. SML or
-OCaml). In the following, we provide a full formal definition of our
-type system. It will provide a product type for records, a sum type for
-variants, polymorphism and higher-order quantification, least and greatest
-fixpoints.
+We here consider a type system that is very similar to the type system of
+the functional languages of the ||ml|| family (e.g. SML or OCaml). It will
+provide a product type for records, a sum type for polymorphic variants,
+polymorphism and higher-order quantification, least and greatest fixpoints.
+The higher-order features of the system will allow us to define types using
+functions taking as arguments types or other functions. This leads to a
+system in which it is syntactically correct to use a type function as a
+type, although it does not make sense. To solve this problem, the usual
+approach is to assign a form of type (called sort) to the types themselves.
 \begin{def}
-We denote $\cal{S}₀$ the set of all the atomic sorts. We require this set to
-be finite (or at least countable), and to contain the sort of propositions
-denoted $ο$.
+The set $\cal{S}$ of all the sorts is generated using the following ||bnf||
+grammar, where $ο$ denotes the sort of propositions.
+$$ s,r ::= ο \| {s→r} $$
 \end{def}
 \begin{def}
-The set of all the sorts is generated from the set of atomic sorts $\cal{S}₀$
-using the following ||bnf|| grammar.
-\Caml(let _ = sidenote_wr 1 2 << $s,r ::= {s→r} \| ξ$ >> << $ξ∈\cal{S}₀$ >>)
-\end{def}
-\begin{def}
-We require disjoint countable sets of variables $\cal{V}_s$ for every sort
-$s ∈ \cal{S}$. In particular, we will take $\cal{V}_ο = \{X, Y, Z...\}$. The
-set of all the variables is denoted $\cal{V}$ and is defined as
-$\cal{V} = \bigunion_{s∈\cal{S}} \cal{V}_s$.
-\end{def}
-\begin{def}
-The set of types (or formulas) $\cal{F}$ is generated from the set $\cal{V}$
+The set of types (or formulas) is built from a countable set of
+variables $\cal{V} = \{χ... X, Y, Z ...\}$ containing the set of
+propositional variables $\cal{V}_ο = \{X, Y, Z...\}$. It is generated
 using the following ||bnf|| grammar.
 $$
-  A,B ::= \f("χ") \| \f("(χ ↦ A)") \| \f("A(B)") \| \f("A ⇒ B") \|
-          \f("{(li : Ai) i∈I}") \mbr \| \f("[(Ci : Ai) i∈I]")
-          \| \f("∀χ A") \| \f("∃χ A") \| \f("μX A") \| \f("νX A")
+  A,B ::= \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)") \| \f("A ⇒ B") \|
+          \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") \mbr 
+          \| \f("∀χ^s A") \| \f("∃χ^s A") \| \f("μX A") \| \f("νX A")
 $$
 \end{def}
 \begin{def}
@@ -705,9 +699,9 @@ and their order is irrelevant.
 \end{def}
 
 \begin{def}
-A sorting judgment is a trile of a sorting context $Σ$, a type $A$ and a sort
+A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
 $s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
-valid if and only if it can be derived using the following rules.
+valid if and only if it can be derived using the following deduction rules.
 $$
 \axiomR{Σ, χ : s ⊢ χ : s}
 \hspace(3.0)
@@ -716,7 +710,7 @@ $$
 \binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}
 $$
 $$
-\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ A ⇒ B : ο}
+\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}
 \hspace(3.0)
 \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}
 \hspace(3.0)

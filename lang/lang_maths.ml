@@ -128,8 +128,18 @@ and  subs2m : subs -> Maths.math list =
   | SubsM(s)     -> vari2m s
 and f2m : form -> Maths.math list = function
   | FMeta(a)       -> vari2m a
-  | FVari(x)       -> vari2m x
-  | FLamb(x,a)     -> (str "(") @ (bin' 2 "↦" (vari2m x, f2m a)) @ (str ")")
+  | FVari(x,s)     -> begin
+                        let x = vari2m x in
+                        match s with
+                        | None   -> x
+                        | Some s -> with_rsup x (vari2m s)
+                      end
+  | FLamb(x,s,a)   -> let x =
+                        let x = vari2m x in
+                        match s with
+                        | None   -> x
+                        | Some s -> with_rsup x (vari2m s)
+                      in (str "(") @ (bin' 2 "↦" (x, f2m a)) @ (str ")")
   | FAppl(a,b)     -> (f2m a) @ (str "(") @ (f2m b) @ (str ")")
   | FFunc(a,b)     -> bin' 2 "⇒" (f2m a, f2m b)
   | FSubs(a,s)     -> (f2m a) @ (subs2m s)
