@@ -433,26 +433,40 @@ non-backtracking type-checking and type-inference algorithm.
 
 => Thesis overview
 
-The type-system of our new language is built incrementally throughout this
-thesis. Our starting point is a higher-order language enriched with product
-types (corresponding to SML records), sum types (corresponding to
-OCaml polymorphic variants) and control operators. This system is
-formally constructed in \chapter("hocml"), together with a general
-introduction to the concepts and formalisms of type theory and classical
-realisability.
+The starting point of this thesis is an untyped call-by-value language
+defined in \chapter("calculus"). The terms of the language are evaluated
+using an abstract environment machine, which allows us to account for both
+computational effects and a form of contextual equivalence. A higher-order
+type system for our language is then defined in \chapter("typeSystem"). Its
+main feature is an equality type over terms that is interpreted using the
+untyped notion of equivalence of \chapter("calculus"). This enables the
+specification of program properties that can then be proved using equational
+reasoning. The soundness and the type safety of our system are then proved
+using standard classical realizability techinques. In particular, the
+interpretation of types is spread among three sets related by orthogonality:
+a set of values, a set of envaluation contexts and a set of terms.
 
-The system is then enriched with new types allowing the specification of
-program equivalences in \chapter("pml"). In particular, the system is
-extended with a dependent product type. However, the expressivity of this
-dependent product type is limited due to value restriction. A solution to
-this problem is proposed in \chapter("svr"), and value restriction is relaxed.
-A realizability model is then constructed to show the soundness of this new
-approach. In particular, the property that the biorthogonal completion of
-a set of value is closed for values is required.
+The type system defined in \chapter("typeSystem") provides a weak form of
+dependent function type, which can be used to quantify over terms of a
+given type. However, value restriction is required on the arguments of
+a dependent function, which make it practically useless.
+\chapter("semValRest") provides a solution to this problem by proposing
+a relaxed notion of value restriction expressed using observational
+equivalence. The soundness of this new approach is proved by constructing
+a somewhat surprising realizability model.
 
+From \chapter("subtyping") onwards, a more practical approach is taken. The
+type system is extended with inductive and coinductive types, which are
+handled using a subtyping relation. A fixpoint operator is also provided to
+allow for reccursive programs, which are shown terminating using the size
+change principle. In \chapter("implementation"), the implementation of the
+system is presented. The source code of the prototype is distributed with
+this document, and the last version is available online. (* FIXME http *)
 
-Every aspect of the system has been implemented in a prototype, which is
-distributed with this document.
+Finally, \chapter("conclusion") presents several ideas and problems that
+could not be tackled in this thesis for lack of time. The limitations of
+the prototype implementation are assesed, and a plan for future developpement
+is suggested.
 
 =<
 

@@ -1,7 +1,7 @@
 \Caml(open Diagrams open ProofTree open Lang)
 \Include{Macros}
 
-=> A model for a semantical value restriction
+=> A model for a semantical value restriction \label("semValRest")
 
 => The limits of value restriction
 
