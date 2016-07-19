@@ -43,8 +43,6 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{TypeSystem}
 
-\Include{NewSystem}
-
 \Include{SemValRest}
 
 \Include{Subtyping}
