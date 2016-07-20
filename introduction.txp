@@ -2,6 +2,7 @@
 \Caml(
   open ProofTree
   open PMLVerbatim
+  open Lang
 )
 
 => Introduction \label("intro")
@@ -194,6 +195,109 @@ equational reasoning. Note that in our system, programs that are considered
 as proofs need to go through a termination checker. Indeed, a looping program
 could be used to prove anything otherwise. The proofs ##addZeroN## and
 ##addNZero## are obviously terminating, and hence valid.
+
+=<
+
+=> A brief history of ||ml|| and value restriction
+
+A soundness issue related to side-effects and call-by-value evaluation
+arose in the seventies with the advent of ML. The problem stems from a
+bad interaction between side-effects and Hindley-Milner polymorphism. It was
+first formulated in terms of references \citen("Wright1995")("Section 2").
+To extend ||ml|| with reference, the naive approach consist in providing the
+following three primitive polymorphic procedures (in ||OCaml|| syntax).
+### OCaml
+  val ref  : 'a -> 'a ref
+  val (:=) : 'a ref -> 'a -> unit
+  val (!)  : 'a ref -> 'a
+###
+However, this leads to trouble when working with references of a polymorphic
+type. The problem is demonstrated by the following example, which is accepted
+by the naive extension of the type system.
+### OCaml
+  let l = ref [] in
+  l := [true]; (List.hd !l) + 1
+###
+On the first line, variable ##l## is given the polymorphic type
+##'a list ref##, which can be unified both with ##bool list ref## and
+and ##int list ref## on the second line. This is an obvious violation of
+type safety, which is the purpose of a type system.
+
+To solve the problem, many alternative type systems were designed (e.g.
+\mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
+all introduced a complexity that contrasted with the elegance and simplicity
+of ||ml|| systems (see \citen("Wright1995")("Section 2") and
+\citen("Garrigue2004")("Section 2") for a detailed account).
+(* *)
+A simple and elegant solution was finally found by Andrew Wright in the
+nineties. He suggested restricting generalization (i.e. introduction of
+polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]).
+
+In ||ml||, generalization usually happens in expressions of the form
+##let x = u in t##, called let-bindings. The type-checking of such an
+expression proceeds by infering the type of the term ##u##, which may
+contain unification variables. The type of ##u## is then generalized by
+introducing universal quantification over the unification variables.
+Finally, the term ##t## is type-checked under the assumption that ##x##
+has the most general type of ##u##. With value restriction, the
+generalization of the type of ##u## only happens if ##u## is a
+syntactic value. Consequently, the example above is rejected since
+##ref []## is not a value, and hence its infered type ##'_a list ref##
+is only weakly polymorphic. Thus, it cannot be unified with both
+##bool list ref## and ##nat list ref##.
+
+In this thesis, we consider control structures, which have been shown to
+give a computational interpretation to classical logic by Timothy Griffin
+\cite("Griffin1990"). One way of extending ||ml|| with control structures
+is to introduce the following two primitive polymorphic procedures.
+### OCaml
+  val callcc : ('a cont -> 'a) -> 'a
+  val throw  : 'a cont -> 'a -> 'b
+###
+The function ##callcc## corresponds to the control operator //call/cc//,
+which was first introduced in the //Scheme// programming language. When
+called, this function saves the current continuation (i.e. the current
+state of the programs environment) and feeds it to the function it is
+given as an argument. The continuation can be restored in the body of
+this function using the ##throw## function.
+
+In 1991, Robert Harper and Mark Lillibridge found a complex program
+breaking the type safety of ||ml|| with //call/cc// \cite("Harper1991").
+### OCaml
+  let c = callcc
+    (fun k -> ((fun x -> x), (fun f -> throw k (f, (fun _ -> ())))))
+  in print_string ((fst c) "Hello world!"); (snd c) (fun x -> x+2)
+###
+Intuitively, this program saves the continuation and then builds a couple
+##c## containing two functions. The first one is simply the identity
+function. The second one takes a function ##f## as argument, uses
+##throw## to restore the previously saved continuation and replaces the
+two functions by ##f## and a constant function returning the only value
+of type ##unit##. Consequently, the first element of the couple ##c## can
+be used as the identity function as long as the second element of ##c##
+has not been used. If the second element of ##c## is called with a
+function ##g##, then ##g## becomes the first element of ##c## and the
+computation restarts. This leads to a crash since the function
+##fun x -> x+2## is applied to a value of type ##string##.
+
+The infered type for ##c## is ##('_a -> '_a) * (('_a -> '_a) -> unit)##
+prior to generalization. This means that without value restriction, the
+last line of the example is type-checked in a context where ##c## has
+the polymorphic type ##('a -> 'a) * (('a -> 'a) -> unit)##. As a
+consequence, the type ##'a -> 'a## can be unified with
+##string -> string## and ##int -> int##. As with references, value
+restriction solves the inconsistency and yields a sound type system. 
+Indeed, ##'_a -> '_a## cannot be unified with ##string -> string## and
+with ##int -> int## at the same time.
+
+It is relatively easy to translate the counter example of Robert Harper
+and Mark Lillibridge into our language. Indeed, a term of the form
+##callcc (fun k -> t)## will be translated into $\t("μα t")$ where $t$
+is the translation of ##t## in which every subterm of the form
+##throw k u## has replaced by $\t("[α]u")$.
+In the context of the \lmcalc, the soundness issue arises when evaluating
+$\t("t μα u")$ when $\t("μα u")$ has a polymorphic type. Such a situation
+cannot happen with value restriction since $\t("μα u")$ is not a value.
 
 =<
 

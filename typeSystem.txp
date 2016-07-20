@@ -82,24 +82,443 @@ procedure is able to show that for every substitution $ρ$ such that $ρ ⊩ Ξ$
 we have $\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 
-(* TODO more *)
+Although equality types enable the derivation of simple equational
+properties, their use is rather limited without a form of quantification.
+Indeed, they can only be used to specify static equivalences like
+$\t("(λx x) {}") ≡_{≻} \t("{}")$, but not general properties like
+"$\t("(λx x) v") ≡_{≻} \t("v")$ for every value $v$".
 
 =<
-=> Realisers as individuals
+=> Untyped quantification and membership predicate
 
-... (* TODO *)
+A term $t ∈ Λ$ can contain free variables of several sorts: $λ$-variables
+(i.e. value variables), term variables and $μ$-variables (i.e. stack
+variables). As open terms may appear in types, and in particular in equality
+types, it is natural to allow universal and existential quantification over
+all all three sorts of variables. We can hence encode properties like
+$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$.
+\begin{rem}
+It is not clean whether quantification over stacks has a parctical use. We
+only include it as it fits well in the framework and seems rather natural.
+\end{rem}
+
+(* TODO *)
+
+Still, quantifying over all the (closed) values or terms is not enough.
+Indeed, it is sometimes required to quantify over the values or terms of
+a given type only. To this aim, we introduce a membership type constructor
+$\f("t ∈ A")$ where $t ∈ Λ$ is a term and $A$ is a type. Intuitively, the
+element of a type $\f("t ∈ A")$ are the elements of $A$ that are equivalent
+to $t$. In particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
+
+(* TODO *)
+
+When a membership type is used as the argument type of a function...
+
+$$ Π_{a : A} B ≔ \f("∀a (a∈A ⇒ B)") $$
+
+$$ Σ_{a : A} B ≔ \f("∀a {l₁ : a∈A; l₂ : B}") $$
 
 =<
-=> Extensionality and substitutivity
+=> Sorts and higher-order types
 
-... (* TODO *)
+Our system also provides quantifiers
+ranging over types, which correspond to System F polymorphism and type
+abstraction.
+
+Although our system provides several different sorts of quantifiers, they
+are going to be handled uniformly in the semantics.
+
+
+
+In this section, we present the higher-order type system that will serve as
+a base for the work presented in this thesis. Although the following extends
+definitions given in the previous sections, we choose not to avoid
+repetitions so that this section remains completely self-contained.
+
+We here consider a type system that is very similar to the type system of
+the functional languages of the ||ml|| family (e.g. SML or OCaml). It will
+provide a product type for records, a sum type for polymorphic variants,
+polymorphism and higher-order quantification, least and greatest fixpoints.
+The higher-order features of the system will allow us to define types using
+functions taking as arguments types or other functions. This leads to a
+system in which it is syntactically correct to use a type function as a
+type, although it does not make sense. To solve this problem, the usual
+approach is to assign a form of type (called sort) to the types themselves.
+\begin{def}
+The set $\cal{S}$ of all the sorts is generated using the following ||bnf||
+grammar, where $ο$ denotes the sort of propositions.
+$$ s,r ::= ο \| {s→r} $$
+\end{def}
+\begin{def}
+The set of types (or formulas) is built from a countable set of
+variables $\cal{V} = \{χ... X, Y, Z ...\}$ containing the set of
+propositional variables $\cal{V}_ο = \{X, Y, Z...\}$. It is generated
+using the following ||bnf|| grammar.
+$$
+  A,B ::= \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)") \| \f("A ⇒ B") \|
+          \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") \mbr 
+          \| \f("∀χ^s A") \| \f("∃χ^s A") \| \f("μX A") \| \f("νX A")
+$$
+\end{def}
+\begin{def}
+A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
+$χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, sorting contexts are
+represented using comma-separated lists of sort assignments of the form
+$χ : s$. variable of $\cal{V}$ are mapped at most onces in a sorting context,
+and their order is irrelevant.
+\end{def}
+
+\begin{def}
+A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
+$s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
+valid if and only if it can be derived using the following deduction rules.
+$$
+\axiomR{Σ, χ : s ⊢ χ : s}
+\hspace(3.0)
+\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ ↦ A)") : s → r}
+\hspace(3.0)
+\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}
+$$
+$$
+\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}
+\hspace(3.0)
+\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}
+\hspace(3.0)
+\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}
+$$
+$$
+\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∀χ A") : r}
+\hspace(3.0)
+\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}
+\hspace(3.0)
+\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("μX A") : ο}
+$$
+$$
+\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("νX A") : ο}
+$$
+\end{def}
+
+\begin{def}
+A typing context is a finite map $Γ$ over $\cal{V}_λ$ and $\cal{V}_μ$ such
+that for all $λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$ and for all
+$μ$-variable $α ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
+represent typing contexts using comma-separated lists of mappings generated
+of the form $x : A$ or $α : A^⊥$. Note that variables can only be mapped once
+in a typing context, and that their order is irrelevant.
+\end{def}
+\begin{def}
+A typing context $Γ$ is said to be valid under a sorting context $Σ$ if for
+all mapping $x:A$ or $α:A^⊥$ in $Γ$ the judgment $Σ ⊢ Γ(x) : ο$ is valid. If
+$Γ$ is valid under $Σ$ then we write $Σ ⊢ Γ$.
+\end{def}
+
+(* Typing rules. *)
+$$
+  \axiomRN{Ax}{Γ, x : A ⊢_\tval x : A}
+  \hspace(2.0)
+  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢_\tval λx t: A ⇒ B}
+  \hspace(2.0)
+  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
+$$
+$$
+  \unaryRN{↑}{Γ ⊢_\tval v : A}{Γ ⊢ v : A}
+  \hspace(4.0)
+  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
+  \hspace(4.0)
+  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
+$$
+$$
+  \binaryRN{∀_i}{Γ, X_n ⊢_\tval v : A}{X_n ∉ FV(Γ)}{Γ ⊢_\tval v : ∀X_n A}
+  \hspace(4.0)
+  \unaryRN{∀_e}{Γ ⊢ t : ∀X_n A}{Γ ⊢ t : A[X_n := P_n]}
+$$
+$$
+  \unaryRN{∃_i}{Γ ⊢ t : A[X_n := P_n]}{Γ ⊢ t : ∃X_n A}
+  \hspace(4.0)
+  \binaryRN{∃_e}{Γ, X_n, x : A ⊢ t : B}{X_n ∉ FV(Γ,B)}{Γ, x : ∃X_n A ⊢ t : B}
+$$
+$$
+  \unaryRN{×_i}{[Γ ⊢_\tval v_i : A_i]_{1≤i≤n}}{
+    Γ ⊢_\tval \{l_i = v_i\}_{1≤i≤n} : \{l_i : A_i\}_{1≤i≤n}
+  }
+  \hspace(4.0)
+  \unaryRN{×_e}{Γ ⊢_\tval v : \{l_i : A_i\}_{1≤i≤n}}{Γ ⊢ v{.}l_i : A_i}
+$$
+$$
+  \unaryRN{+_i}{Γ ⊢_\tval v : A_i}{Γ ⊢ C_i[v] : [C_i : A_i]_{1≤i≤n}}
+  \hspace(1.0)
+  \binaryRN{+_e}{Γ ⊢_\tval v : [C_i : A_i]_{1≤i≤n}}{
+    [Γ, x_i : A_i ⊢ t_i : B]_{1≤i≤n}
+  }{
+    Γ ⊢ case_v [C_i[x_i] → t_i]_{1≤i≤n} : B
+  }
+$$
+
+
+(* Sorting rules. *)
+$$
+\binaryR{Δ ⊢ A : ο}{Δ ⊢ B : ο}{Δ ⊢ A ⇒ B : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ \{l_i : A_i\}_{i∈I} : ο}
+\hspace(3.0)
+\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ [C_i : A_i]_{i∈I} : ο}
+$$
+$$
+\axiomR{Δ, χ : s ⊢ χ : s}
+\hspace(3.0)
+\unaryR{Δ, χ : s ⊢ E : r}{Δ ⊢ (χ^s ↦ E) : s → r}
+\hspace(3.0)
+\binaryR{Δ ⊢ E : s → r}{Δ ⊢ F : s}{Δ ⊢ E(F) : r}
+$$
+$$
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∀χ^s A : ο}
+\hspace(3.0)
+\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∃χ^s A : ο}
+$$
+$$
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ μX A : ο}
+\hspace(3.0)
+\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ νX A : ο}
+$$
+(* TODO *)
 
 =<
-=> Proofs and unreachability
+=> Encoding value restriction
 
-... (* TODO *)
+As mentioned in the previous section, the languages of the ||ml|| family
+need a restriction on polymorphism to remain type-safe. With the value
+restriction, the typing rule for ||ml|| polymorphism becomes the following.
+$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
+    {Γ ⊢ let x = v in t : A} $$
+When the value that is bound by a let-binding is not a value its type is
+not generalized and the following rule applies.
+$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
+
+In slightly more expressive type systems like System F, the value
+restriction appears in the typing rule for the introduction of the
+universal quantifier. The ususal typing rule
+$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
+cannot be proved safe (in a call-by-value system with side-effects) if
+$t$ is not a syntactic value. This will also be the case in our system
+when we bring together polymorphism and the \lmcalc.
+
+\begin{def}
+A value judgement (resp. term judgment) is a tuple of a value $v ∈ Λ_{val}$
+(resp. a term $t ∈ Λ$), a type $A ∈ \cal{F}$, a typing context $Γ$, a
+continuation context $Δ$ and a type variable context $Σ$ that is denoted
+$Σ; Γ ⊢_\tval v : A; Δ$ (resp. $Σ; Γ ⊢ t : A; Δ$). A judgment is sait do be
+//well-formed// if $FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) ⊆ dom(Δ)$, $FV_ι(t) = ∅$,
+$FV_ο(A) ⊆ Σ$, $FV_ο(Γ) ⊆ Σ$ and $FV_ο(Δ) ⊆ Σ$. To lighten the notations,
+we will sometimes ommit empty contexts.
+\end{def}
+\begin{def}
+We say that a well-formed judgement is //valid// if and only if it can be
+derived using the following deduction rule system. Note that a rule only
+applies if all the involved judgments are well-formed.
+$$
+  \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}
+  \hspace(4.0)
+  \unaryRN{↑}{Σ;Γ ⊢_\tval v : A; Δ}{Σ;Γ ⊢ v : A; Δ}
+$$
+$$
+  \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B; Δ}{
+    Σ; Γ ⊢_\tval \t("λx t") : \f("A ⇒ B"); Δ}
+  \hspace(4.0)
+  \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B"); Δ}{Σ; Γ ⊢ u : A; Δ}{
+    Σ; Γ ⊢ \t("t u") : B; Δ}
+$$
+$$
+  \unaryRN{μ}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("μα t") : A; Δ}
+  \hspace(4.0)
+  \unaryRN{[\wc]}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("[α]t") : B; α : A, Δ}
+$$
+$$
+  \unaryRN{×_i}{[Σ; Γ ⊢_\tval v_i : A_i; Δ]_{i∈I}}{
+    Σ; Γ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"); Δ
+  }
+  \hspace(4.0)
+  \unaryRN{×_e}{Σ;Γ ⊢_\tval v : \f("{(li : Ai) i∈I}"); Δ}{
+    Σ;Γ ⊢ \t("v.lj") : A_j; Δ}
+$$
+$$
+  \unaryRN{+_i}{Σ ⊢ (Γ ⊢_\tval v : A_j; Δ)}{
+    Σ ⊢ (Γ ⊢_\tval \v("Cj[v]") : \f("[(Ci : Ai) i∈I]")); Δ}
+$$
+$$
+  \binaryRN{+_e}{Σ; Γ ⊢_\tval v : \f("[(Ci : Ai) i∈I]"); Δ}{
+    [Σ; Γ, x_i : A_i ⊢ t_i : B; Δ]_{i∈I}
+  }{
+    Σ; Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B; Δ
+  }
+$$
+$$
+  \unaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
+  \hspace(4.0)
+  \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A"); Δ}{Σ; Γ ⊢ t : \f("A[X≔B]"); Δ}
+$$
+\end{def}
+Here again, the $∀_i$ rule does not apply if $X ∈ FV_ο(Γ)$ or $X ∈ FV_ο(Δ)$.
+\begin{rem}
+The $↑$ rule is essential for building proofs. It arises naturally as values
+are terms, and hence a value judgement subsumes the corresponding term
+judgment.
+\end{rem}
+
+As an example, we can derive again the type of $\t("λf μα f λx [α]x")$ as
+follows. Its type still corresponds to Peirce's Law, but we are now able to
+polymorphism.
+\begin{env}(scale 0.86)
+$$
+  \proofTree{
+    \unaryN{∀_i}{⊢ \t("λf μα f λx [α]x") : \f("∀X ∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{∀_i}{X ⊢ \t("λf μα f λx [α]x") : \f("∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{⇒_i}{X,Y ⊢ \t("λf μα f λx [α]x") : \f("((X ⇒ Y) ⇒ X) ⇒ X")}{
+    \unaryN{μ}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("μα f λx [α]x") : X}{
+      \binaryN{⇒_e}{
+        X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("f λx [α]x") : X; α:X
+      }{
+        \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ f : \f("(X ⇒ Y) ⇒ X"); α:X}
+      }{
+        \unaryN{⇒_i}{
+          X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("λx [α]x") : \f("X ⇒ Y"); α:X
+        }{
+          \unaryN{[{-}]}{
+            X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ \t("[α]x") : X; α : X
+          }{
+            \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ x : X; α:X}
+          }
+        }
+      }
+  }}}}}
+$$
+\end{env}
 
 =<
+=> Call-by-value realisability semantics
+
+The abstract machine presented in \chapter("calculus") is part of a
+//classical realizability// machinery that will be built upon here.
+We aim at obtaining a semantical interpretation of our higher-order
+type system. As always in classical realizability, the model is
+parametrized by a pole, which serves as an exchange point between
+the world of programs and the world of execution contexts, which are
+represented as stacks.
+\begin{def}
+A //pole// is a set of processes $\dbot ⊆ Λ×Π$ which is //saturated//
+(i.e. closed under backward reduction). More formally, if we have
+$q ∈ \dbot$ and $p ≻ q$ then $p ∈ \dbot$.
+\end{def}
+
+The notion of //orthogonality// is central in Krivine's classical
+realizability. In this framework a type is interpreted (or realized) by
+programs computing corresponding values. This interpretation is spread
+in a three-layered construction, even though it is fully determined by
+the first layer and the choice of the pole. The first layer consists of
+a set of values that we will call the //raw semantics//. It gathers all
+the syntactic values that should be considered as having the corresponding
+type. As an example, if we were to consider the type of natural numbers,
+its raw semantics would be the set $\{\hat{n} \| n ∈ \bbN\}$ where
+$\hat{n}$ is some encoding of $n$.
+(* *)
+The second layer, called //falsity value//, is a set containing every
+stack that is a candidate for building a valid process using any value
+from the raw semantics. The notion of validity depends on the choice of
+the pole. The third layer, called //truth value// is a set of terms that
+is built by iterating the process once more. The formalism for the two
+levels of orthogonality is given in the following definition.
+\begin{def}\label("orthodef")
+For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^\bot ⊆ Π$ and a set
+$Φ^{\bot\bot} ⊆ Λ$ as follows.
+$$
+  Φ^\bot = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
+  \hspace(3.0)
+  Φ^{\bot\bot} = \{t∈Λ \| ∀π∈Φ^\bot \p("t ∗ π") ∈ \dbot\}
+$$
+\end{def}
+
+We now give two general properties of orthogonality that are true in
+every classical realizability model. They will be useful when proving
+the soundness of our type system.
+\begin{lem}\label("orthosimple")
+If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{\bot\bot}$.
+\begin{proof}
+We take $v ∈ Φ$ and show $v ∈ Φ^{\bot\bot}$. By definition we need to
+show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^\bot$. This is immediate
+by definition of $Φ^\bot$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoinclstack")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
+$Ψ^\bot ⊆ Φ^\bot$.
+\begin{proof}
+Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^\bot$ and show that $π ∈ Φ^\bot$.
+By definition, we know that for all $v ∈ Ψ$ we have $\p("v ∗ π") ∈ \dbot$.
+Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^\bot$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoinclterm")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If
+$Ψ^\bot ⊆ Φ^\bot$ then $Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+\begin{proof}
+Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
+$t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
+$\p("t ∗ π") ∈ \dbot$. Since $Ψ^⊥ ⊆ Φ^⊥$, this is also true for all
+$π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
+\end{proof}
+\end{lem}
+\begin{lem}\label("orthoblabla")
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
+$Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+\begin{proof}
+Let us suppose that $Φ ⊆ Ψ$ and apply \lemRef("orthoinclstack") to obtain
+$Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
+\end{proof}
+\end{lem}
+
+When choosing a pole, it is important to check that it does not yield a
+degenerate model. In particular we need to check that no term is able to
+face every stacks. If it were the case, such a term could be use as a
+proof of $⊥$.
+\begin{def}
+A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
+$t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
+\end{def}
+
+\begin{def}
+To every type $A ∈ \cal{F}$ we associate a set of value $\vs("A") ⊆ Λ_{val}$
+called its raw semantics. It is defined inductively on the structure of $A$
+as follows.
+\begin{center}
+\diagram(
+let _ =
+  let line s m = [ vs s; <$=$>; m ] in
+  array [`East ; `East ; `West]
+  [ line "Φ"               <$ Φ $>
+  ; line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
+  ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
+  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A")
+                                 \t("t[x≔v]") ∈ \ts("B")\} $>
+  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I
+                                 \v("vi")∈\vs("Ai")\} $>
+  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
+  ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
+  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
+  ; line "μX A"            <$ ... $>
+  ; line "νX A"            <$ ... $> ]
+)
+\end{center}
+\end{def}
+
+=<
+
+
+
+
+
+
+
+
 => Membership and typed quantification
 
 (* ⇒_i rule *)
@@ -737,6 +1156,7 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
 
 =<
 
+(*
 => Simple types
 
 In order to prevent undesired computational behaviours such as runtime
@@ -1163,924 +1583,7 @@ it was first identified in the context of ||ml||.
 
 =<
 
-=> A brief history of ||ml|| and value restriction
-
-A soundness issue related to side-effects and call-by-value evaluation
-arose in the seventies with the advent of ML. The problem stems from a
-bad interaction between side-effects and Hindley-Milner polymorphism. It was
-first formulated in terms of references \citen("Wright1995")("Section 2").
-To extend ||ml|| with reference, the naive approach consist in providing the
-following three primitive polymorphic procedures (in ||OCaml|| syntax).
-### OCaml
-  val ref  : 'a -> 'a ref
-  val (:=) : 'a ref -> 'a -> unit
-  val (!)  : 'a ref -> 'a
-###
-However, this leads to trouble when working with references of a polymorphic
-type. The problem is demonstrated by the following example, which is accepted
-by the naive extension of the type system.
-### OCaml
-  let l = ref [] in
-  l := [true]; (List.hd !l) + 1
-###
-On the first line, variable ##l## is given the polymorphic type
-##'a list ref##, which can be unified both with ##bool list ref## and
-and ##int list ref## on the second line. This is an obvious violation of
-type safety, which is the purpose of a type system.
-
-To solve the problem, many alternative type systems were designed (e.g.
-\mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
-all introduced a complexity that contrasted with the elegance and simplicity
-of ||ml|| systems (see \citen("Wright1995")("Section 2") and
-\citen("Garrigue2004")("Section 2") for a detailed account).
-(* *)
-A simple and elegant solution was finally found by Andrew Wright in the
-nineties. He suggested restricting generalization (i.e. introduction of
-polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]).
-
-In ||ml||, generalization usually happens in expressions of the form
-##let x = u in t##, called let-bindings. The type-checking of such an
-expression proceeds by infering the type of the term ##u##, which may
-contain unification variables. The type of ##u## is then generalized by
-introducing universal quantification over the unification variables.
-Finally, the term ##t## is type-checked under the assumption that ##x##
-has the most general type of ##u##. With value restriction, the
-generalization of the type of ##u## only happens if ##u## is a
-syntactic value. Consequently, the example above is rejected since
-##ref []## is not a value, and hence its infered type ##'_a list ref##
-is only weakly polymorphic. Thus, it cannot be unified with both
-##bool list ref## and ##nat list ref##.
-
-In this thesis, we consider control structures, which have been shown to
-give a computational interpretation to classical logic by Timothy Griffin
-\cite("Griffin1990"). One way of extending ||ml|| with control structures
-is to introduce the following two primitive polymorphic procedures.
-### OCaml
-  val callcc : ('a cont -> 'a) -> 'a
-  val throw  : 'a cont -> 'a -> 'b
-###
-The function ##callcc## corresponds to the control operator //call/cc//,
-which was first introduced in the //Scheme// programming language. When
-called, this function saves the current continuation (i.e. the current
-state of the programs environment) and feeds it to the function it is
-given as an argument. The continuation can be restored in the body of
-this function using the ##throw## function.
-
-In 1991, Robert Harper and Mark Lillibridge found a complex program
-breaking the type safety of ||ml|| with //call/cc// \cite("Harper1991").
-### OCaml
-  let c = callcc
-    (fun k -> ((fun x -> x), (fun f -> throw k (f, (fun _ -> ())))))
-  in print_string ((fst c) "Hello world!"); (snd c) (fun x -> x+2)
-###
-Intuitively, this program saves the continuation and then builds a couple
-##c## containing two functions. The first one is simply the identity
-function. The second one takes a function ##f## as argument, uses
-##throw## to restore the previously saved continuation and replaces the
-two functions by ##f## and a constant function returning the only value
-of type ##unit##. Consequently, the first element of the couple ##c## can
-be used as the identity function as long as the second element of ##c##
-has not been used. If the second element of ##c## is called with a
-function ##g##, then ##g## becomes the first element of ##c## and the
-computation restarts. This leads to a crash since the function
-##fun x -> x+2## is applied to a value of type ##string##.
-
-The infered type for ##c## is ##('_a -> '_a) * (('_a -> '_a) -> unit)##
-prior to generalization. This means that without value restriction, the
-last line of the example is type-checked in a context where ##c## has
-the polymorphic type ##('a -> 'a) * (('a -> 'a) -> unit)##. As a
-consequence, the type ##'a -> 'a## can be unified with
-##string -> string## and ##int -> int##. As with references, value
-restriction solves the inconsistency and yields a sound type system. 
-Indeed, ##'_a -> '_a## cannot be unified with ##string -> string## and
-with ##int -> int## at the same time.
-
-It is relatively easy to translate the counter example of Robert Harper
-and Mark Lillibridge into our language. Indeed, a term of the form
-##callcc (fun k -> t)## will be translated into $\t("μα t")$ where $t$
-is the translation of ##t## in which every subterm of the form
-##throw k u## has replaced by $\t("[α]u")$.
-In the context of the \lmcalc, the soundness issue arises when evaluating
-$\t("t μα u")$ when $\t("μα u")$ has a polymorphic type. Such a situation
-cannot happen with value restriction since $\t("μα u")$ is not a value.
-
-=<
-
-=> Encoding value restriction
-
-As mentioned in the previous section, the languages of the ||ml|| family
-need a restriction on polymorphism to remain type-safe. With the value
-restriction, the typing rule for ||ml|| polymorphism becomes the following.
-$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
-    {Γ ⊢ let x = v in t : A} $$
-When the value that is bound by a let-binding is not a value its type is
-not generalized and the following rule applies.
-$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
-
-In slightly more expressive type systems like System F, the value
-restriction appears in the typing rule for the introduction of the
-universal quantifier. The ususal typing rule
-$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
-cannot be proved safe (in a call-by-value system with side-effects) if
-$t$ is not a syntactic value. This will also be the case in our system
-when we bring together polymorphism and the \lmcalc.
-
-\begin{def}
-A value judgement (resp. term judgment) is a tuple of a value $v ∈ Λ_{val}$
-(resp. a term $t ∈ Λ$), a type $A ∈ \cal{F}$, a typing context $Γ$, a
-continuation context $Δ$ and a type variable context $Σ$ that is denoted
-$Σ; Γ ⊢_\tval v : A; Δ$ (resp. $Σ; Γ ⊢ t : A; Δ$). A judgment is sait do be
-//well-formed// if $FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) ⊆ dom(Δ)$, $FV_ι(t) = ∅$,
-$FV_ο(A) ⊆ Σ$, $FV_ο(Γ) ⊆ Σ$ and $FV_ο(Δ) ⊆ Σ$. To lighten the notations,
-we will sometimes ommit empty contexts.
-\end{def}
-\begin{def}
-We say that a well-formed judgement is //valid// if and only if it can be
-derived using the following deduction rule system. Note that a rule only
-applies if all the involved judgments are well-formed.
-$$
-  \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}
-  \hspace(4.0)
-  \unaryRN{↑}{Σ;Γ ⊢_\tval v : A; Δ}{Σ;Γ ⊢ v : A; Δ}
-$$
-$$
-  \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B; Δ}{
-    Σ; Γ ⊢_\tval \t("λx t") : \f("A ⇒ B"); Δ}
-  \hspace(4.0)
-  \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B"); Δ}{Σ; Γ ⊢ u : A; Δ}{
-    Σ; Γ ⊢ \t("t u") : B; Δ}
-$$
-$$
-  \unaryRN{μ}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("μα t") : A; Δ}
-  \hspace(4.0)
-  \unaryRN{[\wc]}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("[α]t") : B; α : A, Δ}
-$$
-$$
-  \unaryRN{×_i}{[Σ; Γ ⊢_\tval v_i : A_i; Δ]_{i∈I}}{
-    Σ; Γ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"); Δ
-  }
-  \hspace(4.0)
-  \unaryRN{×_e}{Σ;Γ ⊢_\tval v : \f("{(li : Ai) i∈I}"); Δ}{
-    Σ;Γ ⊢ \t("v.lj") : A_j; Δ}
-$$
-$$
-  \unaryRN{+_i}{Σ ⊢ (Γ ⊢_\tval v : A_j; Δ)}{
-    Σ ⊢ (Γ ⊢_\tval \v("Cj[v]") : \f("[(Ci : Ai) i∈I]")); Δ}
-$$
-$$
-  \binaryRN{+_e}{Σ; Γ ⊢_\tval v : \f("[(Ci : Ai) i∈I]"); Δ}{
-    [Σ; Γ, x_i : A_i ⊢ t_i : B; Δ]_{i∈I}
-  }{
-    Σ; Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B; Δ
-  }
-$$
-$$
-  \unaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
-  \hspace(4.0)
-  \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A"); Δ}{Σ; Γ ⊢ t : \f("A[X≔B]"); Δ}
-$$
-\end{def}
-Here again, the $∀_i$ rule does not apply if $X ∈ FV_ο(Γ)$ or $X ∈ FV_ο(Δ)$.
-\begin{rem}
-The $↑$ rule is essential for building proofs. It arises naturally as values
-are terms, and hence a value judgement subsumes the corresponding term
-judgment.
-\end{rem}
-
-As an example, we can derive again the type of $\t("λf μα f λx [α]x")$ as
-follows. Its type still corresponds to Peirce's Law, but we are now able to
-polymorphism.
-\begin{env}(scale 0.86)
-$$
-  \proofTree{
-    \unaryN{∀_i}{⊢ \t("λf μα f λx [α]x") : \f("∀X ∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{∀_i}{X ⊢ \t("λf μα f λx [α]x") : \f("∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{⇒_i}{X,Y ⊢ \t("λf μα f λx [α]x") : \f("((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{μ}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("μα f λx [α]x") : X}{
-      \binaryN{⇒_e}{
-        X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("f λx [α]x") : X; α:X
-      }{
-        \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ f : \f("(X ⇒ Y) ⇒ X"); α:X}
-      }{
-        \unaryN{⇒_i}{
-          X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("λx [α]x") : \f("X ⇒ Y"); α:X
-        }{
-          \unaryN{[{-}]}{
-            X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ \t("[α]x") : X; α : X
-          }{
-            \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ x : X; α:X}
-          }
-        }
-      }
-  }}}}}
-$$
-\end{env}
-
-=<
-
-=> Higher-order type system
-
-In this section, we present the higher-order type system that will serve as
-a base for the work presented in this thesis. Although the following extends
-definitions given in the previous sections, we choose not to avoid
-repetitions so that this section remains completely self-contained.
-
-We here consider a type system that is very similar to the type system of
-the functional languages of the ||ml|| family (e.g. SML or OCaml). It will
-provide a product type for records, a sum type for polymorphic variants,
-polymorphism and higher-order quantification, least and greatest fixpoints.
-The higher-order features of the system will allow us to define types using
-functions taking as arguments types or other functions. This leads to a
-system in which it is syntactically correct to use a type function as a
-type, although it does not make sense. To solve this problem, the usual
-approach is to assign a form of type (called sort) to the types themselves.
-\begin{def}
-The set $\cal{S}$ of all the sorts is generated using the following ||bnf||
-grammar, where $ο$ denotes the sort of propositions.
-$$ s,r ::= ο \| {s→r} $$
-\end{def}
-\begin{def}
-The set of types (or formulas) is built from a countable set of
-variables $\cal{V} = \{χ... X, Y, Z ...\}$ containing the set of
-propositional variables $\cal{V}_ο = \{X, Y, Z...\}$. It is generated
-using the following ||bnf|| grammar.
-$$
-  A,B ::= \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)") \| \f("A ⇒ B") \|
-          \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") \mbr 
-          \| \f("∀χ^s A") \| \f("∃χ^s A") \| \f("μX A") \| \f("νX A")
-$$
-\end{def}
-\begin{def}
-A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
-$χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, sorting contexts are
-represented using comma-separated lists of sort assignments of the form
-$χ : s$. variable of $\cal{V}$ are mapped at most onces in a sorting context,
-and their order is irrelevant.
-\end{def}
-
-\begin{def}
-A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
-$s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
-valid if and only if it can be derived using the following deduction rules.
-$$
-\axiomR{Σ, χ : s ⊢ χ : s}
-\hspace(3.0)
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ ↦ A)") : s → r}
-\hspace(3.0)
-\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}
-$$
-$$
-\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}
-\hspace(3.0)
-\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}
-\hspace(3.0)
-\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}
-$$
-$$
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∀χ A") : r}
-\hspace(3.0)
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}
-\hspace(3.0)
-\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("μX A") : ο}
-$$
-$$
-\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("νX A") : ο}
-$$
-\end{def}
-
-\begin{def}
-A typing context is a finite map $Γ$ over $\cal{V}_λ$ and $\cal{V}_μ$ such
-that for all $λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$ and for all
-$μ$-variable $α ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
-represent typing contexts using comma-separated lists of mappings generated
-of the form $x : A$ or $α : A^⊥$. Note that variables can only be mapped once
-in a typing context, and that their order is irrelevant.
-\end{def}
-\begin{def}
-A typing context $Γ$ is said to be valid under a sorting context $Σ$ if for
-all mapping $x:A$ or $α:A^⊥$ in $Γ$ the judgment $Σ ⊢ Γ(x) : ο$ is valid. If
-$Γ$ is valid under $Σ$ then we write $Σ ⊢ Γ$.
-\end{def}
-
-(* Typing rules. *)
-$$
-  \axiomRN{Ax}{Γ, x : A ⊢_\tval x : A}
-  \hspace(2.0)
-  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢_\tval λx t: A ⇒ B}
-  \hspace(2.0)
-  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
-$$
-$$
-  \unaryRN{↑}{Γ ⊢_\tval v : A}{Γ ⊢ v : A}
-  \hspace(4.0)
-  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
-  \hspace(4.0)
-  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
-$$
-$$
-  \binaryRN{∀_i}{Γ, X_n ⊢_\tval v : A}{X_n ∉ FV(Γ)}{Γ ⊢_\tval v : ∀X_n A}
-  \hspace(4.0)
-  \unaryRN{∀_e}{Γ ⊢ t : ∀X_n A}{Γ ⊢ t : A[X_n := P_n]}
-$$
-$$
-  \unaryRN{∃_i}{Γ ⊢ t : A[X_n := P_n]}{Γ ⊢ t : ∃X_n A}
-  \hspace(4.0)
-  \binaryRN{∃_e}{Γ, X_n, x : A ⊢ t : B}{X_n ∉ FV(Γ,B)}{Γ, x : ∃X_n A ⊢ t : B}
-$$
-$$
-  \unaryRN{×_i}{[Γ ⊢_\tval v_i : A_i]_{1≤i≤n}}{
-    Γ ⊢_\tval \{l_i = v_i\}_{1≤i≤n} : \{l_i : A_i\}_{1≤i≤n}
-  }
-  \hspace(4.0)
-  \unaryRN{×_e}{Γ ⊢_\tval v : \{l_i : A_i\}_{1≤i≤n}}{Γ ⊢ v{.}l_i : A_i}
-$$
-$$
-  \unaryRN{+_i}{Γ ⊢_\tval v : A_i}{Γ ⊢ C_i[v] : [C_i : A_i]_{1≤i≤n}}
-  \hspace(1.0)
-  \binaryRN{+_e}{Γ ⊢_\tval v : [C_i : A_i]_{1≤i≤n}}{
-    [Γ, x_i : A_i ⊢ t_i : B]_{1≤i≤n}
-  }{
-    Γ ⊢ case_v [C_i[x_i] → t_i]_{1≤i≤n} : B
-  }
-$$
-
-
-(* Sorting rules. *)
-$$
-\binaryR{Δ ⊢ A : ο}{Δ ⊢ B : ο}{Δ ⊢ A ⇒ B : ο}
-\hspace(3.0)
-\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ \{l_i : A_i\}_{i∈I} : ο}
-\hspace(3.0)
-\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ [C_i : A_i]_{i∈I} : ο}
-$$
-$$
-\axiomR{Δ, χ : s ⊢ χ : s}
-\hspace(3.0)
-\unaryR{Δ, χ : s ⊢ E : r}{Δ ⊢ (χ^s ↦ E) : s → r}
-\hspace(3.0)
-\binaryR{Δ ⊢ E : s → r}{Δ ⊢ F : s}{Δ ⊢ E(F) : r}
-$$
-$$
-\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∀χ^s A : ο}
-\hspace(3.0)
-\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∃χ^s A : ο}
-$$
-$$
-\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ μX A : ο}
-\hspace(3.0)
-\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ νX A : ο}
-$$
-(* TODO *)
-
-
-
-=<
-
-=> Call-by-value realisability model
-
-The abstract machine presented in \chapter("calculus") is part of a
-//classical realizability// machinery that will be built upon here.
-We aim at obtaining a semantical interpretation of our higher-order
-type system. As always in classical realizability, the model is
-parametrized by a pole, which serves as an exchange point between
-the world of programs and the world of execution contexts, which are
-represented as stacks.
-\begin{def}
-A //pole// is a set of processes $\dbot ⊆ Λ×Π$ which is //saturated//
-(i.e. closed under backward reduction). More formally, if we have
-$q ∈ \dbot$ and $p ≻ q$ then $p ∈ \dbot$.
-\end{def}
-
-The notion of //orthogonality// is central in Krivine's classical
-realizability. In this framework a type is interpreted (or realized) by
-programs computing corresponding values. This interpretation is spread
-in a three-layered construction, even though it is fully determined by
-the first layer and the choice of the pole. The first layer consists of
-a set of values that we will call the //raw semantics//. It gathers all
-the syntactic values that should be considered as having the corresponding
-type. As an example, if we were to consider the type of natural numbers,
-its raw semantics would be the set $\{\hat{n} \| n ∈ \bbN\}$ where
-$\hat{n}$ is some encoding of $n$.
-(* *)
-The second layer, called //falsity value//, is a set containing every
-stack that is a candidate for building a valid process using any value
-from the raw semantics. The notion of validity depends on the choice of
-the pole. The third layer, called //truth value// is a set of terms that
-is built by iterating the process once more. The formalism for the two
-levels of orthogonality is given in the following definition.
-\begin{def}\label("orthodef")
-For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^\bot ⊆ Π$ and a set
-$Φ^{\bot\bot} ⊆ Λ$ as follows.
-$$
-  Φ^\bot = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
-  \hspace(3.0)
-  Φ^{\bot\bot} = \{t∈Λ \| ∀π∈Φ^\bot \p("t ∗ π") ∈ \dbot\}
-$$
-\end{def}
-
-We now give two general properties of orthogonality that are true in
-every classical realizability model. They will be useful when proving
-the soundness of our type system.
-\begin{lem}\label("orthosimple")
-If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{\bot\bot}$.
-\begin{proof}
-We take $v ∈ Φ$ and show $v ∈ Φ^{\bot\bot}$. By definition we need to
-show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^\bot$. This is immediate
-by definition of $Φ^\bot$.
-\end{proof}
-\end{lem}
-\begin{lem}\label("orthoinclstack")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
-$Ψ^\bot ⊆ Φ^\bot$.
-\begin{proof}
-Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^\bot$ and show that $π ∈ Φ^\bot$.
-By definition, we know that for all $v ∈ Ψ$ we have $\p("v ∗ π") ∈ \dbot$.
-Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^\bot$.
-\end{proof}
-\end{lem}
-\begin{lem}\label("orthoinclterm")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If
-$Ψ^\bot ⊆ Φ^\bot$ then $Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
-\begin{proof}
-Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
-$t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
-$\p("t ∗ π") ∈ \dbot$. Since $Ψ^⊥ ⊆ Φ^⊥$, this is also true for all
-$π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
-\end{proof}
-\end{lem}
-\begin{lem}\label("orthoblabla")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
-$Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
-\begin{proof}
-Let us suppose that $Φ ⊆ Ψ$ and apply \lemRef("orthoinclstack") to obtain
-$Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
-\end{proof}
-\end{lem}
-
-When choosing a pole, it is important to check that it does not yield a
-degenerate model. In particular we need to check that no term is able to
-face every stacks. If it were the case, such a term could be use as a
-proof of $⊥$.
-\begin{def}
-A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
-$t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
-\end{def}
-
-
-(*
-Here, for the sake of simplicity and brevity, we are only going to use the
-$$ \dbot = \{p \in \Lambda\times\Pi \;|\; p \converge_\red \} $$
-which is clearly saturated. Note that this particular pole is also closed
-under the reduction relation $(\red)$, even though this is not a general
-property. In particular $\dbot$ contains all final processes.
-
-The construction involving the terms of the form $\delta_{v,x}$ and
-$(\equiv)$ in the previous section is now going to gain meaning. The
-following theorem, which is our central result, does not hold in every
-classical realizability model. Obtaining a proof required us to internalize
-observational equivalence, which introduces a non-computable reduction
-rule.
-\begin{theorem}\label{biortho}
-If $\Phi \subseteq \Lambda_v$ is a set of values closed under $(\equiv)$, then
-$\Phi^{\bot\bot} \cap \Lambda_v = \Phi$.
-\end{theorem}
-\begin{proof}
-The direction $\Phi \subseteq \Phi^{\bot\bot} \cap \Lambda_v$ is
-straight-forward using lemma \ref{orthosimple}. We are going to
-show that $\Phi^{\bot\bot} \cap \Lambda_v \subseteq \Phi$, which amounts to
-showing that for every value $v \in \Phi^{\bot\bot}$ we have $v \in \Phi$.
-We are going to show the contrapositive, so let us assume $v \not\in \Phi$ and
-show $v \not\in \Phi^{\bot\bot}$. We need to find a stack $\pi_0$ such that
-$v \ast \pi_0 \not\in \dbot$ and for every value $w \in \Phi$,
-$w \ast \pi_0 \in \dbot$. We take $\pi_0 = [\lambda x\;\delta_{x,v}]\;\alpha$
-and show that is is suitable. By definition of the reduction relation
-$v \ast \pi_0$ reduces to $\delta_{v,v} \ast \alpha$ which is not in $\dbot$
-(it is stuck as $v \equiv v$ by reflexivity). Let us now take $w \in \Phi$.
-Again by definition, $w \ast \pi_0$ reduces to $\delta_{w,v} \ast \alpha$,
-but this time we have $w \not\equiv v$ since $\Phi$ was supposed to be closed
-under $(\equiv)$ and $v \not\in \Phi$. Hence $w \ast \pi_0$ reduces to
-${w \ast \alpha} \in \dbot$.
-\end{proof}
-\medskip
-
-It is important to check that the pole we chose does not yield a degenerate
-model. In particular we check that no term is able to face every stacks. If
-it were the case, such a term could be use as a proof of $\bot$.
-\begin{theorem}\label{poleconsist}
-The pole $\dbot$ is consistent, which means that for every closed term $t$
-there is a stack $\pi$ such that $t \ast \pi \not\in \dbot$.
-\end{theorem}
-\begin{proof}
-Let $t$ be a closed term and $\alpha$ be a stack constant. If we do not have
-$t \ast \alpha \converge_\red$ then we can directly take $\pi = \alpha$.
-Otherwise we know that $t \ast \alpha \reds v \ast \alpha$ for some value
-$v$. Since $t$ is closed $\alpha$ is the only available stack variable. We now
-show that $\pi = [\lambda x\;\{\}]\{\}.\beta$ is suitable. We denote $\sigma$
-the substitution $[\alpha := \pi]$. Using a trivial extension of lemma
-\ref{redcompatall} to the $(\red)$ relation we obtain $t \ast \pi = (t \ast
-\alpha)\sigma \reds (v \ast \alpha)\sigma = v\sigma \ast \pi$. We hence have
-$t \ast \pi \reds v\sigma \ast [\lambda x\;\{\}]\{\}.\beta \red^2 \{\} \ast
-\{\}.\beta \not\in \dbot$.
-\end{proof}
-\medskip
-
-\subsection{Formulas and their semantics}
-
-In this paper we limit ourselves to second-order logic, even though the system
-can easily be extended to higher-order. For every natural number $n$ we
-require a countable set ${\mathcal{V}}_n = \{{X}_n, {Y}_n, {Z}_n ...\}$ of
-$n$-ary predicate variables.
-\begin{definition}
-The syntax of formulas is given by the following grammar.
-\begin{align*} 
-A,B
-  \bnfeq &{X}_n(t_1, ..., t_n)
-  \bnfor A \Rightarrow B
-  \bnfor \forall a\; A
-  \bnfor \exists a\; A
-  \bnfor \forall X_n\; A
-  \bnfor \exists X_n\; A
-\\
-  \bnfor &\{l_i : A_i\}_{i \in I}
-  \bnfor [C_i : A_i]_{i \in I}
-  \bnfor t \in A
-  \bnfor A \restriction t \equiv u
-\end{align*}
-\end{definition}
-Terms appear in several places in formulas, in particular, they form the
-individuals of the logic. They can be quantified over and are used as
-arguments for predicate variables. Besides the ML-like formers for sums and
-products (i.e. records and variants) we add a membership predicate and a
-restriction
-operation. The membership predicate $t \in A$ is used to express the fact that
-the term $t$ has type $A$. It provides a way to encode the dependent product
-type using universal quantification and the arrow type. In this sense, it is
-inspired and related to Krivine's relativization of quantifiers.
-$$ \Pi_{a:A}\;B \quad:=\quad \forall a (a \in A \Rightarrow B) $$
-The restriction operator can be thought of as a kind of conjunction with no
-algorithmic content. The formula $A \restriction t \equiv u$ is to be
-interpreted in the same way as $A$ if the equivalence $t \equiv u$ holds, and
-as $\bot$ otherwise\footnote{We use the standard second-order encoding:
-$\bot = \forall X_0\; X_0$ and $\top = \exists X_0\; X_0$.}. In particular,
-we will define the following types:
-$$
-A \restriction t \not\equiv u := A \restriction t \equiv u \Rightarrow \bot
-\quad\quad
-t \equiv u := \top \restriction t \equiv u
-\quad\quad
-t \not\equiv u := \top \restriction t \not\equiv u
-$$
-
-To handle free variables in formulas we will need to generalize the
-notion of substitution to allow the substitution of predicate variables.
-\begin{definition}
-A substitution is a finite map $\sigma$ ranging over $\lambda$-variables,
-$\mu$-variables, term and predicate variables such that:
-\begin{itemize}
-  \item if $x \in dom(\sigma)$ then $\sigma(x) \in \Lambda_v$,
-  \item if $\alpha \in dom(\sigma)$ then $\sigma(\alpha) \in \Pi$,
-  \item if $a \in dom(\sigma)$ then $\sigma(a) \in \Lambda$,
-  \item if $X_n \in dom(\sigma)$ then
-    $\sigma(X_n) \in {\Lambda^n \to \mathcal{P}({{\Lambda}_v}/\!\!\equiv)}$.
-\end{itemize}
-\end{definition}
-\begin{remark}
-A predicate variable of arity $n$ will be substituted by a $n$-ary predicate.
-Semantically, such predicate will correspond to some total (set-theoretic)
-function building a subset of $\Lambda_v/\!\!\equiv$ from $n$ terms. In the
-syntax, the binding of the arguments of a predicate variables will happen
-implicitly during its substitution.
-\end{remark}
-\begin{definition}
-Given a formula $A$ we denote $FV(A)$ the set of its free variables. Given a
-substitution $\sigma$ such that $FV(A) \subseteq dom(\sigma)$ we write
-$A[\sigma]$ the closed formula built by applying $\sigma$ to $A$.
-\end{definition}
-
-In the semantics we will interpret closed formulas by sets of values closed
-under the equivalence relation $(\equiv)$.
-\begin{definition}
-Given a formula $A$ and a substitution $\sigma$ such that $A[\sigma]$ is
-closed, we define the \emph{raw semantics}
-$\llbracket A \rrbracket_\sigma \subseteq \Lambda_v/\!\!\equiv$ of $A$ under
-the substitution $\sigma$ as follows.
-\begin{align*}
-\llbracket X_n(t_1, ..., t_n) \rrbracket_\sigma =&\;
-  \sigma(X_n)(t_1\sigma, ..., t_n\sigma)\\
-\llbracket A \Rightarrow B \rrbracket_\sigma =&\;
-  \{\lambda x\; t \;\;|\;\; \forall v \in \llbracket A \rrbracket_\sigma,
-  t[x := v] \in \llbracket B \rrbracket_\sigma^{\bot\bot} \} \\
-\llbracket \forall a\; A \rrbracket_\sigma =&\;
-  \cap_{t \in \Lambda^\ast}{\llbracket A \rrbracket_{\sigma[a := t]}}\\
-\llbracket \exists a\; A \rrbracket_\sigma =&\;
-  \cup_{t \in \Lambda^\ast}{\llbracket A \rrbracket_{\sigma[a := t]}}\\
-\llbracket \forall X_n\; A \rrbracket_\sigma =&\;
-  \cap_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
-  {\llbracket A \rrbracket_{\sigma[X_n := P]}}\\
-\llbracket \exists X_n\; A \rrbracket_\sigma =&\;
-  \cup_{P \in \Lambda^n \to \mathcal{P}(\Lambda_v / \equiv)}
-  {\llbracket A \rrbracket_{\sigma[X_n := P]}}\\
-\llbracket \{l_i : A_i\}_{i \in I} \rrbracket_\sigma =&\;
-  \{\{l_i = v_i\}_{i \in I} \;\;|\;\; {\forall i \in I}\;\; v_i \in
-  \llbracket A_i \rrbracket_\sigma\}\\
-\llbracket [C_i : A_i]_{i \in I} \rrbracket_\sigma =&\;
-  \cup_{i \in I}\{C_i[v] \;\;|\;\; v \in \llbracket A_i \rrbracket_\sigma\}\\
-\llbracket t \in A \rrbracket_\sigma =&\;
-  \{v \in \llbracket A \rrbracket_\sigma \;\;|\;\; t\sigma \equiv v\}\\
-\llbracket A \restriction t \equiv u \rrbracket_\sigma =&\;
-  \left\{ 
-    \begin{array}{l l}
-      \llbracket A \rrbracket_\sigma & \text{if $t\sigma \equiv u\sigma$}\\
-      \emptyset & \text{otherwise}
-     \end{array} \right.
-\end{align*}
-\end{definition}
-
-In the model, programs will realize closed formulas in two different ways
-according to their syntactic class. The interpretation of values will be
-given in terms of raw semantics, and the interpretation of terms in general
-will be given in terms of truth values.
-\begin{definition}
-Let $A$ be a formula and $\sigma$ a substitution such that $A[\sigma]$ is closed.
-We say that:
-\begin{itemize}
-\item $v \in \Lambda_v$ realizes $A[\sigma]$ if
-  $v \in \llbracket A \rrbracket_\sigma$,
-\item $t \in \Lambda$ realizes $A[\sigma]$ if
-  $t \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
-\end{itemize}
-\end{definition}
-
-\subsection{Contexts and typing rules}
-
-Before giving the typing rules of our system we need to define contexts and
-judgements. As explained in the introduction, several typing rules require a
-value restriction in our context. This is reflected in typing rule by the
-presence of two forms of judgements.
-
-\begin{definition}
-A context is an ordered list of hypotheses. In particular, it contains type
-declarations for $\lambda$-variables and $\mu$-variables, and declaration of
-term variables and predicate variables. In our case, a context also contains
-term equivalences and inequivalences. A context is built using the following
-grammar.
-\begin{align*}
-\Gamma, \Delta \bnfeq &\bullet
-  \bnfor \Gamma, x : A
-  \bnfor \Gamma, \alpha : \lnot A
-  \bnfor \Gamma, a : Term
-\\
-  \bnfor &\Gamma, X_n : Pred_n
-  \bnfor \Gamma, t \equiv u
-  \bnfor \Gamma, t \not\equiv u
-\end{align*}
-A context $\Gamma$ is said to be valid if it is possible to derive
-$\Gamma\;\text{Valid}$ using the rules of figure \ref{valid_context}. In
-the following, every context will be considered valid implicitly.
-\end{definition}
-\begin{figure}
-\center
-\begin{prooftree}
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$x \not\in dom(\Gamma)$}
-\AxiomC{$FV(A) \subseteq dom(\Gamma) \cup \{x\}$}
-\TrinaryInfC{$\Gamma, x : A \;\; \text{Valid}$}
-\end{prooftree}
-
-\begin{prooftree}
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$\alpha \not\in dom(\Gamma)$}
-\AxiomC{$FV(A) \subseteq dom(\Gamma)$}
-\TrinaryInfC{$\Gamma, \alpha : \lnot A \;\; \text{Valid}$}
-\end{prooftree}
-
-\begin{prooftree}
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$a \not\in dom(\Gamma)$}
-\BinaryInfC{$\Gamma, a : Term \;\; \text{Valid}$}
-\DisplayProof\quad\quad\quad
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$X_n \not\in dom(\Gamma)$}
-\BinaryInfC{$\Gamma, X_n : Pred_n \;\; \text{Valid}$}
-\end{prooftree}
-
-\begin{prooftree}
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
-\BinaryInfC{$\Gamma, t \equiv u \;\; \text{Valid}$}
-\end{prooftree}
-
-\begin{prooftree}
-\AxiomC{$\Gamma \;\; \text{Valid}$}
-\AxiomC{$FV(t) \cup FV(u) \subseteq dom(\Gamma)$}
-\BinaryInfC{$\Gamma, t \not\equiv u \;\; \text{Valid}$}
-\DisplayProof\quad\quad\quad
-\AxiomC{\vbox{\vspace{0.96em}}} % hack to align lines
-\UnaryInfC{$\bullet \;\; \text{Valid}$}
-\end{prooftree}
-\caption{Rules allowing the construction of a valid context.}
-\label{valid_context}
-\end{figure}
-
-\begin{definition}
-There are two forms of typing judgements:
-\begin{itemize}
-\item $\Gamma \vvdash v : A$ meaning that the value $v$ has type $A$ in
-  context $\Gamma$,
-\item $\Gamma \vdash t : A$ meaning that the term $t$ has type $A$ in
-  context $\Gamma$.
-\end{itemize}
-\end{definition}
-\input{rules.tex}
-
-The typing rules of the system are given in figure \ref{pml2rules}. Although
-most of them are fairly usual, our type system differs in several ways. For
-instance the last four rules are related to the extensionality of the
-calculus. One can note the value restriction in several places: both
-universal quantification introduction rules and the introduction of the
-membership predicate. In fact, some value restriction is also hidden in the
-rules for the elimination of the existential quantifiers and the elimination
-rule for the restriction connective. These rules are presented in their
-left-hand side variation, and only values can appear on the left of the
-sequent. It is not surprising that elimination of an existential quantifier
-requires value restriction as it is the dual of the introduction rule of a
-universal quantifier.
-
-An important and interesting difference with existing type systems
-is the presence of $\uparrow$ and $\downarrow$. These two rules
-allow one to go from one kind of sequent to the other when working on values.
-Going from $\Gamma \vvdash v : A$ to $\Gamma \vdash v : A$ is
-straight-forward. Going the other direction is the main motivation for our
-model. This allows us to lift the value restriction expressed in the syntax
-to a restriction expressed in terms of equivalence. For example, the two rules
-\begin{prooftree}
-\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
-\AxiomC{$a \not\in FV(\Gamma)$}
-\RightLabel{$\forall_{i,\equiv}$}
-\BinaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
-\end{prooftree}
-\begin{prooftree}
-\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
-\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
-\RightLabel{$\Pi_{e,\equiv}$}
-\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
-\end{prooftree}
-can be derived in the system (see figure \ref{deriv}).
-The value restriction can be removed similarly on every other rule. Thus,
-judgements on values can be completely ignored by the user of the system.
-Transition to value judgements will only happen internally.
-
-\begin{figure}
-\begin{prooftree}
-\AxiomC{$\Gamma, t \equiv v \vdash t : A$}
-\RightLabel{$\equiv_{t,l}$}
-\UnaryInfC{$\Gamma, t \equiv v \vdash v : A$}
-\RightLabel{$\downarrow$}
-\UnaryInfC{$\Gamma, t \equiv v \vvdash v : A$}
-\AxiomC{$a \not\in FV(\Gamma)$}
-\RightLabel{$\forall_i$}
-\BinaryInfC{$\Gamma, t \equiv v \vvdash v : \forall a\;A$}
-\RightLabel{$\uparrow$}
-\UnaryInfC{$\Gamma, t \equiv v \vdash v : \forall a\;A$}
-\RightLabel{$\equiv_{t,l}$}
-\UnaryInfC{$\Gamma, t \equiv v \vdash t : \forall a\;A$}
-\end{prooftree}
-\begin{prooftree}
-\alwaysDoubleLine
-\AxiomC{$\Gamma, u \equiv v \vdash t : \Pi_{a:A} B$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash t : \forall a (a \in A \Rightarrow B)$}
-\alwaysSingleLine
-\RightLabel{$\forall_e$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash t : u \in A \Rightarrow B[a := u]$}
-\AxiomC{$\Gamma, u \equiv v \vdash u : A$}
-\RightLabel{$\equiv_{t,l}$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash v : A$}
-\RightLabel{$\downarrow$}
-\UnaryInfC{$\Gamma, u \equiv v \vvdash v : A$}
-\RightLabel{$\in_i$}
-\UnaryInfC{$\Gamma, u \equiv v \vvdash v : v \in A$}
-\RightLabel{$\uparrow$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash v : v \in A$}
-\RightLabel{$\equiv_{t,l}$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash u : v \in A$}
-\RightLabel{$\equiv_{t,r}$}
-\UnaryInfC{$\Gamma, u \equiv v \vdash u : u \in A$}
-\RightLabel{$\Rightarrow_e$}
-\BinaryInfC{$\Gamma, u \equiv v \vdash t\,u : B[a := u]$}
-\end{prooftree}
-\caption{Derivation of the rules $\forall_{i,\equiv}$ and $\Pi_{e,\equiv}$.}
-\label{deriv}
-\end{figure}
-
-\subsection{Adequacy}
-
-We are now going to prove the soundness of our type system by showing that it
-is compatible with our realizability model. This property is specified by the
-following theorem which is traditionally called the adequacy lemma.
-\begin{definition}
-Let $\Gamma$ be a (valid) context. We say that the substitution $\sigma$
-realizes $\Gamma$ if:
-\begin{itemize}
-\item for every $x : A$ in $\Gamma$ we have
-  $\sigma(x) \in \llbracket A \rrbracket_\sigma$,
-\item for every $\alpha : \lnot A$ in $\Gamma$ we have
-  $\sigma(\alpha) \in \llbracket A \rrbracket_\sigma^\bot$,
-\item for every $a : Term$ in $\Gamma$ we have
-  $\sigma(a) \in \Lambda$,
-\item for every $X_n : Pred_n$ in $\Gamma$ we have
-  $\sigma(X_n) \in \Lambda^n \to \Lambda_v/\!\!\equiv$,
-\item for every $t \equiv u$ in $\Gamma$ we have
-  $t\sigma \equiv u\sigma$ and
-\item for every $t \not\equiv u$ in $\Gamma$ we have
-  $t\sigma \not\equiv u\sigma$.
-\end{itemize}
-\end{definition}
-
-\begin{theorem}{\emph{(Adequacy.)}}\label{adequacy}
-Let $\Gamma$ be a (valid) context, $A$ be a formula such that
-$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a substitution realizing
-$\Gamma$.
-\begin{itemize}
-\item If $\Gamma \vvdash v : A$ then
-  $v\sigma \in \llbracket A \rrbracket_\sigma$,
-\item if $\Gamma \vdash t  : A$ then
-  $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$.
-\end{itemize}
-\end{theorem}
-\input{adequacy}
-
-\begin{remark}
-For the sake of simplicity we fixed a pole $\dbot$ at the beginning of the
-current section. However, many of the properties presented here (including
-the adequacy lemma) remain valid with similar poles. We will make use of
-this fact in the proof of the following theorem.
-\end{remark}
-
-\begin{theorem}{\emph{(Safety.)}}\label{safety}
-Let $\Gamma$ be a context, $A$ be a formula such that
-$FV(A) \subseteq dom(\Gamma)$ and $\sigma$ be a substitution realizing
-$\Gamma$. If $t$ is a term such that $\Gamma \vdash t : A$ and if $A[\sigma]$
-is pure (i.e. it does not contain any $\_ \Rightarrow \_$), then for every
-stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ there is a value
-$v \in \llbracket A \rrbracket_\sigma$ and $\alpha \in \mathcal{V}_\mu$ such
-that ${t\sigma \ast \pi} \reds {v \ast \alpha}$.
-\end{theorem}
-\begin{proof}
-We do a proof by realizability using the following pole.
-$$\dbot_A = \{ p \in \Lambda\times\Pi\;|\;p \reds v \ast \alpha \;\land\; v
-\in \llbracket A \rrbracket_\sigma\}$$
-It is well-defined as $A$ is pure and hence $\llbracket A \rrbracket_\sigma$
-does not depend on the pole. Using the adequacy lemma (theorem \ref{adequacy})
-with $\dbot_A$ we obtain $t\sigma \in \llbracket A \rrbracket_\sigma^{\bot\bot}$. Hence for
-every stack $\pi \in \llbracket A \rrbracket_\sigma^\bot$ we have
-${t\sigma \ast \pi} \in \dbot_A$. We can then conclude using the definition
-of the pole $\dbot_A$.
-\end{proof}
-\begin{remark}
-It is easy to see that if $A[\sigma]$ is closed and pure then
-$v \in \llbracket A \rrbracket_\sigma$ implies that $\bullet \vdash v : A$.
-\end{remark}
-
-\begin{theorem}{\emph{(Consistency.)}}\label{consistency}
-There is no $t$ such that $\bullet \vdash t : \bot$.
-\end{theorem}
-\begin{proof}
-Let us suppose that $\bullet \vdash t : \bot$. Using adequacy (theorem
-\ref{adequacy}
-) we obtain that $t \in \llbracket \bot \rrbracket_\sigma^{\bot\bot}$. Since
-$\llbracket \bot \rrbracket_\sigma = \emptyset$ we know that
-$\llbracket \bot \rrbracket_\sigma^\bot = \Pi$ by definition. Now using
-theorem \ref{poleconsist} we obtain
-$\llbracket \bot \rrbracket_\sigma^{\bot\bot} = \emptyset$. This is a
-contradiction.
-\end{proof}
 *)
 
-\begin{def}
-To every type $A ∈ \cal{F}$ we associate a set of value $\vs("A") ⊆ Λ_{val}$
-called its raw semantics. It is defined inductively on the structure of $A$
-as follows.
-\begin{center}
-\diagram(
-let _ =
-  let line s m = [ vs s; <$=$>; m ] in
-  array [`East ; `East ; `West]
-  [ line "Φ"               <$ Φ $>
-  ; line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
-  ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
-  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A")
-                                 \t("t[x≔v]") ∈ \ts("B")\} $>
-  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I
-                                 \v("vi")∈\vs("Ai")\} $>
-  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
-  ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
-  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
-  ; line "μX A"            <$ ... $>
-  ; line "νX A"            <$ ... $> ]
-)
-\end{center}
-\end{def}
-
-=<
 
 =<
