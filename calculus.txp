@@ -1105,7 +1105,7 @@ Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
 \end{proof}
 \end{cor}
 
-\begin{thm}
+\begin{thm}\label("cbvbeta")
 For every $t ∈ Λ$, $v ∈ Λ_{val}$ and $x ∈ \cal{V}_ι$ we have
 $\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
 \begin{proof}
@@ -1123,8 +1123,29 @@ Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
 can use \corRef("redtosame").
 \end{proof}
 \end{thm}
+(* TODO case *)
 
-(* TODO case and easy inequivalences *)
+\begin{thm}\label("consnequiv")
+Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_{val}$
+and $w ∈ Λ_{val}$ be two values. If $C ≠ D$ then
+$\v("C[v]") \nequiv_{≻} \v("D[w]")$.
+\begin{proof}
+If we take $π = \s("[λx [x | C[y] → y]]ε")$ and $σ = ∅$ then we have
+${\p("(C[v])σ ∗ π")} {⇓}_{≻}$ since
+$\p("(C[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ C[v] · ε") ≻
+\p("[C[v] | C[y] → y] ∗ ε") ≻ \p("v ∗ ε")$. Moreover, we have
+${\p("(D[w])σ ∗ π")} {⇑}_{≻}$ since
+$\p("(D[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
+\p("[D[w] | C[y] → y] ∗ ε")$ and $\p("[D[w] | C[y] → y] ∗ ε")$ is stuck.
+\end{proof}
+\end{thm}
+(* TODO other easy inequivalences *)
+\begin{thm}\label("nequiv")
+...
+\begin{proof}
+...
+\end{proof}
+\end{thm}
 
 =<
 

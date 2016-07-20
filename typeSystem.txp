@@ -20,18 +20,69 @@ our typing rules.
 
 => Observational equivalence type
 
-To be able to specify program properties, we extend our type system with
-equality types of the form $t ≡ u$, where $t$ and $u$ are (possibly untyped)
-terms. Equality types are then interpreted as $⊤ = \f("∃X X")$ if the denoted
-equivalence is true and as $⊥ = \f("∀X X")$ otherwise. For example, the type
-$\f("(λx x) λx x ≡ (λx x)")$ will be inhabited if and only if the identity
-function applied to itself is equivalent to the identity function.
+One of the main goals of this thesis is to build a type system that can be
+used to reason about programs. To achieve this goal, we need to be able to
+specify program behaviours using types. To this aim, we introduce equality
+types of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped)
+terms. Intuitively, an equality type will be interpreted $⊤$ (i.e. logical
+truth, the bigest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity,
+the empty type) if $t \nequiv_{≻} u$. For example, the type
+$\f("(λx x) λx x ≡ λx x")$ is inhabited as $\t("(λx x) λx x") ≡_{≻}
+\t("λx x")$ according to \thmRef("cbvbeta"), but $\f("λx x ≡ {}")$ is empty
+since $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequiv").
 
-mechanism will rely on an untyped notion of equivalence over programs. It
-will be used to identify programs with the same computational behaviour and
-will enable equational reasoning.
+Of course, it is undecidable whether two terms are equivalent or not. As a
+consequence, we will not be able to decide, in general, whether an equality
+type is inhabited or not. We will hence need to rely on a partial decision
+procedure that will only approximate our observational equivalence relation.
+\begin{thm}
+Given two terms $t ∈ Λ$ and $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$
+or $t \nequiv_{≡} u$.
+\begin{proof}
+We are going to encode the halting problem $H_t$ using equivalence. In our
+system, $H_t$ can be stated as ${\p("t ∗ ε")} {⇓}_{≻}$. Let us
+consider a term $Ω ∈ Λ$ such that ${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$.
+We will now show that $H_t$ is equivalent to
+${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. Let us suppose $H_t$ and show
+${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. We need to find a stack $π ∈ Π$ such
+that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ and ${\p("Ω ∗ π")} {⇑}_{≻}$. This is in fact
+true for all $π$ as ${\p("Ω ∗ π")} {⇑}_{≻}$ by hypothesis and
+${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")} {⇓}_{≻}$ since we supposed $H_t$. We know
+suppose ${\t("[ε]t") \nequiv_{≻} \t("Ω")}$ and show $H_t$. By definition,
+there must be a stack $π ∈ Π$ such that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ since
+${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
+${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")}$ we obtain $H_t$.
+\end{proof}
+\end{thm}
 
-(* TODO *)
+In the system, proving a program equivalence amounts to showing that the
+corresponding equivalence type is inhabited. However, an equivalence type
+may also be used as an assumption. For example, it is possible to define
+a function which input type is an equivalence. As a consequence, we are
+going to need a form of context containing a set of program equivalences
+that are assumed to be true.
+\begin{def}
+An equational context $Ξ ⊆ \cal{P}(Λ × Λ)$ is a finite set of couples
+of terms denoting hypothetical equivalences. For convenience, we will
+represent equational contexts using lists generated using the following
+||bnf|| grammar.
+\Caml(let _ = sidenote_wr 2 2 << $Ξ ::= • \| {Ξ, t ≡ u}$ >> << $t,u ∈ Λ$ >>)
+\end{def}
+
+(* TODO more *)
+
+\begin{def}
+Given an equational context $Ξ$ and a substitution $ρ$, we write $ρ ⊩ Ξ$ if
+for every $(t,u) ∈ Ξ$ we have $\t("tρ") ≡_{≻} \t("uρ")$.
+\end{def}
+\begin{def}
+Let $Ξ$ be an equational context and $t ∈ Λ$ and $u ∈ Λ$ be two terms. We
+write $Ξ ⊢ t ≡ u$ if our (unspecified by supposed correct) decision
+procedure is able to show that for every substitution $ρ$ such that $ρ ⊩ Ξ$
+we have $\t("tρ") ≡_{≻} \t("uρ")$.
+\end{def}
+
+(* TODO more *)
 
 =<
 => Realisers as individuals
@@ -51,7 +102,6 @@ will enable equational reasoning.
 =<
 => Membership and typed quantification
 
-\pagesBefore(1)
 (* ⇒_i rule *)
 $$
 \unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
@@ -140,8 +190,6 @@ $$
  }
 }
 $$
-\pagesAfter(1)
-
 (* TODO *)
 
 =<
