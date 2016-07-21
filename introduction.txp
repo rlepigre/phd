@@ -246,6 +246,27 @@ syntactic value. Consequently, the example above is rejected since
 is only weakly polymorphic. Thus, it cannot be unified with both
 ##bool list ref## and ##nat list ref##.
 
+(* FIXME integrate this shit
+
+As mentioned in the previous section, the languages of the ||ml|| family
+need a restriction on polymorphism to remain type-safe. With the value
+restriction, the typing rule for ||ml|| polymorphism becomes the following.
+$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
+    {Γ ⊢ let x = v in t : A} $$
+When the value that is bound by a let-binding is not a value its type is
+not generalized and the following rule applies.
+$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
+
+In slightly more expressive type systems like System F, the value
+restriction appears in the typing rule for the introduction of the
+universal quantifier. The ususal typing rule
+$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
+cannot be proved safe (in a call-by-value system with side-effects) if
+$t$ is not a syntactic value. This will also be the case in our system
+when we bring together polymorphism and the \lmcalc.
+
+*)
+
 In this thesis, we consider control structures, which have been shown to
 give a computational interpretation to classical logic by Timothy Griffin
 \cite("Griffin1990"). One way of extending ||ml|| with control structures

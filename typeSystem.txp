@@ -22,14 +22,14 @@ our typing rules.
 
 One of the main goals of this thesis is to build a type system that can be
 used to reason about programs. To achieve this goal, we need to be able to
-specify program behaviours using types. To this aim, we introduce equality
-types of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped)
-terms. Intuitively, an equality type will be interpreted $⊤$ (i.e. logical
-truth, the bigest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity,
-the empty type) if $t \nequiv_{≻} u$. For example, the type
+specify program behaviours using types. We hence introduce equality types
+of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped) terms.
+Intuitively, an equality type is interpreted as $⊤$ (i.e. logical truth,
+the bigest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity, the
+empty type) if $t \nequiv_{≻} u$. For example, the type
 $\f("(λx x) λx x ≡ λx x")$ is inhabited as $\t("(λx x) λx x") ≡_{≻}
 \t("λx x")$ according to \thmRef("cbvbeta"), but $\f("λx x ≡ {}")$ is empty
-since $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequiv").
+as $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequiv").
 
 Of course, it is undecidable whether two terms are equivalent or not. As a
 consequence, we will not be able to decide, in general, whether an equality
@@ -95,84 +95,138 @@ A term $t ∈ Λ$ can contain free variables of several sorts: $λ$-variables
 (i.e. value variables), term variables and $μ$-variables (i.e. stack
 variables). As open terms may appear in types, and in particular in equality
 types, it is natural to allow universal and existential quantification over
-all all three sorts of variables. We can hence encode properties like
+all three sorts of variables. We can hence encode properties like
 $\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$.
 \begin{rem}
-It is not clean whether quantification over stacks has a parctical use. We
-only include it as it fits well in the framework and seems rather natural.
+It is not clear whether quantification over stacks has a parctical use. We
+only include it as it fits well in the framework and has no extra cost.
 \end{rem}
 
 (* TODO *)
 
-Still, quantifying over all the (closed) values or terms is not enough.
-Indeed, it is sometimes required to quantify over the values or terms of
-a given type only. To this aim, we introduce a membership type constructor
-$\f("t ∈ A")$ where $t ∈ Λ$ is a term and $A$ is a type. Intuitively, the
-element of a type $\f("t ∈ A")$ are the elements of $A$ that are equivalent
-to $t$. In particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
+Quantifying over all the (closed) values or terms is not enough. Indeed, it
+is sometimes required to quantify over the values or terms of a given type
+only. To this aim, we introduce a membership type constructor $\f("t ∈ A")$
+where $t ∈ Λ$ is a term and $A$ is a type. Intuitively, the element of a
+type $\f("t ∈ A")$ are the elements of $A$ that are equivalent to $t$. In
+particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
+
+When a membership type is used as the argument type of a function (i.e. as
+an asumption)...
 
 (* TODO *)
 
-When a membership type is used as the argument type of a function...
-
+A form of dependent function type can be encoded in the following way using
+universal quantification and a membership type.
 $$ Π_{a : A} B ≔ \f("∀a (a∈A ⇒ B)") $$
-
-$$ Σ_{a : A} B ≔ \f("∀a {l₁ : a∈A; l₂ : B}") $$
+And dually, a dependent pair type can be encoded with existential
+quantification and a membership type.
+$$ Σ_{a : A} B ≔ \f("∃a (a∈A × B)")$$
+\begin{rem}
+Note that nothing prevents the term variable $a$ to appear in $A$ in a in
+the types $\f("∀a (a∈A ⇒ B)")$ and $\f("∃a (a∈A × B)")$.
+\end{rem}
 
 =<
 => Sorts and higher-order types
 
-Our system also provides quantifiers
-ranging over types, which correspond to System F polymorphism and type
-abstraction.
+Our type system allows universal and existential quantification over
+several sorts of objects. There are first order quantifiers ranging over
+values, terms and stack, as shown in the previous section. And the system
+also provides second order quantification (i.e. quantification over types),
+which corresponds to System F polymorphism and type abstraction. All of
+these different forms of quantifiers are handled uniformly in the syntax
+and in the semantics thanks to a higher-order formulation.
 
-Although our system provides several different sorts of quantifiers, they
-are going to be handled uniformly in the semantics.
-
-
-
-In this section, we present the higher-order type system that will serve as
-a base for the work presented in this thesis. Although the following extends
-definitions given in the previous sections, we choose not to avoid
-repetitions so that this section remains completely self-contained.
-
-We here consider a type system that is very similar to the type system of
-the functional languages of the ||ml|| family (e.g. SML or OCaml). It will
-provide a product type for records, a sum type for polymorphic variants,
-polymorphism and higher-order quantification, least and greatest fixpoints.
-The higher-order features of the system will allow us to define types using
-functions taking as arguments types or other functions. This leads to a
-system in which it is syntactically correct to use a type function as a
-type, although it does not make sense. To solve this problem, the usual
-approach is to assign a form of type (called sort) to the types themselves.
+The higher-order features of the system allow us to define (and quantify
+over) types with parameters of any sort. For example, we can define a type
+parametrized by another type and a term. This leads to a system in which
+it is syntactically correct to use a term or a (not fully applied) parametric
+type as a type, although it does not make sense. The usual approach to make
+sure that this does not happen is to assign a form of type (called sort) to
+the types themselves.
 \begin{def}
-The set $\cal{S}$ of all the sorts is generated using the following ||bnf||
-grammar, where $ο$ denotes the sort of propositions.
-$$ s,r ::= ο \| {s→r} $$
+We denote $ο$ the sort of propositions (i.e. the ususal types), $ι$ the sort
+of values, $τ$ the sort of terms and $σ$ the sort of stacks. The set
+$\cal{S}$ of all the sorts is generated using the following ||bnf|| grammar.
+$$ s,r ::= ο \| ι \| τ \| σ \| {s→r} $$
+We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ the set of the //atomic// sorts.
+\end{def}
+
+(* TODO more *)
+\begin{def}
+We require a countable set $\cal{V}_ο = \{X, Y, Z...\}$ of propositional
+variables that does not intersect with $\cal{V}_ι$, $\cal{V}_τ$ and
+$\cal{V}_σ$.
 \end{def}
 \begin{def}
-The set of types (or formulas) is built from a countable set of
-variables $\cal{V} = \{χ... X, Y, Z ...\}$ containing the set of
-propositional variables $\cal{V}_ο = \{X, Y, Z...\}$. It is generated
-using the following ||bnf|| grammar.
-$$
-  A,B ::= \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)") \| \f("A ⇒ B") \|
-          \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") \mbr 
-          \| \f("∀χ^s A") \| \f("∃χ^s A") \| \f("μX A") \| \f("νX A")
-$$
+We require a countable set of variables $\cal{V} = \{χ, ξ, φ...\}$ such that
+for every atomic sort $s ∈ \cal{S}₀$ we have $\cal{V}_s ⊆ \cal{V}$.
 \end{def}
+\begin{def}
+The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_{val}$,
+$Λ$ and $Π$ using the following ||bnf|| grammar.
+
+\linesBefore(1)
+\begin{center}
+$ A,B ::= v \| t \| π \| \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)")
+  \| \f("A⇒B") \| \f("t∈A") \| \f("A | t≡u")$
+
+$ \id([]) \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")
+  \| \f("∀χ^s A") \| \f("∃χ^s A") $
+\end{center}
+\end{def}
+
+(* TODO more *)
+
 \begin{def}
 A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
-$χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, sorting contexts are
-represented using comma-separated lists of sort assignments of the form
-$χ : s$. variable of $\cal{V}$ are mapped at most onces in a sorting context,
-and their order is irrelevant.
+$χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, we will represent
+sorting contexts using comma-separated lists of sort assignments generated
+by the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 2 2 << $Σ ::= • \| {Σ, χ : s}$ >>
+  << $χ ∈ \cal{V}, s ∈ \cal{S} $ >>)
 \end{def}
-
 \begin{def}
 A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
 $s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
 valid if and only if it can be derived using the following deduction rules.
+$$
+\unaryR{Σ, x : ι ⊢ \t("t") : τ}{Σ ⊢ \v("λx t") : ι}
+\hspace(3.0)
+\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("C[v]") : ι}
+\hspace(3.0)
+\unaryR{\{Σ ⊢ \v("vi") : ι\}_{i∈I}}{Σ ⊢ \v("{(li = vi) i∈I}") : ι}
+$$
+$$
+\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v") : τ}
+\hspace(3.0)
+\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("u") : τ}{Σ ⊢ \t("t u") : τ}
+\hspace(3.0)
+\unaryR{Σ, α : σ ⊢ \t("t") : τ}{Σ ⊢ \t("μα t") : τ}
+$$
+$$
+\binaryR{Σ ⊢ \s("π") : σ}{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("[π]t") : τ}
+\hspace(3.0)
+\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v.l") : τ}
+\hspace(3.0)
+\binaryR{Σ ⊢ v : ι}{\{Σ, x_i : ι ⊢ \t("ti") : τ\}_{i∈I}}{
+  Σ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : τ}
+$$
+$$
+\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("Y(t,v)") : τ}
+\hspace(3.0)
+\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("U(v)") : τ}
+\hspace(3.0)
+\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("w") : ι}{Σ ⊢ \t("δ(v,w)") : τ}
+$$
+$$
+\axiomR{Σ ⊢ \s("ε") : σ}
+\hspace(3.0)
+\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("v · π") : σ}
+\hspace(3.0)
+\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("[t] π") : σ}
+$$
 $$
 \axiomR{Σ, χ : s ⊢ χ : s}
 \hspace(3.0)
@@ -192,207 +246,70 @@ $$
 \hspace(3.0)
 \unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}
 \hspace(3.0)
-\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("μX A") : ο}
+\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}
 $$
 $$
-\binaryR{Σ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Σ ⊢ \f("νX A") : ο}
+\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A | t≡u") : ο}
 $$
 \end{def}
 
-\begin{def}
-A typing context is a finite map $Γ$ over $\cal{V}_λ$ and $\cal{V}_μ$ such
-that for all $λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$ and for all
-$μ$-variable $α ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
-represent typing contexts using comma-separated lists of mappings generated
-of the form $x : A$ or $α : A^⊥$. Note that variables can only be mapped once
-in a typing context, and that their order is irrelevant.
-\end{def}
-\begin{def}
-A typing context $Γ$ is said to be valid under a sorting context $Σ$ if for
-all mapping $x:A$ or $α:A^⊥$ in $Γ$ the judgment $Σ ⊢ Γ(x) : ο$ is valid. If
-$Γ$ is valid under $Σ$ then we write $Σ ⊢ Γ$.
-\end{def}
-
-(* Typing rules. *)
-$$
-  \axiomRN{Ax}{Γ, x : A ⊢_\tval x : A}
-  \hspace(2.0)
-  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢_\tval λx t: A ⇒ B}
-  \hspace(2.0)
-  \binaryRN{{→}_e}{Γ ⊢ t : A ⇒ B}{Γ ⊢ u : A}{Γ ⊢ (t) u : B}
-$$
-$$
-  \unaryRN{↑}{Γ ⊢_\tval v : A}{Γ ⊢ v : A}
-  \hspace(4.0)
-  \unaryRN{μ}{Γ, α : ¬A ⊢ t : A}{Γ ⊢ μα t : A}
-  \hspace(4.0)
-  \unaryRN{[{-}]}{Γ, α : ¬A ⊢ t : A}{Γ, α : ¬A  ⊢ [α] t : B}
-$$
-$$
-  \binaryRN{∀_i}{Γ, X_n ⊢_\tval v : A}{X_n ∉ FV(Γ)}{Γ ⊢_\tval v : ∀X_n A}
-  \hspace(4.0)
-  \unaryRN{∀_e}{Γ ⊢ t : ∀X_n A}{Γ ⊢ t : A[X_n := P_n]}
-$$
-$$
-  \unaryRN{∃_i}{Γ ⊢ t : A[X_n := P_n]}{Γ ⊢ t : ∃X_n A}
-  \hspace(4.0)
-  \binaryRN{∃_e}{Γ, X_n, x : A ⊢ t : B}{X_n ∉ FV(Γ,B)}{Γ, x : ∃X_n A ⊢ t : B}
-$$
-$$
-  \unaryRN{×_i}{[Γ ⊢_\tval v_i : A_i]_{1≤i≤n}}{
-    Γ ⊢_\tval \{l_i = v_i\}_{1≤i≤n} : \{l_i : A_i\}_{1≤i≤n}
-  }
-  \hspace(4.0)
-  \unaryRN{×_e}{Γ ⊢_\tval v : \{l_i : A_i\}_{1≤i≤n}}{Γ ⊢ v{.}l_i : A_i}
-$$
-$$
-  \unaryRN{+_i}{Γ ⊢_\tval v : A_i}{Γ ⊢ C_i[v] : [C_i : A_i]_{1≤i≤n}}
-  \hspace(1.0)
-  \binaryRN{+_e}{Γ ⊢_\tval v : [C_i : A_i]_{1≤i≤n}}{
-    [Γ, x_i : A_i ⊢ t_i : B]_{1≤i≤n}
-  }{
-    Γ ⊢ case_v [C_i[x_i] → t_i]_{1≤i≤n} : B
-  }
-$$
-
-
-(* Sorting rules. *)
-$$
-\binaryR{Δ ⊢ A : ο}{Δ ⊢ B : ο}{Δ ⊢ A ⇒ B : ο}
-\hspace(3.0)
-\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ \{l_i : A_i\}_{i∈I} : ο}
-\hspace(3.0)
-\unaryR{\{Δ ⊢ A_i : ο\}_{i∈I}}{Δ ⊢ [C_i : A_i]_{i∈I} : ο}
-$$
-$$
-\axiomR{Δ, χ : s ⊢ χ : s}
-\hspace(3.0)
-\unaryR{Δ, χ : s ⊢ E : r}{Δ ⊢ (χ^s ↦ E) : s → r}
-\hspace(3.0)
-\binaryR{Δ ⊢ E : s → r}{Δ ⊢ F : s}{Δ ⊢ E(F) : r}
-$$
-$$
-\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∀χ^s A : ο}
-\hspace(3.0)
-\unaryR{Δ, χ : s ⊢ A : ο}{Δ ⊢ ∃χ^s A : ο}
-$$
-$$
-\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ μX A : ο}
-\hspace(3.0)
-\binaryR{Δ, X : ο ⊢ A : ο}{X ∉ FV^{-}(A)}{Δ ⊢ νX A : ο}
-$$
-(* TODO *)
+(* TODO more *)
 
 =<
-=> Encoding value restriction
+=> Value and term judgments
 
-As mentioned in the previous section, the languages of the ||ml|| family
-need a restriction on polymorphism to remain type-safe. With the value
-restriction, the typing rule for ||ml|| polymorphism becomes the following.
-$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
-    {Γ ⊢ let x = v in t : A} $$
-When the value that is bound by a let-binding is not a value its type is
-not generalized and the following rule applies.
-$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
+As our language is call-by-value and has operations generating side-effects,
+we need to be careful to achieve type-safety. In particular, some of our
+typing rules will not apply to terms in general, but only to values (as
+mentioned in \chapter("intro")).
 
-In slightly more expressive type systems like System F, the value
-restriction appears in the typing rule for the introduction of the
-universal quantifier. The ususal typing rule
-$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
-cannot be proved safe (in a call-by-value system with side-effects) if
-$t$ is not a syntactic value. This will also be the case in our system
-when we bring together polymorphism and the \lmcalc.
+(* TODO more *)
 
 \begin{def}
-A value judgement (resp. term judgment) is a tuple of a value $v ∈ Λ_{val}$
-(resp. a term $t ∈ Λ$), a type $A ∈ \cal{F}$, a typing context $Γ$, a
-continuation context $Δ$ and a type variable context $Σ$ that is denoted
-$Σ; Γ ⊢_\tval v : A; Δ$ (resp. $Σ; Γ ⊢ t : A; Δ$). A judgment is sait do be
-//well-formed// if $FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) ⊆ dom(Δ)$, $FV_ι(t) = ∅$,
-$FV_ο(A) ⊆ Σ$, $FV_ο(Γ) ⊆ Σ$ and $FV_ο(Δ) ⊆ Σ$. To lighten the notations,
-we will sometimes ommit empty contexts.
+A //typing context// is a finite map $Γ$ over $\cal{V}_ι$ such that for all
+$x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will represent
+typing contexts using comma-separated lists of typ assignments generated
+by the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 2 2 << $Γ ::= • \| {Γ, x : A}$ >>
+  << $x ∈ \cal{V}_ι, A ∈ \cal{F} $ >>)
+Given a sorting context $Σ$, we say that the typing context $Γ$ is
+well-formed and we write $Σ ⊢ Γ$ if for all $x ∈ dom(Γ)$ we have
+$Σ ⊢ Γ(x) : ο$ and $Σ ⊢ x : ι$.
 \end{def}
 \begin{def}
-We say that a well-formed judgement is //valid// if and only if it can be
-derived using the following deduction rule system. Note that a rule only
-applies if all the involved judgments are well-formed.
-$$
-  \axiomRN{Ax}{Σ; Γ, x : A ⊢_\tval x : A; Δ}
-  \hspace(4.0)
-  \unaryRN{↑}{Σ;Γ ⊢_\tval v : A; Δ}{Σ;Γ ⊢ v : A; Δ}
-$$
-$$
-  \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B; Δ}{
-    Σ; Γ ⊢_\tval \t("λx t") : \f("A ⇒ B"); Δ}
-  \hspace(4.0)
-  \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B"); Δ}{Σ; Γ ⊢ u : A; Δ}{
-    Σ; Γ ⊢ \t("t u") : B; Δ}
-$$
-$$
-  \unaryRN{μ}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("μα t") : A; Δ}
-  \hspace(4.0)
-  \unaryRN{[\wc]}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("[α]t") : B; α : A, Δ}
-$$
-$$
-  \unaryRN{×_i}{[Σ; Γ ⊢_\tval v_i : A_i; Δ]_{i∈I}}{
-    Σ; Γ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"); Δ
-  }
-  \hspace(4.0)
-  \unaryRN{×_e}{Σ;Γ ⊢_\tval v : \f("{(li : Ai) i∈I}"); Δ}{
-    Σ;Γ ⊢ \t("v.lj") : A_j; Δ}
-$$
-$$
-  \unaryRN{+_i}{Σ ⊢ (Γ ⊢_\tval v : A_j; Δ)}{
-    Σ ⊢ (Γ ⊢_\tval \v("Cj[v]") : \f("[(Ci : Ai) i∈I]")); Δ}
-$$
-$$
-  \binaryRN{+_e}{Σ; Γ ⊢_\tval v : \f("[(Ci : Ai) i∈I]"); Δ}{
-    [Σ; Γ, x_i : A_i ⊢ t_i : B; Δ]_{i∈I}
-  }{
-    Σ; Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B; Δ
-  }
-$$
-$$
-  \unaryRN{{∀}_i}{Σ, X; Γ ⊢_\tval v : A; Δ}{Σ; Γ ⊢_\tval v : \f("∀X A"); Δ}
-  \hspace(4.0)
-  \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A"); Δ}{Σ; Γ ⊢ t : \f("A[X≔B]"); Δ}
-$$
+A //continuation context// is a finite map $Δ$ over $\cal{V}_σ$ such that
+for all $α ∈ dom(Δ)$ we have $Δ(α) ∈ \cal{F}$. For convenience, we will
+represent typing contexts using comma-separated lists of typ assignments
+generated by the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 2 2 << $Δ ::= • \| {Δ, α : A}$ >>
+  << $α ∈ \cal{V}_σ, A ∈ \cal{F} $ >>)
+Given a sorting context $Σ$, we say that the continuation context $Δ$ is
+well-formed and we write $Σ ⊢ Δ$ if for all $α ∈ dom(Δ)$ we have
+$Σ ⊢ Δ(α) : ο$ and $Σ ⊢ α : σ$.
 \end{def}
-Here again, the $∀_i$ rule does not apply if $X ∈ FV_ο(Γ)$ or $X ∈ FV_ο(Δ)$.
-\begin{rem}
-The $↑$ rule is essential for building proofs. It arises naturally as values
-are terms, and hence a value judgement subsumes the corresponding term
-judgment.
-\end{rem}
+\begin{def}
+Given a sorting context $Σ$, we say the the equational context $Σ$ is
+well-formed if for all $(t,u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
+\end{def}
+\begin{def}
+A value judgement (resp. term judgment) is a tuple of a typing context $Γ$,
+an equational context $Ξ$, a value $v ∈ Λ_{val}$ (resp. a term $t ∈ Λ$), a
+type $A ∈ \cal{F}$ and a continuation context $Δ$ that is denoted
+$Γ; Ξ ⊢_\tval v : A; Δ$ (resp. $Γ; Ξ ⊢ t : A; Δ$).
+\end{def}
+\begin{def}
+Let $Σ$ be a sorting context. We say that the value judgemnt
+$Γ; Ξ ⊢_\tval v : A; Δ$ is well-formed under $Σ$ if we have $Σ ⊢ Γ$,
+$Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ v : ι$ and $Σ ⊢ A : ο$. In this case we write
+$Σ ⊢ (Γ; Ξ ⊢_\tval v : A; Δ)$
+\end{def}
+\begin{def}
+Let $Σ$ be a sorting context. We say that the term judgemnt $Γ; Ξ ⊢ t : A; Δ$
+is well-formed under $Σ$ if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ t : τ$
+and $Σ ⊢ A : ο$. In this case we write $Σ ⊢ (Γ; Ξ ⊢ t : A; Δ)$
+\end{def}
 
-As an example, we can derive again the type of $\t("λf μα f λx [α]x")$ as
-follows. Its type still corresponds to Peirce's Law, but we are now able to
-polymorphism.
-\begin{env}(scale 0.86)
-$$
-  \proofTree{
-    \unaryN{∀_i}{⊢ \t("λf μα f λx [α]x") : \f("∀X ∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{∀_i}{X ⊢ \t("λf μα f λx [α]x") : \f("∀Y ((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{⇒_i}{X,Y ⊢ \t("λf μα f λx [α]x") : \f("((X ⇒ Y) ⇒ X) ⇒ X")}{
-    \unaryN{μ}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("μα f λx [α]x") : X}{
-      \binaryN{⇒_e}{
-        X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("f λx [α]x") : X; α:X
-      }{
-        \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ f : \f("(X ⇒ Y) ⇒ X"); α:X}
-      }{
-        \unaryN{⇒_i}{
-          X,Y; f:\f("(X ⇒ Y) ⇒ X") ⊢ \t("λx [α]x") : \f("X ⇒ Y"); α:X
-        }{
-          \unaryN{[{-}]}{
-            X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ \t("[α]x") : X; α : X
-          }{
-            \axiomN{Ax}{X,Y; f:\f("(X ⇒ Y) ⇒ X"), x:X ⊢ x : X; α:X}
-          }
-        }
-      }
-  }}}}}
-$$
-\end{env}
+(* TODO more *)
 
 =<
 => Call-by-value realisability semantics
@@ -509,107 +426,6 @@ let _ =
 )
 \end{center}
 \end{def}
-
-=<
-
-
-
-
-
-
-
-
-=> Membership and typed quantification
-
-(* ⇒_i rule *)
-$$
-\unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
-\hspace(1.5)
-\binaryRN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t : A ⇒ B}{Σ; Γ; Δ; Ξ ⊢ u : A}{
-  Σ; Γ; Δ; Ξ ⊢ t u : B}
-$$
-
-(* The weak Π_i rule and its derivation *)
-$$
-\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
-}
-$$
-$$
-\proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
-   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
-     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
-}
-$$
-(* The weak Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
-$$
-$$
-\proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
-  }
- }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
-   }
-  }
- }
-}
-$$
-
-(* The Π_i rule and its derivation *)
-$$
-\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
-}
-$$
-$$
-\proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
-   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
-     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
-}
-$$
-
-(* The Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
-$$
-$$
-\proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
-  }
- }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
-   }
-  }
- }
-}
-$$
-(* TODO *)
 
 =<
 => Extended type system
@@ -830,7 +646,6 @@ $$
 $$
 
 =<
-
 => Adequacy
 
 We will now give the formal definition of our new type system.
@@ -1155,435 +970,98 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
 \end{thm}
 
 =<
+=> Derived rules for dependent types
 
-(*
-=> Simple types
+(* ⇒_i rule *)
+$$
+\unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
+\hspace(1.5)
+\binaryRN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t : A ⇒ B}{Σ; Γ; Δ; Ξ ⊢ u : A}{
+  Σ; Γ; Δ; Ξ ⊢ t u : B}
+$$
 
-In order to prevent undesired computational behaviours such as runtime
-errors, functional programming languages rely on syntactic checks. We
-will first consider a small type system with only three type constructors:
-functions, products (in the form of records) and sums (in the form of
-variants).
-\begin{def}
-The set of all types $\cal{F}$ is built using the following ||bnf|| grammar.
-$$ A,B ::= \f("A ⇒ B") \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")$$
-\end{def}
-\begin{rem}
-To lighten the notations, we will consider the function type to be right
-associative. That is, we will always read a type of the form
-$\f("A ⇒ B ⇒ C")$ as $\f("A ⇒ (B ⇒ C)")$.
-\end{rem}
-Through the Curry-Howard isomorphism, it is possible to see our type system
-as a logic. In particular, a type can be read as a formula in which the
-arrow type corresponds to logical implication. Similarly, product and sum
-types can be interpreted as logical conjunction and disjunction.
-
-To be able to assign a type to terms containing free variables, we need to
-use typing contexts. A typing context will map variables to their assumed
-type. Logically, a context will simply correspond to a set of hypothesis.
-That is, a set of formulas that are assumed to be true.
-\begin{def}
-A typing context is a finite map $Γ$ over $\cal{V}_λ$ such that for all
-$λ$-variable $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will
-represent contexts using lists generated using the following ||bnf|| grammar.
-$$ Γ ::= • \| {Γ, x : A} $$
-However, we need to keep in mind that variables can only be mapped once in a
-context and that their order is irrelevant.
-\end{def}
-
-\begin{def}
-A typing judgement is a triple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$ and
-a context $Γ$ that is denoted $Γ ⊢ t : A$. A judgment is said to be
-//well-formed// if $FV_λ(t) ⊆ dom(Γ)$ and if $FV_ι(t) ∪ FV_μ(t) = ∅$.
-To lighten the notations we will write $⊢ t : A$ instead of $Γ ⊢ t : A$ when
-$Γ = •$.
-\end{def}
-\begin{rem}
-Our first type system will only be able to work with terms not containing
-$μ$-variables or term variables. The mechanism for handling such variables
-will be introduced in later sections.
-\end{rem}
-\begin{rem}
-In the following, we will only consider well-formed judgements. This
-information will be kept implicit most of the time.
-\end{rem}
-\begin{def}
-We say that a well-formed judgement is //valid// if and only if it can be
-derived using the following deduction rule system.
+(* The weak Π_i rule and its derivation *)
 $$
-  \axiomRN{Ax}{Γ, x : A ⊢ x : A}
-  \hspace(2.0)
-  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B}{Γ ⊢ \t("λx t") : \f("A ⇒ B")}
-  \hspace(2.0)
-  \binaryRN{{→}_e}{Γ ⊢ t : \f("A ⇒ B")}{Γ ⊢ u : A}{Γ ⊢ \t("t u") : B}
-$$
-$$
-  \unaryRN{×_i}{[Γ ⊢ v_i : A_i]_{i∈I}}{
-    Γ ⊢ \t("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")
-  }
-  \hspace(6.0)
-  \unaryRN{×_e}{Γ ⊢ v : \f("{(li : Ai) i∈I}")}{Γ ⊢ \t("v.lj") : A_j}
-$$
-$$
-  \unaryRN{+_i}{Γ ⊢ v : A_j}{Γ ⊢ \t("Cj[v]") : \f("[(Ci : Ai) i∈I]")}
-  \hspace(2.0)
-  \binaryRN{+_e}{Γ ⊢ v : \f("[(Ci : Ai) i∈I]")}{
-    [Γ, x_i : A_i ⊢ t_i : B]_{i∈I}
-  }{
-    Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B
-  }
-$$
-\end{def}
-\begin{rem}
-The derivability of a judgement $⊢ t : A$ is equivalent to the provability
-of the logical formula corresponding to $A$ in intuitionistic propositional
-logic. As $t$ alone sufices to recover the derivation (only one rule can be
-applied for every term constructor), we may think of it as a proof of $A$.
-Consequently, we associate a computational behavious to a proof. For example,
-a term $t$ of type $\f("A ⇒ B")$ will correspond to a procedure turning a
-proof of the formula $A$ into a proof of the formula $B$.
-\end{rem}
-
-Let us now consider a few examples of typing derivations. First, we can show
-that the term $t = \t("λf λx λy f {l₁ = x; l₂ = y;}")$ has type
-$\f("({l₁ : A; l₂ : B;} ⇒ C) ⇒ A ⇒ B ⇒ C")$ for any given types $A$, $B$
-and $C$.
-\begin{env}(scale 0.52)
-$$
-\proofTree{
- \unaryN{⇒_i}{
-   ⊢ \t("λf λx λy f {l₁ = x; l₂ = y;}")
-     : \f("({l₁ : A; l₂ : B;} ⇒ C) ⇒ A ⇒ B ⇒ C")
- }{
- \unaryN{⇒_i}{
-   f : \f("{l₁ : A; l₂ : B;} ⇒ C") ⊢ \t("λx λy f {l₁ = x; l₂ = y;}")
-     : \f("A ⇒ B ⇒ C")
- }{
- \unaryN{⇒_i}{
-   f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A ⊢ \t("λy f {l₁ = x; l₂ = y;}")
-     : \f("B ⇒ C")
- }{
-   \binaryN{⇒_e}{
-     f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ \t("f {l₁ = x; l₂ = y;}") : C
-   }{
-     \axiomN{Ax}{
-       f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ f
-         : \f("{l₁ : A; l₂ : B;} ⇒ C")
-     }
-   }{
-     \binaryN{×_i}{
-       f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ \t("{l₁ = x; l₂ = y;}")
-         : \f("{l₁ : A; l₂ : B;}")
-     }{
-       \axiomN{Ax}{
-         f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ x : A
-       }
-     }{
-       \axiomN{Ax}{
-         f : \f("{l₁ : A; l₂ : B;} ⇒ C"), x:A, y:B ⊢ y : B
-       }
-     }
-   }
-  }}}}
-$$
-\end{env}
-Similarly, we can show that the term $u = \t("λf λx f x.l₁ x.l₂")$ is also
-typable. It can be given the type $\f("(A ⇒ B ⇒ C) ⇒ {l₁ : A; l₂ : B;} ⇒ C")$
-for any given types $A$, $B$ and $C$.
-\begin{env}(scale 0.52)
-$$
-\proofTree{
- \unaryN{⇒_i}{
-   ⊢ \t("λf λx f x.l₁ x.l₂") : \f("(A ⇒ B ⇒ C) ⇒ {l₁ : A; l₂ : B;} ⇒ C")
- }{
- \unaryN{⇒_i}{
-   f : \f("A ⇒ B ⇒ C") ⊢ \t("λx f x.l₁ x.l₂") : \f("{l₁ : A; l₂ : B;} ⇒ C")
- }{
-   \binaryN{⇒_e}{
-     f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("f x.l₁ x.l₂") : C
-   }{
-     \binaryN{⇒_e}{
-       f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("f x.l₁")
-         : \f("B ⇒ C")
-     }{
-       \axiomN{Ax}{
-         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ f
-           : \f("A ⇒ B ⇒ C")
-       }
-     }{
-       \unaryN{×_e}{
-         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("x.l₁") : A
-       }{
-         \axiomN{Ax}{
-           f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ x
-             : \f("{l₁ : A; l₂ : B;}")
-         }
-       }
-     }
-   }{
-     \unaryN{×_e}{
-       f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ \t("x.l₂") : B
-     }{
-       \axiomN{Ax}{
-         f : \f("A ⇒ B ⇒ C"), x : \f("{l₁ : A; l₂ : B;}") ⊢ x
-           : \f("{l₁ : A; l₂ : B;}")
-       }
-     }
-   }
-  }}}
-$$
-\end{env}
-The terms $t$ and $u$ correspond respectively to the curryfication operation
-and its inverse. The former turns a function taking as input a couple into
-a function of two arguments, and the latter turns a function of two arguments
-into a function taking as input a couple. Logically, these terms correspond
-to both sides of a proof of the following theorem of intuitionistic
-propositional logic.
-$$ (A \land B → C) ↔ (A → B → C) $$
-
-In the next two sections, we will present two rather orthogonal extensions
-of our small type system. The former will provide a mechanism for handling
-terms of the \lmcalc, which will allow us to type more terms of our language
-and will enable classical reasoning.
-(* *)
-The second extension will be System F polymorphism, and it will allow
-universal quantification over a type. Our system will then correspond
-to predicate logic.
-
-=<
-
-=> First extension: \lmcalc and classical logic
-
-We are now going to extend our type system with a mechanism for typing terms
-of the \lmcalc, and not only terms of the $λ$-calculus. The \lmcalc provides
-control structures, which have been shown to give a computational
-interpretation to classical logic by Timothy Griffin \cite("Griffin1990"). As
-a consequence, the obtained system will not be limited to intuitionistically
-provable formulas anymore.
-
-\begin{def}
-A continuation context is a finite map $Δ$ over $\cal{V}_μ$ such that for all
-$μ$-variable $α ∈ dom(Δ)$ we have $Δ(α) ∈ \cal{F}$. As for typing contexts,
-we will represent continuation contexts using lists generated by the
-following ||bnf|| grammar.
-$$ Δ ::= • \| {Γ, α : A} $$
-We will implicitly consider that variables can only be mapped once in a
-continutation context, and that their order is not relevant.
-\end{def}
-
-\begin{def}
-A typing judgement is a tuple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$, a
-typing context $Γ$ and a continuation context $Δ$ that is denoted
-$Γ ⊢ t : A; Δ$. A judgment is said to be //well-formed// if
-$FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) ⊆ dom(Δ)$ and if $FV_ι(t) = ∅$. To lighten the
-notations we will write $⊢ t : A; Δ$ (resp. $Γ ⊢ t : A$) instead of
-$Γ ⊢ t : A; Δ$ when $Γ = •$ (resp. $Δ = •$).
-\end{def}
-
-\begin{def}
-We say that a well-formed judgement is //valid// if and only if it can be
-derived using the following deduction rule system.
-$$
-  \axiomRN{Ax}{Γ, x : A ⊢ x : A; Δ}
-  \hspace(1.6)
-  \unaryRN{{→}_i}{Γ, x : A ⊢ t : B; Δ}{Γ ⊢ \t("λx t") : \f("A ⇒ B"); Δ}
-  \hspace(1.6)
-  \binaryRN{{→}_e}{Γ ⊢ t : \f("A ⇒ B"); Δ}{Γ ⊢ u : A; Δ}{Γ ⊢ \t("t u") : B; Δ}
-$$
-$$
-  \unaryRN{×_i}{[Γ ⊢ v_i : A_i; Δ]_{i∈I}}{
-    Γ ⊢ \t("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"); Δ
-  }
-  \hspace(6.0)
-  \unaryRN{×_e}{Γ ⊢ v : \f("{(li : Ai) i∈I}"); Δ}{Γ ⊢ \t("v.lj") : A_j; Δ}
-$$
-$$
-  \unaryRN{+_i}{Γ ⊢ v : A_j; Δ}{Γ ⊢ \t("Cj[v]") : \f("[(Ci : Ai) i∈I]"); Δ}
-  \hspace(2.0)
-  \binaryRN{+_e}{Γ ⊢ v : \f("[(Ci : Ai) i∈I]"); Δ}{
-    [Γ, x_i : A_i ⊢ t_i : B; Δ]_{i∈I}
-  }{
-    Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B; Δ
-  }
-$$
-$$
-  \unaryRN{μ}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("μα t") : A; Δ}
-  \hspace(4.0)
-  \unaryRN{[\wc]}{Γ ⊢ t : A; α : A, Δ}{Γ ⊢ \t("[α]t") : B; α : A, Δ}
-$$
-\end{def}
-
-As an example, the following type derivation shows that the term
-$\t("λf μα f λx [α]x")$ can be given a type corresponding to Peirce's Law.
-This formula is not intuitionistically provable, and thus this type cannot
-be inhabited by a term of the $λ$-calculus.
-\begin{env}(scale 0.92)
-$$
-  \proofTree{
-    \unaryN{⇒_i}{
-      ⊢ \t("λf μα f λx [α]x") : \f("((A ⇒ B) ⇒ A) ⇒ A")
-    }{
-      \unaryN{μ}{
-        f:\f("(A ⇒ B) ⇒ A") ⊢ \t("μα f λx [α]x") : A
-      }{
-        \binaryN{⇒_e}{
-          f:\f("(A ⇒ B) ⇒ A") ⊢ \t("f λx [α]x") : A; α:A
-        }{
-          \axiomN{Ax}{f:\f("(A ⇒ B) ⇒ A") ⊢ f : \f("(A ⇒ B) ⇒ A"); α:A}
-        }{
-          \unaryN{⇒_i}{
-            f:\f("(A ⇒ B) ⇒ A") ⊢ \t("λx [α]x") : \f("A ⇒ B"); α:A
-          }{
-            \unaryN{[{-}]}{
-              f:\f("(A ⇒ B) ⇒ A"), x:A ⊢ \t("[α]x") : A; α : A
-            }{
-              \axiomN{Ax}{f:\f("(A ⇒ B) ⇒ A"), x:A ⊢ x : A; α:A}
-            }
-          }
-        }
-      }
-    }
-  }
-$$
-\end{env}
-
-=<
-
-=> Second extension: polymorphism and universal quantification
-
-We will now define a second extension of our type system, which will provide
-us with more expressive types. Let us consider the term $\t("λx λy x")$,
-which can be given type $\f("X ⇒ Y ⇒ X")$ given two types $X$ and $Y$.
-$$
-\proofTree{
-  \unaryN{⇒_i}{⊢ \t("λx λy x") : \f("X ⇒ Y ⇒ X")}{
-  \unaryN{⇒_i}{x : X ⊢ \t("λy x") : \f("Y ⇒ X")}{
-    \axiomN{Ax}{x : X, y : Y ⊢ x : X}
-  }}
+\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
 }
 $$
-The term $\t("λx λy x")$ really corresponds to a function taking as input
-two arguments, and returning the first one directly. Note that we do not need
-to say anything about the nature of the arguments this function may accepts.
-In fact, this function can be applied to arguments of any two types. This
-information is not conveyed by the type $\f("X ⇒ Y ⇒ X")$, as it only
-specifies that the function takes arguments of two particular types $X$ and
-$Y$, and returns an element of type $X$.
-
-To solve this expressivity problem, we extend our type system with a new
-type constructor for universal quantification, or polymorphism. We will then
-be able to use types like $\f("∀X ∀Y X ⇒ Y ⇒ X")$. The obtained system is
-called System F, it was introduced by Jean-Yves Girard and John Reynolds
-independently \mcite(["Girard1972";"Reynolds1974"]).
-
-\begin{def}
-The set of all types (or formulas) $\cal{F}$ is now built from a countable
-set of type variables $\cal{V}_ο = \{X, Y, Z...\}$ using the following
-||bnf|| grammar.
-\Caml(
-let _ = sidenote
-  << $ A,B ::= \f("X") \| \f("A ⇒ B") \| \f("∀X A") \|
-    \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]") $ >>
-  << $ X ∈ \cal{V}_ο $ >>
-)
-We denote $FV_ο(A)$ the set of free type variables contained in $A$. Given
-a typing context $Γ$ we will write $FV_ο(Γ)$ the set of free type variables
-contained in the types of $Γ$.
-\end{def}
-\begin{rem}
-To lighten the notations, we will consider that universal quantification
-binds stronger than the function type. As a consequence, we will read
-$\f("∀X ∀Y X ⇒ Y ⇒ X")$ as $\f("∀X (∀Y (X ⇒ (Y ⇒ X)))")$.
-\end{rem}
-
-As types can now contain free variables, our typing judgments will carry
-a list of type variables with the invariant that only these type variables
-can appera free in the judgement.
-\begin{def}
-A type variable context is a finite set of type variables denoted $Σ$. For
-convenience, we will represent type variable contexts using lists generated
-using the following ||bnf|| grammar.
-\Caml(let _ = sidenote << $ Σ ::= • \| {Σ, X} $ >> << $ X ∈ \cal{V}_ο $ >>)
-However, we need to keep in mind that type variables can only appear once
-in a type variable context, and that their order is irrelevant.
-\end{def}
-
-\begin{def}
-A typing judgment is a quadruple of a term $t ∈ Λ$, a type $A ∈ \cal{F}$,
-a typing context $Γ$ and a type variable context $Γ$ that is denoted
-$Σ; Γ ⊢ t : A$. A judgment is sait do be //well-formed// if
-$FV_λ(t) ⊆ dom(Γ)$, $FV_μ(t) = ∅$, $FV_ι(t) = ∅$, $FV_ο(A) ⊆ Σ$ and
-$FV_ο(Γ) ⊆ Σ$. To lighten the notations we will write $Γ ⊢ t : A$ (resp.
-$Σ ⊢ t : A$, resp. $⊢ t : A$) instead of $Σ; Γ ⊢ t : A$ when $Γ = •$ (resp.
-$Δ = •$, resp. $Γ = •$ and $Δ = •$).
-\end{def}
-
-\begin{def}
-We say that a well-formed judgement is //valid// if and only if it can be
-derived using the following deduction rule system. Note that a rule only
-applies if all the involved judgments are well-formed.
 $$
-  \axiomRN{Ax}{Σ; Γ, x : A ⊢ x : A}
-$$
-$$
-  \unaryRN{{→}_i}{Σ; Γ, x : A ⊢ t : B}{Σ; Γ ⊢ \t("λx t") : \f("A ⇒ B")}
-  \hspace(4.0)
-  \binaryRN{{→}_e}{Σ; Γ ⊢ t : \f("A ⇒ B")}{Σ; Γ ⊢ u : A}{Σ; Γ ⊢ \t("t u") : B}
-$$
-$$
-  \unaryRN{×_i}{[Σ; Γ ⊢ v_i : A_i]_{i∈I}}{
-    Σ; Γ ⊢ \t("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
+   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
+     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
   }
-  \hspace(4.0)
-  \unaryRN{×_e}{Σ; Γ ⊢ v : \f("{(li : Ai) i∈I}")}{Σ; Γ ⊢ \t("v.lj") : A_j}
+ }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+(* The weak Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
 $$
 $$
-  \unaryRN{+_i}{Σ ⊢ (Γ ⊢ v : A_j)}{
-    Σ ⊢ (Γ ⊢ \t("Cj[v]") : \f("[(Ci : Ai) i∈I]"))}
-$$
-$$
-  \binaryRN{+_e}{Σ; Γ ⊢ v : \f("[(Ci : Ai) i∈I]")}{
-    [Σ; Γ, x_i : A_i ⊢ t_i : B]_{i∈I}
-  }{
-    Σ; Γ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
   }
-$$
-$$
-  \unaryRN{{∀}_i}{Σ, X; Γ ⊢ t : A}{Σ; Γ ⊢ t : \f("∀X A")}
-  \hspace(4.0)
-  \unaryRN{{∀}_e}{Σ; Γ ⊢ t : \f("∀X A")}{Σ; Γ ⊢ t : \f("A[X≔B]")}
-$$
-\end{def}
-\begin{rem}
-The condition on the well-formedness of all the judgments imply that the
-$∀_i$ rule may only apply when $X ∉ FV_ο(Γ)$. If it were not the case then
-the conclusion judgments of the rule could not be well-formed.
-\end{rem}
-
-As an example, the proof that $\t("λx λy x")$ has type $\f("∀X ∀Y X ⇒ Y ⇒ X")$
-can be derived as follows in the system. Note that this type is fully
-specified, in the sense that we did not say anything like
-"for all given types".
-$$
-  \proofTree{
-    \unaryN{∀_i}{⊢ \t("λx λy x") : \f("∀X ∀Y X ⇒ Y ⇒ X")}{
-    \unaryN{∀_i}{X ⊢ \t("λx λy x") : \f("∀Y X ⇒ Y ⇒ X")}{
-      \unaryN{⇒_i}{X, Y ⊢ \t("λx λy x") : \f("X ⇒ Y ⇒ X")}{
-        \unaryN{⇒_i}{X, Y; x : X ⊢ \t("λy x") : \f("Y ⇒ X")}{
-          \axiomN{Ax}{X, Y; x : X, y : Y ⊢ x : X}
-  }}}}}
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
+   }
+  }
+ }
+}
 $$
 
-It would seem that polymophism and classical logic are two rather orthogonal
-extensions of the simple system. However, we will see in the next section that
-they actually interact in a very subtle way. Indeed, the naive approach breaks
-the type safety and the consistency of the system. More generally, the
-problem is related to call-by-value evaluation and side-effects. Historicaly,
-it was first identified in the context of ||ml||.
+(* The Π_i rule and its derivation *)
+$$
+\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
+}
+$$
+$$
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
+   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
+     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
+  }
+ }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+
+(* The Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
+  }
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
+   }
+  }
+ }
+}
+$$
+(* TODO *)
 
 =<
-
-*)
-
 
 =<

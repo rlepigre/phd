@@ -141,9 +141,10 @@ and f2m : form -> Maths.math list = function
                         | Some s -> with_rsup x (vari2m s)
                       in (str "(") @ (bin' 2 "↦" (x, f2m a)) @ (str ")")
   | FAppl(a,b)     -> (f2m a) @ (str "(") @ (f2m b) @ (str ")")
-  | FFunc(a,b)     -> bin' 2 "⇒" (f2m a, f2m b)
+  | FFunc(a,b)     -> bin' 1 "⇒" (f2m a, f2m b)
   | FSubs(a,s)     -> (f2m a) @ (subs2m s)
   | FGrou(a)       -> (str "(") @ (f2m a) @ (str ")")
+  | FBPrd(a,b)     -> bin' 2 "×" (f2m a, f2m b)
   | FProd(fs)      -> let aux (l,a) = bin' 2 ":" (vari2m l, f2m a) in
                       (str "{") @ (fset2m aux (str ";") fs) @ (str "}")
   | FDSum(ps)      -> let aux (c,a) = bin' 2 ":" (vari2m c, f2m a) in
@@ -162,7 +163,7 @@ and f2m : form -> Maths.math list = function
                       in (str "∃") @ c @ (str ".") @ (f2m a)
   | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (str ".") @ (f2m a)
   | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (str ".") @ (f2m a)
-  | FMemb(t,a)     -> bin' 2 "∈" (t2m t, f2m a)
+  | FMemb(t,a)     -> bin' 3 "∈" (t2m t, f2m a)
   | FRest(a,(t,u)) -> let eq = bin' 2 "≡" (t2m t, t2m u) in
                       begin
                         match a with

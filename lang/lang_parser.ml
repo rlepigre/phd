@@ -135,6 +135,7 @@ and        form prio =
   | a:(form FAtom) '(' b:(form FFull) ')'     when prio = FAtom -> FAppl(a,b)
   | '(' a:(form FFull) ')'                    when prio = FAtom -> FGrou(a)
   | a:(form FAtom) fs:{"⇒" b:(form FAtom)}*$  when prio = FFull -> ffunc (a::fs)
+  | a:(form FAtom) "×" b:(form FAtom)$        when prio = FFull -> FBPrd(a,b)
   | '{' fs:(fset ffield ";") '}'              when prio = FAtom -> FProd(fs)
   | '[' ps:(fset fpatt  "|") ']'              when prio = FAtom -> FDSum(ps)
   | "∀" x:qvari s:{"^" stvar}? a:(form FFull) when prio = FAtom -> FUniv(x,s,a)
