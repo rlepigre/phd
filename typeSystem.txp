@@ -146,11 +146,14 @@ type as a type, although it does not make sense. The usual approach to make
 sure that this does not happen is to assign a form of type (called sort) to
 the types themselves.
 \begin{def}
-We denote $ο$ the sort of propositions (i.e. the ususal types), $ι$ the sort
-of values, $τ$ the sort of terms and $σ$ the sort of stacks. The set
-$\cal{S}$ of all the sorts is generated using the following ||bnf|| grammar.
-$$ s,r ::= ο \| ι \| τ \| σ \| {s→r} $$
-We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ the set of the //atomic// sorts.
+We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
+the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
+and the sort of stacks $σ$.
+\end{def}
+\begin{def}
+The set of all sorts $\cal{S}$ is generated from the set of atomic sorts
+$\cal{S}₀$ using the following ||bnf|| grammar.
+\Caml(let _ = sidenote_wr 1 2 << $s,r ::= κ \| {s→r}$ >> << $κ∈\cal{S}₀$ >>)
 \end{def}
 
 (* TODO more *)
@@ -420,9 +423,7 @@ let _ =
                                  \v("vi")∈\vs("Ai")\} $>
   ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
   ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
-  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
-  ; line "μX A"            <$ ... $>
-  ; line "νX A"            <$ ... $> ]
+  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $> ]
 )
 \end{center}
 \end{def}
@@ -446,6 +447,7 @@ $$
 }
 $$
 
+(*
 $$
 \unaryRN{↓}{
   Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)
@@ -453,6 +455,7 @@ $$
   Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
 }
 $$
+*)
 
 (* ⇒_i rule *)
 $$
@@ -648,17 +651,6 @@ $$
 =<
 => Adequacy
 
-We will now give the formal definition of our new type system.
-\begin{def}
-We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
-the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
-and the sort of stacks $σ$.
-\end{def}
-\begin{def}
-The set of all sorts $\cal{S}$ is generated from the set of atomic sorts
-$\cal{S}₀$ using the following ||bnf|| grammar.
-\Caml(let _ = sidenote_wr 1 2 << $s,r ::= {s→r} \| ξ$ >> << $ξ∈\cal{S}₀$ >>)
-\end{def}
 \begin{def}
 Given a typing context $Γ$, a continuation context $Δ$ and an equational
 context $Ξ$ we consider two different forms of typing judgments:
