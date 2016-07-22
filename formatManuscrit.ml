@@ -328,7 +328,7 @@ module Format (D:DocumentStructure) = struct
                 else []
               in
               let name = n.displayname in
-              mark @ (size 7.5 (color Color.gray numb)) @ size 5.0 name
+              mark @ (size 7.5 (color Color.gray numb)) @ size 6.0 name
           in
           let par = Paragraph
             { par_contents = section_name

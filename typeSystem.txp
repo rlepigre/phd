@@ -93,7 +93,7 @@ $\t("(λx x) {}") ≡_{≻} \t("{}")$, but not general properties like
 "$\t("(λx x) v") ≡_{≻} \t("v")$ for every value $v$".
 
 =<
-=> Untyped quantification and membership predicate
+=> Quantification and membership predicate
 
 A term $t ∈ Λ$ can contain free variables of several sorts: $λ$-variables
 (i.e. value variables), term variables and $μ$-variables (i.e. stack
