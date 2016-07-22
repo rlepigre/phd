@@ -86,53 +86,64 @@ procedure is able to show that for every substitution $ρ$ such that $ρ ⊩ Ξ$
 we have $\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 
-Although equality types enable the derivation of simple equational
-properties, their use is rather limited without a form of quantification.
-Indeed, they can only be used to specify static equivalences like
-$\t("(λx x) {}") ≡_{≻} \t("{}")$, but not general properties like
-"$\t("(λx x) v") ≡_{≻} \t("v")$ for every value $v$".
-
 =<
 => Quantification and membership predicate
 
-A term $t ∈ Λ$ can contain free variables of several sorts: $λ$-variables
-(i.e. value variables), term variables and $μ$-variables (i.e. stack
-variables). As open terms may appear in types, and in particular in equality
-types, it is natural to allow universal and existential quantification over
-all three sorts of variables. We can hence encode properties like
-$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$. However, the
-forms of quantification described here range over all value, terms or stacks
-regardless of their types.
+Although equality types can be used to derive simple equational properties,
+their use is rather limited without a form of quantification. Indeed, they
+only allow the derivation of static equivalences like $\t("(λx x) {}") ≡_{≻}
+\t("{}")$, but they cannot be used to show more general properties like
+"$\t("(λx x) v") ≡_{≻} \t("v")$ for every value $v$".
+(* *)
+Terms can contain free variables of several sorts: $λ$-variables (i.e. value
+variables), term variables and $μ$-variables (i.e. stack variables). As open
+terms may appear in types, and in particular in equality types, it is natural
+to allow universal and existential quantification over all three sorts of
+variables. We can hence use types like $\f("∀y (λx x) y ≡ y")$ or
+$\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$.
+\begin{rem}
+The forms of quantification described here range over all (closed) value,
+terms or stacks regardless of their types.
+\end{rem}
 \begin{rem}
 It is not clear whether quantification over stacks has a practical use. We
 only include it as it fits well in the framework and has no extra cost.
 \end{rem}
 
-(* TODO *)
+Quantifying over all the (closed) values or terms is not always enough.
+Indeed, we often need to quantify over the values or the terms of a given
+type only. For example if we quantify over a $λ$-variable that is used in
+a case analysis, then a runtime error will be produced for values that do
+not correspond to matched constructors. This would not happen when
+quantifying over value of the appropriate sum type.
 
-Quantifying over all the (closed) values or terms is not enough. Indeed, it
-is sometimes required to quantify over the values or terms of a given type
-only. To this aim, we introduce a membership type constructor $\f("t ∈ A")$
-where $t ∈ Λ$ is a term and $A$ is a type. The elements of this type are
-the elements of $A$ that are equivalent to $t$. In particular, $\f("t ∈ A")$
-is empty if $t$ does not have type $A$. Intuitively, the type $\f("t∈A")$ can
-be read as the proposition "$t$ has type $A$", but we will see later that a
-more appropriate interpretation would be "$t$ realizes $A$".
-
-When a membership type is used as the argument type of a function (i.e. as
-an assumption)...
-
-(* TODO *)
-
-A form of dependent function type can be encoded in the following way using
-universal quantification and a membership type.
-$$ Π_{a : A} B ≔ \f("∀a (a∈A ⇒ B)") $$
-And dually, a dependent pair type can be encoded with existential
-quantification and a membership type.
-$$ Σ_{a : A} B ≔ \f("∃a (a∈A × B)")$$
+To achieve typed quantification we introduce a membership type constructor
+$\f("t ∈ A")$ where $t ∈ Λ$ is a term and $A ∈ \cal{F}$ is a type. The
+elements of $\f("t∈A")$ are those of $A$ that are equivalent to $t$. In
+particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
+Intuitively, $\f("t∈A")$ can be read as the proposition "$t$ has type $A$",
+but we will see later that a more appropriate interpretation would be
+"$t$ realizes $A$". Using membership, we can use the well-known relativized
+quantification scheme to obtain a dependent function type.
+$$ Π_{x : A} B ≔ \f("∀x (x∈A ⇒ B)") $$
+The dependent function type exactly correspond to typed quantification as
+its elements can only be applied to values of type $A$. Other values are
+simply filtered out.
+(* *)
+Note that we can define a dependent pair type using existential
+quantification as follows.
+$$ Σ_{x : A} B ≔ \f("∃x {l₁ : x∈A ; l₂ : B}") $$
+(* *)
+We can also define the same kind of type constructors by quantifying over
+term variables in the exact same way.
+$$
+  Π_{a : A} B ≔ \f("∀a (a∈A ⇒ B)")
+  \hspace(4.0)
+  Σ_{a : A} B ≔ \f("∃a {l₁ : a∈A ; l₂ : B}")
+$$
 \begin{rem}
-Note that nothing prevents the term variable $a$ to appear in $A$ in a in
-the types $\f("∀a (a∈A ⇒ B)")$ and $\f("∃a (a∈A × B)")$.
+Nothing prevents the variable that is quantified over to appear in $A$.
+However, it is not clear whether that is useful in practice.
 \end{rem}
 
 =<
@@ -149,10 +160,12 @@ and in the semantics thanks to a higher-order formulation.
 The higher-order features of the system allow us to define (and quantify
 over) types with parameters of any sort. For example, we can define a type
 parametrized by another type and a term. This leads to a system in which
-it is syntactically correct to use a term or a (not fully applied) parametric
-type as a type, although it does not make sense. The usual approach to make
-sure that this does not happen is to assign a form of type (called sort) to
-the types themselves.
+it is syntactically correct to use a (not fully applied) parametric type,
+or even a term, as a type. This does not make sense, and hence we must make
+sure that this does not happen. The usual approach to tackle this problem
+is to assign a form of type (called sort) to the types themselves, to make
+sure that they are "well-formed". This first system will be fairly simple
+as it will correspond to (a copy of) the simply typed $λ$-calculus.
 \begin{def}
 We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
 the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
@@ -164,7 +177,7 @@ $\cal{S}₀$ using the following ||bnf|| grammar.
 \Caml(let _ = sidenote_wr 1 2 << $s,r ::= κ \| {s→r}$ >> << $κ∈\cal{S}₀$ >>)
 \end{def}
 
-(* TODO more *)
+(* TODO from here *)
 \begin{def}
 We require a countable set $\cal{V}_ο = \{X, Y, Z...\}$ of propositional
 variables that does not intersect with $\cal{V}_ι$, $\cal{V}_τ$ and
