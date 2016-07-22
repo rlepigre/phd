@@ -322,13 +322,13 @@ module Format (D:DocumentStructure) = struct
               in [C contents]
             else
               (* Deeper level. *)
-              let marker = bB (fun _ -> [Marker (Structure path)]) in
-              if numbered then
-                let contents env =
-                  marker :: tT (get_nums env ^ " ") :: n.displayname
-                in [C contents]
-              else
-                marker :: n.displayname
+              let mark = [bB (fun _ -> [Marker (Structure path)])] in
+              let numb =
+                if numbered then [C (fun env -> [tT (get_nums env ^ " ")])]
+                else []
+              in
+              let name = n.displayname in
+              mark @ (size 7.5 (color Color.gray numb)) @ size 5.0 name
           in
           let par = Paragraph
             { par_contents = section_name

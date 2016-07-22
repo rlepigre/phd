@@ -43,7 +43,7 @@ let make_theorem : string -> (module Env) = fun name ->
       let refType = name
       let counter = name
       let counterLevel = 1
-      let display num = emph [tT (name ^ " " ^ num ^ "."); (tT " ")]
+      let display num = bold [tT (name ^ " " ^ num ^ "."); (tT " ")]
     end
   in (module Make_theorem( A ))
 
