@@ -9,7 +9,7 @@
 )
 \Include{Macros}
 
-=> Higher-order type system and semantics \label("typeSystem")
+=> Higher-order types and semantics \label("typeSystem")
 
 In this chapter, we present a new type system which distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
@@ -25,7 +25,7 @@ used to reason about programs. To achieve this goal, we need to be able to
 specify program behaviours using types. We hence introduce equality types
 of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped) terms.
 Intuitively, an equality type is interpreted as $⊤$ (i.e. logical truth,
-the bigest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity, the
+the biggest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity, the
 empty type) if $t \nequiv_{≻} u$. For example, the type
 $\f("(λx x) λx x ≡ λx x")$ is inhabited as $\t("(λx x) λx x") ≡_{≻}
 \t("λx x")$ according to \thmRef("cbvbeta"), but $\f("λx x ≡ {}")$ is empty
@@ -36,8 +36,8 @@ consequence, we will not be able to decide, in general, whether an equality
 type is inhabited or not. We will hence need to rely on a partial decision
 procedure that will only approximate our observational equivalence relation.
 \begin{thm}
-Given two terms $t ∈ Λ$ and $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$
-or $t \nequiv_{≡} u$.
+Given $t ∈ Λ$ and $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
+$t \nequiv_{≻} u$.
 \begin{proof}
 We are going to encode the halting problem $H_t$ using equivalence. In our
 system, $H_t$ can be stated as ${\p("t ∗ ε")} {⇓}_{≻}$. Let us
@@ -56,24 +56,28 @@ ${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")}$ we obtain $H_t$.
 \end{thm}
 
 In the system, proving a program equivalence amounts to showing that the
-corresponding equivalence type is inhabited. However, an equivalence type
+corresponding equality type is inhabited. However, an equivalence type
 may also be used as an assumption. For example, it is possible to define
-a function which input type is an equivalence. As a consequence, we are
-going to need a form of context containing a set of program equivalences
-that are assumed to be true.
+a function which input type is an equivalence. As a consequence, we need
+a form of context to store the set of program equivalences that are
+assumed to be true during a proof.
 \begin{def}
 An equational context $Ξ ⊆ \cal{P}(Λ × Λ)$ is a finite set of couples
-of terms denoting hypothetical equivalences. For convenience, we will
-represent equational contexts using lists generated using the following
+of terms denoting hypothetical equivalences. For convenience, equational
+contexts we will represented using lists generated using the following
 ||bnf|| grammar.
 \Caml(let _ = sidenote_wr 2 2 << $Ξ ::= • \| {Ξ, t ≡ u}$ >> << $t,u ∈ Λ$ >>)
 \end{def}
 
-(* TODO more *)
-
+During the construction of a proof, the equational context grows with new
+hypotheses and equivalences need to be proved eventually. As mentioned
+previously, we rely on a partial decision procedure that is supposed
+correct, but remains otherwise unspecified. The implementation of such a
+decision procedure be discussed in \chapter("implem").
 \begin{def}
-Given an equational context $Ξ$ and a substitution $ρ$, we write $ρ ⊩ Ξ$ if
-for every $(t,u) ∈ Ξ$ we have $\t("tρ") ≡_{≻} \t("uρ")$.
+Given an equational context $Ξ$ and a substitution $ρ$, we say that $σ$
+//realizes// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
+$\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 \begin{def}
 Let $Ξ$ be an equational context and $t ∈ Λ$ and $u ∈ Λ$ be two terms. We
@@ -96,9 +100,11 @@ A term $t ∈ Λ$ can contain free variables of several sorts: $λ$-variables
 variables). As open terms may appear in types, and in particular in equality
 types, it is natural to allow universal and existential quantification over
 all three sorts of variables. We can hence encode properties like
-$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$.
+$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$. However, the
+forms of quantification described here range over all value, terms or stacks
+regardless of their types.
 \begin{rem}
-It is not clear whether quantification over stacks has a parctical use. We
+It is not clear whether quantification over stacks has a practical use. We
 only include it as it fits well in the framework and has no extra cost.
 \end{rem}
 
@@ -107,12 +113,14 @@ only include it as it fits well in the framework and has no extra cost.
 Quantifying over all the (closed) values or terms is not enough. Indeed, it
 is sometimes required to quantify over the values or terms of a given type
 only. To this aim, we introduce a membership type constructor $\f("t ∈ A")$
-where $t ∈ Λ$ is a term and $A$ is a type. Intuitively, the element of a
-type $\f("t ∈ A")$ are the elements of $A$ that are equivalent to $t$. In
-particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
+where $t ∈ Λ$ is a term and $A$ is a type. The elements of this type are
+the elements of $A$ that are equivalent to $t$. In particular, $\f("t ∈ A")$
+is empty if $t$ does not have type $A$. Intuitively, the type $\f("t∈A")$ can
+be read as the proposition "$t$ has type $A$", but we will see later that a
+more appropriate interpretation would be "$t$ realizes $A$".
 
 When a membership type is used as the argument type of a function (i.e. as
-an asumption)...
+an assumption)...
 
 (* TODO *)
 
@@ -600,7 +608,7 @@ $$
 }{
   k∈I
 }{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ci[v]") : \f("[(Ci : Ai) i∈I]"))
+  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ck[v]") : \f("[(Ci : Ai) i∈I]"))
 }
 $$
 

@@ -584,9 +584,9 @@ From \chapter("subtyping") onwards, a more practical approach is taken. The
 type system is extended with inductive and coinductive types, which are
 handled using a subtyping relation. A fixpoint operator is also provided to
 allow for reccursive programs, which are shown terminating using the size
-change principle. In \chapter("implementation"), the implementation of the
-system is presented. The source code of the prototype is distributed with
-this document, and the last version is available online. (* FIXME http *)
+change principle. In \chapter("implem"), the implementation of the system is
+presented. The source code of the prototype is distributed with this
+document, and the last version is available online. (* FIXME http *)
 
 Finally, \chapter("conclusion") presents several ideas and problems that
 could not be tackled in this thesis for lack of time. The limitations of
