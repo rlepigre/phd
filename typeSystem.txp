@@ -87,7 +87,7 @@ we have $\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 
 =<
-=> Quantification and membership predicate
+=> Quantification and membership type
 
 Although equality types can be used to derive simple equational properties,
 their use is rather limited without a form of quantification. Indeed, they
@@ -159,13 +159,12 @@ and in the semantics thanks to a higher-order formulation.
 
 The higher-order features of the system allow us to define (and quantify
 over) types with parameters of any sort. For example, we can define a type
-parametrized by another type and a term. This leads to a system in which
+parametrized by another type or a term. This leads to a system in which
 it is syntactically correct to use a (not fully applied) parametric type,
 or even a term, as a type. This does not make sense, and hence we must make
 sure that this does not happen. The usual approach to tackle this problem
-is to assign a form of type (called sort) to the types themselves, to make
-sure that they are "well-formed". This first system will be fairly simple
-as it will correspond to (a copy of) the simply typed $λ$-calculus.
+is to assign a form of type (called sort) to the types themselves. This
+will give use the guarantee that our types are "well-formed".
 \begin{def}
 We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
 the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
@@ -177,7 +176,11 @@ $\cal{S}₀$ using the following ||bnf|| grammar.
 \Caml(let _ = sidenote_wr 1 2 << $s,r ::= κ \| {s→r}$ >> << $κ∈\cal{S}₀$ >>)
 \end{def}
 
-(* TODO from here *)
+The language of sorts only contains constants and an arrow constructor for
+functions. Our "sort system" will in fact be very similar to the simply
+typed $λ$-calculus. In particular, the syntax of our types will contain a
+constructor for building functions (i.e. $λ$-abstraction) and a corresponding
+constructor for application.
 \begin{def}
 We require a countable set $\cal{V}_ο = \{X, Y, Z...\}$ of propositional
 variables that does not intersect with $\cal{V}_ι$, $\cal{V}_τ$ and
@@ -190,9 +193,8 @@ for every atomic sort $s ∈ \cal{S}₀$ we have $\cal{V}_s ⊆ \cal{V}$.
 \begin{def}
 The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_{val}$,
 $Λ$ and $Π$ using the following ||bnf|| grammar.
-
-\linesBefore(1)
 \begin{center}
+\linesBefore(2)
 $ A,B ::= v \| t \| π \| \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)")
   \| \f("A⇒B") \| \f("t∈A") \| \f("A | t≡u")$
 
@@ -201,7 +203,7 @@ $ \id([]) \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")
 \end{center}
 \end{def}
 
-(* TODO more *)
+(* TODO from here *)
 
 \begin{def}
 A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
@@ -214,67 +216,120 @@ by the following ||bnf|| grammar.
 \begin{def}
 A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
 $s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
-valid if and only if it can be derived using the following deduction rules.
-$$
-\unaryR{Σ, x : ι ⊢ \t("t") : τ}{Σ ⊢ \v("λx t") : ι}
-\hspace(3.0)
-\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("C[v]") : ι}
-\hspace(3.0)
-\unaryR{\{Σ ⊢ \v("vi") : ι\}_{i∈I}}{Σ ⊢ \v("{(li = vi) i∈I}") : ι}
-$$
-$$
-\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v") : τ}
-\hspace(3.0)
-\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("u") : τ}{Σ ⊢ \t("t u") : τ}
-\hspace(3.0)
-\unaryR{Σ, α : σ ⊢ \t("t") : τ}{Σ ⊢ \t("μα t") : τ}
-$$
-$$
-\binaryR{Σ ⊢ \s("π") : σ}{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("[π]t") : τ}
-\hspace(3.0)
-\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v.l") : τ}
-\hspace(3.0)
-\binaryR{Σ ⊢ v : ι}{\{Σ, x_i : ι ⊢ \t("ti") : τ\}_{i∈I}}{
-  Σ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : τ}
-$$
-$$
-\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("Y(t,v)") : τ}
-\hspace(3.0)
-\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("U(v)") : τ}
-\hspace(3.0)
-\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("w") : ι}{Σ ⊢ \t("δ(v,w)") : τ}
-$$
-$$
-\axiomR{Σ ⊢ \s("ε") : σ}
-\hspace(3.0)
-\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("v · π") : σ}
-\hspace(3.0)
-\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("[t] π") : σ}
-$$
-$$
-\axiomR{Σ, χ : s ⊢ χ : s}
-\hspace(3.0)
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ ↦ A)") : s → r}
-\hspace(3.0)
-\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}
-$$
-$$
-\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}
-\hspace(3.0)
-\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}
-\hspace(3.0)
-\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}
-$$
-$$
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∀χ A") : r}
-\hspace(3.0)
-\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}
-\hspace(3.0)
-\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}
-$$
-$$
-\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A | t≡u") : ο}
-$$
+valid if and only if it can be derived using the deduction rules of
+\figRef("sortrules").
+\Caml(
+let r11 =
+  << $\unaryR{Σ, x : ι ⊢ \t("t") : τ}{Σ ⊢ \v("λx t") : ι}$ >>
+let r12 =
+  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("C[v]") : ι}$ >>
+let r13 =
+  << $\unaryR{\{Σ ⊢ \v("vi") : ι\}_{i∈I}}{Σ ⊢ \v("{(li = vi) i∈I}") : ι}$ >>
+let r21 =
+  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v") : τ}$ >>
+let r22 =
+  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("u") : τ}{Σ ⊢ \t("t u") : τ}$ >>
+let r23 =
+  << $\unaryR{Σ, α : σ ⊢ \t("t") : τ}{Σ ⊢ \t("μα t") : τ}$ >>
+let r31 =
+  << $\binaryR{Σ ⊢ \s("π") : σ}{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("[π]t") : τ}$ >>
+let r32 =
+  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v.l") : τ}$ >>
+let r33 =
+  << $\binaryR{Σ ⊢ v : ι}{\{Σ, x_i : ι ⊢ \t("ti") : τ\}_{i∈I}}{
+       Σ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : τ}$ >>
+let r41 =
+  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("Y(t,v)") : τ}$ >>
+let r42 =
+  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("U(v)") : τ}$ >>
+let r43 =
+  << $\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("w") : ι}{Σ ⊢ \t("δ(v,w)") : τ}$ >>
+let r51 =
+  << $\axiomR{Σ ⊢ \s("ε") : σ}$ >>
+let r52 =
+  << $\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("v · π") : σ}$ >>
+let r53 =
+  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("[t] π") : σ}$ >>
+let r61 =
+  << $\axiomR{Σ, χ : s ⊢ χ : s}$ >>
+let r62 =
+  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ ↦ A)") : s → r}$ >>
+let r63 =
+  << $\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}$ >>
+let r71 =
+  << $\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}$ >>
+let r72 =
+  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}$ >>
+let r73 =
+  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}$ >>
+let r81 =
+  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∀χ A") : r}$ >>
+let r82 =
+  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}$ >>
+let r83 =
+  << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
+let r91 =
+  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A | t≡u") : ο}$ >>
+
+let rs env =
+  let rs =
+    [ [ r11 ; r12 ; r13 ] ; [ r21 ; r22 ; r23 ] ; [ r31 ; r32 ; r33 ]
+    ; [ r41 ; r42 ; r43 ] ; [ r51 ; r52 ; r53 ] ; [ r61 ; r62 ; r63 ]
+    ; [ r71 ; r72 ; r73 ] ; [ r81 ; r82 ; r83 ] ; [ r91 ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+
+  let dr env =
+    let rs = rs env in
+    let wall = env.normalMeasure -. 6.0 in
+    let size_box rs =
+      let (x1, y1, x2, y2) = bounding_box rs in 
+      (x2 -. x1, y2 -. y1)
+    in
+    let trs d = RawContent.translate d 0.0 in
+    let draw_line ls =
+      match ls with
+      | [e1]         -> let (w1, h1) = size_box e1 in
+                        let d1 = (wall -. w1) /. 2.0 in
+                        let all = List.map (trs d1) e1 in
+                        (h1, all)
+      | [e1; e2]     -> let (w1, h1) = size_box e1 in
+                        let (w2, h2) = size_box e2 in
+                        let d1 = 0.0 in
+                        let d2 = wall -. w2 in
+                        let all =
+                          List.map (trs d1) e1 @ List.map (trs d2) e2
+                        in
+                        (max h1 h2, all)
+      | [e1; e2; e3] -> let (w1, h1) = size_box e1 in
+                        let (w2, h2) = size_box e2 in
+                        let (w3, h3) = size_box e3 in
+                        let d1 = 0.0 in
+                        let d2 = (wall -. w2) /. 2.0 in
+                        let d3 = wall -. w3 in
+                        let all =
+                          List.map (trs d1) e1 @ List.map (trs d2) e2 @
+                          List.map (trs d3) e3
+                        in
+                        (max h1 (max h2 h3), all)
+      | _            -> assert false
+    in
+    let ls = List.map draw_line rs in
+    let gather acc (h,l) =
+      let h = h +. 6.0 in
+      (List.map (RawContent.translate 0.0 h) acc) @ l
+    in
+    let cs = List.fold_left gather [] ls in
+    let (x1, y1, x2, y2) = bounding_box cs in
+    let border =
+      let pad = 3.0 in
+      let r = rectangle (x1 -. pad, y1 -. pad) (x2 +. pad, y2 +. pad) in
+      [Path(default_path_param, [r])]
+    in
+    drawing (List.fold_left gather [] ls @ border)
+
+  let _ = figure_here ~name:"sortrules" ~caption:[tT "Sorting rules."] dr
+)
 \end{def}
 
 (* TODO more *)

@@ -227,6 +227,7 @@ module Format (D:DocumentStructure) = struct
   module Env_center   = Default.Env_center
   module Env_proof    = Default.Env_proof
   module Env_noindent = Default.Env_noindent
+  let figure_here = Default.figure_here
 
   (* Secial page. *)
   let special_page pages_after contents =

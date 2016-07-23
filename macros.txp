@@ -58,6 +58,7 @@ let remRef x = <<Remark \generalRef("Remark")(x)>>
 let lemRef x = <<Lemma \generalRef("Lemma")(x)>>
 let thmRef x = <<Theorem \generalRef("Theorem")(x)>>
 let corRef x = <<Corollary \generalRef("Corollary")(x)>>
+let figRef x = <<Figure \generalRef("figure")(x)>>
 
 let definition = defRef
 let remark     = remRef
