@@ -47,7 +47,7 @@ ${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. Let us suppose $H_t$ and show
 ${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. We need to find a stack $π ∈ Π$ such
 that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ and ${\p("Ω ∗ π")} {⇑}_{≻}$. This is in fact
 true for all $π$ as ${\p("Ω ∗ π")} {⇑}_{≻}$ by hypothesis and
-${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")} {⇓}_{≻}$ since we supposed $H_t$. We know
+${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")} {⇓}_{≻}$ since we supposed $H_t$. We now
 suppose ${\t("[ε]t") \nequiv_{≻} \t("Ω")}$ and show $H_t$. By definition,
 there must be a stack $π ∈ Π$ such that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ since
 ${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
@@ -73,9 +73,9 @@ During the construction of a proof, the equational context grows with new
 hypotheses and equivalences need to be proved eventually. As mentioned
 previously, we rely on a partial decision procedure that is supposed
 correct, but remains otherwise unspecified. The implementation of such a
-decision procedure be discussed in \chapter("implem").
+decision procedure is discussed in \chapter("implem").
 \begin{def}
-Given an equational context $Ξ$ and a substitution $ρ$, we say that $σ$
+Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
 //realizes// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
 $\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
@@ -115,7 +115,7 @@ Indeed, we often need to quantify over the values or the terms of a given
 type only. For example if we quantify over a $λ$-variable that is used in
 a case analysis, then a runtime error will be produced for values that do
 not correspond to matched constructors. This would not happen when
-quantifying over value of the appropriate sum type.
+quantifying over value of the appropriate sum type only.
 
 To achieve typed quantification we introduce a membership type constructor
 $\f("t ∈ A")$ where $t ∈ Λ$ is a term and $A ∈ \cal{F}$ is a type. The
@@ -188,7 +188,11 @@ $\cal{V}_σ$.
 \end{def}
 \begin{def}
 We require a countable set of variables $\cal{V} = \{χ, ξ, φ...\}$ such that
-for every atomic sort $s ∈ \cal{S}₀$ we have $\cal{V}_s ⊆ \cal{V}$.
+for every atomic sort $s ∈ \cal{S}₀$ we have $\cal{V}_s ⊆ \cal{V}$. Given a
+variable $χ∈\cal{V}$, we will sometimes write $χ^s$ to mean that $χ$ is to
+be considered as a variable of sort $s$. In particular, variables in
+$\cal{V}_s$ with $s ∈ \cal{S}₀$ will always be considered as variables of
+sort $s$.
 \end{def}
 \begin{def}
 The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_{val}$,
@@ -196,15 +200,28 @@ $Λ$ and $Π$ using the following ||bnf|| grammar.
 \begin{center}
 \linesBefore(2)
 $ A,B ::= v \| t \| π \| \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)")
-  \| \f("A⇒B") \| \f("t∈A") \| \f("A | t≡u")$
+  \| \f("A⇒B") \| \f("t∈A") \| \f("t≡u")$
 
 $ \id([]) \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")
   \| \f("∀χ^s A") \| \f("∃χ^s A") $
 \end{center}
 \end{def}
+Our types contain values, terms and stacks, as they will correspond to
+types of sort $ι$, $τ$ and $σ$. We then have variables of all sorts,
+abstraction to build types with an arrow sort and application. All the
+remaining constructors are used to build propositions (i.e. actual
+formulas) which will be given sort $ο$. Note that the quantifiers may
+range over and produce types of any sort. They are hence very general.
+\begin{rem}
+The variable constructor in the syntax of types is somewhat redundant for
+values, terms and stacks. Indeed, these syntactic entities already provide
+variables.
+\end{rem}
 
-(* TODO from here *)
-
+To track the sort of variables in types we need to introduce a form of
+context. It can then be used to define our notion of well-formed type
+using a deduction rule system. We will then only consider types that can
+be show well-formed in this system.
 \begin{def}
 A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
 $χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, we will represent
@@ -218,6 +235,7 @@ A sorting judgment is a triple of a sorting context $Σ$, a type $A$ and a sort
 $s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
 valid if and only if it can be derived using the deduction rules of
 \figRef("sortrules").
+\end{def}
 \Caml(
 let r11 =
   << $\unaryR{Σ, x : ι ⊢ \t("t") : τ}{Σ ⊢ \v("λx t") : ι}$ >>
@@ -269,129 +287,312 @@ let r82 =
 let r83 =
   << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
 let r91 =
-  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A | t≡u") : ο}$ >>
+  << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("t≡u") : ο}$ >>
+
+let dr rs env =
+  let rs = rs env in
+  let wall = env.normalMeasure -. 6.0 in
+  let size_box rs =
+    let (x1, y1, x2, y2) = bounding_box rs in 
+    (x2 -. x1, y2 -. y1)
+  in
+  let trs d = RawContent.translate d 0.0 in
+  let draw_line ls =
+    match ls with
+    | [e1]         -> let (w1, h1) = size_box e1 in
+                      let d1 = (wall -. w1) /. 2.0 in
+                      let all = List.map (trs d1) e1 in
+                      (h1, all)
+    | [e1; e2]     -> let (w1, h1) = size_box e1 in
+                      let (w2, h2) = size_box e2 in
+                      let d1 = 0.0 in
+                      let d2 = wall -. w2 in
+                      let all =
+                        List.map (trs d1) e1 @ List.map (trs d2) e2
+                      in
+                      (max h1 h2, all)
+    | [e1; e2; e3] -> let (w1, h1) = size_box e1 in
+                      let (w2, h2) = size_box e2 in
+                      let (w3, h3) = size_box e3 in
+                      let d1 = 0.0 in
+                      let d2 = (wall -. w2) /. 2.0 in
+                      let d3 = wall -. w3 in
+                      let all =
+                        List.map (trs d1) e1 @ List.map (trs d2) e2 @
+                        List.map (trs d3) e3
+                      in
+                      (max h1 (max h2 h3), all)
+    | _            -> assert false
+  in
+  let ls = List.map draw_line rs in
+  let gather acc (h,l) =
+    let h = h +. 6.0 in
+    (List.map (RawContent.translate 0.0 h) acc) @ l
+  in
+  let cs = List.fold_left gather [] ls in
+  let (x1, y1, x2, y2) = bounding_box cs in
+  let border =
+    let pad = 3.0 in
+    let r = rectangle (x1 -. pad, y1 -. pad) (x2 +. pad, y2 +. pad) in
+    [Path(default_path_param, [r])]
+  in
+  let all = (List.fold_left gather [] ls @ border) in
+  let (x0,y0,x1,y1) = RawContent.bounding_box all in
+  let all = List.map (RawContent.translate (-.x0) (-.y0)) all in
+  drawing all
 
 let rs env =
+  (* let env = resize_env 3.4 env in *)
   let rs =
     [ [ r11 ; r12 ; r13 ] ; [ r21 ; r22 ; r23 ] ; [ r31 ; r32 ; r33 ]
     ; [ r41 ; r42 ; r43 ] ; [ r51 ; r52 ; r53 ] ; [ r61 ; r62 ; r63 ]
     ; [ r71 ; r72 ; r73 ] ; [ r81 ; r82 ; r83 ] ; [ r91 ] ]
   in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
-
-  let dr env =
-    let rs = rs env in
-    let wall = env.normalMeasure -. 6.0 in
-    let size_box rs =
-      let (x1, y1, x2, y2) = bounding_box rs in 
-      (x2 -. x1, y2 -. y1)
-    in
-    let trs d = RawContent.translate d 0.0 in
-    let draw_line ls =
-      match ls with
-      | [e1]         -> let (w1, h1) = size_box e1 in
-                        let d1 = (wall -. w1) /. 2.0 in
-                        let all = List.map (trs d1) e1 in
-                        (h1, all)
-      | [e1; e2]     -> let (w1, h1) = size_box e1 in
-                        let (w2, h2) = size_box e2 in
-                        let d1 = 0.0 in
-                        let d2 = wall -. w2 in
-                        let all =
-                          List.map (trs d1) e1 @ List.map (trs d2) e2
-                        in
-                        (max h1 h2, all)
-      | [e1; e2; e3] -> let (w1, h1) = size_box e1 in
-                        let (w2, h2) = size_box e2 in
-                        let (w3, h3) = size_box e3 in
-                        let d1 = 0.0 in
-                        let d2 = (wall -. w2) /. 2.0 in
-                        let d3 = wall -. w3 in
-                        let all =
-                          List.map (trs d1) e1 @ List.map (trs d2) e2 @
-                          List.map (trs d3) e3
-                        in
-                        (max h1 (max h2 h3), all)
-      | _            -> assert false
-    in
-    let ls = List.map draw_line rs in
-    let gather acc (h,l) =
-      let h = h +. 6.0 in
-      (List.map (RawContent.translate 0.0 h) acc) @ l
-    in
-    let cs = List.fold_left gather [] ls in
-    let (x1, y1, x2, y2) = bounding_box cs in
-    let border =
-      let pad = 3.0 in
-      let r = rectangle (x1 -. pad, y1 -. pad) (x2 +. pad, y2 +. pad) in
-      [Path(default_path_param, [r])]
-    in
-    drawing (List.fold_left gather [] ls @ border)
-
-  let _ = figure_here ~name:"sortrules" ~caption:[tT "Sorting rules."] dr
+let sortrules () =
+  figure_here ~name:"sortrules" ~caption:[tT "Sorting rules."] (dr rs)
 )
-\end{def}
 
-(* TODO more *)
+The main role of the sorting rules is to keep track of the sort of the free
+variables. The rules on the first five lines of \figRef("sortrules") simply
+traverse the structure of values, terms and stacks to save the sort of the
+free variables in the context. Note that the first rule on the sixth line is
+also used for value, term and stack variables.
+
+As an example $\f("λx x ⇒ {}")$ is not well-formed as the type at the left
+of the arrow does not have sort $ο$ (it has sort $ι$ or $τ$). However,
+$\f("(X ↦ [C₀:{} | C₁ : X])([C₂:{} | C₃:{}])")$ is a well-formed type of
+sort $ο$, as shown by the following proof tree.
+$$
+  \proofTree{
+    \binary{⊢ \f("(X ↦ [C₀ : {} | C₁ : X])([C₂ : {} | C₃ : {}])") : ο}{
+      \unary{⊢ \f("(X ↦ [C₀ : {} | C₁ : X])") : ο → ο}{
+        \binary{X : ο ⊢ \f("[C₀ : {} | C₁ : X]") : ο}{
+          \axiom{X : ο ⊢ \f("{}") : ο}
+        }{
+          \axiom{X : ο ⊢ \f("X") : ο}
+        }
+      }
+    }{
+      \binary{⊢ \f("([C₂ : {} | C₃ : {}])") : ο}{
+        \axiom{⊢ \f("{}") : ο}
+      }{
+        \axiom{⊢ \f("{}") : ο}
+      }
+    }
+  }
+$$
+
+As types contain the $λ$-calculus, we need to consider their reduction and
+normalization. First we define the notion of $β$-reduction in a type.
+\begin{def}
+We call a redex a type of the form $\f("(χ^s ↦ A)(B)")$, and we say that a
+type is in normal form if it does not contain any redex. The reduction
+relation over types is the smallest relation $({\inj}) ⊆ \cal{F} × \cal{F}$
+such that:
+\begin{itemize}
+\item for every redex $\f("(χ^s ↦ A)(B)")$ we have
+      $\f("(χ^s ↦ A)(B)") \inj \f("A[χ≔B]")$ and
+\item $({\inj})$ is contextually closed. Reduction hence considers all the
+      redexes in a type, and not only the surface ones.
+\end{itemize}
+\end{def}
+\begin{thm}
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be a
+sort. If the sorting judgment $Σ ⊢ A : s$ is valid, then the reduction
+of $A$ terminates. More formally, there is a type $B$ that is in normal
+form such that $A \inj^{∗} B$.
+\begin{proof}
+Well-known properties of the simply typed $λ$-calculus. (* FIXME ref ? *)
+\end{proof}
+\end{thm}
+In the following sections, we will always consider well-formed types. As a
+consequence, we may also assume that a type is in normal form as we can
+alway normalize well-formed types according to the previous theorem.
+###
+
+###
+\Caml(let _ = sortrules ())
 
 =<
-=> Value and term judgments
+=> Typing judgments for values and terms
 
 As our language is call-by-value and has operations generating side-effects,
 we need to be careful to achieve type-safety. In particular, some of our
-typing rules will not apply to terms in general, but only to values (as
-mentioned in \chapter("intro")).
+typing rules will not apply to terms, but only to values (as mentioned in
+\chapter("intro")). Here, value restriction will be encoded using two forms
+of judgments: usual typing judgments ranging over terms (including values),
+and a restricted form of judgments ranging over values only.
 
-(* TODO more *)
-
+To be able to assign types to terms containing free $λ$-variables and free
+$μ$-variables, we consider two forms of contexts that our typing judgments
+will carry.
 \begin{def}
-A //typing context// is a finite map $Γ$ over $\cal{V}_ι$ such that for all
+A //value context// is a finite map $Γ$ over $\cal{V}_ι$ such that for all
 $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will represent
-typing contexts using comma-separated lists of typ assignments generated
+typing contexts using comma-separated lists of type assignments generated
 by the following ||bnf|| grammar.
 \Caml(let _ = sidenote_wr 2 2 << $Γ ::= • \| {Γ, x : A}$ >>
   << $x ∈ \cal{V}_ι, A ∈ \cal{F} $ >>)
-Given a sorting context $Σ$, we say that the typing context $Γ$ is
-well-formed and we write $Σ ⊢ Γ$ if for all $x ∈ dom(Γ)$ we have
-$Σ ⊢ Γ(x) : ο$ and $Σ ⊢ x : ι$.
 \end{def}
 \begin{def}
-A //continuation context// is a finite map $Δ$ over $\cal{V}_σ$ such that
+A //stack context// is a finite map $Δ$ over $\cal{V}_σ$ such that
 for all $α ∈ dom(Δ)$ we have $Δ(α) ∈ \cal{F}$. For convenience, we will
-represent typing contexts using comma-separated lists of typ assignments
+represent typing contexts using comma-separated lists of type assignments
 generated by the following ||bnf|| grammar.
 \Caml(let _ = sidenote_wr 2 2 << $Δ ::= • \| {Δ, α : A}$ >>
   << $α ∈ \cal{V}_σ, A ∈ \cal{F} $ >>)
-Given a sorting context $Σ$, we say that the continuation context $Δ$ is
-well-formed and we write $Σ ⊢ Δ$ if for all $α ∈ dom(Δ)$ we have
-$Σ ⊢ Δ(α) : ο$ and $Σ ⊢ α : σ$.
-\end{def}
-\begin{def}
-Given a sorting context $Σ$, we say the the equational context $Σ$ is
-well-formed if for all $(t,u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
-\end{def}
-\begin{def}
-A value judgement (resp. term judgment) is a tuple of a typing context $Γ$,
-an equational context $Ξ$, a value $v ∈ Λ_{val}$ (resp. a term $t ∈ Λ$), a
-type $A ∈ \cal{F}$ and a continuation context $Δ$ that is denoted
-$Γ; Ξ ⊢_\tval v : A; Δ$ (resp. $Γ; Ξ ⊢ t : A; Δ$).
-\end{def}
-\begin{def}
-Let $Σ$ be a sorting context. We say that the value judgemnt
-$Γ; Ξ ⊢_\tval v : A; Δ$ is well-formed under $Σ$ if we have $Σ ⊢ Γ$,
-$Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ v : ι$ and $Σ ⊢ A : ο$. In this case we write
-$Σ ⊢ (Γ; Ξ ⊢_\tval v : A; Δ)$
-\end{def}
-\begin{def}
-Let $Σ$ be a sorting context. We say that the term judgemnt $Γ; Ξ ⊢ t : A; Δ$
-is well-formed under $Σ$ if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ t : τ$
-and $Σ ⊢ A : ο$. In this case we write $Σ ⊢ (Γ; Ξ ⊢ t : A; Δ)$
 \end{def}
 
-(* TODO more *)
+The full context of typing judgments will be build using a typing context,
+a stack context and an equational context. As these contexts may contain
+types and hence free variables, we need to define a notions of
+well-formedness for these three kinds of contexts.
+\begin{def}
+Given a sorting context $Σ$, we say that a typing context $Γ$ is
+well-formed and write $Σ ⊢ Γ$ if for all $x ∈ dom(Γ)$ we have
+$Σ ⊢ Γ(x) : ο$ and $Σ ⊢ x : ι$.
+\end{def}
+\begin{def}
+Given a sorting context $Σ$, we say that a stack context $Δ$ is well-formed
+and write $Σ ⊢ Δ$ if for all $α ∈ dom(Δ)$ we have $Σ ⊢ Δ(α) : ο$ and
+$Σ ⊢ α : σ$.
+\end{def}
+\begin{def}
+Given a sorting context $Σ$, we say that an equational context $Ξ$ is
+well-formed and write $Σ ⊢ Ξ$ if for all $(t,u) ∈ Σ$ we have
+$Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
+\end{def}
+
+Using our three forms of contexts, we can now define our actual judgments.
+Again, a notion of well-formedness need to be considered as our judgments
+contain objects of different sorts, which all need to be well-formed.
+\begin{def}
+A value judgement is a tuple of a typing context $Γ$, an equational context
+$Ξ$, a value $v ∈ Λ_{val}$, a type $A ∈ \cal{F}$ and a stack context $Δ$
+that is denoted $Γ; Ξ ⊢_\tval v : A; Δ$.
+\end{def}
+\begin{def}
+A term judgement is a tuple of a typing context $Γ$, an equational context
+$Ξ$, a term $t ∈ Λ$, a type $A ∈ \cal{F}$ and a stack context $Δ$ that is
+denoted $Γ; Ξ ⊢ t : A; Δ$.
+\end{def}
+\begin{def}
+Let $Σ$ be a sorting context. A value judgment $Γ; Ξ ⊢_\tval v : A; Δ$ is
+said to be well-formed under $Σ$ if $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ v : ι$
+and $Σ ⊢ A : ο$. In this case we write $Σ ⊢ (Γ; Ξ ⊢_\tval v : A; Δ)$
+\end{def}
+\begin{def}
+Let $Σ$ be a sorting context. A term judgment $Γ; Ξ ⊢ t : A; Δ$ is said to
+be well-formed under $Σ$ if $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ t : τ$ and
+$Σ ⊢ A : ο$. In this case we write $Σ ⊢ (Γ; Ξ ⊢ t : A; Δ)$
+\end{def}
+
+The typing rules of our system 
+(* TODO from here *)
+
+\Caml(
+let r1 =
+  <<$\axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Ξ ⊢_\tval \t("x") : A; Δ)}$>>
+
+let r2 =
+  <<$\unaryRN{↑}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : A; Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("v") : A; Δ)}$>>
+
+let r3 =
+  <<$\unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Ξ ⊢ \t("t") : B; Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢_\tval \v("λx t") : A ⇒ B; Δ)}$>>
+
+let r4 =
+  <<$\binaryRN{⇒_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A ⇒ B; Δ)}{Σ ⊢ (Γ;Ξ ⊢ \t("u") : A; Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t u") : B; Δ)}$>>
+
+let r5 =
+  <<$\unaryRN{μ}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("μα t") : A; Δ)}$>>
+
+let r6 =
+  <<$\unaryRN{[\wc]}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
+   {Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("[α]t") : B; Δ,α:A)}$>>
+
+let r7 =
+  <<$\unaryRN{∀_i}{Σ, χ:s ⊢ (Γ;Ξ ⊢_\tval \v("v") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A");Δ)}$>>
+
+let r8 =
+  <<$\binaryRN{∀_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∀χ^s A");Δ)}{Σ ⊢ B : s}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]");Δ)}$>>
+
+let r9 =
+  <<$\binaryRN{∃_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]");Δ)}{Σ ⊢ B : s}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∃χ^s A");Δ)}$>>
+
+let rA =
+  <<$\binaryRN{∃_e}{Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C");Δ)}
+   {Σ ⊢ B : s}{Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C");Δ)}$>>
+
+let rB =
+  <<$\unaryRN{∈_i}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("v∈A");Δ)}$>>
+
+let rC =
+  <<$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("t") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$>>
+
+let rD =
+  <<$\unaryRN{↾_i}{Σ ⊢ (Γ;Ξ,t≡u ⊢ \t("t") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | t≡u");Δ)}$>>
+
+let rE =
+  <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,t≡u ⊢ \t("t") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
+
+let rF =
+  <<$\unaryRN{×_i}{[Σ ⊢ (Γ;Ξ ⊢_\tval \v("vi") : \f("Ai");Δ)]_{i∈I}}
+   {Σ ⊢ (Γ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}");Δ)}$>>
+
+let rG =
+  <<$\binaryRN{×_e}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}");Δ)}
+   {k∈I}{Σ ⊢ (Γ;Ξ ⊢ \t("v.lk") : A_k;Δ)}$>>
+
+let rH =
+  <<$\binaryRN{+_i}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("Ak");Δ)}{k∈I}
+   {Σ ⊢ (Γ;Ξ ⊢_\tval \v("Ck[v]") : \f("[(Ci : Ai) i∈I]");Δ)}$>>
+
+let rI =
+  <<$\binaryRN{+_e}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]");Δ)}
+   {[Σ ⊢ (Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B;Δ)]_{i∈I}}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B;Δ)}$>>
+
+let rJ =
+  <<$\unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔v]") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔w]") : A;Δ)}$>>
+
+let rK =
+  <<$\unaryRN{≡_{l}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A;Δ)}$>>
+
+let rL =
+  <<$\unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₁]");Δ)}
+   {Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₂]");Δ)}$>>
+
+let rM =
+  <<$\unaryRN{≡_{r}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]");Δ)}
+   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]");Δ)}$>>
+
+let rs env =
+  let env = resize_env 3.0 env in
+  let rs =
+    [ [ r1 ; r2 ] ; [ r3 ; r4 ] ; [ r5 ; r6 ] ; [ r7 ; r8 ] ; [ r9 ; rA ]
+    ; [ rB ; rC ] ; [ rD ; rE ] ; [ rF ; rG ] ; [ rH ] ; [ rI ] ; [ rJ ; rK ]
+    ; [ rL ; rM ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
+)
 
 =<
-=> Call-by-value realisability semantics
+=> Call-by-value realizability semantics
 
 The abstract machine presented in \chapter("calculus") is part of a
 //classical realizability// machinery that will be built upon here.
@@ -503,226 +704,6 @@ let _ =
 )
 \end{center}
 \end{def}
-
-=<
-=> Extended type system
-
-(* Ax rule *)
-$$
-\axiomRN{Ax}{
-  Σ, x:ι ⊢ (Γ, x:A; Δ; Ξ ⊢_\tval \t("x") : A)
-}
-$$
-
-(* Coercion rules. *)
-$$
-\unaryRN{↑}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)
-}
-$$
-
-(*
-$$
-\unaryRN{↓}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
-}
-$$
-*)
-
-(* ⇒_i rule *)
-$$
-\unaryRN{⇒_i}{
-  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ ⊢ \t("t") : B)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("λx t") : A ⇒ B)
-}
-$$
-
-(* ⇒_e rule *)
-$$
-\binaryRN{⇒_e}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : A ⇒ B)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("u") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t u") : B)
-}
-$$
-
-(* μ rule *)
-$$
-\unaryRN{μ}{
-  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("μα t") : A)
-}
-$$
-
-(* ∗ rule *)
-$$
-\unaryRN{[\wc]}{
-  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("t") : A)
-}{
-  Σ, α:σ ⊢ (Γ;Δ,α:A;Ξ ⊢ \t("[α]t") : B)
-}
-$$
-
-(* ∀i rule *)
-$$
-\unaryRN{∀_i}{
-  Σ, χ:s ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A"))
-}
-$$
-
-(* ∀e rule *)
-$$
-\binaryRN{∀_e}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∀χ^s A"))
-}{
-  Σ ⊢ B : s
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]"))
-}
-$$
-
-(* ∃i rule *)
-$$
-\binaryRN{∃_i}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A[χ≔B]"))
-}{
-  Σ ⊢ B : s
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("∃χ^s A"))
-}
-$$
-
-(* ∃e rule *)
-$$
-\binaryRN{∃_e}{
-  Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Δ;Ξ ⊢ \t("t") : \f("C"))
-}{
-  Σ ⊢ B : s
-}{
-  Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Δ;Ξ ⊢ \t("t") : \f("C"))
-}
-$$
-
-(* ∈i rule *)
-$$
-\unaryRN{∈_i}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("v∈A"))
-}
-$$
-
-(* ∈e rule *)
-$$
-\unaryRN{∈_e}{
-  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,x≡t ⊢ \t("t") : C)
-}{
-  Σ, x:ι ⊢ (Γ,x:\f("t∈A");Δ;Ξ ⊢ \t("t") : C)
-}
-$$
-
-(* ↾i rule *)
-$$
-\unaryRN{↾_i}{
-  Σ ⊢ (Γ;Δ;Ξ,t≡u ⊢ \t("t") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("t") : \f("A | t≡u"))
-}
-$$
-
-(* ↾e rule *)
-$$
-\unaryRN{↾_e}{
-  Σ, x:ι ⊢ (Γ,x:A;Δ;Ξ,t≡u ⊢ \t("t") : C)
-}{
-  Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Δ;Ξ ⊢ \t("t") : C)
-}
-$$
-
-(* ×i *)
-$$
-\unaryRN{×_i}{
-  [Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("vi") : \f("Ai"))]_{i∈I}
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}"))
-}
-$$
-
-(* ×e *)
-$$
-\binaryRN{×_e}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}"))
-}{
-  k∈I
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v.lk") : A_k)
-}
-$$
-
-(* +i *)
-$$
-\binaryRN{+_i}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("Ak"))
-}{
-  k∈I
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("Ck[v]") : \f("[(Ci : Ai) i∈I]"))
-}
-$$
-
-(* +e *)
-$$
-\binaryRN{+_e}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]"))
-}{
-  [Σ ⊢ (Γ,x_i:A_i;Δ;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B)]_{i∈I}
-}{
-  Σ ⊢ (Γ;Δ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B)
-}
-$$
-
-(* ≡ *)
-$$
-\unaryRN{≡_{l, {val}}}{
-  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔v]") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ \t("t[x≔w]") : A)
-}
-$$
-
-$$
-\unaryRN{≡_{l}}{
-  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A)
-}{
-  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A)
-}
-$$
-
-$$
-\unaryRN{≡_{r, {val}}}{
-  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔v]"))
-}{
-  Σ ⊢ (Γ;Δ;Ξ,v≡w ⊢ t : \f("A[x≔w]"))
-}
-$$
-
-$$
-\unaryRN{≡_{r}}{
-  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]"))
-}{
-  Σ ⊢ (Γ;Δ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]"))
-}
-$$
 
 =<
 => Adequacy

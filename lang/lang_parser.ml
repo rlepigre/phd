@@ -1,6 +1,6 @@
 open Lang_ast
 
-let debug = true
+let debug = false
 
 (* Parser for symbols allowed as index. *)
 let parser index =
@@ -127,6 +127,7 @@ and        proc prio =
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
 and        form prio =
+  | t:(term TAppl)                            when prio = FAtom -> FTerm(t)
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
   | x:qvari s:{"^" stvar}?                    when prio = FAtom -> FVari(x,s)
   | '(' x:qvari s:{"^" stvar}? "↦" a:(form FFull) ')'

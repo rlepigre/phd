@@ -67,6 +67,7 @@ and  subs =
   | NoSub                              (* ∅      *)
 and patt = vari * vari * term
 and form =
+  | FTerm of term                      (* t       *)
   | FMeta of vari                      (* A, B    *)
   | FVari of vari * vari option        (* χ^s     *)
   | FLamb of vari * vari option * form (* (χ^s ↦ A) *)
