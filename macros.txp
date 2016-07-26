@@ -67,6 +67,7 @@ let theorem    = thmRef
 let corollary  = corRef
 
 let chapter l = (tT "Chapter ") :: sectref l
+let section l = (tT "Section ") :: sectref l
 
 let tval : Typography.Maths.math list =
   let t env = Maths.glyphs "val" (Maths.change_fonts env env.font)  in
@@ -321,4 +322,57 @@ let br, mbr =
     let open Maths in
     [Scope (fun env _ -> [Glue (dr1 env); Glue (dr2 env)])]
   in (br, mbr)
+
+(* Convenient function to build figures. *)
+let dr rs env =
+  let rs = rs env in
+  let wall = env.normalMeasure -. 6.0 in
+  let size_box rs =
+    let (x1, y1, x2, y2) = bounding_box rs in 
+    (x2 -. x1, y2 -. y1)
+  in
+  let trs d = RawContent.translate d 0.0 in
+  let draw_line ls =
+    match ls with
+    | [e1]         -> let (w1, h1) = size_box e1 in
+                      let d1 = (wall -. w1) /. 2.0 in
+                      let all = List.map (trs d1) e1 in
+                      (h1, all)
+    | [e1; e2]     -> let (w1, h1) = size_box e1 in
+                      let (w2, h2) = size_box e2 in
+                      let d1 = 0.0 in
+                      let d2 = wall -. w2 in
+                      let all =
+                        List.map (trs d1) e1 @ List.map (trs d2) e2
+                      in
+                      (max h1 h2, all)
+    | [e1; e2; e3] -> let (w1, h1) = size_box e1 in
+                      let (w2, h2) = size_box e2 in
+                      let (w3, h3) = size_box e3 in
+                      let d1 = 0.0 in
+                      let d2 = (wall -. w2) /. 2.0 in
+                      let d3 = wall -. w3 in
+                      let all =
+                        List.map (trs d1) e1 @ List.map (trs d2) e2 @
+                        List.map (trs d3) e3
+                      in
+                      (max h1 (max h2 h3), all)
+    | _            -> assert false
+  in
+  let ls = List.map draw_line rs in
+  let gather acc (h,l) =
+    let h = h +. 6.0 in
+    (List.map (RawContent.translate 0.0 h) acc) @ l
+  in
+  let cs = List.fold_left gather [] ls in
+  let (x1, y1, x2, y2) = bounding_box cs in
+  let border =
+    let pad = 3.0 in
+    let r = rectangle (x1 -. pad, y1 -. pad) (x2 +. pad, y2 +. pad) in
+    [Path(default_path_param, [r])]
+  in
+  let all = (List.fold_left gather [] ls @ border) in
+  let (x0,y0,x1,y1) = RawContent.bounding_box all in
+  let all = List.map (RawContent.translate (-.x0) (-.y0)) all in
+  drawing all
 )

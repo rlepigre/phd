@@ -4,8 +4,8 @@
   open Lang
 
   let vs a = <$ ⟦\f(a)⟧ $>
-  let ss a = <$ ⟦\f(a)⟧^\bot $>
-  let ts a = <$ ⟦\f(a)⟧^{\bot\bot} $>
+  let ss a = <$ ⟦\f(a)⟧^⊥ $>
+  let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
 )
 \Include{Macros}
 
@@ -289,58 +289,6 @@ let r83 =
 let r91 =
   << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("t≡u") : ο}$ >>
 
-let dr rs env =
-  let rs = rs env in
-  let wall = env.normalMeasure -. 6.0 in
-  let size_box rs =
-    let (x1, y1, x2, y2) = bounding_box rs in 
-    (x2 -. x1, y2 -. y1)
-  in
-  let trs d = RawContent.translate d 0.0 in
-  let draw_line ls =
-    match ls with
-    | [e1]         -> let (w1, h1) = size_box e1 in
-                      let d1 = (wall -. w1) /. 2.0 in
-                      let all = List.map (trs d1) e1 in
-                      (h1, all)
-    | [e1; e2]     -> let (w1, h1) = size_box e1 in
-                      let (w2, h2) = size_box e2 in
-                      let d1 = 0.0 in
-                      let d2 = wall -. w2 in
-                      let all =
-                        List.map (trs d1) e1 @ List.map (trs d2) e2
-                      in
-                      (max h1 h2, all)
-    | [e1; e2; e3] -> let (w1, h1) = size_box e1 in
-                      let (w2, h2) = size_box e2 in
-                      let (w3, h3) = size_box e3 in
-                      let d1 = 0.0 in
-                      let d2 = (wall -. w2) /. 2.0 in
-                      let d3 = wall -. w3 in
-                      let all =
-                        List.map (trs d1) e1 @ List.map (trs d2) e2 @
-                        List.map (trs d3) e3
-                      in
-                      (max h1 (max h2 h3), all)
-    | _            -> assert false
-  in
-  let ls = List.map draw_line rs in
-  let gather acc (h,l) =
-    let h = h +. 6.0 in
-    (List.map (RawContent.translate 0.0 h) acc) @ l
-  in
-  let cs = List.fold_left gather [] ls in
-  let (x1, y1, x2, y2) = bounding_box cs in
-  let border =
-    let pad = 3.0 in
-    let r = rectangle (x1 -. pad, y1 -. pad) (x2 +. pad, y2 +. pad) in
-    [Path(default_path_param, [r])]
-  in
-  let all = (List.fold_left gather [] ls @ border) in
-  let (x0,y0,x1,y1) = RawContent.bounding_box all in
-  let all = List.map (RawContent.translate (-.x0) (-.y0)) all in
-  drawing all
-
 let rs env =
   (* let env = resize_env 3.4 env in *)
   let rs =
@@ -488,7 +436,32 @@ be well-formed under $Σ$ if $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ Δ$, $Σ ⊢ t : 
 $Σ ⊢ A : ο$. In this case we write $Σ ⊢ (Γ; Ξ ⊢ t : A; Δ)$
 \end{def}
 
-The typing rules of our system 
+We can now give the typing rules of our system, which will involved
+well-formed term judgments and value judgments. Some of our rules also
+rely on our decision procedure for term equivalence. They hence only
+apply if the procedure succeeds.
+\begin{def}
+A value or term judgment is said to be valid if it can be derived using the
+typing rules of \figRef("typerules").
+\end{def}
+The typing rules of our system, and hence typing derivations, only involve
+well-formed judgments. In particular, a typing rule can only be applied if
+all the involved judgments are well-formed.
+\begin{rem}
+Note that the $∀_i$ rule cannot apply if the variable $χ$ appears in the
+contexts $Γ$, $Ξ$ and $Δ$ nor in $t$. This would prevent the conclusion
+judgment to be well-formed.
+\end{rem}
+
+As our system is call-by-value and has effect, the $∀_i$ rule needs value
+restriction to remain sound. In our formalism, this means that the $∀_i$
+rule applies to value judgments. The $∈_i$ rule requires value restriction
+as well, as otherise the system cannot be proved sound. As the $∈_i$ rule
+will be involved in the derivation of the typing rule for the elimination
+of the dependent function type in \section("encodedep"), the latter will
+also need value restriction.
+
+
 (* TODO from here *)
 
 \Caml(
@@ -540,12 +513,12 @@ let rC =
    {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$>>
 
 let rD =
-  <<$\unaryRN{↾_i}{Σ ⊢ (Γ;Ξ,t≡u ⊢ \t("t") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | t≡u");Δ)}$>>
+  <<$\binaryRN{↾_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A;Δ)}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | u₁≡u₂");Δ)}$>>
 
 let rE =
-  <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,t≡u ⊢ \t("t") : C;Δ)}
-   {Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
+  <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("A | u₁≡u₂");Ξ ⊢ \t("t") : C;Δ)}$>>
 
 let rF =
   <<$\unaryRN{×_i}{[Σ ⊢ (Γ;Ξ ⊢_\tval \v("vi") : \f("Ai");Δ)]_{i∈I}}
@@ -565,30 +538,46 @@ let rI =
    {Σ ⊢ (Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B;Δ)}$>>
 
 let rJ =
-  <<$\unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔v]") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔w]") : A;Δ)}$>>
+  <<$\binaryRN{≡_{l,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₁]") : A;Δ)}
+   {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₂]") : A;Δ)}$>>
 
 let rK =
-  <<$\unaryRN{≡_{l}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A;Δ)}$>>
+  <<$\binaryRN{≡_{l,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₁]") : A;Δ)}
+   {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₂]") : A;Δ)}$>>
 
 let rL =
-  <<$\unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₁]");Δ)}
-   {Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₂]");Δ)}$>>
+  <<$\binaryRN{≡_{r,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[x≔v₁]");Δ)}
+   {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[x≔v₂]");Δ)}$>>
 
 let rM =
-  <<$\unaryRN{≡_{r}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]");Δ)}
-   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]");Δ)}$>>
+  <<$\binaryRN{≡_{r,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[a≔u₁]");Δ)}
+   {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[a≔u₂]");Δ)}$>>
+
+let rN =
+  <<$\binaryRN{≡_{l,ι,ι}}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[x≔v₁]") : A;Δ)}
+   {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[x≔v₂]") : A;Δ)}$>>
+
+let rO =
+  <<$\binaryRN{≡_{l,ι,τ}}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[a≔u₁]") : A;Δ)}
+   {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[a≔u₂]") : A;Δ)}$>>
+
+let rP =
+  <<$\binaryRN{≡_{r,ι,ι}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[x≔v₁]");Δ)}
+   {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[x≔v₂]");Δ)}$>>
+
+let rQ =
+  <<$\binaryRN{≡_{r,ι,τ}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[a≔u₁]");Δ)}
+   {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[a≔u₂]");Δ)}$>>
 
 let rs env =
   let env = resize_env 3.0 env in
   let rs =
-    [ [ r1 ; r2 ] ; [ r3 ; r4 ] ; [ r5 ; r6 ] ; [ r7 ; r8 ] ; [ r9 ; rA ]
-    ; [ rB ; rC ] ; [ rD ; rE ] ; [ rF ; rG ] ; [ rH ] ; [ rI ] ; [ rJ ; rK ]
-    ; [ rL ; rM ] ]
+    [ [ r1 ; r3 ] ; [ r2 ; r4 ] ; [ r5 ; r6 ] ; [ r7 ; rA ] ; [ r8 ; r9 ]
+    ; [ rC ; rD ] ; [ rB ; rE ] ; [ rG ; rH ] ; [ rF ] ; [ rI ] ; [ rJ ; rK ]
+    ; [ rL ; rM ] ; [ rN ; rO ] ; [ rP ; rQ ] ]
   in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
-let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
+let _ = figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
 )
 
 =<
@@ -625,38 +614,38 @@ the pole. The third layer, called //truth value// is a set of terms that
 is built by iterating the process once more. The formalism for the two
 levels of orthogonality is given in the following definition.
 \begin{def}\label("orthodef")
-For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^\bot ⊆ Π$ and a set
-$Φ^{\bot\bot} ⊆ Λ$ as follows.
+For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^⊥ ⊆ Π$ and a set
+$Φ^{⊥⊥} ⊆ Λ$ as follows.
 $$
-  Φ^\bot = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
+  Φ^⊥ = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
   \hspace(3.0)
-  Φ^{\bot\bot} = \{t∈Λ \| ∀π∈Φ^\bot \p("t ∗ π") ∈ \dbot\}
+  Φ^{⊥⊥} = \{t∈Λ \| ∀π∈Φ^⊥ \p("t ∗ π") ∈ \dbot\}
 $$
 \end{def}
 
-We now give two general properties of orthogonality that are true in
-every classical realizability model. They will be useful when proving
-the soundness of our type system.
+We now give several general properties of orthogonality, which hold in
+every call-by-value classical realizability model. They will be useful
+when proving the soundness of our type system.
 \begin{lem}\label("orthosimple")
-If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{\bot\bot}$.
+If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
 \begin{proof}
-We take $v ∈ Φ$ and show $v ∈ Φ^{\bot\bot}$. By definition we need to
-show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^\bot$. This is immediate
-by definition of $Φ^\bot$.
+We take $v ∈ Φ$ and show $v ∈ Φ^{⊥⊥}$. By definition we need to
+show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^⊥$. This is immediate
+by definition of $Φ^⊥$.
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoinclstack")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
-$Ψ^\bot ⊆ Φ^\bot$.
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If $Φ ⊆ Ψ$ then
+$Ψ^⊥ ⊆ Φ^⊥$.
 \begin{proof}
-Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^\bot$ and show that $π ∈ Φ^\bot$.
+Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^⊥$ and show that $π ∈ Φ^⊥$.
 By definition, we know that for all $v ∈ Ψ$ we have $\p("v ∗ π") ∈ \dbot$.
-Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^\bot$.
+Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^⊥$.
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoinclterm")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If
-$Ψ^\bot ⊆ Φ^\bot$ then $Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If
+$Ψ^⊥ ⊆ Φ^⊥$ then $Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
 \begin{proof}
 Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
 $t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
@@ -665,8 +654,8 @@ $π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoblabla")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be two sets of values. If $Φ ⊆ Ψ$ then
-$Φ^{\bot\bot} ⊆ Ψ^{\bot\bot}$.
+Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If $Φ ⊆ Ψ$ then
+$Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
 \begin{proof}
 Let us suppose that $Φ ⊆ Ψ$ and apply \lemRef("orthoinclstack") to obtain
 $Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
@@ -707,30 +696,6 @@ let _ =
 
 =<
 => Adequacy
-
-\begin{def}
-Given a typing context $Γ$, a continuation context $Δ$ and an equational
-context $Ξ$ we consider two different forms of typing judgments:
-\begin{itemize}
-\item value judgments $Γ;Ξ;Δ ⊢_\tval v : A$ meaning that the value $v$ has
-      type $A$ and
-\item general term judgments $Γ;Ξ;Δ ⊢ t : A$ meaning that the term $t$ has
-      type $A$ in the context $Γ;Δ;Ξ$.
-\end{itemize}
-\end{def}
-\begin{def}
-Given a sorting context $Σ$ we say that $Γ;Δ;Ξ ⊢ t:A$ is a valid term
-judgment and we write $Σ ⊢ (Γ;Δ;Ξ ⊢ t:A)$ when
-\begin{itemize}
-\item $dom(Γ) ⊆ dom(Σ)$ and hence for all $x ∈ dom(Γ)$ we have $Σ(x) = ι$,
-\item $dom(Δ) ⊆ dom(Σ)$ and hence for all $α ∈ dom(Δ)$ we have $Σ(α) = σ$,
-\item $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$,
-\item $FV_ι(t) ⊆ dom(Γ)$, $FV_σ(t) ⊆ dom(Δ)$ and $FV_τ(t) = ∅$,
-\item for all $x ∈ dom(Γ)$ we have $Σ ⊢ Γ(x) : ο$,
-\item for all $α ∈ dom(Δ)$ we have $Σ ⊢ Δ(α) : ο$,
-\item for all $(t ≡ u) ∈ Σ$ we have $Σ ⊢ t : τ$ and $Σ ⊢ u : τ$.
-\end{itemize}
-\end{def}
 
 \begin{def}
 A valuation over a sorting context $Σ$ is a map $ρ$ such that $ρ(χ) ∈ ⟦Σ(χ)⟧$
@@ -1020,6 +985,8 @@ or $Σ ⊢ (Γ;Δ;Ξ ⊢_\tval v:A)$, and we reason by case on the last used rul
 
 =<
 => Derived rules for dependent types
+
+\label("encodedep") (* FIXME why do I need to put the label here ???!!!! *)
 
 (* ⇒_i rule *)
 $$

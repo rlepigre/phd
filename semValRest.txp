@@ -291,5 +291,106 @@ have ${t₁ ≡ t₂}_{i₀}$ and hence we can conclude using \lemRef("aextlem")
 \end{thm}
 
 =<
+=> Derived type system
+
+\Caml(
+let r1 =
+  <<$\axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Ξ ⊢ \t("x") : A; Δ)}$>>
+
+let r3 =
+  <<$\unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Ξ ⊢ \t("t") : B; Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \v("λx t") : A ⇒ B; Δ)}$>>
+
+let r4 =
+  <<$\binaryRN{⇒_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A ⇒ B; Δ)}{Σ ⊢ (Γ;Ξ ⊢ \t("u") : A; Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t u") : B; Δ)}$>>
+
+let r5 =
+  <<$\unaryRN{μ}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("μα t") : A; Δ)}$>>
+
+let r6 =
+  <<$\unaryRN{[\wc]}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
+   {Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("[α]t") : B; Δ,α:A)}$>>
+
+(* FIXME add semantical value restriction *)
+let r7 =
+  <<$\unaryRN{∀_i}{Σ, χ:s ⊢ (Γ;Ξ ⊢ \v("v") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("∀χ^s A");Δ)}$>>
+
+let r8 =
+  <<$\binaryRN{∀_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∀χ^s A");Δ)}{Σ ⊢ B : s}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]");Δ)}$>>
+
+let r9 =
+  <<$\binaryRN{∃_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]");Δ)}{Σ ⊢ B : s}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∃χ^s A");Δ)}$>>
+
+let rA =
+  <<$\binaryRN{∃_e}{Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C");Δ)}
+   {Σ ⊢ B : s}{Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C");Δ)}$>>
+
+(* FIXME add semantical value restriction *)
+let rB =
+  <<$\unaryRN{∈_i}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("v∈A");Δ)}$>>
+
+let rC =
+  <<$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("t") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$>>
+
+let rD =
+  <<$\unaryRN{↾_i}{Σ ⊢ (Γ;Ξ,t≡u ⊢ \t("t") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | t≡u");Δ)}$>>
+
+let rE =
+  <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,t≡u ⊢ \t("t") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
+
+let rF =
+  <<$\unaryRN{×_i}{[Σ ⊢ (Γ;Ξ ⊢ \v("vi") : \f("Ai");Δ)]_{i∈I}}
+   {Σ ⊢ (Γ;Ξ ⊢ \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}");Δ)}$>>
+
+let rG =
+  <<$\binaryRN{×_e}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}");Δ)}
+   {k∈I}{Σ ⊢ (Γ;Ξ ⊢ \t("v.lk") : A_k;Δ)}$>>
+
+let rH =
+  <<$\binaryRN{+_i}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("Ak");Δ)}{k∈I}
+   {Σ ⊢ (Γ;Ξ ⊢ \v("Ck[v]") : \f("[(Ci : Ai) i∈I]");Δ)}$>>
+
+let rI =
+  <<$\binaryRN{+_e}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]");Δ)}
+   {[Σ ⊢ (Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B;Δ)]_{i∈I}}
+   {Σ ⊢ (Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B;Δ)}$>>
+
+let rJ =
+  <<$\unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔v]") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔w]") : A;Δ)}$>>
+
+let rK =
+  <<$\unaryRN{≡_{l}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A;Δ)}
+   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A;Δ)}$>>
+
+let rL =
+  <<$\unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₁]");Δ)}
+   {Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₂]");Δ)}$>>
+
+let rM =
+  <<$\unaryRN{≡_{r}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]");Δ)}
+   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]");Δ)}$>>
+
+let rs env =
+  let env = resize_env 3.4 env in
+  let rs =
+    [ [ r1 ; r3 ] ; [ r4 ] ; [ r5 ; r6 ] ; [ r7 ; rA ] ; [ r8 ; r9 ]
+    ; [ rB ; rC ] ; [ rD ; rE ] ; [ rG ; rH ] ; [ rF ] ; [ rI ] ; [ rJ ; rK ]
+    ; [ rL ; rM ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
+)
+
+=<
 
 =<
