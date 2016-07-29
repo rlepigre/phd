@@ -68,6 +68,7 @@ and  subs =
 and patt = vari * vari * term
 and form =
   | FTerm of term                      (* t       *)
+  | FStac of stac                      (* π       *)
   | FMeta of vari                      (* A, B    *)
   | FVari of vari * vari option        (* χ^s     *)
   | FLamb of vari * vari option * form (* (χ^s ↦ A) *)

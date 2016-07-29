@@ -128,6 +128,7 @@ and        proc prio =
   | p:(proc PAtom)                            when prio = PFull -> p
 and        form prio =
   | t:(term TAppl)                            when prio = FAtom -> FTerm(t)
+  | s:(stac SFull)                            when prio = FAtom -> FStac(s)
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
   | x:qvari s:{"^" stvar}?                    when prio = FAtom -> FVari(x,s)
   | '(' x:qvari s:{"^" stvar}? "↦" a:(form FFull) ')'

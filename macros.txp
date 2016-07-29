@@ -28,7 +28,7 @@ let two_cols ls =
   zip c1 c2 []
 
 let _ =
-  let pnum i = if i < 3 || i > 49 then "" else string_of_int i in
+  let pnum i = if i < 3 then "" else string_of_int i in
   DefaultFormat.sprint_page_number := pnum
 
 module type Env =

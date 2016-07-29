@@ -128,6 +128,7 @@ and  subs2m : subs -> Maths.math list =
   | SubsM(s)     -> vari2m s
 and f2m : form -> Maths.math list = function
   | FTerm(t)       -> t2m t
+  | FStac(s)       -> s2m s
   | FMeta(a)       -> vari2m a
   | FVari(x,s)     -> begin
                         let x = vari2m x in

@@ -461,7 +461,6 @@ will be involved in the derivation of the typing rule for the elimination
 of the dependent function type in \section("encodedep"), the latter will
 also need value restriction.
 
-
 (* TODO from here *)
 
 \Caml(
@@ -586,10 +585,12 @@ let _ = figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
 The abstract machine presented in \chapter("calculus") is part of a
 //classical realizability// machinery that will be built upon here.
 We aim at obtaining a semantical interpretation of our higher-order
-type system. As always in classical realizability, the model is
-parametrized by a pole, which serves as an exchange point between
-the world of programs and the world of execution contexts, which are
-represented as stacks.
+type system. In particular, a proposition (i.e. a type of sort $ο$)
+will be interpreted by three sets: a set of values, a set of stacks
+and a set of terms. As always in classical realizability, the model
+is parametrized by a pole, which serves as an exchange point between
+the world of programs and the world of execution contexts, encoded
+as stacks.
 \begin{def}
 A //pole// is a set of processes $\dbot ⊆ Λ×Π$ which is //saturated//
 (i.e. closed under backward reduction). More formally, if we have
@@ -612,15 +613,14 @@ stack that is a candidate for building a valid process using any value
 from the raw semantics. The notion of validity depends on the choice of
 the pole. The third layer, called //truth value// is a set of terms that
 is built by iterating the process once more. The formalism for the two
-levels of orthogonality is given in the following definition.
-\begin{def}\label("orthodef")
-For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^⊥ ⊆ Π$ and a set
-$Φ^{⊥⊥} ⊆ Λ$ as follows.
-$$
-  Φ^⊥ = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\}
-  \hspace(3.0)
-  Φ^{⊥⊥} = \{t∈Λ \| ∀π∈Φ^⊥ \p("t ∗ π") ∈ \dbot\}
-$$
+levels of orthogonality is given in the following definitions.
+\begin{def}\label("orthodef1")
+For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^⊥ ⊆ Π$ as follows.
+$$ Φ^⊥ = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\} $$
+\end{def}
+\begin{def}\label("orthodef2")
+For every set $Ψ ⊆ Π$ we define a set $Ψ^⊥ ⊆ Λ$ as follows.
+$$ Ψ^⊥ = \{t∈Λ \| ∀π∈Ψ \p("t ∗ π") ∈ \dbot\} $$
 \end{def}
 
 We now give several general properties of orthogonality, which hold in
@@ -671,21 +671,44 @@ A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
 $t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
 \end{def}
 
+(* TODO from here *)
 \begin{def}
-To every type $A ∈ \cal{F}$ we associate a set of value $\vs("A") ⊆ Λ_{val}$
-called its raw semantics. It is defined inductively on the structure of $A$
-as follows.
+To every sort $s ∈ \cal{S}$ we associate a set $⟦s⟧$ defined as follows.
+$$
+  ⟦ι⟧ = Λ_{val}^{∗}
+  \hspace(3.0)
+  ⟦τ⟧   = Λ^{∗}
+  \hspace(3.0)
+  ⟦σ⟧   = Π^{∗}
+$$
+$$
+  ⟦ο⟧   = \cal{P}(Λ_{val}^{∗}) / {≡}_≻
+  \hspace(3.0)
+  ⟦s→r⟧ = ⟦r⟧^⟦s⟧
+$$
+\end{def}
+\begin{def}
+To every type $A ∈ \cal{F}$ such that $⊢ A : s$ for some sort $s ∈ \cal{S}$
+we associate a set $\vs("A") ∈ ⟦s⟧$. It is defined inductively on the
+structure of $A$ as follows.
 \begin{center}
 \diagram(
 let _ =
   let line s m = [ vs s; <$=$>; m ] in
   array [`East ; `East ; `West]
-  [ line "Φ"               <$ Φ $>
-  ; line "(χ ↦ A)"         <$ Φ ↦ \vs("A[χ≔Φ]") $>
+  [ line "t"               <$ t $>
+  ; line "v"               <$ v $>
+  ; line "π"               <$ π $>
+  ; line "Φ"               <$ Φ $>
+  ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs("A[χ≔Φ]") $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
-  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A")
+  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A"),
                                  \t("t[x≔v]") ∈ \ts("B")\} $>
-  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I
+  ; line "t ∈ A"           <$ \{\v("v") ∈ \vs("A") \|
+                                 \v("v") ≡_{≻} \t("t")\} $>
+  ; line "A | t ≡ u"       <$ \{\v("v") ∈ \vs("A") \|
+                                 \t("t") ≡_{≻} \t("u")\} $>
+  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I,
                                  \v("vi")∈\vs("Ai")\} $>
   ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
   ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
@@ -693,6 +716,10 @@ let _ =
 )
 \end{center}
 \end{def}
+\begin{rem}
+We have $\vs("A | t ≡ u") = \vs("A")$ if $t ≡_{≻} u$ and
+$\vs("A | t ≡ u") = ∅$ otherwise.
+\end{rem}
 
 =<
 => Adequacy
