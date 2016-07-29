@@ -671,7 +671,10 @@ A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
 $t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
 \end{def}
 
-(* TODO from here *)
+In our realizability model, the well-formed closed types will be
+interpreted by the elements of a set defined according to their sort.
+Such a set can be seen as the interpretation, in the model, of the sort
+themselves.
 \begin{def}
 To every sort $s ∈ \cal{S}$ we associate a set $⟦s⟧$ defined as follows.
 $$
@@ -682,24 +685,54 @@ $$
   ⟦σ⟧   = Π^{∗}
 $$
 $$
-  ⟦ο⟧   = \cal{P}(Λ_{val}^{∗}) / {≡}_≻
+  ⟦ο⟧   = \cal{P}(Λ_{val}^{∗} / {≡}_≻)
   \hspace(3.0)
   ⟦s→r⟧ = ⟦r⟧^⟦s⟧
 $$
 \end{def}
+As we will only interpret closed types, it is convenient to extend the
+syntax of types with the elements of the model. This widely used method
+will allow us to consider closed types only in the semantics, and not
+couples of open type and a substitution. Of course, an open type can
+always be made into a closed types by replacing its free variables by
+elements of the interpretation of the corresponding sort.
 \begin{def}
-To every type $A ∈ \cal{F}$ such that $⊢ A : s$ for some sort $s ∈ \cal{S}$
-we associate a set $\vs("A") ∈ ⟦s⟧$. It is defined inductively on the
-structure of $A$ as follows.
+We extend the syntax of types with the elements of the model. As a
+consequence, we will consider that $⟦s⟧ ⊆ \cal{F}$ for every sort
+$⟦s⟧$. Note that this is already true for $s = ι$, $s = τ$ and
+$s = σ$. We will often use the letter $Φ$ to denote an element of the
+model in the syntax. Our system is also extended with the following
+sorting rule.
+$$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
+\end{def}
+\begin{def}
+Given a sorting context $Σ$, we call a //valuation// over $Σ$ a finite
+map $ρ$ such that for all $χ∈dom(Σ)$ we have $ρ(χ) ∈ ⟦Σ(χ)⟧$. If
+$A∈\cal{F}$ is a type and $s∈\cal{S}$ is a sort such that $Σ ⊢ A: s$
+then we denote $\f("Aρ")$ the type formed by applying $ρ$ to $A$.
+\end{def}
+\begin{lem}
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
+a sort such that $Σ ⊢ A : s$. If $ρ$ is a valuation over $Σ$ then
+$⊢ \f("Aρ") : s$.
+\begin{proof}\label("typeval")
+... (* TODO *)
+\end{proof}
+\end{lem}
+
+We can now give the interpretation of our type constructors in our model.
+In particular, the elements of the model such as values, terms or stacks
+will be interpreted as themselves.
+\begin{def}
+To every closed type $A ∈ \cal{F}$ we associate a set $⟦A⟧$ called its
+//interpretation//. It is defined inductively on the structure of $A$ as
+follows.
 \begin{center}
 \diagram(
 let _ =
   let line s m = [ vs s; <$=$>; m ] in
   array [`East ; `East ; `West]
-  [ line "t"               <$ t $>
-  ; line "v"               <$ v $>
-  ; line "π"               <$ π $>
-  ; line "Φ"               <$ Φ $>
+  [ line "Φ"               <$ Φ $>
   ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs("A[χ≔Φ]") $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
   ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A"),
@@ -718,12 +751,31 @@ let _ =
 \end{def}
 \begin{rem}
 We have $\vs("A | t ≡ u") = \vs("A")$ if $t ≡_{≻} u$ and
-$\vs("A | t ≡ u") = ∅$ otherwise.
+$\vs("A | t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
+is no $v ∈ \vs("A")$ such that $v ≡_{≻} t$.
 \end{rem}
+\begin{thm}\label("sortsem")
+Let $A∈\cal{F}$ be a type and $s∈\cal{S}$ be a sort. If $⊢ A : s$ then
+$\vs("A") ∈ ⟦s⟧$.
+\begin{proof}
+... (* TODO *)
+\end{proof}
+\end{thm}
+\begin{cor}
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
+a sort. If $Σ ⊢ A : s$ and if $ρ$ is a valuation over $Σ$ then
+$\vs("Aρ") ∈ ⟦s⟧$.
+\begin{proof}
+As $Σ ⊢ A : s$ and $ρ$ is a valuation over $Σ$ then we have
+$⊢ \f("Aρ") : s$ by \lemRef("typeval"). As a consequence we
+can use \thmRef("sortsem").
+\end{proof}
+\end{cor}
 
 =<
 => Adequacy
 
+(* TODO from here *)
 \begin{def}
 A valuation over a sorting context $Σ$ is a map $ρ$ such that $ρ(χ) ∈ ⟦Σ(χ)⟧$
 for every $χ ∈ dom(Σ)$. In particular, this means that $dom(Σ) ⊆ dom(ρ)$.

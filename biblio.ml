@@ -121,6 +121,13 @@ let biblio =
   ; notes   = "Thèse de l'Université Paris VII"
   ; year    = "2001" };
 
+  { key     = "Miquel2011"
+  ; authors = "Alexandre Miquel"
+  ; title   = "Existential witness extraction in classical realizability and"
+              ++  " via a negative translation"
+  ; notes   = "Logical Methods in Computer Science"
+  ; year    = "2011" };
+
   { key     = "Xi2004"
   ; authors = "Hongwei Xi"
   ; title   = "Applied Type System (extended abstract)"
