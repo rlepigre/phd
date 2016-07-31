@@ -692,7 +692,7 @@ naming constructors.
 As usual, our $λ$-variables and $μ$-variables will be bound in terms to
 respectively form functions and capture continuations. Term variables
 will always appear free in terms, but they will be bound in types (see
-\chapter("typeystem")).
+\chapter("typesystem")).
 
 \begin{def}
 Value, terms, stacks and processes are mutually inductively defined as the

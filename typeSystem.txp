@@ -1043,7 +1043,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       and $\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$. By hypothesis we have
       $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$, hence \thmRef("sextval") gives us
       $\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. We can then conclude using
-      \thmRef("eqpreserve") since we have $\t("tρ[x≔v₁ρ]") ∈ \ts("Aρ")$
+      \thmRef("FIXME") since we have $\t("tρ[x≔v₁ρ]") ∈ \ts("Aρ")$
       by induction hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{l,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₁]") : A;Δ)}
@@ -1055,7 +1055,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       and $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$. By hypothesis we have
       $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, hence \thmRef("sextterm") gives us
       $\t("tρ[a≔u₁ρ]") ≡_{≻} \t("tρ[a≔u₂ρ]")$. We can then conclude using
-      \thmRef("eqpreserve") since we have $\t("tρ[a≔u₁ρ]") ∈ \ts("Aρ")$
+      \thmRef("FIXME") since we have $\t("tρ[a≔u₁ρ]") ∈ \ts("Aρ")$
       by induction hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{l,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₁]") : A;Δ)}
@@ -1068,7 +1068,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       $\ts("(A[x≔v₁])ρ") = \ts("(A[x≔v₂])ρ")$). Without loss of generality
       we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
       $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. We can then conclude using
-      \thmRef("extformvalue") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
+      \thmRef("FIXME") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
       hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[x≔v₁]");Δ)}
@@ -1080,7 +1080,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       $\vs("(A[a≔u₁])ρ") = \vs("(A[a≔u₂])ρ")$. Without loss of generality
       we may assume that $a ∉ dom(ρ)$, hence our goal rewrites
       $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$. We can then conclude using
-      \thmRef("extformterm") as we have $\t("u₁ρ") ≡ \t("u₂ρ")$ by
+      \thmRef("FIXME") as we have $\t("u₁ρ") ≡ \t("u₂ρ")$ by
       hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[a≔u₁]");Δ)}
@@ -1117,7 +1117,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       $\vs("(A[x≔v₁])ρ") = \vs("(A[x≔v₂])ρ")$. Without loss of generality
       we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
       $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. We can then conclude using
-      \thmRef("extformvalue") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
+      \thmRef("FIXME") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
       hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,ι,ι}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[x≔v₁]");Δ)}
@@ -1129,7 +1129,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       $\vs("(A[a≔u₁])ρ") = \vs("(A[a≔u₂])ρ")$. Without loss of generality
       we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
       $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$. We can then conclude using
-      \thmRef("extformvalue") as we have $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$ by
+      \thmRef("FIXME") as we have $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$ by
       hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,ι,τ}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[a≔u₁]");Δ)}
