@@ -508,8 +508,8 @@ let rB =
    {Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("v∈A");Δ)}$>>
 
 let rC =
-  <<$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("t") : C;Δ)}
-   {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$>>
+  <<$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("u") : C;Δ)}
+   {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C;Δ)}$>>
 
 let rD =
   <<$\binaryRN{↾_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A;Δ)}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
@@ -948,45 +948,43 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
 
 \item If the last used rule is ($∈_e$) then we need to show
       $\t("uρ") ∈ \ts("Cρ")$. To apply the induction hypothesis,
-      we need to check that $\v("ρ(x)") ∈ \vs("aρ")$ and that
+      we need to check that $\v("ρ(x)") ∈ \vs("Aρ")$ and that
       $\v("ρ(x)")≡\t("tρ")$, provided that we have
       $\v("xρ") ∈ \vs("(t∈A)ρ")$. By definition
       $\vs("(t∈A)ρ") = \vs("tρ∈Aρ") = \{v∈\vs("Aρ") \st v≡\t("tρ")\}$,
       and hence $\v("ρ(x)") ∈ \vs("Aρ")$ and $\v("ρ(x)")≡\t("tρ")$.
 
-      $$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("t") : C;Δ)}
-        {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$$
+      $$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("u") : C;Δ)}
+        {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C;Δ)}$$
 
-\item If the last used rule is ($∈_i$) then we need to show
-      $\v("vρ") ∈ \vs("(v ∈ A)ρ")$. By induction hypothesis we know
-      $\v("vρ") ∈ \vs("Aρ")$, hence it is enough to show
-      $\vs("(v∈A)ρ") ⊆ \vs("Aρ")$. This is immediate as
-      $\vs("(v∈A)ρ") = \vs("vρ∈Aρ") = \{w∈\vs("Aρ") \st w≡\v("vρ")\}$
-      by definition.
+\item In the case of ($∈_i$) we need to show
+      $\v("vρ") ∈ \vs("(v ∈ A)ρ") = \{w ∈ \vs("Aρ") \| w ≡_{≻} vρ\}$. As
+      we have $\v("vρ") ∈ \vs("Aρ")$ by induction hypothesis, it only
+      remains to show $\t("vρ") ≡_{≻} \t("vρ")$, which is immediate.
 
       $$\unaryRN{∈_i}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : A;Δ)}
         {Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("v∈A");Δ)}$$
 
 \item If the last used rule is ($↾_i$) then we must show
-      $\t("tρ") ∈ \ts("(A | u₁≡u₂)ρ")$. By hypothesis, we know that
-      $\t("u₁ρ") ≡ \t("u₂ρ")$, and hence $\vs("Aρ | u₁ρ ≡ u₂ρ") = \vs("Aρ")$.
-      As a consequence, $\ts("Aρ | u₁ρ ≡ u₂ρ") = \ts("Aρ")$ and we can
-      conclude by induction hypothesis.
+      $\t("tρ") ∈ \ts("(A | u₁≡u₂)ρ")$. By hypothesis, we know
+      $\t("u₁ρ") ≡ \t("u₂ρ")$, and hence we have
+      $\vs("Aρ | u₁ρ ≡ u₂ρ") = \vs("Aρ")$.
+      As a consequence $\ts("Aρ | u₁ρ ≡ u₂ρ") = \ts("Aρ")$ and hence we can
+      conclude since $\t("tρ") ∈ \ts("Aρ")$ by induction hypothesis.
 
       $$\binaryRN{↾_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A;Δ)}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
         {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | u₁≡u₂");Δ)}$$
 
 \item If the last used rule is ($↾_e$) then we need to show
       $\t("tρ") ∈ \ts("Cρ")$. To be able to apply the induction hypothesis,
-      we need to show that $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡ u₂ρ$ provided that
-      $ρ(x) ∈ \vs("(A | u₁ ≡ u₂)ρ") = \vs("Aρ | u₁ρ ≡ u₂ρ") ≠ ∅$. This
-      immediately follows from the definition of $\vs("Aρ | u₁ρ ≡ u₂ρ")$
-      since it is non-empty.
+      we need to show $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡_{≻} u₂ρ$ under the
+      assumption that $ρ(x) ∈ \vs("Aρ | u₁ρ ≡ u₂ρ") ≠ ∅$. This immediately
+      follows from the definition of $\vs("Aρ | u₁ρ ≡ u₂ρ")$ since it is
+      non-empty.
 
       $$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C;Δ)}
         {Σ, x:ι ⊢ (Γ,x:\f("A | u₁≡u₂");Ξ ⊢ \t("t") : C;Δ)}$$
 
-(* TODO from here *)
 \item If the last used rule is ($×_i$) then we need to show
       $\v("{(li = vi) i∈I}ρ") ∈ \vs("{(li : Ai) i∈I}ρ")$. By definition it
       is enough to show that $\v("viρ") ∈ \vs("Aiρ")$ for all index $i$ in
@@ -1003,13 +1001,11 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       show that $\p("{(li = vi) i∈I}.lk ∗ π") ∈ \dbot$. As $k$ is in $I$, we
       have $\p("{(li = viρ) i∈I}.lk ∗ π") ≻ \p("viρ ∗ π")$, hence it is enough
       to show $\p("vkρ ∗ π") ∈ \dbot$ as $\dbot$ is saturated. Since
-      $π ∈ \ss("Akρ")$, we only have to show $\v("vkρ") ∈ \ts("Akρ")$.
-      We can hence conclude using \thmRef("orthosimple") since we know that
-      $\v("vkρ") ∈ \vs("Akρ")$.
+      $π ∈ \ss("Akρ")$, we only have to show $\v("vkρ") ∈ \ts("Akρ")$. We can
+      hence conclude using \thmRef("orthosimple") as $\v("vkρ") ∈ \vs("Akρ")$.
 
       $$\binaryRN{×_e}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}");Δ)}
         {k∈I}{Σ ⊢ (Γ;Ξ ⊢ \t("v.lk") : A_k;Δ)}$$
-
 
 \item If the last used rule is ($+_i$) then we need to show
       $\t("(Ck[v])ρ") ∈ \vs("[(Ci : Ai) i∈I]ρ")$. By definition we only need
@@ -1021,10 +1017,10 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
 
 \item If the last used rule is ($+_e$) then we need to show
       $\t("[v | (Ci[xi] → ti) i∈I]ρ") ∈ \ts("Bρ")$. By induction hypothesis
-      we know that $\v("vρ") ∈ \vs("[(Ci : Ai) i∈I]ρ")$, hence by definition
+      $\v("vρ") ∈ \vs("[(Ci : Ai) i∈I]ρ")$, hence by definition
       $\v("vρ") = \v("Ck[w]")$ for some index $k$ in $I$ and
       $w ∈ \vs("Akρ")$. Let us now take a stack $π ∈ \ss("Bρ")$ and show
-      that $\p("[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π") ∈ \dbot$. As
+      that we have $\p("[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π") ∈ \dbot$. As
       $\p("[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("tkρ[xk≔w] ∗ π")$ and
       $\dbot$ is saturated, it is enough to show
       $\p("tkρ[xk≔w] ∗ π") ∈ \dbot$. Let us now consider the valuation
@@ -1033,83 +1029,108 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       Consequently we have $π ∈ \ss("Bρ[xk≔w]")$, hence it is enough to
       show that $\t("tkρ[xk≔w]") ∈ \ts("Bρ[xk≔w]")$. We can conclude by
       induction hypothesis using the valuation $\subs("ρ[xk≔w]")$ since
-      $\v("vρ[xk≔w]") ≡ \v("Ck[w]")$.
+      $\v("vρ[xk≔w]") ≡_{≻} \v("Ck[w]")$.
 
+      \begin{env}(scale 0.96)
       $$\binaryRN{+_e}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]");Δ)}
         {[Σ ⊢ (Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B;Δ)]_{i∈I}}
         {Σ ⊢ (Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B;Δ)}$$
+      \end{env}
 
 \item If the last used rule is ($≡_{l,τ,ι}$) then we need to show
-      $\t("(t[x≔v₁])ρ") ∈ \ts("Aρ")$. Without loss of generality we may
-      assume that $x ∉ dom(ρ)$, hence $\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$
-      and $\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$. By hypothesis we have
-      $\v("v₁ρ") ≡ \v("v₂ρ")$, hence \thmRef("extvalue") gives us
-      $\t("tρ[x≔v₁ρ]") ≡ \t("tρ[x≔v₂ρ]")$. We can then conclude using
-      \thmRef("eqpreserve") since we have $\t("tρ[x≔v₂ρ]") ∈ \ts("Aρ")$
-      by induction hypothesis.
+      $\t("(t[x≔v₂])ρ") ∈ \ts("Aρ")$. Without loss of generality we may
+      assume that $x ∉ dom(ρ)$, hence $\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$
+      and $\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$. By hypothesis we have
+      $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$, hence \thmRef("sextval") gives us
+      $\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. We can then conclude using
+      \thmRef("eqpreserve") since we have $\t("tρ[x≔v₁ρ]") ∈ \ts("Aρ")$
+      by induction hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{l,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₁]") : A;Δ)}
         {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₂]") : A;Δ)}$$
 
 \item If the last used rule is ($≡_{l,τ,τ}$) then we need to show
-      $\t("(t[a≔u₁])ρ") ∈ \ts("Aρ")$. Without loss of generality we may
-      assume that $a ∉ dom(ρ)$, hence $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$
-      and $\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$. By hypothesis we have
-      $\t("u₁ρ") ≡ \t("u₂ρ")$, hence \thmRef("extterm") gives us
-      $\t("tρ[a≔u₁ρ]") ≡ \t("tρ[a≔u₂ρ]")$. We can then conclude using
-      \thmRef("eqpreserve") since we have $\t("tρ[a≔u₂ρ]") ∈ \ts("Aρ")$
-      by induction hypothesis.
+      $\t("(t[a≔u₂])ρ") ∈ \ts("Aρ")$. Without loss of generality we may
+      assume that $a ∉ dom(ρ)$, hence $\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$
+      and $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$. By hypothesis we have
+      $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, hence \thmRef("sextterm") gives us
+      $\t("tρ[a≔u₁ρ]") ≡_{≻} \t("tρ[a≔u₂ρ]")$. We can then conclude using
+      \thmRef("eqpreserve") since we have $\t("tρ[a≔u₁ρ]") ∈ \ts("Aρ")$
+      by induction hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{l,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₁]") : A;Δ)}
         {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₂]") : A;Δ)}$$
 
-
 \item If the last used rule is ($≡_{r,τ,ι}$) then we need to show
-      $\t("tρ") ∈ \ts("(A[x≔v₁])ρ")$. By induction hypothesis
-      $\t("tρ") ∈ \ts("(A[x≔v₂])ρ")$ so we will show
-      $\ts("(A[x≔v₁])ρ") = \ts("(A[x≔v₂])ρ")$. By \lemRef("orthoprop"),
-      it is enough to show $\vs("(A[x≔v₁])ρ") = \vs("(A[x≔v₂])ρ")$.
-      Without loss of generality we may assume that $x ∉ dom(ρ)$, hence it
-      only remains to show that $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$.
-      This is a direct consequence of \thmRef("extformvalue") as we have
-      $\v("v₁ρ") ≡ \v("v₂ρ")$ by hypothesis.
+      $\t("tρ") ∈ \ts("(A[x≔v₂])ρ")$. By induction hypothesis we have
+      $\t("tρ") ∈ \ts("(A[x≔v₁])ρ")$, and to conclude we will show that
+      $\vs("(A[x≔v₁])ρ") = \vs("(A[x≔v₂])ρ")$ (and hence
+      $\ts("(A[x≔v₁])ρ") = \ts("(A[x≔v₂])ρ")$). Without loss of generality
+      we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
+      $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. We can then conclude using
+      \thmRef("extformvalue") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
+      hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[x≔v₁]");Δ)}
         {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[x≔v₂]");Δ)}$$
 
 \item If the last used rule is ($≡_{r,τ,τ}$) then we need to show
-      $\t("tρ") ∈ \ts("(A[a≔u₁])ρ")$. By induction hypothesis
-      $\t("tρ") ∈ \ts("(A[a≔u₂])ρ")$ so we will show
-      $\ts("(A[a≔u₁])ρ") = \ts("(A[a≔u₂])ρ")$. By \lemRef("orthoprop"),
-      it is enough to show $\vs("(A[a≔u₁])ρ") = \vs("(A[a≔u₂])ρ")$.
-      Without loss of generality we may assume that $a ∉ dom(ρ)$, hence it
-      only remains to show that $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$.
-      This is a direct consequence of \thmRef("extformterm") as we have
-      $\t("u₁ρ") ≡ \t("u₂ρ")$ by hypothesis.
+      $\t("tρ") ∈ \ts("(A[a≔u₂])ρ")$. By induction hypothesis we have
+      $\t("tρ") ∈ \ts("(A[a≔u₁])ρ")$, and to conclude we will show that
+      $\vs("(A[a≔u₁])ρ") = \vs("(A[a≔u₂])ρ")$. Without loss of generality
+      we may assume that $a ∉ dom(ρ)$, hence our goal rewrites
+      $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$. We can then conclude using
+      \thmRef("extformterm") as we have $\t("u₁ρ") ≡ \t("u₂ρ")$ by
+      hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[a≔u₁]");Δ)}
         {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢ t : \f("A[a≔u₂]");Δ)}$$
 
-\item If the last used rule is ($≡_{l,ι,ι}$) then we need to show...
-      (* TODO *)
+(* TODO from here *)
+\item If the last used rule is ($≡_{l,ι,ι}$) then we need to show
+      $\t("(v[x≔v₂])ρ") ∈ \vs("Aρ")$. Without loss of generality we may
+      assume that $x ∉ dom(ρ)$, hence $\t("(v[x≔v₂])ρ") = \t("vρ[x≔v₂ρ]")$
+      and $\t("(v[x≔v₁])ρ") = \t("vρ[x≔v₁ρ]")$. By hypothesis we have
+      $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$, hence \thmRef("sextval") gives us
+      $\v("vρ[x≔v₁ρ]") ≡_{≻} \v("vρ[x≔v₂ρ]")$. We can then conclude since
+      $\v("vρ[x≔v₁ρ]") ∈ \vs("Aρ")$ by induction hypothesis and
+      $\vs("Aρ") ∈ ⟦ο⟧$ is closed under $({≡}_{≻})$
 
       $$\binaryRN{≡_{l,ι,ι}}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[x≔v₁]") : A;Δ)}
         {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[x≔v₂]") : A;Δ)}$$
 
-\item If the last used rule is ($≡_{l,ι,τ}$) then we need to show...
-      (* TODO *)
+\item If the last used rule is ($≡_{l,ι,τ}$) then we need to show
+      $\t("(v[a≔u₂])ρ") ∈ \vs("Aρ")$. Without loss of generality we may
+      assume that $a ∉ dom(ρ)$, hence $\t("(v[a≔u₂])ρ") = \t("vρ[a≔u₂ρ]")$
+      and $\t("(v[a≔u₁])ρ") = \t("vρ[a≔u₁ρ]")$. By hypothesis we have
+      $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, hence \thmRef("sextterm") gives us
+      $\t("vρ[a≔u₁ρ]") ≡_{≻} \t("vρ[a≔u₂ρ]")$. We can then conclude as
+      $\v("vρ[a≔u₁ρ]") ∈ \vs("Aρ")$ by induction hypothesis and
+      $\vs("Aρ") ∈ ⟦ο⟧$ is closed under $({≡}_{≻})$
 
       $$\binaryRN{≡_{l,ι,τ}}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[a≔u₁]") : A;Δ)}
         {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval \v("v[a≔u₂]") : A;Δ)}$$
 
-\item If the last used rule is ($≡_{r,ι,ι}$) then we need to show...
-      (* TODO *)
+\item If the last used rule is ($≡_{r,ι,ι}$) then we need to show
+      $\v("vρ") ∈ \vs("(A[x≔v₂])ρ")$. By induction hypothesis we have
+      $\v("vρ") ∈ \vs("(A[x≔v₁])ρ")$, and to conclude we will show that
+      $\vs("(A[x≔v₁])ρ") = \vs("(A[x≔v₂])ρ")$. Without loss of generality
+      we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
+      $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. We can then conclude using
+      \thmRef("extformvalue") as we have $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$ by
+      hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,ι,ι}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[x≔v₁]");Δ)}
         {Ξ ⊢ \v("v₁") ≡ \v("v₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[x≔v₂]");Δ)}$$
 
 \item If the last used rule is ($≡_{r,ι,τ}$) then we need to show...
-      (* TODO *)
+      $\v("vρ") ∈ \vs("(A[a≔u₂])ρ")$. By induction hypothesis we have
+      $\v("vρ") ∈ \vs("(A[a≔u₁])ρ")$, and to conclude we will show that
+      $\vs("(A[a≔u₁])ρ") = \vs("(A[a≔u₂])ρ")$. Without loss of generality
+      we may assume that $x ∉ dom(ρ)$, hence our goal rewrites
+      $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$. We can then conclude using
+      \thmRef("extformvalue") as we have $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$ by
+      hypothesis. (* FIXME *)
 
       $$\binaryRN{≡_{r,ι,τ}}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[a≔u₁]");Δ)}
         {Ξ ⊢ \t("u₁")≡\t("u₂")}{Σ ⊢ (Γ;Ξ ⊢_\tval v : \f("A[a≔u₂]");Δ)}$$
@@ -1119,17 +1140,14 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
 \end{thm}
 
 =<
+=> Properties of the system
+
+... (* TODO *)
+
+=<
 => Derived rules for dependent types
 
 \label("encodedep") (* FIXME why do I need to put the label here ???!!!! *)
-
-(* ⇒_i rule *)
-$$
-\unaryRN{⇒_i}{Σ; {Γ, x:A}; Δ; Ξ ⊢ t : B}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : A ⇒ B}
-\hspace(1.5)
-\binaryRN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t : A ⇒ B}{Σ; Γ; Δ; Ξ ⊢ u : A}{
-  Σ; Γ; Δ; Ξ ⊢ t u : B}
-$$
 
 (* The weak Π_i rule and its derivation *)
 $$
