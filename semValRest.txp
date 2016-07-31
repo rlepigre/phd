@@ -391,6 +391,17 @@ let rs env =
 let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
 )
 
+(* ADEQUACY CASE
+\item If the last used rule is ($↓$) then we need to show
+      $\v("vρ") ∈ ⟦\f("Aρ")⟧$. By induction hypothesis we know
+      $\v("vρ") ∈ |\f("Aρ")|$, hence we can conclude using
+      \thmRef("orthonew").
+      \begin{center}
+        $ \unaryRN{↓}{Σ ⊢ (Γ;Δ;Ξ ⊢ \t("v") : A)}{
+          Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)} $
+      \end{center}
+*)
+
 =<
 
 =<
