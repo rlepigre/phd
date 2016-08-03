@@ -812,8 +812,8 @@ If we have $u₁ ≡_{≻} u₂$ then we also have $\vs("A[a≔u₁]") = \vs("A[
 
 \begin{thm}\label("eqortho")
 Let $Φ∈⟦ο⟧$ be a set of closed value that is closed under $({≡}_{≻})$ and
-$t∈Λ$ and $u∈Λ$ be terms. If we have $t ∈ \ts("Φ")$ then we also have
-$u ∈ \ts("Φ")$.
+$t∈Λ$ and $u∈Λ$ be terms. If we have $t ≡_{≻} u$ and $t ∈ \ts("Φ")$ then we
+also have $u ∈ \ts("Φ")$.
 \begin{proof}
 \color(red){...} (* TODO *)
 \end{proof}
