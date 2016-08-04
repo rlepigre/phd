@@ -200,7 +200,7 @@ $Λ$ and $Π$ using the following ||bnf|| grammar.
 \begin{center}
 \linesBefore(2)
 $ A,B ::= v \| t \| π \| \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)")
-  \| \f("A⇒B") \| \f("t∈A") \| \f("t≡u")$
+  \| \f("A⇒B") \| \f("t∈A") \| \f("A|t≡u")$
 
 $ \id([]) \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")
   \| \f("∀χ^s A") \| \f("∃χ^s A") $
@@ -281,13 +281,13 @@ let r72 =
 let r73 =
   << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}$ >>
 let r81 =
-  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∀χ A") : r}$ >>
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ A") : ο}$ >>
 let r82 =
-  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("∃χ A") : r}$ >>
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ A") : ο}$ >>
 let r83 =
   << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
 let r91 =
-  << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("t≡u") : ο}$ >>
+  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο}$ >>
 
 let rs env =
   (* let env = resize_env 3.4 env in *)
@@ -461,8 +461,6 @@ will be involved in the derivation of the typing rule for the elimination
 of the dependent function type in \section("encodedep"), the latter will
 also need value restriction.
 
-(* TODO from here *)
-
 \Caml(
 let r1 =
   <<$\axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Ξ ⊢_\tval \t("x") : A; Δ)}$>>
@@ -592,10 +590,14 @@ is parametrized by a pole, which serves as an exchange point between
 the world of programs and the world of execution contexts, encoded
 as stacks.
 \begin{def}
-A //pole// is a set of processes $\dbot ⊆ Λ×Π$ which is //saturated//
-(i.e. closed under backward reduction). More formally, if we have
-$q ∈ \dbot$ and $p ≻ q$ then $p ∈ \dbot$.
+Given a reduction relation $R ⊆ (Λ×Π) × (Λ×Π)$, a //pole// is a set
+of processes $\dbot ⊆ Λ×Π$ which is //$R$-saturated// (i.e. closed
+under backward reduction). More formally, if we have $q ∈ \dbot$ and
+$p R q$ then $p ∈ \dbot$.
 \end{def}
+It is important to note that in the remaining of this chapter, we
+will consider, if not otherwise specified, a fixed (but arbitrary)
+pole $\dbot$.
 
 The notion of //orthogonality// is central in Krivine's classical
 realizability. In this framework a type is interpreted (or realized) by
@@ -670,6 +672,21 @@ proof of $⊥$.
 A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
 $t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
 \end{def}
+
+In this thesis, an other property will be required of our poles. As we
+are in the presence of an equivalence relation over terms, we will need
+our poles to be closed under this relation in some sense. This will
+allow us to derive the same properties for equivalent terms, and handle
+the uniformly.
+\begin{def}
+Given an equivalence relation $E ⊆ Λ×Λ$, a pole $\dbot ⊆ Λ×Π$ is said to
+be $R$-extentional if for every closed terms $t ∈ Λ$ and $u ∈ Λ$ such
+that $t R u$, and for every stack $π ∈ Π$, if $\p("t∗π") ∈ \dbot$ then
+$\p("u∗π") ∈ \dbot$.
+\end{def}
+From now on, and until the end of this chapter, we will only consider
+poles that $≻$-saturated and $≡_{≻}$-extensional. This information will
+be kept impicit most of the time.
 
 In our realizability model, the well-formed closed types will be
 interpreted by the elements of a set defined according to their sort.
@@ -775,22 +792,61 @@ $\vs("A | t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
 is no $v ∈ \vs("A")$ such that $v ≡_{≻} t$.
 \end{rem}
 \begin{thm}\label("sortsem")
-Let $A∈\cal{F}$ be a type and $s∈\cal{S}$ be a sort. If $⊢ A : s$ then
-$\vs("A") ∈ ⟦s⟧$.
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
+a sort. If we have a derivation of $Σ ⊢ A : s$ and if $ρ$ is a valuation
+over $Σ$ then $\vs("Aρ") ∈ ⟦s⟧$.
 \begin{proof}
-\color(red){...} (* TODO *)
+The proof is done by induction on the derivation of $Σ ⊢ A : s$, and we
+consider the last used rule. In the case of the rule
+$$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
+we can conclude immediatly. For the first heighteen first rules of
+\figRef("sortrules"), the proof is immediate using the induction
+hypothesis. The remaining cases are treated bellow.
+\begin{itemize}
+\item \color(red){...} (* TODO *)
+      $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
+\item \color(red){...} (* TODO *)
+      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
+\item \color(red){...} (* TODO *)
+      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο} $$
+\item In the case of the universal type, we need to show that
+      $\vs("(∀χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
+      assume that $χ ∉ dom(ρ)$ and hence our goal rewrites
+      $\vs("∀χ Aρ") = \bigcap_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As an
+      intersection of sets closed under $({≡}_{≻})$ remains closed
+      under this relation, we take $Φ ∈ ⟦s⟧$ and show (* FIXME lemma ? *)
+      $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
+      hypothesis with the valuation $ρ[χ≔Φ]$.
+      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ A") : ο} $$
+\item In the case of the existential type, we need to show that
+      $\vs("(∃χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
+      assume that $χ ∉ dom(ρ)$ and hence our goal rewrites
+      $\vs("∃χ Aρ") = \bigcup_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As a
+      union of sets closed under $({≡}_{≻})$ remains closed under
+      this relation, we take $Φ ∈ ⟦s⟧$ and show (* FIXME lemma ? *)
+      $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
+      hypothesis with the valuation $ρ[χ≔Φ]$.
+      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ A") : ο} $$
+\item In the case of the membership type, we need to show that
+      $\vs("tρ∈Aρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
+      $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
+      $\vs("Aρ") ∈ ⟦ο⟧$. As a consequence, the set
+      $\{\v("v") ∈ \vs("A") \| \v("v") ≡_{≻} \t("t")\}$ is well-defined
+      and it is a subset of $\vs("Aρ")$. Moreover, it is closed under
+      the $({≡}_{≻})$ relation so we have $\vs("tρ∈Aρ") ∈ ⟦ο⟧$.
+      $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο} $$
+\item In the case of the restriction type, we need to show that
+      $\vs("Aρ|tρ≡uρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
+      $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
+      $\vs("uρ") = \t("uρ") ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
+      $t ≡_{≻} u$ is well-defined, so $\vs("Aρ|tρ≡uρ")$ is either
+      equal to $\vs("Aρ")$, in which case we can conclude by
+      induction hypothesis, or to $∅$. In this second case we can
+      also conclude since $∅ ∈ ⟦ο⟧$.
+      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο} $$
+\end{itemize}
 \end{proof}
 \end{thm}
-\begin{cor}
-Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
-a sort. If $Σ ⊢ A : s$ and if $ρ$ is a valuation over $Σ$ then
-$\vs("Aρ") ∈ ⟦s⟧$.
-\begin{proof}
-As $Σ ⊢ A : s$ and $ρ$ is a valuation over $Σ$ then we have
-$⊢ \f("Aρ") : s$ by \lemRef("typeval"). As a consequence we
-can use \thmRef("sortsem").
-\end{proof}
-\end{cor}
 
 \begin{thm}\label("vexttyp")
 Let $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a $λ$-variable and
@@ -815,7 +871,10 @@ Let $Φ∈⟦ο⟧$ be a set of closed value that is closed under $({≡}_{≻})
 $t∈Λ$ and $u∈Λ$ be terms. If we have $t ≡_{≻} u$ and $t ∈ \ts("Φ")$ then we
 also have $u ∈ \ts("Φ")$.
 \begin{proof}
-\color(red){...} (* TODO *)
+By definition we need to take $π ∈ \ss("Φ")$ and show that
+$\p("u∗π") ∈ \dbot$. Since $t ≡_{≻} u$ and $\dbot$ is $≡_{≻}$-saturated
+this is equivalent to showing that $\p("t∗π") ∈ \dbot$. This is immediate
+since we know that $t ∈ \ts("Φ")$.
 \end{proof}
 \end{thm}
 

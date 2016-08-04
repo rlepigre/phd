@@ -1083,7 +1083,7 @@ to identify programs with the same computational behaviour, we expect
 equivalence to be preserved by evaluation.
 
 \begin{lem}\label("redequiv")
-Let $t$ and $u$ be two terms. If for all stack $π ∈Π$ there is a process
+Let $t$ and $u$ be two terms. If for all $π ∈Π$ there is a process
 $p ∈ {Λ × Π}$ such that $\p("t ∗ π") ≻^{∗} p$ and $\p("u ∗ π") ≻^{∗} p$ then
 $t ≡_{≻} u$.
 \begin{proof}
@@ -1113,7 +1113,6 @@ Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p(
 for all $π$ we can apply \corRef("redtosame").
 \end{proof}
 \end{thm}
-
 \begin{thm}
 Let $I$ be a finite set of index with $k ∈ I$. If $v_i ∈ Λ_{val}$ and
 $l_i ∈ \cal{L}$ for all $i ∈ I$ then
@@ -1123,7 +1122,15 @@ Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
 can use \corRef("redtosame").
 \end{proof}
 \end{thm}
-(* TODO case *)
+\begin{thm}
+Let $I$ be a finite set of index with $k ∈ I$. If $v ∈ Λ_{val}$ and if
+$x_i ∈ \cal{V}_ι$, $C_i ∈ \cal{C}$ and $\t("ti") ∈ Λ$ for all $i ∈ I$
+then $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
+\begin{proof}
+Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ for
+every stack $π$ we can use \corRef("redtosame").
+\end{proof}
+\end{thm}
 
 \begin{thm}\label("consnequiv")
 Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_{val}$
@@ -1139,11 +1146,85 @@ $\p("(D[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
 \p("[D[w] | C[y] → y] ∗ ε")$ and $\p("[D[w] | C[y] → y] ∗ ε")$ is stuck.
 \end{proof}
 \end{thm}
-(* TODO other easy inequivalences *)
-\begin{thm}\label("nequiv")
-...
+\begin{thm}
+Let $C ∈ \cal{C}$ be a constructors and $v ∈ Λ_{val}$ and $w ∈ Λ_{val}$ be
+two values. We have $\v("C[v]") ≡_{≻} \v("C[w]")$ if and only if $v ≡_{≻} w$.
 \begin{proof}
-...
+Let us first show that if $\v("C[v]") ≡_{≻} \v("C[w]")$ then $v ≡_{≻} w$. We
+are going to show the contrapositive so we assume $v \nequiv_{≻} w$ and we
+show $\v("C[v]") \nequiv_{≻} \v("C[w]")$. By definition, there is a stack
+$π ∈ Π$ and a substitution $σ$ such that ${\p("vσ∗π")} {⇓}_{≻}$ and
+${\p("wσ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀ ∈ Π$ and $σ$
+such that ${\p("(C[v])σ₀∗π₀")} {⇓}_{≻}$ and ${\p("(C[w])σ₀∗π₀")} {⇑}_{≻}$.
+We can take $σ₀ = σ$ and $π₀ = \s("[λx [x|C[y]→y]]π")$ as we have
+$$
+  \p("(C[v])σ₀∗π₀") ≻ \p("λx [x|C[y]→y] ∗ C[vσ₀]·π")
+                    ≻ \p("[C[vσ₀]|C[y]→y] ∗ π")
+                    ≻ {\p("vσ₀ ∗ π")} {⇓}_{≻}
+$$
+and similarly $\p("(C[w])σ₀∗π₀") ≻^{∗} {\p("wσ₀ ∗ π")} {⇑}_{≻}$.
+
+Let us now show that if $v ≡_{≻} w$ then $\v("C[v]") ≡_{≻} \v("C[w]")$.
+We are again going to show the contrapositive so we assume
+$\v("C[v]") \nequiv_{≻} \v("C[w]")$ and we show $v \nequiv_{≻} w$. By
+definition, there is a stack $π ∈ Π$ and a substitution $σ$ such that
+${\p("C[vσ]∗π")} {⇓}_{≻}$ and ${\p("C[wσ]∗π")} {⇑}_{≻}$ (up to symmetry).
+We need to find $π₀ ∈ Π$ and $σ$ such that ${\p("vσ₀∗π₀")} {⇓}_{≻}$ and
+${\p("wσ₀∗π₀")} {⇑}_{≻}$. We can take $σ₀ = σ$ and $π₀ = \s("[λx C[x]]π")$
+as we have
+$\p("vσ₀∗π₀") ≻ \p("λx C[w] ∗ vσ₀·π") ≻ {\p("C[vσ₀] ∗ π")} {⇓}_{≻}$
+and similarly $\p("wσ₀∗π₀") ≻^{∗} {\p("C[wσ₀] ∗ π")} {⇑}_{≻}$.
+\end{proof}
+\end{thm}
+
+\begin{lem}\label("equivcounterex")
+Let $t$ and $u$ be two terms. If there is a stack $π ∈Π$ and a substitution
+$σ$ such that ${\p("tσ ∗ π")} {⇓}_{≻}p$ and ${\p("uσ ∗ π")} {⇑}_{≻}p$ then
+$t \nequiv_{≻} u$.
+\begin{proof}
+Immediate by definition.
+\end{proof}
+\end{lem}
+\begin{cor}\label("stackcounterex")
+Let $t$ and $u$ be two terms. If there is a stack $π ∈Π$ such that
+${\p("t ∗ π")} {⇓}_{≻}p$ and ${\p("u ∗ π")} {⇑}_{≻}p$ then
+$t \nequiv_{≻} u$.
+\begin{proof}
+Immediate consequence of \lemRef("equivcounterex") using an empty
+substitution.
+\end{proof}
+\end{cor}
+
+\begin{thm}\label("nequivlamcons")
+If $x ∈ \cal{V}_ι$ is a $λ$-variable, $t ∈ Λ$ is a term, $C ∈ \cal{C}$ is
+a constructor and $v ∈ Λ_{val}$ is a value, then we have
+$\t("λx t") \nequiv_{≻} \t("C[v]")$.
+\begin{proof}
+We can apply \corRef("stackcounterex") using the stack
+$π = \s("[λy [y|C[z]→{}]]ε")$. Indeed, using $π$ we have
+$\p("λx t ∗ π") ≻ \p("λy [y|C[z]→z] ∗ λx t · ε") ≻
+{\p("[λx t|C[z]→z] ∗ ε")} {⇑}_{≻}$ (which is stuck), and 
+$\p("C[v] ∗ π") ≻ \p("λy [y|C[z]→z] ∗ C[v] · ε") ≻
+\p("[C[v]|C[z]→z] ∗ ε") ≻ {\p("v ∗ ε")} {⇓}_{≻}$.
+\end{proof}
+\end{thm}
+\begin{thm}\label("nequiv")
+If $x ∈ \cal{V}_ι$ is a $λ$-variable, $t ∈ Λ$ is a term, $I$ is a finite
+set of undex such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
+$v_i ∈ Λ_{val}$, then we have $\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
+\begin{proof}
+If $I = ∅$ then we can apply \corRef("stackcounterex") using the stack
+$π = \s("[λx U(x)]ε")$. Otherwise, we have $k ∈ I$, and we proceed
+similarly with the stack $π = \s("[λx x.lk]ε")$ if $k ∈ I$.
+\end{proof}
+\end{thm}
+\begin{thm}
+If $C ∈ \cal{C}$ is a constructor, $v ∈ Λ_{val}$ is a value and $I$ is a
+finite set of undex such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
+$v_i ∈ Λ_{val}$, then we have $\t("C[v]") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
+\begin{proof}
+As for \thmRef("nequivlamcons") we can apply \corRef("stackcounterex") with
+$π = \s("[λy [y|C[z]→{}]]ε")$.
 \end{proof}
 \end{thm}
 
