@@ -1146,7 +1146,7 @@ $\p("(D[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
 \p("[D[w] | C[y] → y] ∗ ε")$ and $\p("[D[w] | C[y] → y] ∗ ε")$ is stuck.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("injconst")
 Let $C ∈ \cal{C}$ be a constructors and $v ∈ Λ_{val}$ and $w ∈ Λ_{val}$ be
 two values. We have $\v("C[v]") ≡_{≻} \v("C[w]")$ if and only if $v ≡_{≻} w$.
 \begin{proof}
@@ -1210,7 +1210,7 @@ $\p("C[v] ∗ π") ≻ \p("λy [y|C[z]→z] ∗ C[v] · ε") ≻
 \end{thm}
 \begin{thm}\label("nequiv")
 If $x ∈ \cal{V}_ι$ is a $λ$-variable, $t ∈ Λ$ is a term, $I$ is a finite
-set of undex such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
+set of index such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
 $v_i ∈ Λ_{val}$, then we have $\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
 \begin{proof}
 If $I = ∅$ then we can apply \corRef("stackcounterex") using the stack
@@ -1218,13 +1218,89 @@ $π = \s("[λx U(x)]ε")$. Otherwise, we have $k ∈ I$, and we proceed
 similarly with the stack $π = \s("[λx x.lk]ε")$ if $k ∈ I$.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("consneqrec")
 If $C ∈ \cal{C}$ is a constructor, $v ∈ Λ_{val}$ is a value and $I$ is a
-finite set of undex such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
+finite set of index such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
 $v_i ∈ Λ_{val}$, then we have $\t("C[v]") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
 \begin{proof}
 As for \thmRef("nequivlamcons") we can apply \corRef("stackcounterex") with
 $π = \s("[λy [y|C[z]→{}]]ε")$.
+\end{proof}
+\end{thm}
+
+\begin{thm}\label("subsneq")
+Let $t∈Λ$ and $u∈Λ$ be two terms. If there is a substitution $ρ$ such that
+$\t("tρ") \nequiv_{≻} \t("uρ")$ then $\t("t") \nequiv_{≻} \t("u")$.
+\begin{proof}
+By definition we have a stack $π₀∈Π$ and a substitution $ρ₀$ such that
+${\p("(tρ)ρ₀ ∗ π")} {⇓}_{≻}$ and ${\p("(uρ)ρ₀ ∗ π")} {⇑}_{≻}$ (up to
+symmetry). We can hence show $\t("t") \nequiv_{≻} \t("u")$ using the stack
+$π₀$ and the substitution $ρ₀ \circ ρ$.
+\end{proof}
+\end{thm}
+\begin{cor}
+Let $t∈Λ$ and $u∈Λ$ be two terms. If $\t("t") ≡_{≻} \t("u")$ then for every
+substitution $ρ$ we have $\t("tρ") ≡_{≻} \t("uρ")$.
+\begin{proof}
+Immediate consequence of {\thmRef("subsneq")} (contrapositive).
+\end{proof}
+\end{cor}
+\begin{thm}\label("varequiv")
+Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_{val}$ be a value. The
+equivalence $x ≡_{≻} v$ holds if and only if $v = x$.
+\begin{proof}
+If $v = x$ then we obviously have $v ≡_{≻} x$ by reflexivity. We will now
+show that for every other possible value $v$ we have $x \nequiv_{≻} v$.
+In each case we only need to find a substitution $ρ$ such that
+$\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
+\thmRef("subsneq").
+\begin{itemize}
+\item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
+      then we consider the substitution $ρ = \subs("[x≔C[{}]][y≔D[{}]]")$
+      where $C∈\cal{C}$ and $D∈\cal{C}$ are two distinct constructors. We have
+      $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("D[{}]") = \t("yσ")$ according
+      to \thmRef("subsneq").
+\item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
+      $v = \v("λy t")$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
+      We have $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
+      \thmRef("nequiv").
+\item If there is constructor $C ∈ \cal{C}$ and a value $w ∈ Λ_{val}$ such
+      that $v = \v("C[w]")$ then we consider the substitution
+      $ρ=\subs("[x≔{}]")$. We have
+      $\t("xρ") = \t("{}") \nequiv_{≻} \t("C[vρ]")$ according to
+      \thmRef("consneqrec").
+\item If there is a set of index $I$ and for all $i∈I$ a label
+      $l_i ∈ \cal{L}$ and a value $v_i ∈ Λ_{val}$ such that
+      $v = \v("{(li = vi) i∈I}")$ then we consider the substitution
+      $ρ=\subs("[x≔C[{}]]")$ where $C∈\cal{C}$ is a constructor.
+      We have $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("{(li = viρ) i∈I}")$
+      according to \thmRef("consneqrec").
+\end{itemize}
+\end{proof}
+\end{thm}
+\begin{thm}
+Let $C ∈ \cal{C}$ be a constructor and $v ∈ Λ_{val}$ and $w₀ ∈ Λ_{val}$ be
+two values. The equivalence $\v("C[v]") ≡_{≻} w₀$ holds if and only if
+$w₀ = \v("C[w]")$ for some $w ∈ Λ_{val}$ such that $w ≡_{≻} v$.
+\begin{proof}
+If it is the case that $w₀ = \v("C[w]")$ and $w ≡_{≻} v$ then we indeed
+have $\v("C[v]") ≡_{≻} w₀$ according to \thmRef("injconst"). This theorem
+also tells us that if $w₀ = \v("C[w]")$ and $w \nequiv_{≻} v$ then we
+$\v("C[v]") \nequiv_{≻} w₀$. Now if $w₀ = \v("D[w]")$ for some constructor
+$D∈\cal{C}$ such that $C ≠ D$ then we have $\v("C[v]") \nequiv_{≻} w₀$ by
+\thmRef("consnequiv"). All the remaining cases can be handled immediatly
+using \thmRef("varequiv"), \thmRef("nequivlamcons") and \thmRef("consneqrec")
+respectively.
+\end{proof}
+\end{thm}
+\begin{thm}
+Let $I$ be a finite set of index such that $l_i ∈ \cal{L}$ and
+$v_i ∈ Λ_{val}$ for all $i∈I$, and let $w₀ ∈ Λ_{val}$ be a value.
+The equivalence $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ holds if and only if
+we have $w₀ = \v("{(li = wi) i∈I}")$ for some values $wi ∈ Λ_{val}$
+such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
+\begin{proof}
+... (* TODO *)
 \end{proof}
 \end{thm}
 
