@@ -74,40 +74,187 @@ let tval : Typography.Maths.math list =
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
 (* Stuff to add side note. *)
-let sidenote_wr lbef laft text note =
+let sidenote lbef laft text note =
   let environment env = {env with par_indent = []} in
-  let np = newPar D.structure ~environment Complete.normal
-    Patoline_Format.parameters in
+  let pars a b c d e f g h =
+    let pars = Patoline_Format.parameters a b c d e f g h in
+    {pars with min_lines_before = 2 ; min_lines_after = 2}
+  in
+  let np = newPar D.structure ~environment Complete.normal pars in
   let contents env =
-    let width c =
-      let (x0,_,x1,_) = bounding_box_full (Document.draw env c) in
-      x1 -. x0
+    let dr env =
+      let size_box rs =
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        (x2 -. x1, y2 -. y1)
+      in
+      let pagew = env.normalMeasure in
+      let text = Document.draw env text in
+      let note = Document.draw env note in
+      let (wtext, _) = size_box text in
+      let (wnote, _) = size_box note in
+      let xtext = (pagew -. wtext) /. 2.0 in
+      let xnote = pagew -. wnote in
+      let text = List.map (RawContent.translate xtext 0.0) text in
+      let note = List.map (RawContent.translate xnote 0.0) note in
+      let open Box in
+      { drawing_min_width     = pagew
+      ; drawing_nominal_width = pagew
+      ; drawing_max_width     = pagew
+      ; drawing_width_fixed   = true
+      ; drawing_adjust_before = false
+      ; drawing_y0            = 0.0
+      ; drawing_y1            = 2.0
+      ; drawing_badness       = (fun _ -> 0.0)
+      ; drawing_break_badness = infinity
+      ; drawing_states        = []
+      ; drawing_contents      = (fun _ -> text @ note) }
     in
-    let textw = width text in
-    let notew = width note in
-    let pagew = env.normalMeasure in
-    let pad1 = (pagew -. textw) /. 2.0 in
-    let pad2 = pagew -. pad1 -. textw -. notew in
-    let glue w = [bB (fun _ -> [glue w w w])] in 
-    (linesBefore lbef) @ (glue pad1) @ text @ (glue pad2) @ note @
-    (linesAfter laft)
+    [bB (fun env -> [Drawing (dr env)])]
   in np [C contents]
 
-let sidenote = sidenote_wr 2 2
-
-let bnfs ls =
+(* Reduction relation definition. *)
+let reduction_def sym lines =
+  let lbef = 2 + (List.length lines) - 1 in (* HACK FIXME *)
+  let laft = 2 in
+  let pad = 6.0 in
   let environment env = {env with par_indent = []} in
-  let np = newPar D.structure ~environment Complete.normal
-    Patoline_Format.parameters in
+  let pars a b c d e f g h =
+    let pars = Patoline_Format.parameters a b c d e f g h in
+    {pars with min_lines_before = lbef ; min_lines_after = laft}
+  in
+  let np = newPar D.structure ~environment Complete.normal pars in
+  let contents env =
+    let dr env =
+      let pagew = env.normalMeasure in
+      let sep = env.normalLead in
+      let size_box rs =
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        (x2 -. x1, y2 -. y1)
+      in
+      let sym = Document.draw env sym in
+      let (wsym,_) = size_box sym in
+      let sym =
+        List.map (RawContent.translate ((pagew -. wsym) /. 2.0) 0.0) sym
+      in
+      let line (l,r,n) =
+        let l = Document.draw env l in
+        let r = Document.draw env r in
+        let n = Document.draw env n in
+        let (wl,_) = size_box l in
+        let (wr,_) = size_box r in
+        let (wn,_) = size_box n in
+        let l =
+          let y = ((pagew -. wsym) /. 2.0) -. wl -. pad in 
+          List.map (RawContent.translate y 0.0) l
+        in
+        let r =
+          let y = ((pagew +. wsym) /. 2.0) +. pad in
+          List.map (RawContent.translate y 0.0) r
+        in
+        let n = List.map (RawContent.translate (pagew -. wn) 0.0) n in
+        l @ sym @ r @ n
+      in
+      let combine acc l =
+        (line l) @ (List.map (RawContent.translate 0.0 sep) acc)
+      in
+      let lines = List.fold_left combine [] lines in
+      let (_,y0,_,y1) = bounding_box_full lines in
+      { drawing_min_width     = pagew
+      ; drawing_nominal_width = pagew
+      ; drawing_max_width     = pagew
+      ; drawing_width_fixed   = true
+      ; drawing_adjust_before = false
+      ; drawing_y0            = y0
+      ; drawing_y1            = y1
+      ; drawing_badness       = (fun _ -> 0.0)
+      ; drawing_break_badness = infinity
+      ; drawing_states        = []
+      ; drawing_contents      = (fun _ -> lines) }
+    in
+    [bB (fun env -> [Drawing (dr env)])]
+  in np [C contents]
+
+(* BNF grammars. *)
+let bnfs lines =
+  let lbef = 2 + (List.length lines) - 1 in (* HACK FIXME *)
+  let laft = 2 in
+  let pad = 2.0 in
+  let environment env = {env with par_indent = []} in
+  let pars a b c d e f g h =
+    let pars = Patoline_Format.parameters a b c d e f g h in
+    {pars with min_lines_before = lbef ; min_lines_after = laft}
+  in
+  let np = newPar D.structure ~environment Complete.normal pars in
+  let contents env =
+    let dr env =
+      let pagew = env.normalMeasure in
+      let sep = env.normalLead in
+      let size_box rs =
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        (x2 -. x1, y2 -. y1)
+      in
+      let sym = Document.draw env <<$::=$>> in
+      let (wsym,_) = size_box sym in
+      let fnmax (ml,mr) (_,l,r,_) =
+        let (wl,_) = size_box (Document.draw env l) in
+        let (wr,_) = size_box (Document.draw env r) in
+        (max ml wl, max mr wr)
+      in
+      let (maxl, maxr) = List.fold_left fnmax (0.0, 0.0) lines in
+      let left = (pagew -. maxl -.maxr -. 2.0 *. pad -. wsym) /. 2.0 in
+      let sym =
+        List.map (RawContent.translate (left +. maxl +. pad) 0.0) sym
+      in
+      let line (s,l,r,n) =
+        let s = Document.draw env s in
+        let l = Document.draw env l in
+        let r = Document.draw env r in
+        let n = Document.draw env n in
+        let (wl,_) = size_box l in
+        let (wr,_) = size_box r in
+        let (wn,_) = size_box n in
+        let l =
+          let y = left +. maxl -. wl in
+          List.map (RawContent.translate y 0.0) l
+        in
+        let r =
+          let y = left +. maxl +. wsym +. 2.0 *. pad in
+          List.map (RawContent.translate y 0.0) r
+        in
+        let n = List.map (RawContent.translate (pagew -. wn) 0.0) n in
+        s @ l @ sym @ r @ n
+      in
+      let combine acc l =
+        (line l) @ (List.map (RawContent.translate 0.0 sep) acc)
+      in
+      let lines = List.fold_left combine [] lines in
+      let (_,y0,_,y1) = bounding_box_full lines in
+      { drawing_min_width     = pagew
+      ; drawing_nominal_width = pagew
+      ; drawing_max_width     = pagew
+      ; drawing_width_fixed   = true
+      ; drawing_adjust_before = false
+      ; drawing_y0            = y0
+      ; drawing_y1            = y1
+      ; drawing_badness       = (fun _ -> 0.0)
+      ; drawing_break_badness = infinity
+      ; drawing_states        = []
+      ; drawing_contents      = (fun _ -> lines) }
+    in
+    [bB (fun env -> [Drawing (dr env)])]
+  in np [C contents]
+
+
+(*
   let contents (name, vars, rule, more) env =
     let width c =
       let (x0,_,x1,_) = bounding_box (Document.draw env c) in x1 -. x0
     in
     let glue w = [bB (fun _ -> [glue w w w])] in 
-    let wsname = List.map (fun (x,_,_,_) -> width x) ls in
-    let wsvars = List.map (fun (_,x,_,_) -> width x) ls in
-    let wsrule = List.map (fun (_,_,x,_) -> width x) ls in
-    let wsmore = List.map (fun (_,_,_,x) -> width x) ls in
+    let wsname = List.map (fun (x,_,_,_) -> width x) lines in
+    let wsvars = List.map (fun (_,x,_,_) -> width x) lines in
+    let wsrule = List.map (fun (_,_,x,_) -> width x) lines in
+    let wsmore = List.map (fun (_,_,_,x) -> width x) lines in
     let maxname = List.fold_left max 0.0 wsname in
     let maxvars = List.fold_left max 0.0 wsvars in
     let maxrule = List.fold_left max 0.0 wsrule in
@@ -142,12 +289,13 @@ let bnfs ls =
   let line i l =
     let hd =
       if i = 0 then linesBefore 2
-      else if i = List.length ls - 1 then linesAfter 2
+      else if i = List.length lines - 1 then linesAfter 2
       else []
     in
     np (hd @ [C (contents l)])
   in
-  List.iteri line ls
+  List.iteri line lines
+  *)
 
 (* Bibliography stuff. *)
 let biblio = Minibib.from_name "biblio"

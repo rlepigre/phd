@@ -25,13 +25,13 @@ is a //universal model of computation// \cite("Turing1937").
 (* The language of λ-terms. *)
 \begin{def}\label("deflambda")
 The terms of the $λ$-calculus (or $λ$-terms) are built from a countable
-alphabet of variables (or $λ$-variables) denoted $\cal{V}_λ=\{x,y,z...\}$.
+alphabet of variables (or $λ$-variables) denoted $\cal{V}_ι=\{x,y,z...\}$.
 The set of all the $λ$-terms is denoted $Λ$ and is defined as the language
 recognised by the following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
   << $t,u ::= x \| \t("λx t") \| \t("t u")$ >>
-  << $x ∈ \cal{V}_λ$ >>
+  << $x ∈ \cal{V}_ι$ >>
 )
 A term of the form $\t("λx t")$ is called an abstraction (or
 $λ$-abstractions) and a term of the form $\t("t u")$ is called an
@@ -66,25 +66,25 @@ reference to a binder, like $x$ in the identity function $\t("λx x")$.
 Variable binding and the associated notions of free and bound variable are
 hence essential.
 \begin{def}\label("freelvars")
-Given a term $t$, we denote by $FV_λ(t)$ the set of its free $λ$-variables
-and $BV_λ(t)$ the set of its bound $λ$-variables. These sets are defined
+Given a term $t$, we denote by $FV_ι(t)$ the set of its free $λ$-variables
+and $BV_ι(t)$ the set of its bound $λ$-variables. These sets are defined
 inductively on the structure of the term $t$.
 \begin{center}
 \linesBefore(4)
 \diagram(
 let contents = two_cols
- [ [ <$ FV_λ(x) $>
+ [ [ <$ FV_ι(x) $>
    ; <$ = $>; <$ \{x\} $> ]
- ; [ <$ FV_λ(\t("λx t")) $>
-   ; <$ = $>; <$ FV_λ(t) \setminus \{x\} $> ]
- ; [ <$ FV_λ(\t("t u")) $>
-   ; <$ = $>; <$ FV_λ(t) ∪ FV_λ(u) $> ]
- ; [ <$ BV_λ(x) $>
+ ; [ <$ FV_ι(\t("λx t")) $>
+   ; <$ = $>; <$ FV_ι(t) \setminus \{x\} $> ]
+ ; [ <$ FV_ι(\t("t u")) $>
+   ; <$ = $>; <$ FV_ι(t) ∪ FV_ι(u) $> ]
+ ; [ <$ BV_ι(x) $>
    ; <$ = $>; <$ ∅ $> ]
- ; [ <$ BV_λ(\t("λx t")) $>
-   ; <$ = $>; <$ BV_λ(t) ∪ \{x\} $> ]
- ; [ <$ BV_λ(\t("t u")) $>
-   ; <$ = $>; <$ BV_λ(t) ∪ BV_λ(u) $> ] ]
+ ; [ <$ BV_ι(\t("λx t")) $>
+   ; <$ = $>; <$ BV_ι(t) ∪ \{x\} $> ]
+ ; [ <$ BV_ι(\t("t u")) $>
+   ; <$ = $>; <$ BV_ι(t) ∪ BV_ι(u) $> ] ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
 )
@@ -94,7 +94,7 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 Nothing prevents a $λ$-variable to have both free and bound occurrences in
 a term. For example, in $t = \t("λx y λy x y")$ the first occurrence of
 $y$ is free while its second occurrence is bound.
-We have $y ∈ FV_λ(t) = \{y\}$ and $y ∈ BV_λ(t) = \{x, y\}$.
+We have $y ∈ FV_ι(t) = \{y\}$ and $y ∈ BV_ι(t) = \{x, y\}$.
 \end{rem}
 
 (* Substitution, α-equivalence and β-reduction. *)
@@ -106,7 +106,7 @@ performed by replacing every occurrence of the bound variable $x$ by $u$ in
 the term $t$. This operation, called substitution, is formally defined as
 follows.
 \begin{def}
-Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
+Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_ι$ be a
 $λ$-variable. We denote $\lterm("t[x ← u]")$ the term $t$ in which every
 free occurrence of $x$ has been replaced by $u$. This operation is defined
 inductively on the structure of $t$.
@@ -140,7 +140,7 @@ the free variable $y$ has been captured and now references a binder that had
 
 To solve this problem, we need to make sure that whenever a substitution
 $\lterm("t[x ← u]")$ is performed, no free variable of $u$ is bound in $t$
-(i.e. $FV_λ(u) ∩ BV_λ(t) = ∅$). Although we cannot rename the free variables
+(i.e. $FV_ι(u) ∩ BV_ι(t) = ∅$). Although we cannot rename the free variables
 of $u$, it is possible to rename the bound variables of $t$. Indeed, changing
 the name of a bound variable has no effect on the computational behaviour of
 a term. Two terms that are equivalent up to the names of their bound
@@ -149,27 +149,27 @@ variables are said to be $α$-equivalent.
 The $α$-equivalence relation $({≡}_α) ⊆ Λ×Λ$ is defined, like in
 \cite("Krivine1990"), as the smallest relation such that:
 \begin{itemize}
-\item if $x ∈ \cal{V}_λ$ then $x ≡_α x$,
+\item if $x ∈ \cal{V}_ι$ then $x ≡_α x$,
 \item if $t₁ ≡_α t₂$ and $u₁ ≡_α u₂$ then
       $\lterm("t₁ u₁") ≡_α \lterm("t₂ u₂")$,
 \item if $\lterm("t₁[x₁ ← y]") \nequiv_α \lterm("t₂[x₂ ← y]")$ for only
-      finitely many $y ∈ \cal{V}_λ$ then
+      finitely many $y ∈ \cal{V}_ι$ then
       $\lterm("λx₁ t₁") ≡_α \lterm("λx₂ t₂")$.
 \end{itemize}
 \end{def}
 \begin{lem}\label("alphalem")
-Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_λ$, it is
+Given a term $t ∈ Λ$ and a finite set of variables $V ⊆ \cal{V}_ι$, it is
 always possible to find a term $t₀ ∈ Λ$ such that $t₀ ≡_α t$ and
-$BV_λ(t₀) ∩ V = ∅$.
+$BV_ι(t₀) ∩ V = ∅$.
 \begin{proof}
 A full proof is available in \id(dcite "Krivine1990" "Lemma 1.11").
 \end{proof}
 \end{lem}
 \begin{def}
-Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_λ$ be a
+Let $t ∈ Λ$ and $u ∈ Λ$ be two $λ$-terms, and $x ∈ \cal{V}_ι$ be a
 $λ$-variable. We denote $\lterm("t[x ≔ u]")$ the capture-avoiding
 substitution of $x$ by $u$ in $t$. It is defined as $\lterm("t₀[x ← u]")$
-where $t₀ ∈ Λ$ is a term such that $t₀ ≡_α t$ and $BV_λ(t₀) ∩ FV(u) = ∅$.
+where $t₀ ∈ Λ$ is a term such that $t₀ ≡_α t$ and $BV_ι(t₀) ∩ FV(u) = ∅$.
 Such a term exists according to \lemma("alphalem").
 \end{def}
 
@@ -189,7 +189,7 @@ by the following ||bnf|| grammar.
 let _ = sidenote
   << $E, F ::= \lctxt("[]") \| \lctxt("λx E") \| \lctxt("E t") \|
      \lctxt("t E")$ >>
-  << $x∈\cal{V}_λ$, $t∈Λ$ >>
+  << $x∈\cal{V}_ι$, $t∈Λ$ >>
 )
 \end{def}
 \begin{def}
@@ -213,11 +213,17 @@ let _ =
 )
 \end{center}
 \end{def}
+\begin{rem}
+Note that free variables of a term $u$ may be captured when forming
+$\lterm("E[u]")$. For example, if we take $u = x$ and
+$E = \lctxt("λx λy []")$ then $x$ is free in $u$, but it does not
+appear free in $\lterm("E[u]") = \lterm("λx λy x")$.
+\end{rem}
 \begin{def}
 Given a set of evaluation context $C ⊆ [Λ]$, we denote $\cal{R}(C) ⊆ Λ×Λ$
 the $β$-reduction relation induced by $C$. It is defined as the smallest
 relation such that for every evaluation context $E ∈ C$, for every terms
-$t ∈ Λ$ and $u ∈ Λ$, and for every variable $x ∈ \cal{V}_λ$ we have the
+$t ∈ Λ$ and $u ∈ Λ$, and for every variable $x ∈ \cal{V}_ι$ we have the
 following.
 $$ (\lterm("E[(λx t) u]"), \lterm("E[t[x ≔ u]]")) ∈ \cal{R}(C) $$
 \end{def}
@@ -245,7 +251,8 @@ Let $t ∈ Λ$ be a term. If there are $u₁ ∈ Λ$ and $u₂ ∈ Λ$ such that
 $t →_β u₁$ and $t →_β u₂$, then there must be $u ∈ Λ$ such that
 ${u₁ →_β u}^{∗}$ and ${u₂ →_β u}^{∗}$.
 \begin{proof}
-A full proof is available in \cite("Church1936").
+A full proof is available in \cite("Church1936") or \cite("Barendregt1981")
+for example.
 \end{proof}
 \end{thm}
 Intuitively, the Church-Rosser property enforces a weak form of determinism.
@@ -258,9 +265,9 @@ restrict ourselves to a deterministic subset of the general $β$-reduction
 relation. If we were to work with a completely non-deterministic reduction
 relation, it would be extremely difficult to reason about our language.
 Programs would not only compute different possible results, but also
-terminate in a non-deterministic way. Moreover, it would be silly to
+terminate in a non-deterministic way. (* Moreover, it would be silly to
 implement a non-deterministic evaluation procedure for a programming
-language.
+language. *)
 
 The choice of the order in which $β$-redexes are reduced is called an
 //evaluation strategy//. The two evaluation strategies that are the most
@@ -302,7 +309,7 @@ following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
   << $v,w ::= x \| \lterm("λx t") $ >>
-  << $x ∈ \cal{V}_λ$ >>
+  << $x ∈ \cal{V}_ι$ >>
 )
 \end{def}
 \begin{def}
@@ -342,7 +349,7 @@ $$ \ternaryR{P₁}{...}{P_n}{C} $$
 The meaning of such a rules is that the conclusion $C$ can be deduced when
 all the premisses $P_i$ are true. In particular, if there is no premise then
 the conclusion can be deduced immediately. Using this formalism, the
-call-by-value reduction corresponds to the smallest relation satisfying the
+call-by-name reduction corresponds to the smallest relation satisfying the
 following two rules.
 $$
   \axiomR{\lterm("(λx t) u") →_N \lterm("t[x ≔ u]")}
@@ -375,7 +382,8 @@ the evaluation of $λ$-terms. We will now reformulate these definition in
 terms of a call-by-value Krivine abstract machine \cite("Krivine2007").
 Our presentation will differ from the original machine, which is
 call-by-name. Although call-by-value Krivine machines have rarely been
-published, they are well-known in the classical realizability community.
+published, they are well-known in the classical realizability and compiler
+communities.
 
 The main idea behind the Krivine abstract machine is to think of a term
 $\t("t₀") ∈ Λ$ as a couple $(\t("t"),\c("E")) ∈ Λ × [V]$ such that
@@ -387,46 +395,34 @@ $\t("E[t]") = \t("F[(λx u) v]")$. The $β$-redex can then be reduced to
 obtain the state $(\t("u[x ≔ v]"), \c("F"))$. This behaviour can be attained
 using the following reduction rules, which are obtained naturally from the
 definition of right-to-left call-by-value evaluation.
-\begin{center}
-\diagram(
-let _ =
-  let line (t1,c1) (t2,c2) n =
-    [ <$(\t(t1), \c(c1))$> ; <$→$>; <$(\t(t2), \c(c2))$>; n ]
-  in
-  array [`East ; `Main ; `West; `West] ~horizontal_padding:(function _ -> 5.0)
-    [ line ("t u"     , "E"      ) ("u"       , "E[t []]")
-      <$rhen \hspace(0.4) u∉Λ_{val}$>
-    ; line ("v"       , "E[t []]") ("t v"     , "E"      )
-      []
-    ; line ("t v"     , "E"      ) ("t"       , "E[[] v]")
-      <$when \hspace(0.4) t∉Λ_{val}$>
-    ; line ("v"       , "E[[] w]") ("v w"     , "E"      )
-      []
-    ; line ("(λx t) v", "E"      ) ("t[x ≔ v]", "E"      )
-      [] ]
+\Caml(
+  let _ =
+    let line (t1, c1) (t2, c2) n =
+      (<<$(\t(t1), \c(c1))$>>, <<$(\t(t2), \c(c2))$>>, n)
+    in
+    reduction_def <<$→$>>
+      [ line ("t u", "E"      ) ("u"  , "E[t []]") <<when $u∉Λ_{val}$>>
+      ; line ("v"  , "E[t []]") ("t v", "E"      ) []
+      ; line ("t v", "E"      ) ("t"  , "E[[] v]") <<when $t∉Λ_{val}$>>
+      ; line ("v"  , "E[[] w]") ("v w", "E"      ) []
+      ; line ("(λx t) v", "E" ) ("t[x ≔ v]", "E" ) [] ]
 )
-\linesAfter(2)
-\end{center}
 The four first rules are responsible for bringing the next $β$-redex
 (according to our reduction strategy) in head position, and the last
 rule performs the $β$-reduction. Note that the first four rules do not
 change the represented term, and only move arguments or functions between
-the term and the evaluation context. Our set of reduction rule can be
+the term and the evaluation context. Our set of reduction rules can be
 simplified to the following, by composing the last two pairs of rules.
-\begin{center}
-\linesBefore(5)
-\diagram(
-let _ =
-  let line (t1,c1) (t2,c2) =
-    [ <$(\t(t1), \c(c1))$> ; <$→$>; <$(\t(t2), \c(c2))$> ]
-  in
-  array [`East ; `Main ; `West] ~horizontal_padding:(function _ -> 5.0)
-    [ line ("t u" , "E"      ) ("u"       , "E[t []]")
-    ; line ("v"   , "E[t []]") ("t"       , "E[[] v]")
-    ; line ("λx t", "E[[] v]") ("t[x ≔ v]", "E"      ) ]
+\Caml(
+  let _ =
+    let line (t1, c1) (t2, c2) =
+      (<<$(\t(t1), \c(c1))$>>, <<$(\t(t2), \c(c2))$>>, [])
+    in
+    reduction_def <<$→$>>
+      [ line ("t u" , "E"      ) ("u"       , "E[t []]")
+      ; line ("v"   , "E[t []]") ("t"       , "E[[] v]")
+      ; line ("λx t", "E[[] v]") ("t[x ≔ v]", "E"      ) ]
 )
-\linesAfter(2)
-\end{center}
 The first rule is used to focus on the argument of an application, to compute
 it first. When the argument has been evaluated to a value, the second rule
 can be used to swap the argument with the unevaluated function. The
@@ -446,43 +442,33 @@ Values, terms, stacks and processes are generated by the following four
 ||bnf|| grammars. The names of the corresponding sets are displayed on
 the left.
 \Caml(
-let _ = bnfs
-  [ ( << $(Λ_{val})$ >>
-    , << $v, w$ >>
-    , << $\v("x") \| \v("λx t")$ >>
-    , << $x∈\cal{V}_λ$ >> )
-  ; ( << $(Λ)$ >>
-    , << $t, u$ >>
-    , << $\t("v") \| \t("t u")$ >>
-    , [] )
-  ; ( << $(Π)$ >>
-    , << $π, ρ$ >>
-    , << $\s("ε") \| \s("v·π") \| \s("[t]π")$ >>
-    , [] )
-  ; ( << $(Λ × Π)$ >>
-    , << $p, q$ >>
-    , << $\p("t ∗ π")$ >>
-    , [] ) ]
+let _ =
+  let line a b c d = (a,b,c,d) in
+  bnfs
+  [ line <<$(Λ_{val})$>> <<$v, w$>>
+         <<$\v("x") \| \v("λx t")$>> <<$x∈\cal{V}_ι$>>
+  ; line <<$(Λ)$>> <<$t, u$>> <<$\t("v") \| \t("t u")$>> []
+  ; line <<$(Π)$>> <<$π, ρ$>> <<$\s("ε") \| \s("v·π") \| \s("[t]π")$>> []
+  ; line <<$(Λ × Π)$>> <<$p, q$>> <<$\p("t ∗ π")$>> [] ]
 )
 \end{def}
 The syntactic distinction between terms and values is specific to the
 call-by-value presentation, they would be collapsed in call-by-name.
 Intuitively, a stack can be thought of as an evaluation context represented
-as a list of terms and values. The values are to be considered as arguments
-to be fed to the term in the context, and the terms are to be considered as
-functions to which the term in the context will be applied. The symbol $ε$
-is used to denote an empty stack. A process $\p("t ∗ π")$ is to be considered
-as the state of our abstract machine. Its reduction will consist in the
-interaction between the term $t$ and its evaluation context encoded into a
-stack $π$.
+as a list of terms and values. The values can be seen as arguments to be fed
+to the term in the context, and the terms can be considered as functions
+to which the term in the context will be applied. The symbol $ε$ is used to
+denote an empty stack. A process $\p("t ∗ π")$ forms the state of our
+abstract machine, and its reduction will consist in the interaction between
+the term $t$ and its evaluation context encoded into the stack $π$.
 
-As we are considering a call-by-value calculus, only values are (and should
-be) substituted to $λ$-variables during evaluation. From now on, we will
-hence work with the following definition of substitution. In particular, a
-substitution of the form $\lterm("t[x ≔ u]")$ will be forbidden if $u$ is not
-a syntactic value.
+Since our calculus is call-by-value, only values are (and should be)
+substituted to $λ$-variables during evaluation. From now on, we will hence
+work with the following definition of substitution. In particular, a
+substitution of the form $\lterm("t[x ≔ u]")$ will be forbidden if $u$ is
+not a syntactic value.
 \begin{def}
-Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_λ$ be a $λ$-variable and $v ∈ Λ_{val}$
+Let $t ∈ Λ$ be a term, $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_{val}$
 be a value. We denote $\t("t[x ≔ v]")$ the capture-avoiding substitution
 of $x$ by $v$ in $t$.
 \end{def}
@@ -563,8 +549,8 @@ way to extend our language is to use the syntax of Michel Parigot's
 capturing the current stack in the $μ$-variable $α$. The stack can then be
 restored in $t$ using the syntax $\t("[α]u")$.
 \begin{def}
-Let $\cal{V}_μ = \{α, β, γ...\}$ be a countable set of $μ$-variables (or
-stack variables) disjoint from $\cal{V}_λ$. Value, terms, stacks and
+Let $\cal{V}_σ = \{α, β, γ...\}$ be a countable set of $μ$-variables (or
+stack variables) disjoint from $\cal{V}_ι$. Value, terms, stacks and
 processes are now generated by the following grammars. The names of the
 corresponding sets are displayed on the left.
 \pagesBefore(1) (* hack *)
@@ -573,7 +559,7 @@ let _ = bnfs
   [ ( << $(Λ_{val})$ >>
     , << $v, w$ >>
     , << $\v("x") \| \v("λx t")$ >>
-    , << $x∈\cal{V}_λ$ >> )
+    , << $x∈\cal{V}_ι$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("v") \| \t("t u") \| \t("μα t") \| \t("[α]t")$ >>
@@ -581,7 +567,7 @@ let _ = bnfs
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
     , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >>
-    , << $α∈\cal{V}_μ$ >> )
+    , << $α∈\cal{V}_σ$ >> )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >>
@@ -594,13 +580,13 @@ $μ$-variables by stacks during computation. Like with $λ$-variable, we will
 need to be careful and avoid variable capture. However, we will not give
 the full details this time.
 \begin{def}
-Given a value, term, stack or process $ψ$, we denote $FV_λ(ψ)$ (resp.
-$BV_λ(ψ)$) the set of its free (resp. bound) $λ$-variables and $FV_μ(ψ)$
-(resp. $BV_μ(ψ)$) the set of its free (resp. bound) $μ$-variables. These
+Given a value, term, stack or process $ψ$, we denote $FV_ι(ψ)$ (resp.
+$BV_ι(ψ)$) the set of its free (resp. bound) $λ$-variables and $FV_σ(ψ)$
+(resp. $BV_σ(ψ)$) the set of its free (resp. bound) $μ$-variables. These
 sets are defined in a similar way to \definition("freelvars").
 \end{def}
 \begin{def}
-Let $t ∈ Λ$ be a term, $π ∈ Π$ be a stack and $α ∈ \cal{V}_μ$ be a
+Let $t ∈ Λ$ be a term, $π ∈ Π$ be a stack and $α ∈ \cal{V}_σ$ be a
 $μ$-variable. We denote $\t("t[α ≔ π]")$ the (capture-avoiding) substitution
 of $α$ by $π$ in $t$.
 \end{def}
@@ -682,8 +668,8 @@ distinction between terms and values is specific to our call-by-value
 presentation, they would be collapsed in call-by-name.
 \begin{def}
 We require three distinct, countable sets of variables:
-$\cal{V}_λ = \{x, y, z...\}$ for $λ$-variables,
-$\cal{V}_μ = \{α, β, γ...\}$ for $μ$-variables and
+$\cal{V}_ι = \{x, y, z...\}$ for $λ$-variables,
+$\cal{V}_σ = \{α, β, γ...\}$ for $μ$-variables and
 $\cal{V}_ι = \{a, b, c...\}$ for term variables.
 We also require a countable set $\cal{L} = \{l, k...\}$ of labels to
 name record fields and a countable set $\cal{C} = \{C, D...\}$ for
@@ -703,7 +689,7 @@ let _ = bnfs
   [ ( << $(Λ_{val})$ >>
     , << $v, w$ >>
     , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{(li = vi) i∈I}")$ >>
-    , << $x∈\cal{V}_λ$ >> )
+    , << $x∈\cal{V}_ι$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
@@ -713,7 +699,7 @@ let _ = bnfs
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
     , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >>
-    , << $α∈\cal{V}_μ$ >> )
+    , << $α∈\cal{V}_σ$ >> )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >>
@@ -771,18 +757,18 @@ $$
 $$
 \end{rem}
 \begin{def}
-Given a value, term, stack or process $ψ$ we denote $FV_λ(ψ)$ (resp.
-$FV_μ(ψ)$, $FV_ι(ψ)$) the set of free $λ$-variables (resp. free
+Given a value, term, stack or process $ψ$ we denote $FV_ι(ψ)$ (resp.
+$FV_σ(ψ)$, $FV_τ(ψ)$) the set of free $λ$-variables (resp. free
 $μ$-variables, term variables) contained in $ψ$. We also denote
-$BV_λ(ψ)$ (resp. $BV_μ(ψ)$) the set of bound $λ$-variables (resp.
+$BV_ι(ψ)$ (resp. $BV_σ(ψ)$) the set of bound $λ$-variables (resp.
 $μ$-variables) contained in $ψ$. We say that $ψ$ is closed if
-$FV_λ(ψ) ∪ FV_μ(ψ) ∪ FV_ι(ψ) = ∅$.
+$FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_ι(ψ) = ∅$.
 \end{def}
 \begin{def}
 Let $ψ$ be a value, term, stack or process. Given a $λ$-variable
-$x ∈ \cal{V}_λ$ and a value $w ∈ Λ_{val}$, we denote $\p("ψ[x ≔ v]")$
+$x ∈ \cal{V}_ι$ and a value $w ∈ Λ_{val}$, we denote $\p("ψ[x ≔ v]")$
 the capture-avoiding substitution of $x$ by $v$ in $ψ$. Given a
-$μ$-variable $α ∈ \cal{V}_μ$ and a stack $π ∈ Π$, we denote
+$μ$-variable $α ∈ \cal{V}_σ$ and a stack $π ∈ Π$, we denote
 $\p("ψ[α ≔ π]")$ the capture-avoiding substitution of $α$ by $π$ in $ψ$.
 Given a term variable $a ∈ \cal{V}_ι$ and a term $t ∈ Λ$, we denote
 $\p("ψ[a ≔ t]")$ the substitution of $a$ by $t$ in $ψ$.
@@ -841,8 +827,8 @@ recursion using a fixpoint operator.
 \begin{lem}\label{redcompatall}
 The reduction relation $({≻})$ is compatible with substitutions of variables
 of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
-then $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$ for all $x∈\cal{V}_λ$ and $v∈Λ_{val}$.
-Similarly, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_μ$ and
+then $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$ for all $x∈\cal{V}_ι$ and $v∈Λ_{val}$.
+Similarly, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_σ$ and
 $π ∈ Π$, and $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$ for all $a ∈ \cal{V}_ι$ and
 $t ∈ Λ$.
 \begin{proof}

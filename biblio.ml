@@ -11,6 +11,12 @@ let biblio =
   ; notes   = "Princeton University Press"
   ; year    = "1941" };
 
+  { key     = "Barendregt1981"
+  ; authors = "Hendrik Pieter Barendregt"
+  ; title   = "The Lambda Calculus - Its Syntax and Semantics"
+  ; notes   = "North-Holland"
+  ; year    = "1981" };
+
   { key     = "Turing1937"
   ; authors = "Alan Turing"
   ; title   = "Computability and Lambda-Definability"
