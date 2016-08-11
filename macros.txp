@@ -74,7 +74,7 @@ let tval : Typography.Maths.math list =
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
 (* Stuff to add side note. *)
-let sidenote lbef laft text note =
+let sidenote text note =
   let environment env = {env with par_indent = []} in
   let pars a b c d e f g h =
     let pars = Patoline_Format.parameters a b c d e f g h in
@@ -113,10 +113,9 @@ let sidenote lbef laft text note =
   in np [C contents]
 
 (* Reduction relation definition. *)
-let reduction_def sym lines =
+let reduction_def ?pad:(pad = 6.0) sym lines =
   let lbef = 2 + (List.length lines) - 1 in (* HACK FIXME *)
   let laft = 2 in
-  let pad = 6.0 in
   let environment env = {env with par_indent = []} in
   let pars a b c d e f g h =
     let pars = Patoline_Format.parameters a b c d e f g h in
@@ -222,7 +221,7 @@ let bnfs lines =
           List.map (RawContent.translate y 0.0) r
         in
         let n = List.map (RawContent.translate (pagew -. wn) 0.0) n in
-        s @ l @ sym @ r @ n
+        s @ l @ (if l = [] then [] else sym) @ r @ n
       in
       let combine acc l =
         (line l) @ (List.map (RawContent.translate 0.0 sep) acc)
