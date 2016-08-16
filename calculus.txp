@@ -693,8 +693,8 @@ will not provide binders ranging over term variables, they will only
 appear free.
 
 \begin{def}
-Value, terms, stacks and processes are mutually inductively defined as the
-languages recognised by the following grammars. The names of the
+Values, terms, stacks and processes are mutually inductively defined as the
+languages recognised by the following ||bnf|| grammars. The names of the
 corresponding sets are displayed on the left.
 \Caml(
 let _ = large_bnfs
@@ -713,44 +713,50 @@ let _ = large_bnfs
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >> ) ]
 )
-(* TODO relecture à partir d'ici. *)
+Note that $I ⊆_{fin} \bbN$ denotes a finite set of indexes. For any such
+set $I$, we will assume that for all $i∈I$ and $j∈I$ such that $i ≠ j$
+we have $C_i ≠ C_j$ and $l_i ≠ l_j$.
 \end{def}
 Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
-enriched with ML-like constructs (i.e. records and variants). A value of
-the form $\v("C[v]")$ corresponds to a variant, which always has exactly
+enriched with ML-like constructs (i.e. records and variants). Values of
+the form $\v("C[v]")$ correspond to variants, which always have exactly
 one argument in our language. Case analysis on variants is performed using
 the syntax $\t("[v | (Ci[xi] → ti) i∈I]")$, in which the pattern
 $\v("Ci[xi]")$ is mapped to the term $t_i$ for all $i$ in $I$. Similarly,
-values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which
-are tuples with named fields. The empty tuple (i.e. the tuple with no
-field) will be denoted $\v("{}")$. A term of the form $\t("Y(t,v)")$
-denotes a fixpoint combinator, which roughly corresponds to OCaml's
-“##let rec##” construct.
-
-The terms of the form $\t("U(v)")$ of
-$\t("δ(v,w)")$ are only included for technical purposes that are going to
-be explained later. They are not intended to be used for programming, and
-are not even included in the implementation.
-
-A stack can be either the empty stack $ε$, a stack variable, a value pushed
-on top of a stack, or a stack frame containing a term on top of a stack.
-These two constructors are specific to the call-by-value presentation, only
-one is required in call-by-name.
+values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which are
+tuples with named fields. The projection operation $\t("v.l")$ can be used
+to access the values stored in a record $v$.
 \begin{rem}
 The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for pattern-matching and the
 syntax $\v("{(l = v) i∈I}")$ for records are part of our meta-language. We
-only use them as shortcuts to designate pattern-matching on arbitrary
-patterns and records with arbitrary fields. In the actual syntax, the full
-list of pattern or the full list of fields always need to be specified. For
-example, we would write $\t("{l₁ = v₁; l₂ = v₂;}")$ or
-$\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ if $I = \{1, 2\}$.
+only use them as shortcuts to designate arbitrary lists of patterns or
+record fields. In the actual syntax, the full list of patterns or fields
+always need to be specified. As an example, we would write
+$\t("{l₁ = v₁; l₂ = v₂;}")$ for a record or
+$\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ for a case analysis if
+$I = \{1, 2\}$.
 \end{rem}
+A term of the form $\t("Y(t,v)")$ denotes a fixpoint combinator, which
+roughly corresponds to OCaml's “##let rec##” construct. The terms of the
+form $\t("U(v)")$ of $\t("δ(v,w)")$ are only included for technical purposes
+and are not intended to be used for programming. The former will allow us to
+distinguish the empty record $\v("{}")$ from $λ$-abstractions in our
+definition of observational equivalence (see \chapter("obsEquiv")), and the
+latter will be used to obtain an essential property of our realizability
+model (see \chapter("semValRest")). (* FIXME obsEquiv *)
+
+A stack can be either the empty stack $ε$, a stack variable, a value pushed
+on top of a stack, or a stack frame containing a term on top of a stack.
+These two constructors are specific to the call-by-value presentation as a
+stack not only needs to store the arguments to functions, but also the
+functions themselves while their arguments are being computed. In
+call-by-name we would only need to store the arguments to functions in the
+stack.
 \begin{rem}
-We enforce values in constructors, record fields, projection and case
-analysis. This makes the calculus simpler because only $β$-reduction will
-manipulate the stack. We can define syntactic sugars such as the following
-to hide the restriction from the programmer.
-(* TODO Natural compilation step. (citation) *)
+We enforce values in constructors, record fields, projections and case
+analysis. This makes the calculus simpler because only $β$-reduction need
+to manipulate the stack. Syntactic sugars such as the following can be
+defined to hide these restrictions.
 \Caml(
 let sugarproj =
   let open Lang_maths in
@@ -766,6 +772,10 @@ $$
   \hspace(4.0)
   \sugarcons ≔ \t("(λx C[x]) t")
 $$
+Note that the elimination of such syntactic sugars corresponds to a form
+of partial ##let##-normalization \cite("Moggi1989") or ##A##-normalization
+\cite("Flanagan1993"). The translation can hence be seen as a natural
+compilation step \mcite(["Tarditi1996"; "Chlipala2005"]).
 \end{rem}
 \begin{def}
 Given a value, term, stack or process $ψ$ we denote $FV_ι(ψ)$ (resp.
@@ -775,6 +785,7 @@ $BV_ι(ψ)$ (resp. $BV_σ(ψ)$) the set of bound $λ$-variables (resp.
 $μ$-variables) contained in $ψ$. We say that $ψ$ is closed if
 $FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_ι(ψ) = ∅$.
 \end{def}
+(* TODO relecture à partir d'ici. *)
 \begin{def}
 Let $ψ$ be a value, term, stack or process. Given a $λ$-variable
 $x ∈ \cal{V}_ι$ and a value $w ∈ Λ_ι$, we denote $\p("ψ[x ≔ v]")$
@@ -796,24 +807,22 @@ processes.
 \begin{def}
 The relation $({≻}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest relation
 satisfying the following reduction rules.
-\begin{center}
-\diagram(
-let _ =
-  let line p1 p2 = [ <$\p(p1)$>; <$≻$>; <$\p(p2)$> ] in
-  array [`East ; `Main ; `West]
-  ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
-  [ line "t u ∗ π"                   "u ∗ [t]π"
-  ; line "v ∗ [t]π"                  "t ∗ v·π"
-  ; line "λx t ∗ v·π"                "t[x ≔ v] ∗ π"
-  ; line "μα t ∗ π"                  "t[α ≔ π] ∗ π"
-  ; line "[ρ]t ∗ π"                  "t ∗ ρ"
-  ; line "{⋯ l = v ⋯}.l ∗ π"         "v ∗ π"
-  ; line "[C[v] | ⋯ C[x] → t ⋯] ∗ π" "t[x≔v] ∗ π"
-  ; line "Y(t,v) ∗ π"                "t ∗ λx Y(t,x)·v·π"
-  ; line "U({}) ∗ π"                 "{} ∗ π" ]
+\Caml(
+  let _ =
+    let line p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, []) in
+    let line' p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $k∈I$>>) in
+    reduction_def <<$≻$>>
+      [ line  "t u ∗ π"                         "u ∗ [t]π"
+      ; line  "v ∗ [t]π"                        "t ∗ v·π"
+      ; line  "λx t ∗ v·π"                      "t[x ≔ v] ∗ π"
+      ; line  "μα t ∗ π"                        "t[α ≔ π] ∗ π"
+      ; line  "[ξ]t ∗ π"                        "t ∗ ξ"
+      ; line' "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
+      ; line' "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
+      ; line  "Y(t,v) ∗ π"                      "t ∗ λx Y(t,x)·v·π"
+      ; line  "U({}) ∗ π"                       "{} ∗ π" ]
+
 )
-\linesAfter(2)
-\end{center}
 We will denote $({≻}^{+})$ its transitive closure, $({≻}^{∗})$ its
 reflexive-transitive closure and $({≻}^k)$ its $k$-fold application.
 \end{def}

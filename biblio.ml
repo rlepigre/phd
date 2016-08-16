@@ -247,6 +247,32 @@ let biblio =
               ++ "pages 549-554"
   ; year    = "1997" };
 
+(* http://www.cs.cmu.edu/~joshuad/papers/letnormal/Dunfield10_letnormal.pdf *)
+  { key     = "Moggi1989"
+  ; authors = "Eugenio Moggi"
+  ; title   = "Computational Lambda-Calculus and Monads"
+  ; notes   = "Proceedings of LICS"
+  ; year    = "1989" };
+
+  { key     = "Flanagan1993"
+  ; authors = "Cormac Flanagan, Amr Sabry, Bruce Duba and Matthias Felleisen"
+  ; title   = "The Essence of Compiling with Continuations"
+  ; notes   = "Proceedings of PLDI"
+  ; year    = "1993" };
+
+  { key     = "Tarditi1996"
+  ; authors = "David Tarditi, Gregory Morrisett, Perry Cheng and "
+              ++ "Christopher Stone, Robert Harper and Peter Lee"
+  ; title   = "TIL: A Type-Directed Optimizing Compiler for ML"
+  ; notes   = "Proceedings of PLDI"
+  ; year    = "1996" };
+
+  { key     = "Chlipala2005"
+  ; authors = "Adam Chlipala, Leaf Petersen and Robert Harper"
+  ; title   = "Strict bidirectional type checking"
+  ; notes   = "Proceedings of TLDI"
+  ; year    = "2005" };
+
   ]
 
 let init () =
