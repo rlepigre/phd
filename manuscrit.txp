@@ -41,6 +41,8 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{Calculus}
 
+\Include{ObsEquiv}
+
 \Include{TypeSystem}
 
 \Include{SemValRest}

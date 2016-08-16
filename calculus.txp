@@ -785,7 +785,7 @@ $BV_ι(ψ)$ (resp. $BV_σ(ψ)$) the set of bound $λ$-variables (resp.
 $μ$-variables) contained in $ψ$. We say that $ψ$ is closed if
 $FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_ι(ψ) = ∅$.
 \end{def}
-(* TODO relecture à partir d'ici. *)
+(* TODO simultaneous substitution. *)
 \begin{def}
 Let $ψ$ be a value, term, stack or process. Given a $λ$-variable
 $x ∈ \cal{V}_ι$ and a value $w ∈ Λ_ι$, we denote $\p("ψ[x ≔ v]")$
@@ -835,36 +835,51 @@ ready to be consumed by the function as soon as it evaluates to a
 $λ$-abstraction. A capture-avoiding substitution can then be performed to
 effectively apply the argument to the function. The fourth and fifth rules
 rules handle the classical part of computation. When a $μ$-abstraction is
-reached, the current stack (i.e. the current evaluation context) is captured
-and substituted for the corresponding $μ$-variable. Conversely, when a
-term of the form $\t("[ρ]t")$, the current stack is thrown away and
-evaluation resumes with the process $\p("t ∗ ρ")$.
-(* *)
+reached, the current stack is captured and substituted for the corresponding
+$μ$-variable. Conversely, when a term of the form $\t("[ξ]t")$, the current
+stack is discarded and evaluation resumes with the process $\p("t ∗ ξ")$.
 In addition to the reduction rules for $β$-reduction and stack manipulation,
 we provide reduction rules for handling record projection, case analysis and
 recursion using a fixpoint operator.
+
+A last rule is also provided for reducing processes of the form
+$\p("U({}) ∗ π")$ to $\p("{} ∗ π")$. Note that for any value $v$ that is not
+$\v("{}")$, no reduction rule apply on the process $\p("U(v) ∗ π")$. We will
+use this fact in \chapter("obsEquiv") to show that the value $\v("{}")$ have
+a different observable computational behaviour to $λ$-abstractions in our
+abstract machine.
+\begin{rem}
+Our reduction relation $({≻})$ does not provide any way of reducing
+processes of the form $\p("δ(v,w) ∗ π")$. It will be extended with a
+reduction rule for such processes in \chapter("semValRest"). However,
+they can be considered as constants for now.
+\end{rem}
 
 \begin{lem}\label{redcompatall}
 The reduction relation $({≻})$ is compatible with substitutions of variables
 of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
 then $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$ for all $x∈\cal{V}_ι$ and $v∈Λ_ι$.
-Similarly, $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_σ$ and
-$π ∈ Π$, and $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$ for all $a ∈ \cal{V}_ι$ and
-$t ∈ Λ$.
+Similarly, we have $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_σ$
+and $π ∈ Π$, and $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$ for all $a ∈ \cal{V}_ι$
+and $t ∈ Λ$.
 \begin{proof}
-Immediate case analysis on the reduction rules.
+Case analysis on the reduction rules, all rules being local.
 \end{proof}
 \end{lem}
 \begin{lem}
-If $σ$ is a substitution for variables of any kind and if $p≻q$ (resp.
-$p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pσ") ≻ \p("qσ")$ (resp.
-$\p("pσ") ≻^{∗} \p("qσ")$, $\p("pσ") ≻^{+} \p("qσ")$,
-$\p("pσ") ≻^k \p("qσ")$).
+If $ρ$ is a substitution for variables of any kind and if $p≻q$ (resp.
+$p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pρ") ≻ \p("qρ")$ (resp.
+$\p("pρ") ≻^{∗} \p("qρ")$, $\p("pρ") ≻^{+} \p("qρ")$,
+$\p("pρ") ≻^k \p("qρ")$).
 \begin{proof}
 Immediate consequence of \lemma("redcompatall") and the definition of the
 relations.
 \end{proof}
 \end{lem}
+
+=<
+
+=> Classification of processes
 
 We are now going to give the vocabulary that will be used to describe some
 specific classes of processes. In particular we need to identify processes
@@ -874,24 +889,26 @@ machine (i.e. a crash).
 \begin{def}
 A process $p ∈ Λ×Π$ is said to be:
 \begin{itemize}
-\item //final// if there is a value $v ∈ Λ_ι$ such that $p = \p("v ∗ ε")$,
-\item //$δ$-like// if there are values $v,w ∈ Λ_ι$ and a stack $π ∈ Π$
-      such that $\p("p") = \p("δ(v,w) ∗ π")$,
+\item //final// if $p = \p("v ∗ ε")$ for some value $v ∈ Λ_ι$,
+\item //$δ$-like// if $\p("p") = \p("δ(v,w) ∗ π")$ for some values
+      $v,w ∈ Λ_ι$ and a stack $π ∈ Π$,
 \item //blocked// if there is no $q ∈ Λ×Π$ such that $p ≻ q$,
-\item //stuck// if it is not final nor $δ$-like and if for every substitution
-      $σ$, $\p("pσ")$ is blocked,
+\item //stuck// if it is not final nor $δ$-like and if $\p("pρ")$ is blocked
+      for every substitution $ρ$,
 \item //non-terminating// if there is no blocked process $q ∈ Λ×Π$ such that
       $p ≻^{∗} q$.
 \end{itemize}
 \end{def}
 \begin{lem}\label("redstable")
-Let $p$ be a process and $σ$ be a substitution for variables of any kind.
+Let $p$ be a process and $ρ$ be a substitution for variables of any kind.
 If $p$ is final (resp. stuck, resp. non-terminating, resp. $δ$-like) then
-$pσ$ is also final (resp. stuck, resp. non-terminating, resp. $δ$-like).
+$\p("pρ")$ is also final (resp. stuck, resp. non-terminating, resp.
+$δ$-like).
 \begin{proof}
 Immediate by definition.
 \end{proof}
 \end{lem}
+(* TODO relecture à partir d'ici. *)
 
 \begin{lem}\label("remark")
 A stuck state can only be of one of the following forms.
@@ -952,363 +969,6 @@ $$
 Straight-forward case analysis using \lemma("remark").
 \end{proof}
 \end{lem}
-
-=<
-
-=> Observational equivalence
-
-In this section, we define a notion of equivalence over terms. The idea is
-that two terms should be considered equivalent if they have the same
-observable computational behaviour in every evaluation context. In this
-thesis, the considered observable behavious is successful termination
-(versus non-termination or runtime error).
-\begin{def}
-Given a reduction relation $R$, we say that a process $p ∈ Λ×Π$ converges,
-and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such that
-$(p,q) ∈ {R^{∗}}$ (where $R^{∗}$ is the reflexive-transitive closure of $R$).
-If $p$ does not converge we say that it diverges and write $p {⇑}_R$. Note
-that we will use the notations $p {⇓}_i$ and $p {⇑}_i$ when working with
-indexed relation symbols such as $({\epi}_i)$.
-\end{def}
-\begin{def}
-The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
-$$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀σ,
-     {{\p("tσ∗π")} {⇓}_{≻}} ⇔ {{\p("uσ∗π")} {⇓}_{≻}}\} $$
-\end{def}
-\begin{lem}
-$({≡}_{≻})$ is an equivalence relation.
-\begin{proof}
-Immediate.
-\end{proof}
-\end{lem}
-
-To be able to work with the equivalence relation $({≡})_{≻}$, we need to
-check that it is extensional. In other words, we need to be able to replace
-equals by equals at any place in terms without changing their observed
-behaviour. This property is summarized in the following two theorems.
-\begin{thm}\label("sextval")
-Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
-$x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
-$\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
-\begin{proof}
-We are going to prove the contrapositive so we suppose
-$\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
-By definition, there is a stack $π$ and a substitution $σ$ such that we
-have ${\p("(t[x≔v₁])σ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])σ ∗ π")} {⇑}_{≻}$
-(up to symmetry). As $x$ is bound we can rename it so that
-$\t("(t[x≔v₁])σ") = \t("tσ[x≔v₁σ]")$ and
-$\t("(t[x≔v₂])σ") = \t("tσ[x≔v₂σ]")$. To finish the proof, we need to find
-a stack $π₀$ and a substitution $σ₀$ such that ${\p("v₁σ₀ ∗ π₀")} {⇓}_{≻}$
-and ${\p("v₂σ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
-$π₀ = \s("[λx tσ]π")$ and $σ₀ = σ$ since by definition we know that
-${\p("v₁σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₁σ] ∗ π")} {⇓}_{≻}$ and
-${\p("v₂σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₂σ] ∗ π")} {⇑}_{≻}$.
-\end{proof}
-\end{thm}
-\begin{lem}\label("sexttermaux")
-Let $p ∈ Λ×Π$ be a process, $a ∈ \cal{V}_τ$ be a term variable and $t$ be
-a term such that ${\p("p[a≔t]")} {⇓}_{≻}$. Either there is a value
-$v ∈ Λ_ι$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈ Π$
-such that $p ≻^{∗} \p("a ∗ π")$.
-\begin{proof}
-There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
-the case $p$ would be non-termination, and hence $\p("p[a≔t]")$ would also
-be non-termination according to \lemRef("redstable"). This would hence
-contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
-$\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
-\lemRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We then
-proceed by case analysis according to \lemRef("possibilities"). If $q$ is
-not of the form $\p("v ∗ ε")$ or $\p("a ∗ π")$ then $\p("q[a≔t]")$ cannot
-be reduced, which contradicts ${\p("q[a≔t]")} {⇓}_{≻}$.
-\end{proof}
-\end{lem}
-\begin{thm}\label("sextterm")
-Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
-term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-
-\begin{proof}
-Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-We take a stack $π$, a substitution $σ$ and we show
-${{\p("(t[a≔u₁])σ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])σ ∗ π")} {⇓}_{≻}}$. As we
-are free to rename $a$ we may assume $\t("(t[a≔u₁])σ") = \t("tσ[a≔u₁σ]")$,
-$\t("(t[a≔u₂])σ") = \t("tσ[a≔u₂σ]")$ and $a ∉ FV(π)$. Consequently our goal
-is now ${{\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}}$.
-By symmetry we can suppose that ${\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}$ and show
-${\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
-process $\p("tσ ∗ π")$. According to \lemRef("sexttermaux") there are two
-possibilities.
-\begin{itemize}
-\item If $\p("tσ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
-  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \lemRef("redcompatall").
-  This rewrites to $\p("tσ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
-  $a ∉ FV(π)$, and hence we obtain ${\p("tσ[a≔u₂] ∗ π")} {⇓}_{≻}$.
-\item If $\p("tσ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
-  $\p("(tσ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
-  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
-  \lemRef("redcompatall"). As a consequence, it is enough to show
-  ${{\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}} ⇒ {{\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}}$.
-  We assume ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
-  ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
-  stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
-  $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
-  that the sequence has to be finite, otherwise the reduction of
-  $\p("(a ∗ π₀)[a≔u₁]")$ would be infinite and this would contradict
-  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$. To define $π_{i+1}$ we consider
-  $\p("u₁ ∗ πi")$. By transitivity
-  $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
-  and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
-  \lemRef("sexttermaux") there are two possibilities for the reduction of
-  $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
-  $v$ and the sequence ends with $n = i$, or
-  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ρ")$ for some stack $ρ$ and we define
-  $π_{i+1} = ρ$.
-  
-  To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
-  $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
-  which is the expected result. For $i = n$ we know that
-  $\p("u₁ ∗ πn") ≻^{∗} {\p("v ∗ ε")} {⇓}_{≻}$, and hence
-  ${\p("u₂ ∗ πn")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
-  that ${\p("(a ∗ πn)[a≔u₂]")} = {\p("(u₂ ∗ πn)[a≔u₂]")} {⇓}_{≻}$ by
-  \lemRef("redstable"). Let us now suppose that we have
-  ${\p("(a ∗ πi+1)[a≔u₂]")} = {\p("u₂ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$ for some
-  $i<n$ and show that
-  ${\p("(a ∗ πi)[a≔u₂]")} = {\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$. Since we know
-  $u₁ ≡_{≻} u₂$ we can deduce that ${\p("u₁ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$.
-  Moreover, since $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ πi+1")$ we may use
-  \lemRef("redcompatall") to obtain
-  $\p("u₁ ∗ πi[a≔u₂]") = \p("(u₁ ∗ πi)[a≔u₂]") ≻^{∗} \p("(a ∗ πi+1)[a≔u₂]")
-  = \p("u₂ ∗ πi+1[a≔u₂]")$. As a consequence, we have
-  ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
-  ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
-\end{itemize}
-\end{proof}
-\end{thm}
-
-It is not enough for our equivalence relation to be extentional. As we want
-to identify programs with the same computational behaviour, we expect
-equivalence to be preserved by evaluation.
-
-\begin{lem}\label("redequiv")
-Let $t$ and $u$ be two terms. If for all $π ∈Π$ there is a process
-$p ∈ {Λ × Π}$ such that $\p("t ∗ π") ≻^{∗} p$ and $\p("u ∗ π") ≻^{∗} p$ then
-$t ≡_{≻} u$.
-\begin{proof}
-Let us take a stack $π₀$ and a substitution $σ₀$. By hypothesis, there is a
-process $p₀$ such that $\p("t ∗ π₀") ≻^{∗} p₀$ and $\p("u ∗ π₀") ≻^{∗} p₀$.
-Using \lemRef("redcompatall") we obtain $\p("tσ₀ ∗ π₀") ≻^{∗} p₀σ₀$ and
-$\p("uσ₀ ∗ π₀") ≻^{∗} p₀$. Consequently,
-${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$ and
-${{\p("uσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$. We hence have
-${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("uσ₀ ∗ π₀")} {⇓}_{≻}}$, which gives us
-$t ≡_{≻} u$.
-\end{proof}
-\end{lem}
-\begin{cor}\label("redtosame")
-Let $t$ and $u$ be terms. If for all $π$ we have
-$\p("t ∗ π") ≻ \p("u ∗ π")$ then $t ≡_{≻} u$.
-\begin{proof}
-Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
-\end{proof}
-\end{cor}
-
-\begin{thm}\label("cbvbeta")
-For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
-$\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
-\begin{proof}
-Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p("t[x≔v]∗π")$
-for all $π$ we can apply \corRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $I$ be a finite set of index with $k ∈ I$. If $v_i ∈ Λ_ι$ and
-$l_i ∈ \cal{L}$ for all $i ∈ I$ then
-$\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
-\begin{proof}
-Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
-can use \corRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $I$ be a finite set of index with $k ∈ I$. If $v ∈ Λ_ι$ and if
-$x_i ∈ \cal{V}_ι$, $C_i ∈ \cal{C}$ and $\t("ti") ∈ Λ$ for all $i ∈ I$
-then $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
-\begin{proof}
-Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ for
-every stack $π$ we can use \corRef("redtosame").
-\end{proof}
-\end{thm}
-
-\begin{thm}\label("consnequiv")
-Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_ι$
-and $w ∈ Λ_ι$ be two values. If $C ≠ D$ then
-$\v("C[v]") \nequiv_{≻} \v("D[w]")$.
-\begin{proof}
-If we take $π = \s("[λx [x | C[y] → y]]ε")$ and $σ = ∅$ then we have
-${\p("(C[v])σ ∗ π")} {⇓}_{≻}$ since
-$\p("(C[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ C[v] · ε") ≻
-\p("[C[v] | C[y] → y] ∗ ε") ≻ \p("v ∗ ε")$. Moreover, we have
-${\p("(D[w])σ ∗ π")} {⇑}_{≻}$ since
-$\p("(D[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
-\p("[D[w] | C[y] → y] ∗ ε")$ and $\p("[D[w] | C[y] → y] ∗ ε")$ is stuck.
-\end{proof}
-\end{thm}
-\begin{thm}\label("injconst")
-Let $C ∈ \cal{C}$ be a constructors and $v ∈ Λ_ι$ and $w ∈ Λ_ι$ be
-two values. We have $\v("C[v]") ≡_{≻} \v("C[w]")$ if and only if $v ≡_{≻} w$.
-\begin{proof}
-Let us first show that if $\v("C[v]") ≡_{≻} \v("C[w]")$ then $v ≡_{≻} w$. We
-are going to show the contrapositive so we assume $v \nequiv_{≻} w$ and we
-show $\v("C[v]") \nequiv_{≻} \v("C[w]")$. By definition, there is a stack
-$π ∈ Π$ and a substitution $σ$ such that ${\p("vσ∗π")} {⇓}_{≻}$ and
-${\p("wσ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀ ∈ Π$ and $σ$
-such that ${\p("(C[v])σ₀∗π₀")} {⇓}_{≻}$ and ${\p("(C[w])σ₀∗π₀")} {⇑}_{≻}$.
-We can take $σ₀ = σ$ and $π₀ = \s("[λx [x|C[y]→y]]π")$ as we have
-$$
-  \p("(C[v])σ₀∗π₀") ≻ \p("λx [x|C[y]→y] ∗ C[vσ₀]·π")
-                    ≻ \p("[C[vσ₀]|C[y]→y] ∗ π")
-                    ≻ {\p("vσ₀ ∗ π")} {⇓}_{≻}
-$$
-and similarly $\p("(C[w])σ₀∗π₀") ≻^{∗} {\p("wσ₀ ∗ π")} {⇑}_{≻}$.
-
-Let us now show that if $v ≡_{≻} w$ then $\v("C[v]") ≡_{≻} \v("C[w]")$.
-We are again going to show the contrapositive so we assume
-$\v("C[v]") \nequiv_{≻} \v("C[w]")$ and we show $v \nequiv_{≻} w$. By
-definition, there is a stack $π ∈ Π$ and a substitution $σ$ such that
-${\p("C[vσ]∗π")} {⇓}_{≻}$ and ${\p("C[wσ]∗π")} {⇑}_{≻}$ (up to symmetry).
-We need to find $π₀ ∈ Π$ and $σ$ such that ${\p("vσ₀∗π₀")} {⇓}_{≻}$ and
-${\p("wσ₀∗π₀")} {⇑}_{≻}$. We can take $σ₀ = σ$ and $π₀ = \s("[λx C[x]]π")$
-as we have
-$\p("vσ₀∗π₀") ≻ \p("λx C[w] ∗ vσ₀·π") ≻ {\p("C[vσ₀] ∗ π")} {⇓}_{≻}$
-and similarly $\p("wσ₀∗π₀") ≻^{∗} {\p("C[wσ₀] ∗ π")} {⇑}_{≻}$.
-\end{proof}
-\end{thm}
-
-\begin{lem}\label("equivcounterex")
-Let $t$ and $u$ be two terms. If there is a stack $π ∈Π$ and a substitution
-$σ$ such that ${\p("tσ ∗ π")} {⇓}_{≻}p$ and ${\p("uσ ∗ π")} {⇑}_{≻}p$ then
-$t \nequiv_{≻} u$.
-\begin{proof}
-Immediate by definition.
-\end{proof}
-\end{lem}
-\begin{cor}\label("stackcounterex")
-Let $t$ and $u$ be two terms. If there is a stack $π ∈Π$ such that
-${\p("t ∗ π")} {⇓}_{≻}p$ and ${\p("u ∗ π")} {⇑}_{≻}p$ then
-$t \nequiv_{≻} u$.
-\begin{proof}
-Immediate consequence of \lemRef("equivcounterex") using an empty
-substitution.
-\end{proof}
-\end{cor}
-
-\begin{thm}\label("nequivlamcons")
-If $x ∈ \cal{V}_ι$ is a $λ$-variable, $t ∈ Λ$ is a term, $C ∈ \cal{C}$ is
-a constructor and $v ∈ Λ_ι$ is a value, then we have
-$\t("λx t") \nequiv_{≻} \t("C[v]")$.
-\begin{proof}
-We can apply \corRef("stackcounterex") using the stack
-$π = \s("[λy [y|C[z]→{}]]ε")$. Indeed, using $π$ we have
-$\p("λx t ∗ π") ≻ \p("λy [y|C[z]→z] ∗ λx t · ε") ≻
-{\p("[λx t|C[z]→z] ∗ ε")} {⇑}_{≻}$ (which is stuck), and 
-$\p("C[v] ∗ π") ≻ \p("λy [y|C[z]→z] ∗ C[v] · ε") ≻
-\p("[C[v]|C[z]→z] ∗ ε") ≻ {\p("v ∗ ε")} {⇓}_{≻}$.
-\end{proof}
-\end{thm}
-\begin{thm}\label("nequiv")
-If $x ∈ \cal{V}_ι$ is a $λ$-variable, $t ∈ Λ$ is a term, $I$ is a finite
-set of index such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
-$v_i ∈ Λ_ι$, then we have $\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
-\begin{proof}
-If $I = ∅$ then we can apply \corRef("stackcounterex") using the stack
-$π = \s("[λx U(x)]ε")$. Otherwise, we have $k ∈ I$, and we proceed
-similarly with the stack $π = \s("[λx x.lk]ε")$ if $k ∈ I$.
-\end{proof}
-\end{thm}
-\begin{thm}\label("consneqrec")
-If $C ∈ \cal{C}$ is a constructor, $v ∈ Λ_ι$ is a value and $I$ is a
-finite set of index such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
-$v_i ∈ Λ_ι$, then we have $\t("C[v]") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
-\begin{proof}
-As for \thmRef("nequivlamcons") we can apply \corRef("stackcounterex") with
-$π = \s("[λy [y|C[z]→{}]]ε")$.
-\end{proof}
-\end{thm}
-
-\begin{thm}\label("subsneq")
-Let $t∈Λ$ and $u∈Λ$ be two terms. If there is a substitution $ρ$ such that
-$\t("tρ") \nequiv_{≻} \t("uρ")$ then $\t("t") \nequiv_{≻} \t("u")$.
-\begin{proof}
-By definition we have a stack $π₀∈Π$ and a substitution $ρ₀$ such that
-${\p("(tρ)ρ₀ ∗ π")} {⇓}_{≻}$ and ${\p("(uρ)ρ₀ ∗ π")} {⇑}_{≻}$ (up to
-symmetry). We can hence show $\t("t") \nequiv_{≻} \t("u")$ using the stack
-$π₀$ and the substitution $ρ₀ \circ ρ$.
-\end{proof}
-\end{thm}
-\begin{cor}
-Let $t∈Λ$ and $u∈Λ$ be two terms. If $\t("t") ≡_{≻} \t("u")$ then for every
-substitution $ρ$ we have $\t("tρ") ≡_{≻} \t("uρ")$.
-\begin{proof}
-Immediate consequence of {\thmRef("subsneq")} (contrapositive).
-\end{proof}
-\end{cor}
-\begin{thm}\label("varequiv")
-Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The
-equivalence $x ≡_{≻} v$ holds if and only if $v = x$.
-\begin{proof}
-If $v = x$ then we obviously have $v ≡_{≻} x$ by reflexivity. We will now
-show that for every other possible value $v$ we have $x \nequiv_{≻} v$.
-In each case we only need to find a substitution $ρ$ such that
-$\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
-\thmRef("subsneq").
-\begin{itemize}
-\item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
-      then we consider the substitution $ρ = \subs("[x≔C[{}]][y≔D[{}]]")$
-      where $C∈\cal{C}$ and $D∈\cal{C}$ are two distinct constructors. We have
-      $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("D[{}]") = \t("yσ")$ according
-      to \thmRef("subsneq").
-\item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
-      $v = \v("λy t")$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
-      We have $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
-      \thmRef("nequiv").
-\item If there is constructor $C ∈ \cal{C}$ and a value $w ∈ Λ_ι$ such
-      that $v = \v("C[w]")$ then we consider the substitution
-      $ρ=\subs("[x≔{}]")$. We have
-      $\t("xρ") = \t("{}") \nequiv_{≻} \t("C[vρ]")$ according to
-      \thmRef("consneqrec").
-\item If there is a set of index $I$ and for all $i∈I$ a label
-      $l_i ∈ \cal{L}$ and a value $v_i ∈ Λ_ι$ such that
-      $v = \v("{(li = vi) i∈I}")$ then we consider the substitution
-      $ρ=\subs("[x≔C[{}]]")$ where $C∈\cal{C}$ is a constructor.
-      We have $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("{(li = viρ) i∈I}")$
-      according to \thmRef("consneqrec").
-\end{itemize}
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $C ∈ \cal{C}$ be a constructor and $v ∈ Λ_ι$ and $w₀ ∈ Λ_ι$ be
-two values. The equivalence $\v("C[v]") ≡_{≻} w₀$ holds if and only if
-$w₀ = \v("C[w]")$ for some $w ∈ Λ_ι$ such that $w ≡_{≻} v$.
-\begin{proof}
-If it is the case that $w₀ = \v("C[w]")$ and $w ≡_{≻} v$ then we indeed
-have $\v("C[v]") ≡_{≻} w₀$ according to \thmRef("injconst"). This theorem
-also tells us that if $w₀ = \v("C[w]")$ and $w \nequiv_{≻} v$ then we
-$\v("C[v]") \nequiv_{≻} w₀$. Now if $w₀ = \v("D[w]")$ for some constructor
-$D∈\cal{C}$ such that $C ≠ D$ then we have $\v("C[v]") \nequiv_{≻} w₀$ by
-\thmRef("consnequiv"). All the remaining cases can be handled immediatly
-using \thmRef("varequiv"), \thmRef("nequivlamcons") and \thmRef("consneqrec")
-respectively.
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $I$ be a finite set of index such that $l_i ∈ \cal{L}$ and
-$v_i ∈ Λ_ι$ for all $i∈I$, and let $w₀ ∈ Λ_ι$ be a value.
-The equivalence $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ holds if and only if
-we have $w₀ = \v("{(li = wi) i∈I}")$ for some values $wi ∈ Λ_ι$
-such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
-\begin{proof}
-... (* TODO *)
-\end{proof}
-\end{thm}
 
 =<
 
