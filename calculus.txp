@@ -512,6 +512,14 @@ let _ =
 \end{center}
 
 \begin{rem}
+It is possible to prove that the abstract machine and its $({≻})$ reduction
+relation indeed implement the $({→}_v)$ evaluation on $λ$-terms. Although it
+is not included here, this result has been formalized by the author using
+the //Coq// proof assistant \cite("CoqTeam2004"). The proof sketch is
+distributed with this document (see the file ##correction##.##v##).
+\end{rem}
+
+\begin{rem}
 A left-to-right call-by-value machine could be defined in a similar way, but
 the roles of terms and values would be swapped in stacks. Stack frames would
 contain values, terms would be pushed on stacks, and the reduction relation
@@ -528,8 +536,6 @@ would be as follows.
 )
 \end{rem}
 
-(* TODO Proof of correction. *)
-
 The state of our abstract machine contains two parts: a term being evaluated
 (i.e. the term in head position) and its evaluation context (i.e. the stack).
 As a consequence, it is possible to define reduction rules that manipulate
@@ -540,16 +546,24 @@ reduction rules produce computational effects.
 
 => Computational effects and \lmcalc
 
-(* TODO More intro on effects. *)
+In the programming languages community, computational effects (a.k.a.
+side-effect) refer to modifications made by a program to its environment
+as a byproduct of the computation of its result. For example, a program
+may generate computational effects by writing to a tape, or by modifying
+the value of a global memory cell. In our calculus, the environment of a
+program (i.e. a term) only consists in an evaluation context encoded as
+a stack. Computational effects can hence be produced if a program is able
+to modify the stack as a whole during its evaluation in the abstract
+machine.
 
-We are now going to extend the calculus and our abstract machine with
+We are now going to extend our calculus and our abstract machine with
 operations allowing the manipulation of the stack. More precisely, we
-will provide a way to save the stack (i.e. the evaluation context or the
-continuation), so that it can be restored at a later stage. A natural
-way to extend our language is to use the syntax of Michel Parigot's
-\lmcalc \cite("Parigot1992"). We hence introduce a new binder $\t("μα t")$
-capturing the current stack in the $μ$-variable $α$. The stack can then be
-restored in $t$ using the syntax $\t("[α]u")$.
+will provide a way to save the stack (i.e. the evaluation context), so
+that it can be restored at a later stage. A natural way to extend our
+language is to use the syntax of Michel Parigot's \lmcalc
+\cite("Parigot1992"). We hence introduce a new binder $\t("μα t")$
+capturing the current stack in the $μ$-variable $α$. The stack can then
+be restored in $t$ using the syntax $\t("[α]u")$.
 \begin{def}
 Let $\cal{V}_σ = \{α, β, γ...\}$ be a countable set of $μ$-variables (or
 stack variables) disjoint from $\cal{V}_ι$. Value, terms, stacks and
@@ -654,7 +668,7 @@ will be closer to being a practical programming language.
 
 In this section, we present the syntax and the reduction relation of the
 abstract machine that will be considered throughout this thesis. Although
-the following extends definitions given in the previous secitons, we
+the following extends definitions given in the previous sections, we
 choose not to avoid repetitions so that this section remains completely
 self-contained.
 
@@ -678,49 +692,42 @@ respectively form functions and capture continuations. As our calculus
 will not provide binders ranging over term variables, they will only
 appear free.
 
-(* TODO relecture à partir d'ici. *)
 \begin{def}
 Value, terms, stacks and processes are mutually inductively defined as the
 languages recognised by the following grammars. The names of the
 corresponding sets are displayed on the left.
 \Caml(
-let _ = bnfs
+let _ = large_bnfs
   [ ( << $(Λ_ι)$ >>
     , << $v, w$ >>
-    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{(li = vi) i∈I}")$ >>
-    , << $x∈\cal{V}_ι$ >> )
+    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{(li = vi) i∈I}")$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
-         \| \t("v.l") $ >>
-    , << $a∈\cal{V}_τ, α∈\cal{V}_σ$ >> )
-  ; ( []
-    , []
-    , << $ \id([]) \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
-         \| \t("U(v)") \| \t("δ(v,w)") $ >>
-    , << $∀i∈I, x_i∈\cal{V}_ι$ >> )
+         \| \t("v.l") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
+         \| \t("U(v)") \| \t("δ(v,w)") $ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
-    , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >>
-    , << $α∈\cal{V}_σ$ >> )
+    , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >> )
   ; ( << $(Λ × Π)$ >>
     , << $p, q$ >>
-    , << $\p("t ∗ π")$ >>
-    , [] ) ]
+    , << $\p("t ∗ π")$ >> ) ]
 )
+(* TODO relecture à partir d'ici. *)
 \end{def}
 Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
 enriched with ML-like constructs (i.e. records and variants). A value of
-the form $\v("C[v]")$ corresponds to a constructor, which always has
-exactly one argument in our language. Pattern-matching on constructors is
-done using a syntax of the form $\t("[v | (Ci[xi] → ti) i∈I]")$, which
-includes a finite list of patterns associating $\v("Ci[xi]")$ to the term
-$t_i$ for all $i$ in $I$.
-Similarly, values of the form $\v("{(li = vi) i∈I}")$ correspond to records,
-which are tuples with named fields. The empty tuple (i.e. the tuple with
-no field) will be denoted $\v("{}")$. A term of the form $\t("Y(t,v)")$
+the form $\v("C[v]")$ corresponds to a variant, which always has exactly
+one argument in our language. Case analysis on variants is performed using
+the syntax $\t("[v | (Ci[xi] → ti) i∈I]")$, in which the pattern
+$\v("Ci[xi]")$ is mapped to the term $t_i$ for all $i$ in $I$. Similarly,
+values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which
+are tuples with named fields. The empty tuple (i.e. the tuple with no
+field) will be denoted $\v("{}")$. A term of the form $\t("Y(t,v)")$
 denotes a fixpoint combinator, which roughly corresponds to OCaml's
-“##let rec##” construct. The terms of the form $\t("U(v)")$ of
+“##let rec##” construct.
+
+The terms of the form $\t("U(v)")$ of
 $\t("δ(v,w)")$ are only included for technical purposes that are going to
 be explained later. They are not intended to be used for programming, and
 are not even included in the implementation.
@@ -743,6 +750,7 @@ We enforce values in constructors, record fields, projection and case
 analysis. This makes the calculus simpler because only $β$-reduction will
 manipulate the stack. We can define syntactic sugars such as the following
 to hide the restriction from the programmer.
+(* TODO Natural compilation step. (citation) *)
 \Caml(
 let sugarproj =
   let open Lang_maths in
