@@ -6,17 +6,21 @@ open Lang
 )
 \Include{Macros}
 
-=> A notion of program equivalence \label("obsEquiv")
+=> A notion of observational equivalence \label("obsEquiv")
 
-In this chapter, ...
+In this chapter, we consider a notion of program equivalence. The idea
+is that two programs should be considered equivalent if they have the
+same observable computational behaviour. A partial axiomatization of
+the equivalence relation is provided to allow for the implementation
+of a (partial) decision procedure.
 
-=> Observational equivalence
+=> Definitions of equivalence
 
-In this section, we define a notion of equivalence over terms. The idea is
-that two terms should be considered equivalent if they have the same
-observable computational behaviour in every evaluation context. In this
-thesis, the considered observable behavious is successful termination
-(versus non-termination or runtime error).
+We will now consider a notion of equivalence over terms. Two terms will
+be considered equivalent if they have the same computational behaviour
+in every evaluations context (i.e. against every stack). In this thesis,
+the considered observable behavious is successful termination (versus
+non-termination or runtime error).
 \begin{def}
 Given a reduction relation $R$, we say that a process $p ∈ Λ×Π$ converges,
 and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such that
@@ -25,10 +29,11 @@ If $p$ does not converge we say that it diverges and write $p {⇑}_R$. Note
 that we will use the notations $p {⇓}_i$ and $p {⇑}_i$ when working with
 indexed relation symbols such as $({\epi}_i)$.
 \end{def}
+
 \begin{def}
 The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
-$$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀σ,
-     {{\p("tσ∗π")} {⇓}_{≻}} ⇔ {{\p("uσ∗π")} {⇓}_{≻}}\} $$
+$$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
+     {{\p("tρ∗π")} {⇓}_{≻}} ⇔ {{\p("uρ∗π")} {⇓}_{≻}}\} $$
 \end{def}
 \begin{lem}
 $({≡}_{≻})$ is an equivalence relation.
@@ -36,6 +41,26 @@ $({≡}_{≻})$ is an equivalence relation.
 Immediate.
 \end{proof}
 \end{lem}
+
+We will now provide a second (to be proved equivalent) definition of
+$({≡}_{≻})$. We will then use both definitions interchangably depending
+on which is most convenient.
+\begin{def}
+The relation $({\iso}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
+$$ ({\iso}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
+     {{\p("(t∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("(u∗π)ρ")} {⇓}_{≻}}\} $$
+\end{def}
+\begin{thm}
+For every terms $t$, $u ∈ Λ$ we have $t ≡_{≻} u$ if and only if
+$t \iso_{≻} u$.
+\begin{proof}
+... (* TODO *)
+\end{proof}
+\end{thm}
+
+=<
+
+=> Extentionality
 
 To be able to work with the equivalence relation $({≡})_{≻}$, we need to
 check that it is extensional. In other words, we need to be able to replace
@@ -142,6 +167,10 @@ possibilities.
 It is not enough for our equivalence relation to be extentional. As we want
 to identify programs with the same computational behaviour, we expect
 equivalence to be preserved by evaluation.
+
+=<
+
+=> Equivalence after evaluation
 
 \begin{lem}\label("redequiv")
 Let $t$ and $u$ be two terms. If for all $π ∈Π$ there is a process
