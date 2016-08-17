@@ -743,7 +743,7 @@ and are not intended to be used for programming. The former will allow us to
 distinguish the empty record $\v("{}")$ from $λ$-abstractions in our
 definition of observational equivalence (see \chapter("obsEquiv")), and the
 latter will be used to obtain an essential property of our realizability
-model (see \chapter("semValRest")). (* FIXME obsEquiv *)
+model (see \chapter("semValRest")).
 
 A stack can be either the empty stack $ε$, a stack variable, a value pushed
 on top of a stack, or a stack frame containing a term on top of a stack.
@@ -781,20 +781,37 @@ compilation step \mcite(["Tarditi1996"; "Chlipala2005"]).
 Given a value, term, stack or process $ψ$ we denote $FV_ι(ψ)$ (resp.
 $FV_σ(ψ)$, $FV_τ(ψ)$) the set of free $λ$-variables (resp. free
 $μ$-variables, term variables) contained in $ψ$. We also denote
-$BV_ι(ψ)$ (resp. $BV_σ(ψ)$) the set of bound $λ$-variables (resp.
-$μ$-variables) contained in $ψ$. We say that $ψ$ is closed if
-$FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_ι(ψ) = ∅$.
+$FV(ψ) = FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_τ(ψ)$ the set of all the free variables
+of $ψ$. We say that $ψ$ is closed if $FV(ψ) = ∅$.
 \end{def}
-(* TODO simultaneous substitution. *)
+
 \begin{def}
-Let $ψ$ be a value, term, stack or process. Given a $λ$-variable
-$x ∈ \cal{V}_ι$ and a value $w ∈ Λ_ι$, we denote $\p("ψ[x ≔ v]")$
-the capture-avoiding substitution of $x$ by $v$ in $ψ$. Given a
-$μ$-variable $α ∈ \cal{V}_σ$ and a stack $π ∈ Π$, we denote
-$\p("ψ[α ≔ π]")$ the capture-avoiding substitution of $α$ by $π$ in $ψ$.
-Given a term variable $a ∈ \cal{V}_ι$ and a term $t ∈ Λ$, we denote
-$\p("ψ[a ≔ t]")$ the substitution of $a$ by $t$ in $ψ$.
+A //substitution// is a map $ρ$ such that for all $x ∈ \cal{V}_ι$ we have
+$ρ(x) ∈ Λ_ι$, for all $α ∈ \cal{V}_σ$ we have $ρ(α) ∈ Π$ and for all
+$a ∈ \cal{V}_τ$ we have $ρ(a) ∈ Λ$. For $ρ$ to be a substitution, we also
+require that $ρ(χ) ≠ χ$ for only finitely many $χ ∈ \cal{V}_ι ∪ \cal{V}_σ
+∪ \cal{V}_τ$. We denote $dom(ρ) = \{χ \| ρ(χ) ≠ χ\}$ the domain of the
+substitution $ρ$, and $\cal{S}$ the set of all the substitutions. In
+particular, the substitution $ρ_{id} ∈ \cal{S}$ is called the //identity//
+substitution and is defined as $ρ_{id}(χ) = χ$ for all $χ ∈ \cal{V}_ι ∪
+\cal{V}_σ ∪ \cal{V}_τ$.
 \end{def}
+\begin{def}
+For every $ρ ∈ \cal{S}$ we denote $\subs("ρ[x≔v]")$ the substitution formed
+by remaping $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
+${\subs("ρ[x≔v]")}(x) = v$ and ${\subs("ρ[x≔v]")}(χ) = ρ(χ)$ if $χ ≠ x$.
+Similarly, we denote $\subs("ρ[α≔π]")$ the substitution formed by remaping
+$α ∈ \cal{V}_σ$ to $π ∈ Π$ in $ρ$ and $\subs("ρ[a≔t]")$ the substitution
+formed by remaping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
+$ρ = ρ_{id}$ we will write $\subs("[x≔v]")$, $\subs("[α≔π]")$ and
+$\subs("[a≔t]")$.
+\end{def}
+\begin{def}
+Let $ρ ∈ \cal{S}$ be a substitution and $ψ$ be a value, term, stack or
+process. We denote $\p("ψρ")$ the value, term, stack of process formed
+by simultaneously substituting (without capture) every variables
+$χ ∈ FV(ψ)$ with $ρ(χ)$ in $ψ$.
+\end{def} (* FIXME precise def ? *)
 
 Processes form the internal state of our abstract machine. They are to be
 thought of as a term put in some evaluation context represented using a
@@ -850,30 +867,18 @@ a different observable computational behaviour to $λ$-abstractions in our
 abstract machine.
 \begin{rem}
 Our reduction relation $({≻})$ does not provide any way of reducing
-processes of the form $\p("δ(v,w) ∗ π")$. It will be extended with a
-reduction rule for such processes in \chapter("semValRest"). However,
-they can be considered as constants for now.
+processes of the form $\p("δ(v,w) ∗ π")$. We will give a reduction rule for
+such processes in \chapter("semValRest"). However, they can be considered
+as constants for now.
 \end{rem}
 
 \begin{lem}\label{redcompatall}
-The reduction relation $({≻})$ is compatible with substitutions of variables
-of any kind. More formally, if $p$ and $q$ are processes such that $p ≻ q$
-then $\p("p[x ≔ v]") ≻ \p("q[x ≔ v]")$ for all $x∈\cal{V}_ι$ and $v∈Λ_ι$.
-Similarly, we have $\p("p[α ≔ π]") ≻ \p("q[α ≔ π]")$ for all $α ∈ \cal{V}_σ$
-and $π ∈ Π$, and $\p("p[a ≔ t]") ≻ \p("q[a ≔ t]")$ for all $a ∈ \cal{V}_ι$
-and $t ∈ Λ$.
-\begin{proof}
-Case analysis on the reduction rules, all rules being local.
-\end{proof}
-\end{lem}
-\begin{lem}
-If $ρ$ is a substitution for variables of any kind and if $p≻q$ (resp.
-$p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pρ") ≻ \p("qρ")$ (resp.
-$\p("pρ") ≻^{∗} \p("qρ")$, $\p("pρ") ≻^{+} \p("qρ")$,
+Let $ρ ∈ \cal{S}$ be a substitution and $p$, $q ∈ Λ×Π$ be two processes. If
+$p≻q$ (resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pρ") ≻ \p("qρ")$
+(resp. $\p("pρ") ≻^{∗} \p("qρ")$, $\p("pρ") ≻^{+} \p("qρ")$,
 $\p("pρ") ≻^k \p("qρ")$).
 \begin{proof}
-Immediate consequence of \lemma("redcompatall") and the definition of the
-relations.
+Case analysis on the reduction rules, all rules being local.
 \end{proof}
 \end{lem}
 
@@ -911,36 +916,28 @@ Immediate by definition.
 (* TODO relecture à partir d'ici. *)
 
 \begin{lem}\label("remark")
-A stuck state can only be of one of the following forms.
-$$
-\p("C[v].l ∗ π")
-\hspace(2.0)
-\p("(λx t).l ∗ π")
-\hspace(2.0)
-\p("C[v] ∗ w·π")
-\hspace(2.0)
-\p("{(li = vi) i∈I} ∗ v·π")
-$$
-$$
-\p("[λx t | (Ci[xi] → ti) i∈I] ∗ π")
-\hspace(4.0)
-\p("[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π")
-$$
-$$
-\p("[D[v] | (Ci[xi] → ti) i∈I] ∗ π") \hspace(2.0) with {D ≠ C_i} for all i∈I
-$$
-$$
-\p("{(li = vi) i∈I}.k ∗ π")      \hspace(2.0) with {k ≠ l_i} for all i∈I
-$$
-$$
-\p("U(λx t) ∗ π")
-\hspace(2.0)
-\p("U(C[v]) ∗ π")
-\hspace(2.0)
-\p("U({(li = vi) i∈I≠∅}) ∗ π")
-\hspace(2.0)
-\p("[x |] ∗ π")
-$$
+Stuck states can only be of the following forms, where $k ≠ l_i$
+and $D ≠ C_i$ for every index $i ∈ I$.
+\Caml(
+  let _ =
+    let line = List.map (fun pr -> <<$\p(pr)$>>) in
+    let line2 p1 p2       = line [p1; p2] in
+    let line3 p1 p2 p3    = line [p1; p2; p3] in
+    let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
+    tabular_layout 0.8 2.0
+    [ line4 "C[v].l ∗ π"
+            "(λx t).l ∗ π"
+            "C[v] ∗ w·π"
+            "{(li = vi) i∈I} ∗ v·π"
+    ; line2 "[λx t | (Ci[xi] → ti) i∈I] ∗ π"
+            "[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π"
+    ; line2 "[D[v] | (Ci[xi] → ti) i∈I] ∗ π"
+            "{(li = vi) i∈I}.k ∗ π"
+    ; line4 "U(λx t) ∗ π"
+            "U(C[v]) ∗ π"
+            "U({(li = vi) i∈I≠∅}) ∗ π"
+            "[x |] ∗ π" ]
+)
 \begin{proof}
   Simple case analysis.
 \end{proof}
@@ -949,22 +946,21 @@ $$
 \begin{lem}\label("possibilities")
 A blocked process $p ∈ Λ×Π$ is either stuck, final, $δ$-like, or of one of
 the following forms.
-$$
-\p("x.l ∗ π")
-\hspace(2.0)
-\p("x ∗ v·π")
-\hspace(2.0)
-\p("[x | (Ci[xi] → ti) i∈I≠∅] ∗ π")
-$$
-$$
-\p("a ∗ π")
-\hspace(2.0)
-\p("U(x) ∗ π")
-\hspace(2.0)
-\p("v ∗ α")
-\hspace(2.0)
-\p("v ∗ ε")
-$$
+\Caml(
+  let _ =
+    let line = List.map (fun pr -> <<$\p(pr)$>>) in
+    let line2 p1 p2       = line [p1; p2] in
+    let line3 p1 p2 p3    = line [p1; p2; p3] in
+    let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
+    tabular_layout 0.6 2.0
+    [ line3 "x.l ∗ π"
+            "x ∗ v·π"
+            "[x | (Ci[xi] → ti) i∈I≠∅] ∗ π"
+    ; line4 "a ∗ π"
+            "U(x) ∗ π"
+            "v ∗ α"
+            "v ∗ ε" ]
+)
 \begin{proof}
 Straight-forward case analysis using \lemma("remark").
 \end{proof}

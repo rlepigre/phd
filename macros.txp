@@ -310,60 +310,6 @@ let large_bnfs lines =
   in np [C contents]
 
 
-
-
-(*
-  let contents (name, vars, rule, more) env =
-    let width c =
-      let (x0,_,x1,_) = bounding_box (Document.draw env c) in x1 -. x0
-    in
-    let glue w = [bB (fun _ -> [glue w w w])] in 
-    let wsname = List.map (fun (x,_,_,_) -> width x) lines in
-    let wsvars = List.map (fun (_,x,_,_) -> width x) lines in
-    let wsrule = List.map (fun (_,_,x,_) -> width x) lines in
-    let wsmore = List.map (fun (_,_,_,x) -> width x) lines in
-    let maxname = List.fold_left max 0.0 wsname in
-    let maxvars = List.fold_left max 0.0 wsvars in
-    let maxrule = List.fold_left max 0.0 wsrule in
-    let maxmore = List.fold_left max 0.0 wsmore in
-    let pad_sep = 2.0 in
-    let sep = << $::=$ >> in
-    let full_sep = (glue pad_sep) @ sep @ (glue pad_sep) in
-
-    let wsep = width sep in
-    let wname = width name in
-    let wvars = width vars in
-    let wrule = width rule in
-    let wmore = width more in
-
-    let pagew = env.normalMeasure in
-
-    let name = name @ (glue (maxname -. wname)) in
-    let vars = (glue (maxvars -. wvars)) @ vars in
-    let rule = rule @ (glue (maxrule -. wrule)) in
-    let more = (glue (maxmore -. wmore)) @ more in
-
-    let padl =
-      (pagew -. maxvars -. maxrule -. 2.0 *. wsep) /. 2.0 -. maxname
-    in
-    let padr =
-      pagew -. maxname -. padl -. maxvars -. maxrule -. 2.0 *. wsep
-      -. maxmore
-    in
-
-    name @ (glue padl) @ vars @ full_sep @ rule @ (glue padr) @ more
-  in
-  let line i l =
-    let hd =
-      if i = 0 then linesBefore 2
-      else if i = List.length lines - 1 then linesAfter 2
-      else []
-    in
-    np (hd @ [C (contents l)])
-  in
-  List.iteri line lines
-  *)
-
 (* Bibliography stuff. *)
 let biblio = Minibib.from_name "biblio"
 
@@ -590,4 +536,66 @@ let dr rs env =
   let (x0,y0,x1,y1) = RawContent.bounding_box all in
   let all = List.map (RawContent.translate (-.x0) (-.y0)) all in
   drawing all
+
+let tabular_layout ratio vsep lines =
+  let lbef = 2 + (List.length lines) - 1 in (* HACK FIXME *)
+  let laft = 2 in
+  let environment env = {env with par_indent = []} in
+  let pars a b c d e f g h =
+    let pars = Patoline_Format.parameters a b c d e f g h in
+    {pars with min_lines_before = lbef ; min_lines_after = laft}
+  in
+  let np = newPar D.structure ~environment Complete.normal pars in
+  let contents env =
+    let dr env =
+      let pagew = env.normalMeasure in
+      let pad = ((1.0 -. ratio) *. env.normalMeasure) /. 2.0 in
+      let sep = env.normalLead +. vsep in
+      let size_box rs =
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        (x2 -. x1, y2 -. y1)
+      in
+      let fn e =
+        let rs = Document.draw env e in
+        let (w,_) = size_box rs in
+        (w, rs)
+      in
+      let lines = List.map (List.map fn) lines in
+      let line cs =
+        let totw = List.fold_left (fun acc (w,_) -> acc +. w) 0.0 cs in
+        let pagew = ratio *. pagew in
+        let sepw = (pagew -. totw) /. (float_of_int (List.length cs - 1)) in
+        match cs with
+        | []         -> assert false
+        | (wa,a)::cs ->
+            let acc = List.map (RawContent.translate pad 0.0) a in
+            let curw = pad +. wa in
+            let fn (acc, curw) (w,rs) =
+              let x = curw +. sepw in
+              let rs = List.map (RawContent.translate x 0.0) rs in
+              (acc @ rs, curw +. sepw +. w)
+            in
+            fst (List.fold_left fn (acc, curw) cs)
+      in
+      let combine acc l =
+        (line l) @ (List.map (RawContent.translate 0.0 sep) acc)
+      in
+      let lines = List.fold_left combine [] lines in
+      let (_,y0,_,y1) = bounding_box_full lines in
+      { drawing_min_width     = pagew
+      ; drawing_nominal_width = pagew
+      ; drawing_max_width     = pagew
+      ; drawing_width_fixed   = true
+      ; drawing_adjust_before = false
+      ; drawing_y0            = y0
+      ; drawing_y1            = y1
+      ; drawing_badness       = (fun _ -> 0.0)
+      ; drawing_break_badness = infinity
+      ; drawing_states        = []
+      ; drawing_contents      = (fun _ -> lines) }
+    in
+    [bB (fun env -> [Drawing (dr env)])]
+  in np [C contents]
+
+
 )
