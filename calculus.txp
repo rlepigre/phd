@@ -387,7 +387,7 @@ communities.
 The main idea behind the Krivine abstract machine is to think of a term
 $\t("t₀") ∈ Λ$ as a couple $(\t("t"),\c("E")) ∈ Λ × [V]$ such that
 $\t("t₀") = \t("E[t]")$ (the term $\t("t")$ is said to be in head position).
-Using this reprensentation, $β$-reduction proceeds in two steps. First, the
+Using this representation, $β$-reduction proceeds in two steps. First, the
 machine state $(\t("t"), \c("E"))$ is transformed into a state of the form
 $(\t("(λx u) v"), \c("F"))$, in such a way that
 $\t("E[t]") = \t("F[(λx u) v]")$. The $β$-redex can then be reduced to
@@ -798,11 +798,11 @@ substitution and is defined as $ρ_{id}(χ) = χ$ for all $χ ∈ \cal{V}_ι ∪
 \end{def}
 \begin{def}
 For every $ρ ∈ \cal{S}$ we denote $\subs("ρ[x≔v]")$ the substitution formed
-by remaping $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
+by remapping $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
 ${\subs("ρ[x≔v]")}(x) = v$ and ${\subs("ρ[x≔v]")}(χ) = ρ(χ)$ if $χ ≠ x$.
-Similarly, we denote $\subs("ρ[α≔π]")$ the substitution formed by remaping
+Similarly, we denote $\subs("ρ[α≔π]")$ the substitution formed by remapping
 $α ∈ \cal{V}_σ$ to $π ∈ Π$ in $ρ$ and $\subs("ρ[a≔t]")$ the substitution
-formed by remaping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
+formed by remapping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
 $ρ = ρ_{id}$ we will write $\subs("[x≔v]")$, $\subs("[α≔π]")$ and
 $\subs("[a≔t]")$.
 \end{def}
@@ -812,6 +812,7 @@ process. We denote $\p("ψρ")$ the value, term, stack of process formed
 by simultaneously substituting (without capture) every variables
 $χ ∈ FV(ψ)$ with $ρ(χ)$ in $ψ$.
 \end{def} (* FIXME precise def ? *)
+(* TODO def of ∘ on substitutions. *)
 
 Processes form the internal state of our abstract machine. They are to be
 thought of as a term put in some evaluation context represented using a
@@ -905,19 +906,32 @@ A process $p ∈ Λ×Π$ is said to be:
 \end{itemize}
 \end{def}
 \begin{lem}\label("redstable")
-Let $p$ be a process and $ρ$ be a substitution for variables of any kind.
-If $p$ is final (resp. stuck, resp. non-terminating, resp. $δ$-like) then
-$\p("pρ")$ is also final (resp. stuck, resp. non-terminating, resp.
-$δ$-like).
+Let $p ∈ Λ×Π$ be a process and $ρ ∈ \cal{S}$ be a substitution. If $p$ is
+final (resp. $δ$-like, stuck, non-terminating), then so is $\p("pρ")$.
 \begin{proof}
-Immediate by definition.
+If $p$ is final then $p = \p("v ∗ ε")$ for some $v ∈ Λ_ι$. Since
+$\p("(v∗ε)ρ") = \p("vρ∗ερ") = \p("vρ∗ε")$ the process $\p("pρ")$
+is also final. If $p$ is $δ$-like then $p = \p("δ(v,w) ∗ π")$ for
+some $v$, $w ∈ Λ_ι$ and $π ∈ Π$. Since
+$\p("(δ(v,w) ∗ π)ρ") = \p("(δ(v,w))ρ ∗ πρ") = \p("δ(vρ,wρ) ∗ πρ")$
+the process $\p("pρ")$ is also $δ$-like. If $p$ is stuck, then we
+suppose that there is a substitution $ρ₀ ∈ \cal{S}$ such that
+$\p("(pρ)ρ₀")$ is not blocked. This contradicts the fact that $p$
+is stuck since $\p("p(ρ∘ρ₀)") = \p("(pρ)ρ₀")$ is not blocked, and
+hence the process $\p("pρ")$ is stuck. Finally, if $p$ is
+non-terminating then we consider a process $q₀ ∈ Λ×Π$ such that
+$p ≻^{∗} q₀$. By definition, $q₀$ cannot be blocked otherwise $p$
+would not be non-terminating, hence there is a process $q₁ ∈ Λ×Π$
+such that $q₀ ≻ q₁$. By \lemRef("redcompatall") we know
+$\p("pρ") ≻^{∗} \p("q₀ρ")$ and $\p("q₀ρ") ≻ \p("q₁ρ")$.
+Consequently, $\p("q₀ρ")$ is not blocked and $\p("pρ")$ is
+non-terminating.
 \end{proof}
 \end{lem}
-(* TODO relecture à partir d'ici. *)
 
 \begin{lem}\label("remark")
-Stuck states can only be of the following forms, where $k ≠ l_i$
-and $D ≠ C_i$ for every index $i ∈ I$.
+A process is stuck if and only if it is of one of the following forms,
+where $k ≠ l_i$ and $D ≠ C_i$ for every index $i ∈ I$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
@@ -939,7 +953,13 @@ and $D ≠ C_i$ for every index $i ∈ I$.
             "[x |] ∗ π" ]
 )
 \begin{proof}
-  Simple case analysis.
+Using a simple case analysis we first rule out the nine forms of processes
+that immediately reduce using $({≻})$. As stuck processes are neither final
+nor $δ$-like, we can again rule out two forms of processes. We are now left
+with eighteen forms of processes, among which six are not stuck (see the
+proof of \lemRef("possibilities")). It is easy to see that the twelve
+remaining forms of processes are stuck. Indeed, given their structure no
+reduction rule will ever apply to them, even after a substitution.
 \end{proof}
 \end{lem}
 
@@ -949,20 +969,41 @@ the following forms.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
-    let line2 p1 p2       = line [p1; p2] in
     let line3 p1 p2 p3    = line [p1; p2; p3] in
-    let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
     tabular_layout 0.6 2.0
     [ line3 "x.l ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I≠∅] ∗ π"
-    ; line4 "a ∗ π"
-            "U(x) ∗ π"
-            "v ∗ α"
-            "v ∗ ε" ]
+    ; line3 "U(x) ∗ π"
+            "a ∗ π"
+            "v ∗ α" ]
 )
 \begin{proof}
-Straight-forward case analysis using \lemma("remark").
+As for \lemma("remark"), we can rule out the nine forms of processes that
+immediately reduce using $({≻})$, final processes and $δ$-like processes.
+After ruling out the twelve forms of stuck processes of \lemma("remark")
+we are left with six forms of processes. It remains to show that they are
+not stuck by exhibiting substitution $ρ∈\cal{S}$ that unlock their
+reduction.
+(* *)
+For a process of the form $\p("x.l ∗ π")$ we take
+$ρ = \subs("[x ≔ {l = {}}]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
+(* *)
+For a process of the form $\p("x ∗ v·π")$ we take
+$ρ = \subs("[x ≔ λy y]")$ as $\p("λy y ∗ vρ·πρ") ≻ \p("vρ ∗ πρ")$.
+(* *)
+For a process of the form $\p("[x | (Ci[xi] → ti) i∈I] ∗ π")$ with $I ≠ ∅$
+we take $ρ = \subs("[x ≔ Ck[{}]]")$ such that $k ∈ I$ as we have
+$\p("[Ck[{}] | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("(tiρ)[xi ≔ {}] ∗ πρ")$.
+(* *)
+For a process of the form $\p("U(x) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
+as $\p("U({}) ∗ πρ") ≻ \p("{} ∗ πρ")$.
+(* *)
+For a process of the form $\p("a ∗ π")$ we can simply take
+$ρ = \subs("[a ≔ {l = {}}.l]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
+(* *)
+Finally, for a process having the form $\p("v ∗ α")$ we take
+$ρ = \subs("[α ≔ [λx x]ε]")$ as $\p("vρ ∗ [λx x]ε") ≻ \p("λx x ∗ vρ·ε")$.
 \end{proof}
 \end{lem}
 

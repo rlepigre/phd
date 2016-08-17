@@ -120,6 +120,7 @@ and  subs2m : subs -> Maths.math list =
     (str "[") @ (subst2bin b (vari2m x, elt2m e)) @ (str "]")
   in
   function
+  | SubCm(s1,s2) -> (str "(") @ (bin' 2 "∘" (subs2m s1, subs2m s2)) @ (str ")")
   | SubsV(s,e)   -> (subs2m s) @ aux v2m e
   | SubsT(s,e)   -> (subs2m s) @ aux t2m e
   | SubsS(s,e)   -> (subs2m s) @ aux s2m e

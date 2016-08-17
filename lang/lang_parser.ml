@@ -151,11 +151,12 @@ and ffield = l:label ':' a:(form FFull)
 and fpatt  = c:const ':' a:(form FFull)
 and equa   = t:(term TAppl)$ "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
 and        subs =
-  | s:subsm                                                     -> SubsM(s)
-  | s:subs?[NoSub] '[' v:(vsub vvari  (valu VComp)) ']'         -> SubsV(s,v)
-  | s:subs?[NoSub] '[' t:(vsub tvari  (term TAppl)) ']'         -> SubsT(s,t)
-  | s:subs?[NoSub] '[' p:(vsub svari  (stac SFull)) ']'         -> SubsS(s,p)
-  | s:subs?[NoSub] '[' f:(vsub fovari (form FFull)) ']'         -> SubsF(s,f)
+  | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)
+  | s:subsm                                             -> SubsM(s)
+  | s:subs?[NoSub] '[' v:(vsub vvari  (valu VComp)) ']' -> SubsV(s,v)
+  | s:subs?[NoSub] '[' t:(vsub tvari  (term TAppl)) ']' -> SubsT(s,t)
+  | s:subs?[NoSub] '[' p:(vsub svari  (stac SFull)) ']' -> SubsS(s,p)
+  | s:subs?[NoSub] '[' f:(vsub fovari (form FFull)) ']' -> SubsF(s,f)
 
 let term = term TAppl
 let ctxt = ctxt TAppl

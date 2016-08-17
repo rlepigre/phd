@@ -59,12 +59,13 @@ and  ctxt =
   | CAppL of ctxt * term               (* E t    *)
   | CAppR of term * ctxt               (* t E    *)
 and  subs =
-  | SubsV of subs * valu vsub          (* σ[x≔v] *)
-  | SubsT of subs * term vsub          (* σ[a≔t] *)
-  | SubsS of subs * stac vsub          (* σ[α≔π] *)
-  | SubsF of subs * form vsub          (* σ[X≔A] *)
-  | SubsM of vari                      (* σ, ρ   *)
-  | NoSub                              (* ∅      *)
+  | SubCm of subs * subs               (* (ρ₁.ρ₂) *)
+  | SubsV of subs * valu vsub          (* σ[x≔v]  *)
+  | SubsT of subs * term vsub          (* σ[a≔t]  *)
+  | SubsS of subs * stac vsub          (* σ[α≔π]  *)
+  | SubsF of subs * form vsub          (* σ[X≔A]  *)
+  | SubsM of vari                      (* σ, ρ    *)
+  | NoSub                              (* ∅       *)
 and patt = vari * vari * term
 and form =
   | FTerm of term                      (* t       *)
