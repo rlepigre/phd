@@ -983,8 +983,7 @@ As for \lemma("remark"), we can rule out the nine forms of processes that
 immediately reduce using $({≻})$, final processes and $δ$-like processes.
 After ruling out the twelve forms of stuck processes of \lemma("remark")
 we are left with six forms of processes. It remains to show that they are
-not stuck by exhibiting substitution $ρ∈\cal{S}$ that unlock their
-reduction.
+not stuck by finding substitution $ρ∈\cal{S}$ unlocking their reduction.
 (* *)
 For a process of the form $\p("x.l ∗ π")$ we take
 $ρ = \subs("[x ≔ {l = {}}]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
@@ -1002,7 +1001,7 @@ as $\p("U({}) ∗ πρ") ≻ \p("{} ∗ πρ")$.
 For a process of the form $\p("a ∗ π")$ we can simply take
 $ρ = \subs("[a ≔ {l = {}}.l]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
-Finally, for a process having the form $\p("v ∗ α")$ we take
+For a process of the form $\p("v ∗ α")$ we can take
 $ρ = \subs("[α ≔ [λx x]ε]")$ as $\p("vρ ∗ [λx x]ε") ≻ \p("λx x ∗ vρ·ε")$.
 \end{proof}
 \end{lem}

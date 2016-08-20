@@ -6,32 +6,39 @@ open Lang
 )
 \Include{Macros}
 
-=> A notion of observational equivalence \label("obsEquiv")
+=> Observational equivalence of programs \label("obsEquiv")
 
-In this chapter, we consider a notion of program equivalence. The idea
-is that two programs should be considered equivalent if they have the
-same observable computational behaviour. A partial axiomatization of
-the equivalence relation is provided to allow for the implementation
-of a (partial) decision procedure.
+In this chapter, we define a notion of equivalence over programs. We
+will see two programs as equivalent if they have the same observable
+behaviour in terms of computation. A partial axiomatization of the
+corresponding equivalence relation is provided to allow for the
+implementation of a pseudo-decision procedure.
 
 => Definitions of equivalence
 
-We will now consider a notion of equivalence over terms. Two terms will
-be considered equivalent if they have the same computational behaviour
-in every evaluations context (i.e. against every stack). In this thesis,
-the considered observable behavious is successful termination (versus
+We will now consider a notion of //observational equivalence// over
+terms. More precisely, we will say that two terms are equivalent if
+they have the same computational behaviour in every evaluations
+context. Using the formalism of our abstract machine, it is very
+easy to quantify over every evaluation contexts. Indeed, this only
+amounts to quantifying over every stacks. In this thesis, the
+considered observable behaviour is successful termination (versus
 non-termination or runtime error).
 \begin{def}
-Given a reduction relation $R$, we say that a process $p ∈ Λ×Π$ converges,
+Let $R ⊆ (Λ×Π)×(Λ×Π)$ be a reduction relation which reflexive-transitive
+closure is denoted $R^{∗}$. We say that a process $p ∈ Λ×Π$ converges,
 and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such that
-$(p,q) ∈ {R^{∗}}$ (where $R^{∗}$ is the reflexive-transitive closure of $R$).
-If $p$ does not converge we say that it diverges and write $p {⇑}_R$. Note
-that we will use the notations $p {⇓}_i$ and $p {⇑}_i$ when working with
-indexed relation symbols such as $({\epi}_i)$.
+$(p,q) ∈ {R^{∗}}$. If $p$ does not converge we say that it diverges and
+we write $p {⇑}_R$. Note that we will write $p {⇓}_i$ and $p {⇑}_i$ when
+working with indexed relation symbols such as $({\epi}_i)$.
 \end{def}
 
+The idea now is to relate terms that form converging processes when put
+against exactly the same stacks. However, with such a definition, free
+variables cannot be distinguished. To solve this problem, we not only
+quantify over stacks, but also over substitutions.
 \begin{def}
-The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
+The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is defined as follows.
 $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
      {{\p("tρ∗π")} {⇓}_{≻}} ⇔ {{\p("uρ∗π")} {⇓}_{≻}}\} $$
 \end{def}
@@ -43,10 +50,13 @@ Immediate.
 \end{lem}
 
 We will now provide a second (to be proved equivalent) definition of
-$({≡}_{≻})$. We will then use both definitions interchangably depending
-on which is most convenient.
+$({≡}_{≻})$. We will then use whichever definition is most convenient
+depending on our need. Our two definitions are very similar, the only
+difference is that the substitution is only applied to the terms in
+the first one, and it is applied to the whole processes in the second
+one.
 \begin{def}
-The relation $({\iso}_{≻}) ⊆ {Λ×Λ}$ is define as follows.
+The relation $({\iso}_{≻}) ⊆ {Λ×Λ}$ is defined as follows.
 $$ ({\iso}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
      {{\p("(t∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("(u∗π)ρ")} {⇓}_{≻}}\} $$
 \end{def}
@@ -57,6 +67,7 @@ $t \iso_{≻} u$.
 ... (* TODO *)
 \end{proof}
 \end{thm}
+(* TODO from here *)
 
 =<
 
@@ -73,16 +84,16 @@ $\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
 \begin{proof}
 We are going to prove the contrapositive so we suppose
 $\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
-By definition, there is a stack $π$ and a substitution $σ$ such that we
-have ${\p("(t[x≔v₁])σ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])σ ∗ π")} {⇑}_{≻}$
+By definition, there is a stack $π$ and a substitution $ρ$ such that we
+have ${\p("(t[x≔v₁])ρ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])ρ ∗ π")} {⇑}_{≻}$
 (up to symmetry). As $x$ is bound we can rename it so that
-$\t("(t[x≔v₁])σ") = \t("tσ[x≔v₁σ]")$ and
-$\t("(t[x≔v₂])σ") = \t("tσ[x≔v₂σ]")$. To finish the proof, we need to find
-a stack $π₀$ and a substitution $σ₀$ such that ${\p("v₁σ₀ ∗ π₀")} {⇓}_{≻}$
-and ${\p("v₂σ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
-$π₀ = \s("[λx tσ]π")$ and $σ₀ = σ$ since by definition we know that
-${\p("v₁σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₁σ] ∗ π")} {⇓}_{≻}$ and
-${\p("v₂σ ∗ [λx tσ]π")} ≻^2 {\p("tσ[x≔v₂σ] ∗ π")} {⇑}_{≻}$.
+$\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$ and
+$\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$. To finish the proof, we need to find
+a stack $π₀$ and a substitution $ρ₀$ such that ${\p("v₁ρ₀ ∗ π₀")} {⇓}_{≻}$
+and ${\p("v₂ρ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
+$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ since by definition we know that
+${\p("v₁ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₁ρ] ∗ π")} {⇓}_{≻}$ and
+${\p("v₂ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₂ρ] ∗ π")} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 \begin{lem}\label("sexttermaux")
@@ -108,23 +119,23 @@ term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[
 
 \begin{proof}
 Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-We take a stack $π$, a substitution $σ$ and we show
-${{\p("(t[a≔u₁])σ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])σ ∗ π")} {⇓}_{≻}}$. As we
-are free to rename $a$ we may assume $\t("(t[a≔u₁])σ") = \t("tσ[a≔u₁σ]")$,
-$\t("(t[a≔u₂])σ") = \t("tσ[a≔u₂σ]")$ and $a ∉ FV(π)$. Consequently our goal
-is now ${{\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}}$.
-By symmetry we can suppose that ${\p("tσ[a≔u₁σ] ∗ π")} {⇓}_{≻}$ and show
-${\p("tσ[a≔u₂σ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
-process $\p("tσ ∗ π")$. According to \lemRef("sexttermaux") there are two
+We take a stack $π$, a substitution $ρ$ and we show
+${{\p("(t[a≔u₁])ρ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])ρ ∗ π")} {⇓}_{≻}}$. As we
+are free to rename $a$ we may assume $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
+$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a ∉ FV(π)$. Consequently our goal
+is now ${{\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}}$.
+By symmetry we can suppose that ${\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}$ and show
+${\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
+process $\p("tρ ∗ π")$. According to \lemRef("sexttermaux") there are two
 possibilities.
 \begin{itemize}
-\item If $\p("tσ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
-  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \lemRef("redcompatall").
-  This rewrites to $\p("tσ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
-  $a ∉ FV(π)$, and hence we obtain ${\p("tσ[a≔u₂] ∗ π")} {⇓}_{≻}$.
-\item If $\p("tσ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
-  $\p("(tσ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
-  $\p("(tσ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
+\item If $\p("tρ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
+  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \lemRef("redcompatall").
+  This rewrites to $\p("tρ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
+  $a ∉ FV(π)$, and hence we obtain ${\p("tρ[a≔u₂] ∗ π")} {⇓}_{≻}$.
+\item If $\p("tρ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
+  $\p("(tρ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
+  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
   \lemRef("redcompatall"). As a consequence, it is enough to show
   ${{\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}} ⇒ {{\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}}$.
   We assume ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
@@ -177,13 +188,13 @@ Let $t$ and $u$ be two terms. If for all $π ∈Π$ there is a process
 $p ∈ {Λ × Π}$ such that $\p("t ∗ π") ≻^{∗} p$ and $\p("u ∗ π") ≻^{∗} p$ then
 $t ≡_{≻} u$.
 \begin{proof}
-Let us take a stack $π₀$ and a substitution $σ₀$. By hypothesis, there is a
+Let us take a stack $π₀$ and a substitution $ρ₀$. By hypothesis, there is a
 process $p₀$ such that $\p("t ∗ π₀") ≻^{∗} p₀$ and $\p("u ∗ π₀") ≻^{∗} p₀$.
-Using \lemRef("redcompatall") we obtain $\p("tσ₀ ∗ π₀") ≻^{∗} p₀σ₀$ and
-$\p("uσ₀ ∗ π₀") ≻^{∗} p₀$. Consequently,
-${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$ and
-${{\p("uσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pσ₀")} {⇓}_{≻}}$. We hence have
-${{\p("tσ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("uσ₀ ∗ π₀")} {⇓}_{≻}}$, which gives us
+Using \lemRef("redcompatall") we obtain $\p("tρ₀ ∗ π₀") ≻^{∗} p₀ρ₀$ and
+$\p("uρ₀ ∗ π₀") ≻^{∗} p₀$. Consequently,
+${{\p("tρ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pρ₀")} {⇓}_{≻}}$ and
+${{\p("uρ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("pρ₀")} {⇓}_{≻}}$. We hence have
+${{\p("tρ₀ ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀ ∗ π₀")} {⇓}_{≻}}$, which gives us
 $t ≡_{≻} u$.
 \end{proof}
 \end{lem}
@@ -227,12 +238,12 @@ Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_ι$
 and $w ∈ Λ_ι$ be two values. If $C ≠ D$ then
 $\v("C[v]") \nequiv_{≻} \v("D[w]")$.
 \begin{proof}
-If we take $π = \s("[λx [x | C[y] → y]]ε")$ and $σ = ∅$ then we have
-${\p("(C[v])σ ∗ π")} {⇓}_{≻}$ since
-$\p("(C[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ C[v] · ε") ≻
+If we take $π = \s("[λx [x | C[y] → y]]ε")$ and $ρ = ∅$ then we have
+${\p("(C[v])ρ ∗ π")} {⇓}_{≻}$ since
+$\p("(C[v])ρ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ C[v] · ε") ≻
 \p("[C[v] | C[y] → y] ∗ ε") ≻ \p("v ∗ ε")$. Moreover, we have
-${\p("(D[w])σ ∗ π")} {⇑}_{≻}$ since
-$\p("(D[v])σ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
+${\p("(D[w])ρ ∗ π")} {⇑}_{≻}$ since
+$\p("(D[v])ρ ∗ π") ≻ \p("λx [x | C[y] → y] ∗ D[w] · ε") ≻
 \p("[D[w] | C[y] → y] ∗ ε")$ and $\p("[D[w] | C[y] → y] ∗ ε")$ is stuck.
 \end{proof}
 \end{thm}
@@ -243,33 +254,33 @@ two values. We have $\v("C[v]") ≡_{≻} \v("C[w]")$ if and only if $v ≡_{≻
 Let us first show that if $\v("C[v]") ≡_{≻} \v("C[w]")$ then $v ≡_{≻} w$. We
 are going to show the contrapositive so we assume $v \nequiv_{≻} w$ and we
 show $\v("C[v]") \nequiv_{≻} \v("C[w]")$. By definition, there is a stack
-$π ∈ Π$ and a substitution $σ$ such that ${\p("vσ∗π")} {⇓}_{≻}$ and
-${\p("wσ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀ ∈ Π$ and $σ$
-such that ${\p("(C[v])σ₀∗π₀")} {⇓}_{≻}$ and ${\p("(C[w])σ₀∗π₀")} {⇑}_{≻}$.
-We can take $σ₀ = σ$ and $π₀ = \s("[λx [x|C[y]→y]]π")$ as we have
+$π ∈ Π$ and a substitution $ρ$ such that ${\p("vρ∗π")} {⇓}_{≻}$ and
+${\p("wρ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀ ∈ Π$ and $ρ$
+such that ${\p("(C[v])ρ₀∗π₀")} {⇓}_{≻}$ and ${\p("(C[w])ρ₀∗π₀")} {⇑}_{≻}$.
+We can take $ρ₀ = ρ$ and $π₀ = \s("[λx [x|C[y]→y]]π")$ as we have
 $$
-  \p("(C[v])σ₀∗π₀") ≻ \p("λx [x|C[y]→y] ∗ C[vσ₀]·π")
-                    ≻ \p("[C[vσ₀]|C[y]→y] ∗ π")
-                    ≻ {\p("vσ₀ ∗ π")} {⇓}_{≻}
+  \p("(C[v])ρ₀∗π₀") ≻ \p("λx [x|C[y]→y] ∗ C[vρ₀]·π")
+                    ≻ \p("[C[vρ₀]|C[y]→y] ∗ π")
+                    ≻ {\p("vρ₀ ∗ π")} {⇓}_{≻}
 $$
-and similarly $\p("(C[w])σ₀∗π₀") ≻^{∗} {\p("wσ₀ ∗ π")} {⇑}_{≻}$.
+and similarly $\p("(C[w])ρ₀∗π₀") ≻^{∗} {\p("wρ₀ ∗ π")} {⇑}_{≻}$.
 
 Let us now show that if $v ≡_{≻} w$ then $\v("C[v]") ≡_{≻} \v("C[w]")$.
 We are again going to show the contrapositive so we assume
 $\v("C[v]") \nequiv_{≻} \v("C[w]")$ and we show $v \nequiv_{≻} w$. By
-definition, there is a stack $π ∈ Π$ and a substitution $σ$ such that
-${\p("C[vσ]∗π")} {⇓}_{≻}$ and ${\p("C[wσ]∗π")} {⇑}_{≻}$ (up to symmetry).
-We need to find $π₀ ∈ Π$ and $σ$ such that ${\p("vσ₀∗π₀")} {⇓}_{≻}$ and
-${\p("wσ₀∗π₀")} {⇑}_{≻}$. We can take $σ₀ = σ$ and $π₀ = \s("[λx C[x]]π")$
+definition, there is a stack $π ∈ Π$ and a substitution $ρ$ such that
+${\p("C[vρ]∗π")} {⇓}_{≻}$ and ${\p("C[wρ]∗π")} {⇑}_{≻}$ (up to symmetry).
+We need to find $π₀ ∈ Π$ and $ρ$ such that ${\p("vρ₀∗π₀")} {⇓}_{≻}$ and
+${\p("wρ₀∗π₀")} {⇑}_{≻}$. We can take $ρ₀ = ρ$ and $π₀ = \s("[λx C[x]]π")$
 as we have
-$\p("vσ₀∗π₀") ≻ \p("λx C[w] ∗ vσ₀·π") ≻ {\p("C[vσ₀] ∗ π")} {⇓}_{≻}$
-and similarly $\p("wσ₀∗π₀") ≻^{∗} {\p("C[wσ₀] ∗ π")} {⇑}_{≻}$.
+$\p("vρ₀∗π₀") ≻ \p("λx C[w] ∗ vρ₀·π") ≻ {\p("C[vρ₀] ∗ π")} {⇓}_{≻}$
+and similarly $\p("wρ₀∗π₀") ≻^{∗} {\p("C[wρ₀] ∗ π")} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 
 \begin{lem}\label("equivcounterex")
 Let $t$ and $u$ be two terms. If there is a stack $π ∈Π$ and a substitution
-$σ$ such that ${\p("tσ ∗ π")} {⇓}_{≻}p$ and ${\p("uσ ∗ π")} {⇑}_{≻}p$ then
+$ρ$ such that ${\p("tρ ∗ π")} {⇓}_{≻}p$ and ${\p("uρ ∗ π")} {⇑}_{≻}p$ then
 $t \nequiv_{≻} u$.
 \begin{proof}
 Immediate by definition.
@@ -348,7 +359,7 @@ $\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
 \item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
       then we consider the substitution $ρ = \subs("[x≔C[{}]][y≔D[{}]]")$
       where $C∈\cal{C}$ and $D∈\cal{C}$ are two distinct constructors. We have
-      $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("D[{}]") = \t("yσ")$ according
+      $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("D[{}]") = \t("yρ")$ according
       to \thmRef("subsneq").
 \item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
       $v = \v("λy t")$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
