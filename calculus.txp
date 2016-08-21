@@ -873,7 +873,7 @@ such processes in \chapter("semValRest"). However, they can be considered
 as constants for now.
 \end{rem}
 
-\begin{lem}\label{redcompatall}
+\begin{thm}\label("redcompatall")
 Let $ρ ∈ \cal{S}$ be a substitution and $p$, $q ∈ Λ×Π$ be two processes. If
 $p≻q$ (resp. $p ≻^{∗} q$, $p ≻^{+} q$, $p ≻^k q$) then $\p("pρ") ≻ \p("qρ")$
 (resp. $\p("pρ") ≻^{∗} \p("qρ")$, $\p("pρ") ≻^{+} \p("qρ")$,
@@ -881,7 +881,7 @@ $\p("pρ") ≻^k \p("qρ")$).
 \begin{proof}
 Case analysis on the reduction rules, all rules being local.
 \end{proof}
-\end{lem}
+\end{thm}
 
 =<
 
@@ -922,7 +922,7 @@ hence the process $\p("pρ")$ is stuck. Finally, if $p$ is
 non-terminating then we consider a process $q₀ ∈ Λ×Π$ such that
 $p ≻^{∗} q₀$. By definition, $q₀$ cannot be blocked otherwise $p$
 would not be non-terminating, hence there is a process $q₁ ∈ Λ×Π$
-such that $q₀ ≻ q₁$. By \lemRef("redcompatall") we know
+such that $q₀ ≻ q₁$. By \thmRef("redcompatall") we know
 $\p("pρ") ≻^{∗} \p("q₀ρ")$ and $\p("q₀ρ") ≻ \p("q₁ρ")$.
 Consequently, $\p("q₀ρ")$ is not blocked and $\p("pρ")$ is
 non-terminating.

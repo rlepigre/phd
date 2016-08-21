@@ -160,7 +160,7 @@ Let $σ$ be the substitution $[a := t]$. If $s$ is non-terminating,
 contradicts $sσ {\converge}_k$. Consequently, there is a blocked process
 $p$ such that ${s ≻ p}^{∗}$ since $({≻}) ⊆ ({\epi}_k)$.
 (* *)
-Using \lemRef("redcompatall") we get ${sσ ≻ pσ}^{∗}$ from which we obtain
+Using \thmRef("redcompatall") we get ${sσ ≻ pσ}^{∗}$ from which we obtain
 $pσ {\converge}_k$. The process $p$ cannot be stuck, otherwise $pσ$ would
 also be stuck by \lemRef("redstable"), which would contradict
 $pσ {\converge}_k$. Let us now suppose that $p = δ_{v,w} ∗ π$ for some
@@ -204,7 +204,7 @@ require that if $0 < i < n$ and $l_{i-1} = l_i$ then $l_{i+1} > l_i$.
 To define $(E₀,π₀,l₀)$ we consider the reduction of $E' ∗ π$. Since we know
 that we have $(E' ∗ π)σ₁ = E'σ₁ ∗ π {\converge}_i$ we use \lemRef("aposs")
 to obtain a blocked state $p$ such that ${{E' ∗ π} ≻ p}^j$. We can now take
-$E₀ ∗ π₀ = p$ and $l₀ = j$. By \lemRef("redcompatall") we have ${(E' ∗ π)σ₁
+$E₀ ∗ π₀ = p$ and $l₀ = j$. By \thmRef("redcompatall") we have ${(E' ∗ π)σ₁
 ≻ {E₀σ₁ ∗ π₀σ₁}}^j$ from which we can deduce that ${(E' ∗ π)σ₁ \epi {E₀σ₁ ∗
 π₀σ₁}}_k$ in $l₀ = j$ steps.
 
@@ -218,7 +218,7 @@ $E_i ∗ π_i$ can be of three different shapes.
 \item If $E_i = a$ then we consider the reduction of $E_iσ₁ ∗ π_i$. Since
       $(E_iσ₁ ∗ π_i)σ₁ {\converge}_k$ we know from \lemRef("aposs") that
       there is a blocked process $p$ such that ${{E_iσ₁ ∗ π_i} ≻ p}^j$.
-      Using \lemRef("redcompatall") we obtain ${{E_iσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$
+      Using \thmRef("redcompatall") we obtain ${{E_iσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$
       from which we can deduce that ${{E_iσ₁ ∗ π_iσ₁} \epi pσ₁}_k$ in $j$
       steps. We then take $E_{i+1} ∗ π_{i+1} = p$ and $l_{i+1} = l_i + j$.
 
@@ -232,7 +232,7 @@ $E_i ∗ π_i$ can be of three different shapes.
 \item If $E_i = δ(v,w)$ for some values $v$ and $w$ we have $m < k$ such
       that ${vσ₁ \nequiv wσ₁}_m$. Hence ${{E_iσ₁ ∗ π_i = δ(vσ₁,wσ₁) ∗ π_i}
       \epi {vσ₁ ∗ π_i}}_k$ by definition. Moreover, we know that
-      ${{E_iσ₁ ∗ π_iσ₁} \epi {vσ₁ ∗ π_iσ₁}}_k$ by \lemRef("redcompatall").
+      ${{E_iσ₁ ∗ π_iσ₁} \epi {vσ₁ ∗ π_iσ₁}}_k$ by \thmRef("redcompatall").
       Since ${{E'σ₁ ∗ π} \epi
       {E_iσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i$ steps we get that ${{E'σ₁ ∗ π}
       \epi {vσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i + 1$ steps, and hence
@@ -240,7 +240,7 @@ $E_i ∗ π_i$ can be of three different shapes.
       
       We now consider the reduction of the process $vσ₁ ∗ π_i$. By
       \lemRef("aposs") there is a blocked process $p$ such that
-      ${{vσ₁ ∗ π_i} ≻ p}^j$. Using \lemRef("redcompatall") we obtain
+      ${{vσ₁ ∗ π_i} ≻ p}^j$. Using \thmRef("redcompatall") we obtain
       ${{vσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$ from which we deduce that ${{vσ₁ ∗ π_iσ₁}
       \epi pσ₁}_k^{∗}$ in $j$ steps. We then take $E_{i+1} ∗ π_{i+1} = p$
       and $l_{i+1} = l_i + j + 1$. Note that in this case we have $l_{i+1}
@@ -260,13 +260,13 @@ $E_i ∗ π_i$ can be of two shapes since only $E_n ∗ π_n$ can be of the form
 $v ∗ α$.
 \begin{itemize}
 \item If $E_i = a$ then ${{t₁σ ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k^{∗}$. by
-      \lemRef("redcompatall") we get ${{t₁σ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗
+      \thmRef("redcompatall") we get ${{t₁σ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗
       π_iσ₂}}_k$ from which we deduce ${t₁σ ∗ π_iσ₂}
       {\converge}_k$ by induction hypothesis. Since ${t₁ ≡ t₂}_k$ we obtain
       ${t₂σ ∗ π_iσ₂ = (E_i ∗ π_i)σ₂} {\converge}_k$.
 \item If $E_i = δ(v,w)$ then ${{v ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k$ and
       hence ${{vσ₂ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗ π_{i+1}σ₂}}_k$ by
-      \lemRef("redcompatall"). Using the induction hypothesis we obtain
+      \thmRef("redcompatall"). Using the induction hypothesis we obtain
       ${vσ₂ ∗ π_iσ₂} {\converge}_k$. It remains to show that
       ${{δ(vσ₂,wσ₂) ∗ π_iσ₂} \epi {vσ₂ ∗ π_iσ₂}}_k^{∗}$. We need to find
       $j < k$ such that ${vσ₂ \nequiv wσ₂}_j$. By construction there is
