@@ -97,8 +97,8 @@ $\p("u ∗ π") ≻^{∗} p$ then $t ≡_{≻} u$.
 \begin{proof}
 Let us take $π ∈ Π$ and $ρ ∈ \cal{S}$. By hypothesis $\p("t∗π") ≻^{∗} p$
 and $\p("u∗π") ≻^{∗} p$ for some $p ∈ Λ×Π$. Using \thmRef("redcompatall")
-we obtain $\p("(t∗π)ρ") ≻^{∗} pρ$ and $\p("(u∗π)ρ") ≻^{∗} pρ$. Consequently,
-${{\p("(t∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("pρ")} {⇓}_{≻}}$ and
+we obtain $\p("(t∗π)ρ") ≻^{∗} \p("pρ")$ and $\p("(u∗π)ρ") ≻^{∗} \p("pρ")$.
+Consequently, ${{\p("(t∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("pρ")} {⇓}_{≻}}$ and
 ${{\p("(u∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("pρ")} {⇓}_{≻}}$. We hence have
 ${{\p("(t∗π)ρ")} {⇓}_{≻}} ⇔ {{\p("(u∗π)ρ")} {⇓}_{≻}}$, which gives
 us $t ≡_{≻} u$ using \thmRef("equivsame").
@@ -112,7 +112,10 @@ Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
 \end{proof}
 \end{lem}
 
-(* TODO from here *)
+Based on the reduction rules of our abstract machine, we can derive five
+immediate equivalences corresponding to call-by-value $β$-reduction,
+record projection, case analysis, unfolding of the fixpoint combinator
+and elimination of the special term $\t("U({})")$.
 \begin{thm}\label("cbvbeta")
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
 $\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
@@ -139,6 +142,99 @@ Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ 
 every stack $π$ we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
+\begin{thm}
+For every $t ∈ Λ$ and $v ∈ Λ_ι$ we have
+$\t("Y(t,v)") ≡_{≻} \t("t (λx Y(t,x)) v")$.
+\begin{proof}
+Since $\p("Y(t,v) ∗ π") ≻ \p("t ∗ λx Y(t,x) · v · π")$ and
+$\p("t (λx Y(t,x)) v ∗ π") ≻^{∗} \p("t ∗ λx Y(t,x) · v · π")$ we
+can conclude using \lemRef("redequiv").
+(*
+$\p("t (λx Y(t,x)) v ∗ π") ≻
+ \p("v ∗ [t (λx Y(t,x))] π") ≻
+ \p("t (λx Y(t,x)) ∗ v · π") ≻
+ \p("λx Y(t,x) ∗ [t] v · π") ≻
+ \p("t ∗ λx Y(t,x) · v · π")$
+*)
+\end{proof}
+\end{thm}
+\begin{thm}
+We have $\t("U({})") ≡_{≻} \t("{}")$.
+\begin{proof}
+Since $\p("U({}) ∗ π") ≻ \p("{} ∗ π")$ for all $π$ we can use
+\lemRef("redtosame").
+\end{proof}
+\end{thm}
+
+The reduction rule for processes of the form $\p("μα t ∗ π")$ is inherently
+non-local. Indeed, the bound $μ$-variable can be substituted anywhere in $t$
+and any reduction rule may apply afterwards (depending on the form of $t$
+and $π$). There are however several equivalences that can be proved without
+difficulty.
+\begin{thm}
+For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ such that $α ∉ FV_σ(t)$ we have
+$\t("μα t") ≡_{≻} t$.
+\begin{proof}
+As we have $\p("μα t ∗ π") ≻ \p("t[α≔π] ∗ π") = \p("t ∗ π")$ we can use
+\lemRef("redtosame").
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ we have $\t("μα[α]t") ≡_{≻} \t("μαt")$.
+\begin{proof}
+As $\p("μα [α]t ∗ π") ≻ \p("[π]t[α≔π] ∗ π") = \p("t[α≔π] ∗ π")$ and
+$\p("μα t ∗ π") ≻ \p("t[α≔π] ∗ π")$ for all $π$ we can use
+\lemRef("redequiv").
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
+$\t("μαμβ t") ≡_{≻} \t("μβ t[α≔β]")$.
+\begin{proof}
+We have $\p("μαμβ t ∗ π") ≻ \p("μβ t[α≔π] ∗ π") ≻ \p("(t[α≔π])[β≔π] ∗ π")$
+and we also have $\p("μβ t[α≔β] ∗ π") ≻ \p("(t[α≔β])[β≔π] ∗ π")$. To be able
+to conclude using \lemRef("redequiv") we need to show that
+$\t("(t[α≔π])[β≔π]") = \t("(t[α≔β])[β≔π]")$. This is immediate as we may
+assume $α ∉ FV_σ(π)$ and $β ∉ FV_σ(π)$ up to renaming.
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
+$\t("[α]μβ t") ≡_{≻} \t("[α]t[β≔α]")$.
+\begin{proof}
+As $\p("[α]μβ t ∗ π") ≻ \p("μβ t ∗ α") ≻ \p("t[β≔α] ∗ α")$ and
+$\p("[α]t[β≔α] ∗ π") ≻ \p("t[β≔α] ∗ α")$ we can use \lemRef("redequiv").
+\end{proof}
+\end{thm}
+
+(* TODO from here *)
+\begin{thm}
+For every term $u ∈ Λ$ and $λ$-variables $x$, $y ∈ \cal{V}_ι$
+such that $x ∉ FV(u)$ we have $\t("λy u") ≡_{≻} \t("λx (λy u) x")$.
+\begin{proof}
+(* TODO *) \todo
+\end{proof}
+\end{thm}
+\begin{thm}
+For every terms $t$, $u ∈ Λ$ and $μ$-variables $α$, $β ∈ \cal{V}_σ$
+such that $β ∉ FV(t)$ and $β ∉ FV(u)$ we have
+$\t("t (μα u)") ≡_{≻} \t("μβ u[α≔[t]β]")$.
+\begin{proof}
+(* TODO *) \todo
+\end{proof}
+\end{thm}
+\begin{thm}
+For every terms $t ∈ Λ$, value $v ∈ Λ_ι$ and $μ$-variables $α$,
+$β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$ and $β ∉ FV(v)$ we have
+$\t("(μα t) v") ≡_{≻} \t("μβ t[α≔v·β]")$
+\begin{proof}
+(* TODO *) \todo
+\end{proof}
+\end{thm}
+
+=<
+
+=> Title to find
 
 \begin{thm}\label("consnequiv")
 Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_ι$
