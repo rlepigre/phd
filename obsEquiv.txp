@@ -112,31 +112,24 @@ Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
 \end{proof}
 \end{lem}
 
-Based on the reduction rules of our abstract machine, we can derive five
-immediate equivalences corresponding to call-by-value $β$-reduction,
-record projection, case analysis, unfolding of the fixpoint combinator
-and elimination of the special term $\t("U({})")$.
-\begin{thm}\label("cbvbeta")
-For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
-$\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
-\begin{proof}
-Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p("t[x≔v]∗π")$
-for all $π$ we can apply \lemRef("redtosame").
-\end{proof}
-\end{thm}
+Based on the reduction rules of our abstract machine, we can derive four
+immediate equivalences corresponding to record projection, case analysis,
+the unfolding of the fixpoint combinator and the elimination of the special
+term $\t("U({})")$. Indeed, the corresponding reduction rules do not
+involve an interaction with the stack. In particular, they leave the stack
+unchanged.
 \begin{thm}
-Let $I$ be a finite set of index with $k ∈ I$. If $v_i ∈ Λ_ι$ and
-$l_i ∈ \cal{L}$ for all $i ∈ I$ then
-$\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
+Let $I$ be a finite set of index such that $v_i ∈ Λ_ι$ and $l_i ∈ \cal{L}$
+for all $i ∈ I$. If $k ∈ I$ then $\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
 \begin{proof}
 Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
 can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
-Let $I$ be a finite set of index with $k ∈ I$. If $v ∈ Λ_ι$ and if
-$x_i ∈ \cal{V}_ι$, $C_i ∈ \cal{C}$ and $\t("ti") ∈ Λ$ for all $i ∈ I$
-then $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
+Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of index such that
+$x_i ∈ \cal{V}_ι$, $C_i ∈ \cal{C}$ and $\t("ti") ∈ Λ$ for all $i ∈ I$.
+If $k ∈ I$ then $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
 \begin{proof}
 Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ for
 every stack $π$ we can use \lemRef("redtosame").
@@ -146,31 +139,130 @@ every stack $π$ we can use \lemRef("redtosame").
 For every $t ∈ Λ$ and $v ∈ Λ_ι$ we have
 $\t("Y(t,v)") ≡_{≻} \t("t (λx Y(t,x)) v")$.
 \begin{proof}
-Since $\p("Y(t,v) ∗ π") ≻ \p("t ∗ λx Y(t,x) · v · π")$ and
-$\p("t (λx Y(t,x)) v ∗ π") ≻^{∗} \p("t ∗ λx Y(t,x) · v · π")$ we
-can conclude using \lemRef("redequiv").
-(*
-$\p("t (λx Y(t,x)) v ∗ π") ≻
- \p("v ∗ [t (λx Y(t,x))] π") ≻
- \p("t (λx Y(t,x)) ∗ v · π") ≻
- \p("λx Y(t,x) ∗ [t] v · π") ≻
- \p("t ∗ λx Y(t,x) · v · π")$
-*)
+Since $\p("Y(t,v) ∗ π") ≻ \p("t (λx Y(t,x)) v ∗ π")$ for every stack $π$
+we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
 We have $\t("U({})") ≡_{≻} \t("{}")$.
 \begin{proof}
-Since $\p("U({}) ∗ π") ≻ \p("{} ∗ π")$ for all $π$ we can use
+Since $\p("U({}) ∗ π") ≻ \p("{} ∗ π")$ for every stack $π$ we can use
 \lemRef("redtosame").
 \end{proof}
 \end{thm}
 
+To go a little bit further, we can look at the first three rules of
+\defRef("reduction"), which are used to handle $β$-reduction. In
+particular, these three rules can be composed immediatly in the case
+where we consider the application of a $λ$-abstraction to a value.
+This corresponds exactly to the call-by-value $β$-reduction relation.
+\begin{thm}\label("cbvbeta")
+For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
+$\t("(λx t) v") ≡_{≻} \t("t[x≔v]")$.
+\begin{proof}
+Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p("t[x≔v]∗π")$
+for all $π$ we can apply \lemRef("redtosame") to conclude.
+\end{proof}
+\end{thm}
+Similarly, it seems to be possible to prove an equivalence corresponding
+to (a call-by-value version of) the $η$-equivalence relation. We only
+include it as a claim as the author did not write a full proof.
+\begin{clm}
+For every $u ∈ Λ$ and $x$, $y ∈ \cal{V}_ι$ such that $x ∉ FV(u)$ we have
+$\t("λy u") ≡_{≻} \t("λx (λy u) x")$.
+\end{clm}
+
 The reduction rule for processes of the form $\p("μα t ∗ π")$ is inherently
 non-local. Indeed, the bound $μ$-variable can be substituted anywhere in $t$
 and any reduction rule may apply afterwards (depending on the form of $t$
-and $π$). There are however several equivalences that can be proved without
-difficulty.
+and $π$). However, we can still derive equivalences corresponding
+to the usual reduction rules of the \lmcalc \cite("Parigot1992"). In
+particular, we can obtain two equivalences corresponding to call-by-value
+//structural reductions//.
+\begin{thm}
+For every $t$, $u ∈ Λ$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$ and
+$β ∉ FV(u)$ we have $\t("t (μα u)") ≡_{≻} \t("μβ t u[α≔[t]β]")$.
+\begin{proof}
+Since for every stack $π$ we have
+$\p("t (μα u) ∗ π") ≻ \p("μα u ∗ [t]π") ≻ \p("u[α≔[t]π] ∗ [t]π")$
+and
+$\p("μβ t u[α≔[t]β] ∗ π") ≻ \p("t u[α≔[t]π] ∗ π") ≻ \p("u[α≔[t]π] ∗ [t]π")$
+we can conclude using \lemRef("redequiv").
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $t ∈ Λ$, $v ∈ Λ_ι$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$
+and $β ∉ FV(v)$ we have $\t("(μα t) v") ≡_{≻} \t("μβ t[α≔v·β] v")$.
+\begin{proof}
+Since we have
+$\p("(μαt) v∗π") ≻ \p("v∗[μαt]π") ≻ \p("μαt∗v·π") ≻ \p("t[α≔v·π]∗v·π")$
+and
+$\p("μβ t[α≔v·β] v ∗ π") ≻ \p("t[α≔v·π] v ∗ π") ≻ \p("v ∗ [t[α≔v·π]]π") ≻
+ \p("t[α≔v·π]∗v·π")$
+for every stack $π$, we can conclude using \lemRef("redequiv").
+\end{proof}
+\end{thm}
+Similarly, the following theorem provides an equivalence corresponding to
+//renaming//. Note that our version of renaming is more general than the
+one found in \cite("Parigot1992") as our formalism includes stacks. Indeed,
+only $μ$-variables can be used in named terms in the original version of
+the \lmcalc.
+\begin{thm}
+For every $ξ∈Π$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
+$\t("[ξ]μβ t") ≡_{≻} \t("[ξ]t[β≔ξ]")$.
+\begin{proof}
+As $\p("[ξ]μβ t ∗ π") ≻ \p("μβ t ∗ ξ") ≻ \p("t[β≔ξ] ∗ ξ")$ and
+$\p("[ξ]t[β≔ξ] ∗ π") ≻ \p("t[β≔ξ] ∗ ξ")$ we can conclude using
+\lemRef("redequiv").
+\end{proof}
+\end{thm}
+
+As a named term has the effect of erasing the whole stack. Consequently,
+terms that are applied (as functions) to a named term can always be
+removed. Similarly, values used as arguments of a named term can be
+removed as they will never be considered. The following two theorems will
+hence allow us to discard unnecessary subterms as early as possible, when
+attempting to prove an equivalence.
+\begin{thm}
+For every $t ∈ Λ$, $v ∈ Λ_ι$ and $ξ ∈ Π$ we have
+$\t("([ξ]t) v") ≡_{≻} \t("[ξ]t")$.
+\begin{proof}
+Since for every stack $π$ we have
+$\p("([ξ]t) v ∗ π") ≻ \p("v ∗ [[ξ]t]π") ≻ \p("[ξ]t ∗ v·π") ≻ \p("t∗ξ")$
+and $\p("[ξ]t ∗ π") ≻ \p("t∗ξ")$
+we can conclude using \lemRef("redequiv").
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $t$, $u ∈ Λ$ and $ξ ∈ Π$ we have
+$\t("t ([ξ]u)") ≡_{≻} \t("[ξ]u")$.
+\begin{proof}
+Since we have $\p("t ([ξ]u) ∗ π") ≻ \p("[ξ]u ∗ [t]π") ≻ \p("u∗ξ")$
+and $\p("[ξ]u ∗ π") ≻ \p("u∗ξ")$ for every stack $π$, we can conclude
+using \lemRef("redequiv").
+\end{proof}
+\end{thm}
+
+\todo (* TODO from here *)
+\begin{thm}
+For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
+$\t("μαμβ t") ≡_{≻} \t("μβ t[α≔β]")$.
+\begin{proof}
+We have $\p("μαμβ t ∗ π") ≻ \p("μβ t[α≔π] ∗ π") ≻ \p("(t[α≔π])[β≔π] ∗ π")$
+and we also have $\p("μβ t[α≔β] ∗ π") ≻ \p("(t[α≔β])[β≔π] ∗ π")$. To be able
+to conclude using \lemRef("redequiv") we need to show that
+$\t("(t[α≔π])[β≔π]") = \t("(t[α≔β])[β≔π]")$. This is immediate as we may
+assume $α ∉ FV_σ(π)$ and $β ∉ FV_σ(π)$ up to renaming.
+\end{proof}
+\end{thm}
+\begin{thm}
+For every $ξ₁$, $ξ₂ ∈ Π$ and $t ∈ Λ$ we have
+$\t("[ξ₁][ξ₂]t") ≡_{≻} \t("[ξ₂]t")$.
+\begin{proof}
+As we have $\p("[ξ₁][ξ₂]t ∗ π") ≻ \p("[ξ₂]t ∗ ξ₁") ≻ \p("t ∗ ξ₂")$ and
+$\p("[ξ₂]t ∗ π") ≻ \p("t ∗ ξ₂")$ for all $π$ we can use \lemRef("redequiv").
+\end{proof}
+\end{thm}
 \begin{thm}
 For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ such that $α ∉ FV_σ(t)$ we have
 $\t("μα t") ≡_{≻} t$.
@@ -187,54 +279,14 @@ $\p("μα t ∗ π") ≻ \p("t[α≔π] ∗ π")$ for all $π$ we can use
 \lemRef("redequiv").
 \end{proof}
 \end{thm}
-\begin{thm}
-For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
-$\t("μαμβ t") ≡_{≻} \t("μβ t[α≔β]")$.
-\begin{proof}
-We have $\p("μαμβ t ∗ π") ≻ \p("μβ t[α≔π] ∗ π") ≻ \p("(t[α≔π])[β≔π] ∗ π")$
-and we also have $\p("μβ t[α≔β] ∗ π") ≻ \p("(t[α≔β])[β≔π] ∗ π")$. To be able
-to conclude using \lemRef("redequiv") we need to show that
-$\t("(t[α≔π])[β≔π]") = \t("(t[α≔β])[β≔π]")$. This is immediate as we may
-assume $α ∉ FV_σ(π)$ and $β ∉ FV_σ(π)$ up to renaming.
-\end{proof}
-\end{thm}
-\begin{thm}
-For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
-$\t("[α]μβ t") ≡_{≻} \t("[α]t[β≔α]")$.
-\begin{proof}
-As $\p("[α]μβ t ∗ π") ≻ \p("μβ t ∗ α") ≻ \p("t[β≔α] ∗ α")$ and
-$\p("[α]t[β≔α] ∗ π") ≻ \p("t[β≔α] ∗ α")$ we can use \lemRef("redequiv").
-\end{proof}
-\end{thm}
-
-(* TODO from here *)
-\begin{thm}
-For every term $u ∈ Λ$ and $λ$-variables $x$, $y ∈ \cal{V}_ι$
-such that $x ∉ FV(u)$ we have $\t("λy u") ≡_{≻} \t("λx (λy u) x")$.
-\begin{proof}
-(* TODO *) \todo
-\end{proof}
-\end{thm}
-\begin{thm}
-For every terms $t$, $u ∈ Λ$ and $μ$-variables $α$, $β ∈ \cal{V}_σ$
-such that $β ∉ FV(t)$ and $β ∉ FV(u)$ we have
-$\t("t (μα u)") ≡_{≻} \t("μβ u[α≔[t]β]")$.
-\begin{proof}
-(* TODO *) \todo
-\end{proof}
-\end{thm}
-\begin{thm}
-For every terms $t ∈ Λ$, value $v ∈ Λ_ι$ and $μ$-variables $α$,
-$β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$ and $β ∉ FV(v)$ we have
-$\t("(μα t) v") ≡_{≻} \t("μβ t[α≔v·β]")$
-\begin{proof}
-(* TODO *) \todo
-\end{proof}
-\end{thm}
+Note that we can compose the previous two theorems to obtain
+$\t("μα [α]t") ≡ t$ in the case where $α ∉ FV_σ(t)$. This can
+be seen as a form of $η$-equivalence for $μ$-abstraction, as
+remarked by Michel Parigot in \cite("Parigot1992").
 
 =<
 
-=> Title to find
+=> Trivial inequivalences
 
 \begin{thm}\label("consnequiv")
 Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_ι$
@@ -331,6 +383,10 @@ As for \thmRef("nequivlamcons") we can apply \corRef("stackcounterex") with
 $π = \s("[λy [y|C[z]→{}]]ε")$.
 \end{proof}
 \end{thm}
+
+=<
+
+=> Variables and canonical values
 
 \begin{thm}\label("subsneq")
 Let $t∈Λ$ and $u∈Λ$ be two terms. If there is a substitution $ρ$ such that

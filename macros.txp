@@ -52,12 +52,14 @@ module Env_rem = (val make_theorem "Remark")
 module Env_lem = (val make_theorem "Lemma")
 module Env_thm = (val make_theorem "Theorem")
 module Env_cor = (val make_theorem "Corollary")
+module Env_clm = (val make_theorem "Claim")
 
 let defRef x = <<Definition \generalRef("Definition")(x)>>
 let remRef x = <<Remark \generalRef("Remark")(x)>>
 let lemRef x = <<Lemma \generalRef("Lemma")(x)>>
 let thmRef x = <<Theorem \generalRef("Theorem")(x)>>
 let corRef x = <<Corollary \generalRef("Corollary")(x)>>
+let clmRef x = <<Claim \generalRef("Claim")(x)>>
 let figRef x = <<Figure \generalRef("figure")(x)>>
 
 let definition = defRef

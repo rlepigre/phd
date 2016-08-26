@@ -822,7 +822,7 @@ handles the storing of functions while their arguments are being evaluated.
 This is why we need stack frames (i.e. stacks of the form $\s("[t]π")$). The
 operational semantics of our language is given by a relation $({≻})$ over
 processes.
-\begin{def}
+\begin{def}\label("reduction")
 The relation $({≻}) ⊆ (Λ×Π) × (Λ×Π)$ is defined as the smallest relation
 satisfying the following reduction rules.
 \Caml(
@@ -837,7 +837,7 @@ satisfying the following reduction rules.
       ; line  "[ξ]t ∗ π"                        "t ∗ ξ"
       ; line' "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
       ; line' "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
-      ; line  "Y(t,v) ∗ π"                      "t ∗ λx Y(t,x)·v·π"
+      ; line  "Y(t,v) ∗ π"                      "t (λx Y(t,x)) v ∗ π"
       ; line  "U({}) ∗ π"                       "{} ∗ π" ]
 
 )
