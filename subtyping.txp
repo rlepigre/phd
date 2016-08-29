@@ -1,6 +1,8 @@
 \Caml(
   open ProofTree
   open Diagrams
+  open Lang
+  
   let mt = mathsText
   let wbox = <$\mathsize(3.){\wbox}$>
   let bbox = <$\mathsize(3.){\bbox}$>

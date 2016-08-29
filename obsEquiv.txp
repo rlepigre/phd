@@ -243,7 +243,11 @@ using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 
-\todo (* TODO from here *)
+We can also remark that saving the stack twice in a row using two
+consecutive $μ$-abstractions leads to saving the same stack twice.
+We can thus obtain the same computational behaviour by saving the
+stack only once. Similarly, using two named terms in a row is the
+same as using only the later one.
 \begin{thm}
 For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
 $\t("μαμβ t") ≡_{≻} \t("μβ t[α≔β]")$.
@@ -263,6 +267,12 @@ As we have $\p("[ξ₁][ξ₂]t ∗ π") ≻ \p("[ξ₂]t ∗ ξ₁") ≻ \p("t 
 $\p("[ξ₂]t ∗ π") ≻ \p("t ∗ ξ₂")$ for all $π$ we can use \lemRef("redequiv").
 \end{proof}
 \end{thm}
+
+Finaly, we provide two last equivalences allowing the simplification of
+terms involving $μ$-abstractions. For instance, if the variable bound by
+a $μ$-abstraction does not occur in its body, then it can be removed.
+Similarly, it is not useful to restore a stack right after it has been
+saved.
 \begin{thm}
 For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ such that $α ∉ FV_σ(t)$ we have
 $\t("μα t") ≡_{≻} t$.
@@ -286,8 +296,9 @@ remarked by Michel Parigot in \cite("Parigot1992").
 
 =<
 
-=> Trivial inequivalences
+=> Inequivalences from counter-examples
 
+\todo (* TODO from here *)
 \begin{thm}\label("consnequiv")
 Let $C ∈ \cal{C}$ and $D ∈ \cal{C}$ be two constructors and $v ∈ Λ_ι$
 and $w ∈ Λ_ι$ be two values. If $C ≠ D$ then
@@ -468,6 +479,7 @@ such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 
 => Extentionality
 
+(* TODO relecture. *)
 To be able to work with the equivalence relation $({≡})_{≻}$, we need to
 check that it is extensional. In other words, we need to be able to replace
 equals by equals at any place in terms without changing their observed
