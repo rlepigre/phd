@@ -21,6 +21,7 @@ type valu =
   | VGrou of valu                      (* (v)    *)
   | VSubs of valu * subs               (* vσ     *)
   | VASub of subs * vari               (* ρ(x)   *)
+  | VWitn of vari * form * term * form
 and  term =
   | TVari of vari                      (* a, b   *)
   | TMeta of vari                      (* t, u   *)
@@ -45,6 +46,7 @@ and  stac =
   | SGrou of stac                      (* (π)    *)
   | SSubs of stac * subs               (* sσ     *)
   | SASub of subs * vari               (* ρ(α)   *)
+  | SWitn of vari * form * term * form
 and  proc =
   | PMeta of vari                      (* p, q   *)
   | PProc of term * stac               (* t ∗ π  *)
@@ -87,6 +89,7 @@ and form =
   | FMemb of term * form               (* t∈A     *)
   | FRest of form option * equa        (* A | t≡u *)
   | FASub of subs * vari               (* ρ(χ)   *)
+  | FWitn of vari * vari option * term * bool * form
 and equa = term * term
 
 (* Smart constructor for multiple application of terms. *)

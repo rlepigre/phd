@@ -66,6 +66,11 @@ let rec v2m : valu -> Maths.math list = function
   | VGrou(v)   -> (str "(") @ (v2m v) @ (str ")")
   | VSubs(v,s) -> (v2m v) @ (subs2m s)
   | VASub(s,x) -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
+  | VWitn(x,a,t,b) ->
+                  let n = Maths.node (Maths.glyphs "ε") in
+                  let subscript_right = bin' 2 "∈" (vari2m x, f2m a) in
+                  let n = [Maths.Ordinary {n with subscript_right}] in
+                  n @ (str "(") @ (bin' 2 "∉" (t2m t, f2m b)) @ (str ")")
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
@@ -102,6 +107,13 @@ and     s2m : stac -> Maths.math list = function
   | SGrou(s)   -> (str "(") @ (s2m s) @ (str ")")
   | SSubs(p,s) -> (s2m p) @ (subs2m s)
   | SASub(s,a) -> (subs2m s) @ (str "(") @ (vari2m a) @ (str ")")
+  | SWitn(x,a,t,b) ->
+                  let n = Maths.node (Maths.glyphs "ε") in
+                  let subscript_right =
+                    bin' 2 "∈" (vari2m x, (str "¬") @ (f2m a))
+                  in
+                  let n = [Maths.Ordinary {n with subscript_right}] in
+                  n @ (str "(") @ (bin' 2 "∉" (t2m t, f2m b)) @ (str ")")
 and     p2m : proc -> Maths.math list = function
   | PMeta(p)   -> vari2m p
   | PProc(t,s) -> bin 2 (Maths.glyphs "∗") (t2m t, s2m s)
@@ -175,3 +187,14 @@ and f2m : form -> Maths.math list = function
                                     bin 2 sep (f2m a, eq)
                       end
   | FASub(s,x)      -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
+  | FWitn(x,so,t,m,b) ->
+                      let n = Maths.node (Maths.glyphs "ε") in
+                      let subscript_right =
+                        match so with
+                        | None   -> vari2m x
+                        | Some s -> bin' 2 "∈" (vari2m x, vari2m s)
+                      in
+                      let n = [Maths.Ordinary {n with subscript_right}] in
+                      let s = if not m then "∈" else "∉" in
+                      n @ (str "(") @ (bin' 2 s (t2m t, f2m b)) @ (str ")")
+

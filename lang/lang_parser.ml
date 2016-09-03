@@ -79,6 +79,8 @@ let parser valu prio =
   | v:(valu VSimp)                            when prio = VComp -> v
   | v:(valu VSimp)                            when prio = VProj -> v
   | s:subs '(' x:vvari ')'                    when prio = VSimp -> VASub(s,x)
+  | "ε" x:vvari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
+      when prio = VSimp -> VWitn(x,a,t,b)
 and field = l:label "=" v:(valu VComp)
 and        term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
@@ -120,6 +122,8 @@ and        stac prio =
   | s:(stac SAtom) g:subs                     when prio = SAtom -> SSubs(s,g)
   | s:(stac SAtom)                            when prio = SFull -> s
   | s:subs '(' a:svari ')'                    when prio = SAtom -> SASub(s,a)
+  | "ε" al:svari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
+      when prio = SAtom -> SWitn(al,a,t,b)
 and        proc prio =
   | p:pmeta                                   when prio = PAtom -> PMeta(p)
   | t:(term TAppl)$ "∗" s:(stac SFull)        when prio = PFull -> PProc(t,s)
@@ -147,6 +151,9 @@ and        form prio =
   | t:(term TAppl) "∈" a:(form FAtom)         when prio = FAtom -> FMemb(t,a)
   | a:{a:(form FAtom) '|'}? e:equa            when prio = FAtom -> FRest(a,e)
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
+  | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
+      m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'
+      when prio = FAtom -> FWitn(x,s,t,m,b)
 and ffield = l:label ':' a:(form FFull)
 and fpatt  = c:const ':' a:(form FFull)
 and equa   = t:(term TAppl)$ "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)

@@ -2,7 +2,7 @@
   open ProofTree
   open Diagrams
   open Lang
-  
+
   let mt = mathsText
   let wbox = <$\mathsize(3.){\wbox}$>
   let bbox = <$\mathsize(3.){\bbox}$>
@@ -220,7 +220,7 @@ for all $v ∈ ⟦A⟧$ we have $v ∈ ⟦B⟧^{\bot\bot}$ and hence $v ∈ ⟦B
 exactly mean that $⟦A⟧ ⊆ ⟦B⟧$.
 
 \linesBefore(2)
-($⊆_≡$) We need to show that $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$. By hypothesis we know
+($⊆_{≡}$) We need to show that $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$. By hypothesis we know
 that $t ≡ v$, hence we can show $⟦v⟧ ∈ ⟦B⟧^{\bot\bot}$ which is equivalent
 to showing $⟦v⟧ ∈ ⟦B⟧$. By induction hypothesis we know that $⟦t⟧ ∈
 ⟦A⟧^{\bot\bot}$, from which we can deduce $⟦v⟧ ∈ ⟦A⟧^{\bot\bot}$ since
@@ -232,6 +232,126 @@ can obtain $⟦v⟧ ∈ ⟦B⟧$ using the induction hypothesis.
 
 =<
 => Adequate subtyping rules
+
+Bla bla bla
+
+\Caml(
+let r11 =
+  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊆ C}
+    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
+
+let r12 =
+  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
+
+let r21 =
+  <<$\unaryRN{⊆}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊆ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
+
+let r22 =
+  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
+
+let r23 =
+  <<$\unaryRN{[\wc]}{Ξ ⊢ \t("u") : A}{Ξ ⊢ \t("[εα∈A(t∉A)]u") : \f("B")}$>>
+
+let r31 =
+  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
+    {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
+      \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
+    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
+
+let r32 =
+  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
+
+let r41 =
+  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
+    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊆ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
+
+let r42 =
+  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊆ C}
+    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
+
+let r51 =
+  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊆ \f("A₁")}
+    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊆ \f("B₂")}
+    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊆ \f("A₂ ⇒ B₂")}$>>
+
+let r61 =
+  <<$\binaryRN{+}{I₁ ⊆ I₂}
+    {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊆ \f("Bi"))_{i∈I₁}}
+    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊆ \f("[(Ci : Bi) i∈I₂]")}$>>
+
+let r62 =
+  <<$\binaryRN{×}{I₂ ⊆ I₁}
+    {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊆ \f("Bi"))_{i∈I₂}}
+    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊆ \f("{(li : Bi) i∈I₂}")}$>>
+
+let r71 =
+  <<$\unaryRN{∀_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊆ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊆ \f("B")}$>>
+
+let r72 =
+  <<$\binaryRN{∀_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B[χ ≔ εχ∈s(t∉B)]")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("∀χ^s B")}$>>
+
+let r81 =
+  <<$\unaryRN{∃_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B[χ≔C]")}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("∃χ^s B")}$>>
+
+let r82 =
+  <<$\binaryRN{∃_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊆ \f("B")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊆ \f("B")}$>>
+
+let r91 =
+  <<$\unaryRN{\restriction_l}
+    {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("A | u₁ ≡ u₂") ⊆ \f("B")}$>>
+
+let r92 =
+  <<$\binaryRN{\restriction_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
+    {Ξ ⊢ u₁ ≡ u₂}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B | u₁ ≡ u₂")}$>>
+
+let rA1 =
+  <<$\unaryRN{∈_l}
+    {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊆ \f("B")}$>>
+
+let rA2 =
+  <<$\ternaryRN{∈_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
+    {Ξ ⊢ t ≡ u}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("u ∈ B")}$>>
+
+let rs env =
+  let env = resize_env 3.0 env in
+  let rs =
+    [ [ r11 ; r12 ]
+    ; [ r21 ; r22 ; r23 ]
+    ; [ r31 ; r32 ]
+    ; [ r41 ; r42 ]
+    ; [ r51 ]
+    ; [ r61 ; r62 ]
+    (* quantifiers. *)
+    ; [ r71 ; r72 ]
+    ; [ r81 ; r82 ]
+    (* restriction and membership. *)
+    ; [ r91 ; r92 ]
+    ; [ rA1 ; rA2 ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let _ =
+  figure_here
+    ~name:"subrules"
+    ~caption:[tT "Typing and subtyping rules."] (dr rs)
+)
 
 ... (* TODO *)
 
