@@ -683,9 +683,6 @@ We require three disjoint, countable sets of variables:
 $\cal{V}_ι = \{x, y, z ...\}$ for $λ$-variables,
 $\cal{V}_σ = \{α, β, γ ...\}$ for $μ$-variables and
 $\cal{V}_τ = \{a, b, c ...\}$ for term variables.
-We also require a countable set $\cal{L} = \{l, k ...\}$ of labels to
-name record fields and a countable set $\cal{C} = \{C, D ...\}$ for
-naming variants (a.k.a. constructors).
 \end{def}
 As usual, $λ$-variables and $μ$-variables will be bound in terms to
 respectively form functions and capture continuations. As our calculus
@@ -701,11 +698,11 @@ corresponding sets are displayed on the left.
 let _ = large_bnfs
   [ ( << $(Λ_ι)$ >>
     , << $v, w$ >>
-    , << $\v("x") \| \v("λx t") \| \v("C[v]") \| \v("{(li = vi) i∈I}")$ >> )
+    , << $\v("x") \| \v("λx t") \| \v("Ck[v]") \| \v("{(li = vi) i∈I}")$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
-         \| \t("v.l") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
+         \| \t("v.lk") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
          \| \t("U(v)") \| \t("δ(v,w)") $ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
@@ -714,27 +711,25 @@ let _ = large_bnfs
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >> ) ]
 )
-Note that $I ⊆_{fin} \bbN$ denotes a finite set of indexes. For any such
-set $I$, we will assume that for all $i∈I$ and $j∈I$ such that $i ≠ j$
-we have $C_i ≠ C_j$ and $l_i ≠ l_j$.
-\end{def}
+\end{def} (* FIXME Pas assez clair (Christophe) *)
 Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
 enriched with ML-like constructs (i.e. records and variants). Values of
-the form $\v("C[v]")$ correspond to variants, which always have exactly
-one argument in our language. Case analysis on variants is performed using
-the syntax $\t("[v | (Ci[xi] → ti) i∈I]")$, in which the pattern
-$\v("Ci[xi]")$ is mapped to the term $t_i$ for all $i$ in $I$. Similarly,
-values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which are
-tuples with named fields. The projection operation $\t("v.l")$ can be used
-to access the values stored in a record $v$.
+the form $\v("Ck[v]")$ (where $k ∈ \bbN$) correspond to variants, or
+constructors. Note that they always have exactly one argument in our
+language. Case analysis on variants is performed using the syntax
+$\t("[v | (Ci[xi] → ti) i∈I]")$, in which the pattern $\v("Ci[xi]")$ is
+mapped to the term $t_i$ for all $i$ in $I ⊆_{fin} \bbN$. Similarly,
+values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which
+are tuples with named fields. The projection operation $\t("v.lk")$ can
+be used to access the value with label $l_k$ in the record $v$.
 \begin{rem}
 The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for pattern-matching and the
-syntax $\v("{(l = v) i∈I}")$ for records are part of our meta-language. We
-only use them as shortcuts to designate arbitrary lists of patterns or
-record fields. In the actual syntax, the full list of patterns or fields
-always need to be specified. As an example, we would write
+syntax $\v("{(li = vi) i∈I}")$ for records are part of our meta-language.
+We only use them as shortcuts to designate arbitrary lists of patterns
+or record fields. In the actual syntax, the full list of patterns or
+fields always need to be specified. For example, we would write
 $\t("{l₁ = v₁; l₂ = v₂;}")$ for a record or
-$\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ for a case analysis if
+$\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ for a case analysis when
 $I = \{1, 2\}$.
 \end{rem}
 A term of the form $\t("Y(t,v)")$ denotes a fixpoint combinator, which
@@ -746,13 +741,13 @@ definition of observational equivalence (see \chapter("obsEquiv")), and the
 latter will be used to obtain an essential property of our realizability
 model (see \chapter("semValRest")).
 
-A stack can be either the empty stack $ε$, a stack variable, a value pushed
-on top of a stack, or a stack frame containing a term on top of a stack.
-These two constructors are specific to the call-by-value presentation as a
-stack not only needs to store the arguments to functions, but also the
-functions themselves while their arguments are being computed. In
-call-by-name we would only need to store the arguments to functions in the
-stack.
+A stack can be either the empty stack $\s("ε")$, a stack variable $\s("α")$,
+a value pushed on top of a stack $\s("v·π")$, or a stack frame containing a
+term on top of a stack $\s("[t]π")$. The need for two stack constructors is
+specific to the call-by-value presentation as a stack not only needs to
+store the arguments to functions, but also the functions themselves while
+their arguments are being computed. In call-by-name only the arguments are
+stored in the stack.
 \begin{rem}
 We enforce values in constructors, record fields, projections and case
 analysis. This makes the calculus simpler because only $β$-reduction need
@@ -762,16 +757,16 @@ defined to hide these restrictions.
 let sugarproj =
   let open Lang_maths in
   let open Lang_ast in
-  t2m (TProj (VMeta ("t", None), ("l", None)))
+  t2m (TProj (VMeta ("t", None), ("l", Some "k")))
 let sugarcons =
   let open Lang_maths in
   let open Lang_ast in
-  t2m (TValu (VCons (("C", None), VMeta ("t", None))))
+  t2m (TValu (VCons (("C", Some "k"), VMeta ("t", None))))
 )
 $$
-  \sugarproj ≔ \t("(λx x.l) t")
+  \sugarproj ≔ \t("(λx x.lk) t")
   \hspace(4.0)
-  \sugarcons ≔ \t("(λx C[x]) t")
+  \sugarcons ≔ \t("(λx Ck[x]) t")
 $$
 Note that the elimination of such syntactic sugars corresponds to a form
 of partial ##let##-normalization \cite("Moggi1989") or ##A##-normalization
@@ -791,8 +786,8 @@ A //substitution// is a map $ρ$ such that for all $x ∈ \cal{V}_ι$ we have
 $ρ(x) ∈ Λ_ι$, for all $α ∈ \cal{V}_σ$ we have $ρ(α) ∈ Π$ and for all
 $a ∈ \cal{V}_τ$ we have $ρ(a) ∈ Λ$. For $ρ$ to be a substitution, we also
 require that $ρ(χ) ≠ χ$ for only finitely many $χ ∈ \cal{V}_ι ∪ \cal{V}_σ
-∪ \cal{V}_τ$. We denote $dom(ρ) = \{χ \| ρ(χ) ≠ χ\}$ the domain of the
-substitution $ρ$, and $\cal{S}$ the set of all the substitutions. In
+∪ \cal{V}_τ$. We denote $\cal{S}$ the set of all the substitutions and
+$dom(ρ) = \{χ \| ρ(χ) ≠ χ\}$ the domain of the substitution $ρ$. In
 particular, the substitution $ρ_{id} ∈ \cal{S}$ is called the //identity//
 substitution and is defined as $ρ_{id}(χ) = χ$ for all $χ ∈ \cal{V}_ι ∪
 \cal{V}_σ ∪ \cal{V}_τ$.
@@ -800,7 +795,7 @@ substitution and is defined as $ρ_{id}(χ) = χ$ for all $χ ∈ \cal{V}_ι ∪
 \begin{def}
 For every $ρ ∈ \cal{S}$ we denote $\subs("ρ[x≔v]")$ the substitution formed
 by remapping $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
-${\subs("ρ[x≔v]")}(x) = v$ and ${\subs("ρ[x≔v]")}(χ) = ρ(χ)$ if $χ ≠ x$.
+$(\subs("ρ[x≔v]"))(x) = v$ and $(\subs("ρ[x≔v]"))(χ) = ρ(χ)$ if $χ ≠ x$.
 Similarly, we denote $\subs("ρ[α≔π]")$ the substitution formed by remapping
 $α ∈ \cal{V}_σ$ to $π ∈ Π$ in $ρ$ and $\subs("ρ[a≔t]")$ the substitution
 formed by remapping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
@@ -809,7 +804,7 @@ $\subs("[a≔t]")$.
 \end{def}
 \begin{def}
 Let $ρ ∈ \cal{S}$ be a substitution and $ψ$ be a value, term, stack or
-process. We denote $\p("ψρ")$ the value, term, stack of process formed
+process. We denote $\p("ψρ")$ the value, term, stack or process formed
 by simultaneously substituting (without capture) every variables
 $χ ∈ FV(ψ)$ with $ρ(χ)$ in $ψ$.
 \end{def} (* FIXME precise def ? *)
@@ -855,11 +850,11 @@ $λ$-abstraction. A capture-avoiding substitution can then be performed to
 effectively apply the argument to the function. The fourth and fifth rules
 rules handle the classical part of computation. When a $μ$-abstraction is
 reached, the current stack is captured and substituted for the corresponding
-$μ$-variable. Conversely, when a term of the form $\t("[ξ]t")$, the current
-stack is discarded and evaluation resumes with the process $\p("t ∗ ξ")$.
-In addition to the reduction rules for $β$-reduction and stack manipulation,
-we provide reduction rules for handling record projection, case analysis and
-recursion using a fixpoint operator.
+$μ$-variable. Conversely, when a term of the form $\t("[ξ]t")$ is reached,
+the current stack is discarded and evaluation resumes with the process
+$\p("t ∗ ξ")$. In addition to the reduction rules for $β$-reduction and
+stack manipulation, we provide reduction rules for handling record
+projection, case analysis and recursion using a fixpoint operator.
 
 A last rule is also provided for reducing processes of the form
 $\p("U({}) ∗ π")$ to $\p("{} ∗ π")$. Note that for any value $v$ that is not
