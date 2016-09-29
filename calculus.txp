@@ -679,18 +679,19 @@ four entities: values, terms, stacks and processes. Note that the
 distinction between terms and values is specific to our call-by-value
 presentation, they would be collapsed in call-by-name.
 \begin{def}
-We require three distinct, countable sets of variables:
-$\cal{V}_ι = \{x, y, z...\}$ for $λ$-variables,
-$\cal{V}_σ = \{α, β, γ...\}$ for $μ$-variables and
-$\cal{V}_τ = \{a, b, c...\}$ for term variables.
-We also require a countable set $\cal{L} = \{l, k...\}$ of labels to
-name record fields and a countable set $\cal{C} = \{C, D...\}$ for
+We require three disjoint, countable sets of variables:
+$\cal{V}_ι = \{x, y, z ...\}$ for $λ$-variables,
+$\cal{V}_σ = \{α, β, γ ...\}$ for $μ$-variables and
+$\cal{V}_τ = \{a, b, c ...\}$ for term variables.
+We also require a countable set $\cal{L} = \{l, k ...\}$ of labels to
+name record fields and a countable set $\cal{C} = \{C, D ...\}$ for
 naming variants (a.k.a. constructors).
 \end{def}
 As usual, $λ$-variables and $μ$-variables will be bound in terms to
 respectively form functions and capture continuations. As our calculus
 will not provide binders ranging over term variables, they will only
-appear free.
+appear free. In fact, these variables will be bound in types to express
+properties ranging over the set of all terms (see \chapter("typeSystem")).
 
 \begin{def}
 Values, terms, stacks and processes are mutually inductively defined as the

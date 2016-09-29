@@ -4,8 +4,8 @@
   open Lang
 
   let mt = mathsText
-  let wbox = <$\mathsize(3.){\wbox}$>
-  let bbox = <$\mathsize(3.){\bbox}$>
+  let wbox = <$\mathsize{3.}{\wbox}$>
+  let bbox = <$\mathsize{3.}{\bbox}$>
 )
 \Include{Macros}
 
@@ -353,6 +353,7 @@ let _ =
     ~caption:[tT "Typing and subtyping rules."] (dr rs)
 )
 
+\pagesBefore(1)
 ... (* TODO *)
 
 =<

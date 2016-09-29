@@ -393,7 +393,7 @@ and a $λ$-abstraction diverging on every value (i.e. for every $v ∈ Λ_ι$
 and $π ∈ Π$, ${\p("(λxt) v ∗ π")} {⇓}_{≻}$). In this case, we need to
 use the $\t("U(v)")$ term constructor, which has been introduced for
 exactly this purpose.
-\begin{thm}\label("nequiv")
+\begin{thm}\label("nequivlamreco")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $I$ be a
 finite set of index such that $l_i ∈ \cal{L}$ and $v_i ∈ Λ_ι$ for all
 $i∈I$. We have $\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
@@ -489,7 +489,7 @@ $\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
 \item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
       $v = \v("λy t")$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
       We have $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
-      \thmRef("nequiv").
+      \thmRef("nequivlamreco").
 \item If there is constructor $C ∈ \cal{C}$ and a value $w ∈ Λ_ι$ such
       that $v = \v("C[w]")$ then we consider the substitution
       $ρ=\subs("[x≔{}]")$. We have
@@ -505,56 +505,45 @@ $\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
 \end{proof}
 \end{thm}
 
-
-(* TODO from here *)
-
-(*
-\begin{thm}\label("injconst")
-Let $C ∈ \cal{C}$ be a constructors and $v$, $w ∈ Λ_ι$ be two values. We
-have $\v("C[v]") ≡_{≻} \v("C[w]")$ if and only if $v ≡_{≻} w$.
-\begin{proof}
-Let us first show that if $\v("C[v]") ≡_{≻} \v("C[w]")$ then $v ≡_{≻} w$. We
-are going to show the contrapositive so we assume $v \nequiv_{≻} w$ and we
-show $\v("C[v]") \nequiv_{≻} \v("C[w]")$. By definition, there is a stack
-$π ∈ Π$ and a substitution $ρ$ such that ${\p("vρ∗π")} {⇓}_{≻}$ and
-${\p("wρ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀ ∈ Π$ and $ρ$
-such that ${\p("(C[v])ρ₀∗π₀")} {⇓}_{≻}$ and ${\p("(C[w])ρ₀∗π₀")} {⇑}_{≻}$.
-We can take $ρ₀ = ρ$ and $π₀ = \s("[λx [x|C[y]→y]]π")$ as we have
-$$
-  \p("(C[v])ρ₀∗π₀") ≻ \p("λx [x|C[y]→y] ∗ C[vρ₀]·π")
-                    ≻ \p("[C[vρ₀]|C[y]→y] ∗ π")
-                    ≻ {\p("vρ₀ ∗ π")} {⇓}_{≻}
-$$
-and similarly $\p("(C[w])ρ₀∗π₀") ≻^{∗} {\p("wρ₀ ∗ π")} {⇑}_{≻}$.
-
-Let us now show that if $v ≡_{≻} w$ then $\v("C[v]") ≡_{≻} \v("C[w]")$.
-We are again going to show the contrapositive so we assume
-$\v("C[v]") \nequiv_{≻} \v("C[w]")$ and we show $v \nequiv_{≻} w$. By
-definition, there is a stack $π ∈ Π$ and a substitution $ρ$ such that
-${\p("C[vρ]∗π")} {⇓}_{≻}$ and ${\p("C[wρ]∗π")} {⇑}_{≻}$ (up to symmetry).
-We need to find $π₀ ∈ Π$ and $ρ$ such that ${\p("vρ₀∗π₀")} {⇓}_{≻}$ and
-${\p("wρ₀∗π₀")} {⇑}_{≻}$. We can take $ρ₀ = ρ$ and $π₀ = \s("[λx C[x]]π")$
-as we have
-$\p("vρ₀∗π₀") ≻ \p("λx C[w] ∗ vρ₀·π") ≻ {\p("C[vρ₀] ∗ π")} {⇓}_{≻}$
-and similarly $\p("wρ₀∗π₀") ≻^{∗} {\p("C[wρ₀] ∗ π")} {⇑}_{≻}$.
-\end{proof}
-\end{thm}
-*)
-
-
+We will now identify the value that are equivalent to a given variant, and
+those that are equivalent to a given record. In both case, the equivalent
+values have the same structure and equivalent subvalues.
 \begin{thm}
 Let $C ∈ \cal{C}$ be a constructor and $v$, $w₀ ∈ Λ_ι$ be two values. The
 equivalence $\v("C[v]") ≡_{≻} w₀$ holds if and only if $w₀ = \v("C[w]")$
 for some $w ∈ Λ_ι$ such that $w ≡_{≻} v$.
 \begin{proof}
-If it is the case that $w₀ = \v("C[w]")$ and $w ≡_{≻} v$ then we indeed
-have $\v("C[v]") ≡_{≻} w₀$ according to \thmRef("injconst"). This theorem
-also tells us that if $w₀ = \v("C[w]")$ and $w \nequiv_{≻} v$ then we
-$\v("C[v]") \nequiv_{≻} w₀$. Now if $w₀ = \v("D[w]")$ for some constructor
-$D∈\cal{C}$ such that $C ≠ D$ then we have $\v("C[v]") \nequiv_{≻} w₀$ by
-\thmRef("consnequiv"). All the remaining cases can be handled immediatly
-using \thmRef("varequiv"), \thmRef("nequivlamcons") and \thmRef("consneqrec")
-respectively.
+Let us first assume that $w₀ = \v("C[w]")$ for some $w ∈ Λ_ι$ such that
+$w ≡_{≻} v$ and show $\v("C[v]") ≡_{≻} w₀$. We do a proof by contradiction
+so we suppose that $\v("C[v]") \nequiv_{≻} w₀ = \v("C[w]")$. By definition,
+there must be a stack $π ∈ Π$ and a substitution $ρ ∈ \cal{S}$ such that
+${\p("C[vρ] ∗ π")} {⇓}_{≻}$ and ${\p("C[wρ] ∗ π")} {⇑}_{≻}$ (up to
+symmetry). We can thus use \lemRef("equivcounterex") with $ρ$ and the stack
+$\s("[λx C[x]]π")$ to show that $\v("C[v]") \nequiv_{≻} \v("C[w]")$ since
+we have $\p("vρ ∗ [λx C[x]]π") ≻^{∗} {\p("C[vρ] ∗ π")} {⇓}_{≻}$ and
+$\p("wρ ∗ [λx C[x]]π") ≻^{∗} {\p("C[wρ] ∗ π")} {⇑}_{≻}$. This contradicts
+our hypothesis that $w ≡_{≻} v$, and hence we can conclude that
+$\v("C[v]") ≡_{≻} \v("C[w]")$.
+
+Let us now suppose that $\v("C[v]") ≡_{≻} \v("w₀")$ and show that
+$\v("w₀")$ is of the form $\v("C[w]")$ for some $w ∈ Λ_ι$ such that
+$w ≡_{≻} v$. We reason by case on the possible forms of the value
+$\v("w₀")$. Using \thmRef("varequiv"), \thmRef("nequivlamcons") and
+\thmRef("consneqrec") we obtain that $\v("w₀")$ cannot be a $λ$-variable,
+a $λ$-abstraction or a record. Moreover, it cannot be that
+$\v("w₀") = \v("D[w]")$ with $D ≠ C$, otherwise \thmRef("consnequiv")
+would give us a contradiction.
+Let us now suppose that $\v("w₀") = \v("C[w]")$ for some $w ∈ Λ_ι$ such
+that $w \nequiv_{≻} v$. We hence have a stack $π ∈ Π$ and a substitution
+$ρ ∈ \cal{S}$ such that ${\p("vρ ∗ π")} {⇓}_{≻}$ and ${\p("wρ ∗ π")} {⇑}_{≻}$
+(up to symmetry). We can thus use \lemRef("equivcounterex") with $ρ$ and
+the stack $\s("[λx [x | C[x]→x]]π")$ to show
+$\v("C[v]") \nequiv_{≻} \v("C[w]")$
+since $\p("C[vρ] ∗ [λx [x | C[x]→x]]π") ≻^{∗} {\p("vρ ∗ π")} {⇓}_{≻}$ and
+$\p("C[wρ] ∗ [λx [x | C[x]→x]]π") ≻^{∗} {\p("wρ ∗ π")} {⇑}_{≻}$. This
+contradicts $\v("C[v]") ≡_{≻} \v("w₀")$ and the only remaining possibility
+is thus that $\v("w₀") = \v("C[w]")$ for some $w ∈ Λ_ι$ such that
+$w ≡_{≻} v$.
 \end{proof}
 \end{thm}
 \begin{thm}
@@ -564,16 +553,60 @@ $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ if and only if
 $w₀ = \v("{(li = wi) i∈I}")$ for some values $\v("wi") ∈ Λ_ι$
 such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \begin{proof}
-(* TODO *) \todo
+Let us first assume that $w₀ = \v("{(li = wi) i∈I}")$ with
+$\v("vi") ≡_{≻} \v("wi")$ for all $i∈I$ and show
+$\v("{(li = vi) i∈I}") ≡_{≻} \v("{(li = wi) i∈I}")$.
+(* TODO *) \todo(Some "with extentionality")
+
+Let us now suppose $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ and show that $w₀$ is
+of the form $\v("{(li = wi) i∈I}")$ with $\v("wi") ≡_{≻} \v("vi")$ for all
+$i∈I$. We reason by case on the possible forms of the value $\v("w₀")$.
+Using \thmRef("varequiv"), \thmRef("nequivlamreco") and
+\thmRef("consneqrec") we obtain that $\v("w₀")$ cannot be a $λ$-variable,
+a $λ$-abstraction or a variant. Moreover, it cannot be that
+$\v("w₀") = \v("{(li = wi) i∈I₀}")$ with $I₀ ≠ I$, as \thmRef("reconequiv")
+would give us a contradiction. We must hence have $w₀ = \v("{(li=wi) i∈I}")$
+with $w_i ∈ Λ_ι$ for all $i∈I$. Let us now suppose that $v_k \nequiv_{≻} w_k$
+for some $k ∈ I$. By definition, there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such
+that ${\p("vkρ ∗ π")} {⇓}_{≻}$ and ${\p("wkρ ∗ π")} {⇑}_{≻}$ (up to symmetry).
+We can thus apply \lemRef("equivcounterex") with $ρ$ and the stack
+$\s("[λx x.lk]π")$ to show
+$\v("{(li=vi) i∈I}") \nequiv_{≻} \v("{(li=wi) i∈I}")$
+as $\p("{(li=vi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("vkρ ∗ π")} {⇓}_{≻}$ and
+$\p("{(li=wi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("wkρ ∗ π")} {⇑}_{≻}$. This
+contradicts $\v("{(li=vi) i∈I}") ≡_{≻} \v("w₀")$ and hence
+$\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \end{proof}
 \end{thm}
+
+(* TODO from here *)
+
 \begin{thm}
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
 be a value. If the equivalence $\t("λx t") ≡_{≻} v$ holds, then there
-are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t("λy u")$.
-(* Note: can I get something stronger? *)
+are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t("λy u")$ and
+$t ≡_{≻} \t("t[y≔x]")$.
 \begin{proof}
-(* TODO *) \todo
+Let us first assume that $w₀ = \v("λyu")$ with $\t("t") ≡_{≻} \t("u[y≔x]")$
+and show $\v("λxt") ≡_{≻} \v("λy u")$.
+(* TODO *) \todo(Some "not sure how")
+
+We now suppose $\v("λxt") ≡_{≻} \v("w₀")$ and show that $w₀$ has
+form $\v("λyu")$ with $t ≡_{≻} \t("u[y≔x]")$. We reason by case on the
+possible forms of the value $\v("w₀")$. Using \thmRef("varequiv"),
+\thmRef("nequivlamreco") and \thmRef("nequivlamcons") we obtain that
+$\v("w₀")$ cannot be a $λ$-variable, a record or a variant. Consequently,
+we know that $w₀ = \v("λy u")$ for some $y ∈ \cal{V}_ι$ and $u ∈ Λ$. We
+now assume that $t \nequiv_{≻} u$. By our second definition of equivalence,
+there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such that ${\p("(t ∗ π)ρ")} {⇓}_{≻}$
+and ${\p("(u ∗ π)ρ")} {⇑}_{≻}$ (up to symmetry). Moreover, we have
+$\p("λxt ∗ x·π") ≻ \p("t ∗ π")$ and we also have
+$\p("λyu ∗ x·π") ≻ \p("u[y≔x] ∗ π")$ so can use \thmRef("redcompatall") to
+obtain $\p("(λxt ∗ x·π)ρ") ≻ {\p("(t ∗ π)ρ")} {⇓}_{≻}$ and
+$\p("(λyu ∗ x·π)ρ") ≻ {\p("(u[y≔x] ∗ π)ρ")} {⇑}_{≻}$. We can thus apply
+\lemRef("equivcounterex") with $ρ$ and the stack $\s("x · π")$ to obtain
+$\v("λxt") \nequiv_{≻} \v("λyu")$, which gives us a contradiction. As a
+consequence, the equivalence $t ≡_{≻} u$ must hold.
 \end{proof}
 \end{thm}
 

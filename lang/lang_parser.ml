@@ -7,12 +7,15 @@ let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
   | "₅" -> "5" | "₆" -> "6" | "₇" -> "7" | "₈" -> "8" | "₉" -> "9"
   | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n" | "i+1" -> "i+1"
+  | "α" -> "α" | "f" -> "f"
 
 (* Generic parser for variables. *)
-let parser vari p = x:p i:index? _:Decap.relax
+let parser vari p   = x:p i:index? _:Decap.relax
+let parser wildcard = "_" -> ("_", None)
 let vari ns =
   let str s = Decap.string s s in
-  vari (Decap.alternatives (List.map str ns))
+  let normal = vari (Decap.alternatives (List.map str ns)) in
+  Decap.alternatives [wildcard; normal]
 
 (* Predifined parsers for all kind of variables and metavariables. *)
 let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
@@ -23,10 +26,10 @@ let cmeta = vari ["E"; "F"]
 let svari = vari ["α"; "β"; "γ"]
 let smeta = vari ["π"; "ξ"; "ρ"]
 let pmeta = vari ["p"; "q"; "ψ"]
-let const = vari ["C"; "D"]
+let const = vari ["C"; "D" ; "S" ; "Z"]
 let label = vari ["l"; "k"]
 let subsm = vari ["σ"; "ρ"]
-let vfset = vari ["I"; "J"]
+let vfset = vari ["I"; "J"; "K"]
 let fmeta = vari ["A"; "B"; "C"; "Φ"]
 let fvari = vari ["χ"]
 let ovari = vari ["X"; "Y"; "Z"]

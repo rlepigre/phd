@@ -420,6 +420,8 @@ module PMLVerbatim : sig
       [ "type" ; "val" ; "fun" ; "if" ; "then" ; "else" ; "let" ; "in"
       ; "rec" ; "match" ; "with" ; "of" ; "save" ; "restore" ]
 
+    let separators = ["("; ")"]
+
     let symbols  =
       let simple_verb : string -> string * content =
          fun s -> (s, Verbatim.symbol s)
@@ -438,8 +440,9 @@ module PMLVerbatim : sig
     let verb_PML fn lines =
       let open Verbatim in
       lines_to_file lines fn;
-      let build_word = handle_word {keywords ; symbols} in
-      let build_line l = hspace pad @ handle_spaces build_word l in
+      let params = {keywords ; separators ; symbols} in
+      let build_word = handle_word params in
+      let build_line l = hspace pad @ handle_spaces params build_word l in
       line_per_line D.structure build_line lines
   
     let verbatim =
@@ -448,7 +451,7 @@ module PMLVerbatim : sig
       let build = handle_spaces (handle_word {keywords ; symbols}) in
       verb_text (handle_spaces build)
       *)
-      verb_text (handle_word {keywords = []; symbols})
+      verb_text (handle_word {keywords = []; separators; symbols})
   end
 
 let verb_OCaml fn lines =
@@ -459,7 +462,7 @@ let verb_OCaml fn lines =
     { param_OCaml with keywords = extra @ param_OCaml.keywords }
   in
   let build_word = handle_word param_OCaml in
-  let build_line l = hspace 2.0 @ handle_spaces build_word l in
+  let build_line l = hspace 2.0 @ handle_spaces param_OCaml build_word l in
   line_per_line D.structure build_line lines
 
 let lmcalc =
@@ -599,5 +602,7 @@ let tabular_layout ratio vsep lines =
     [bB (fun env -> [Drawing (dr env)])]
   in np [C contents]
 
-let todo = color red <<TODO ... >>
+let todo = function
+  | None     -> color red <<TODO (...) >>
+  | Some txt -> color red (<<TODO (>> @ [tT txt] @ <<)>>)
 )

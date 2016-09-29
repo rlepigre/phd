@@ -29,7 +29,7 @@ the biggest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity, the
 empty type) if $t \nequiv_{≻} u$. For example, the type
 $\f("(λx x) λx x ≡ λx x")$ is inhabited as $\t("(λx x) λx x") ≡_{≻}
 \t("λx x")$ according to \thmRef("cbvbeta"), but $\f("λx x ≡ {}")$ is empty
-as $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequiv").
+as $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequivlamreco").
 
 Of course, it is undecidable whether two terms are equivalent or not. As a
 consequence, we will not be able to decide, in general, whether an equality
@@ -803,11 +803,11 @@ we can conclude immediatly. For the first heighteen first rules of
 \figRef("sortrules"), the proof is immediate using the induction
 hypothesis. The remaining cases are treated bellow.
 \begin{itemize}
-\item \color(red){...} (* TODO *)
+\item \todo(None) (* TODO *)
       $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
-\item \color(red){...} (* TODO *)
+\item \todo(None) (* TODO *)
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
-\item \color(red){...} (* TODO *)
+\item \todo(None) (* TODO *)
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο} $$
 \item In the case of the universal type, we need to show that
       $\vs("(∀χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
@@ -854,7 +854,7 @@ $v₁ ∈ Λ_{val}$ and $v₂ ∈ Λ_{val}$ be values such that $x : ι ⊢ A : 
 $⊢ v₁ : ι$ and $⊢ v₂ : ι$.
 If we have $v₁ ≡_{≻} v₂$ then we also have $\vs("A[x≔v₁]") = \vs("A[x≔v₂]")$.
 \begin{proof}
-\color(red){...} (* TODO *)
+\todo(None) (* TODO *)
 \end{proof}
 \end{thm}
 \begin{thm}\label("texttyp")
@@ -862,7 +862,7 @@ Let $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a term variable and $u₁ ∈
 and $u₂ ∈ Λ$ be terms such that $a : τ ⊢ A : ο$, $⊢ u₁ : τ$ and $⊢ u₂ : τ$.
 If we have $u₁ ≡_{≻} u₂$ then we also have $\vs("A[a≔u₁]") = \vs("A[a≔u₂]")$.
 \begin{proof}
-\color(red){...} (* TODO *)
+\todo(None) (* TODO *)
 \end{proof}
 \end{thm}
 
@@ -1227,7 +1227,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
 =<
 => Properties of the system
 
-\color(red){...} (* TODO from here *)
+\todo(None) (* TODO from here *)
 
 =<
 => Derived rules for dependent types
