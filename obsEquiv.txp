@@ -12,7 +12,7 @@ In this chapter, we define a notion of equivalence over programs. We
 will see two programs as equivalent if they have the same observable
 behaviour in terms of computation. A partial axiomatization of the
 corresponding equivalence relation is provided to allow for the
-implementation of a pseudo-decision procedure.
+implementation of a partial decision procedure.
 
 => Definitions of equivalence
 

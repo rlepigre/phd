@@ -6,8 +6,8 @@ let debug = false
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
   | "₅" -> "5" | "₆" -> "6" | "₇" -> "7" | "₈" -> "8" | "₉" -> "9"
-  | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n" | "i+1" -> "i+1"
-  | "α" -> "α" | "f" -> "f"
+  | "i" -> "i" | "j" -> "j" | "k" -> "k" | "n" -> "n" | "m" -> "m"
+  | "i+1" -> "i+1" | "α" -> "α" | "f" -> "f"
 
 (* Generic parser for variables. *)
 let parser vari p   = x:p i:index? _:Decap.relax

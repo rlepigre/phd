@@ -897,8 +897,9 @@ A process $p ∈ Λ×Π$ is said to be:
 \item //blocked// if there is no $q ∈ Λ×Π$ such that $p ≻ q$,
 \item //stuck// if it is not final nor $δ$-like and if $\p("pρ")$ is blocked
       for every substitution $ρ$,
-\item //non-terminating// if there is no blocked process $q ∈ Λ×Π$ such that
-      $p ≻^{∗} q$.
+\item //non-terminating// if there is an infinite sequence of processes
+      $(p_i)_{i∈\bbN}$ such that $p₀ = p$ and for all $i∈\bbN$ we have
+      $p_i ≻ p_{i+1}$.
 \end{itemize}
 \end{def}
 \begin{lem}\label("redstable")
@@ -915,19 +916,22 @@ suppose that there is a substitution $ρ₀ ∈ \cal{S}$ such that
 $\p("(pρ)ρ₀")$ is not blocked. This contradicts the fact that $p$
 is stuck since $\p("p(ρ∘ρ₀)") = \p("(pρ)ρ₀")$ is not blocked, and
 hence the process $\p("pρ")$ is stuck. Finally, if $p$ is
-non-terminating then we consider a process $q₀ ∈ Λ×Π$ such that
-$p ≻^{∗} q₀$. By definition, $q₀$ cannot be blocked otherwise $p$
-would not be non-terminating, hence there is a process $q₁ ∈ Λ×Π$
-such that $q₀ ≻ q₁$. By \thmRef("redcompatall") we know
-$\p("pρ") ≻^{∗} \p("q₀ρ")$ and $\p("q₀ρ") ≻ \p("q₁ρ")$.
-Consequently, $\p("q₀ρ")$ is not blocked and $\p("pρ")$ is
-non-terminating.
+non-terminating then we have a sequence $(p_i)_{i∈\bbN}$ such that
+$p₀ = p$ and $p_i ≻ p_{i+1}$ for all $i ∈ \bbN$. To show that
+$\p("pρ")$ is non-terminating we need to construct a sequence
+$(q_i)_{i∈\bbN}$ such that $q₀ = \p("pρ")$ and $q_i ≻ q_{i+1}$ for
+all $i ∈ \bbN$. We can take $q_i = \p("piρ")$ for all $i ∈ \bbN$.
+Indeed, we have $q₀ = \p("pρ")$ since $p₀ = p$ and for all
+$i ∈ \bbN$ we have $\p("piρ") ≻ \p("pi+1ρ")$ by \lemRef("redcompatall")
+as $\p("pi") ≻ \p("pi+1")$.
 \end{proof}
 \end{lem}
 
+(* FIXME parler de la preuve "Caml" / joindre les preuves des deux lemmes. *)
 \begin{lem}\label("remark")
 A process is stuck if and only if it is of one of the following forms,
-where $k ≠ l_i$ and $D ≠ C_i$ for every index $i ∈ I$.
+where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that
+$k ∉ I$ and $K ≠ ∅$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
@@ -935,17 +939,17 @@ where $k ≠ l_i$ and $D ≠ C_i$ for every index $i ∈ I$.
     let line3 p1 p2 p3    = line [p1; p2; p3] in
     let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
     tabular_layout 0.8 2.0
-    [ line4 "C[v].l ∗ π"
-            "(λx t).l ∗ π"
-            "C[v] ∗ w·π"
+    [ line4 "Cn[v].lm ∗ π"
+            "(λx t).lm ∗ π"
+            "Cn[v] ∗ w·π"
             "{(li = vi) i∈I} ∗ v·π"
     ; line2 "[λx t | (Ci[xi] → ti) i∈I] ∗ π"
             "[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π"
-    ; line2 "[D[v] | (Ci[xi] → ti) i∈I] ∗ π"
-            "{(li = vi) i∈I}.k ∗ π"
+    ; line2 "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π"
+            "{(li = vi) i∈I}.lk ∗ π"
     ; line4 "U(λx t) ∗ π"
-            "U(C[v]) ∗ π"
-            "U({(li = vi) i∈I≠∅}) ∗ π"
+            "U(Cn[v]) ∗ π"
+            "U({(li = vi) i∈K}) ∗ π"
             "[x |] ∗ π" ]
 )
 \begin{proof}
@@ -961,15 +965,15 @@ reduction rule will ever apply to them, even after a substitution.
 
 \begin{lem}\label("possibilities")
 A blocked process $p ∈ Λ×Π$ is either stuck, final, $δ$-like, or of one of
-the following forms.
+the following forms, where $I ≠ ∅$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line3 p1 p2 p3    = line [p1; p2; p3] in
     tabular_layout 0.6 2.0
-    [ line3 "x.l ∗ π"
+    [ line3 "x.lk ∗ π"
             "x ∗ v·π"
-            "[x | (Ci[xi] → ti) i∈I≠∅] ∗ π"
+            "[x | (Ci[xi] → ti) i∈I] ∗ π"
     ; line3 "U(x) ∗ π"
             "a ∗ π"
             "v ∗ α" ]
@@ -981,8 +985,8 @@ After ruling out the twelve forms of stuck processes of \lemma("remark")
 we are left with six forms of processes. It remains to show that they are
 not stuck by finding substitution $ρ∈\cal{S}$ unlocking their reduction.
 (* *)
-For a process of the form $\p("x.l ∗ π")$ we take
-$ρ = \subs("[x ≔ {l = {}}]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
+For a process of the form $\p("x.lk ∗ π")$ we take
+$ρ = \subs("[x ≔ {lk = {}}]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
 For a process of the form $\p("x ∗ v·π")$ we take
 $ρ = \subs("[x ≔ λy y]")$ as $\p("λy y ∗ vρ·πρ") ≻ \p("vρ ∗ πρ")$.
@@ -995,7 +999,7 @@ For a process of the form $\p("U(x) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
 as $\p("U({}) ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
 For a process of the form $\p("a ∗ π")$ we can simply take
-$ρ = \subs("[a ≔ {l = {}}.l]")$ as $\p("{l = {}}.l ∗ πρ") ≻ \p("{} ∗ πρ")$.
+$ρ = \subs("[a ≔ {lk = {}}.lk]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
 For a process of the form $\p("v ∗ α")$ we can take
 $ρ = \subs("[α ≔ [λx x]ε]")$ as $\p("vρ ∗ [λx x]ε") ≻ \p("λx x ∗ vρ·ε")$.
