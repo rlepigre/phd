@@ -78,7 +78,7 @@ let parser valu prio =
   | c:const '[' v:(valu VComp) ']'            when prio = VSimp -> VCons(c,v)
   | "{" fs:(fset field ";") ';'? "}"          when prio = VSimp -> VReco(fs)
   | '(' v:(valu VComp) ')'                    when prio = VProj -> VGrou(v)
-  | v:(valu VSimp) g:subs                     when prio = VSimp -> VSubs(v,g)
+  | v:(valu VSimp) g:subs$                    when prio = VSimp -> VSubs(v,g)
   | v:(valu VSimp)                            when prio = VComp -> v
   | v:(valu VSimp)                            when prio = VProj -> v
   | s:subs '(' x:vvari ')'                    when prio = VSimp -> VASub(s,x)
@@ -88,7 +88,7 @@ and field = l:label "=" v:(valu VComp)
 and        term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
   | t:tmeta                                   when prio = TAtom -> TMeta(t)
-  | v:(valu VComp)                            when prio = TAtom -> TValu(v)
+  | v:(valu VComp)$                           when prio = TAtom -> TValu(v)
   | '(' t:(term TAppl) ')'                    when prio = TAtom -> TGrou(t)
   | t:(term TSubs) ts:(term TSubs)*$          when prio = TAppl -> tappl t ts
   | "μ" a:svari t:(term TAppl)$               when prio = TAtom -> TSave(a,t)
@@ -129,7 +129,7 @@ and        stac prio =
       when prio = SAtom -> SWitn(al,a,t,b)
 and        proc prio =
   | p:pmeta                                   when prio = PAtom -> PMeta(p)
-  | t:(term TAppl)$ "∗" s:(stac SFull)        when prio = PFull -> PProc(t,s)
+  | t:(term TAppl) "∗" s:(stac SFull)         when prio = PFull -> PProc(t,s)
   | '(' p:(proc PFull) ')'                    when prio = PAtom -> PGrou(p)
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
@@ -140,7 +140,7 @@ and        form prio =
   | x:qvari s:{"^" stvar}?                    when prio = FAtom -> FVari(x,s)
   | '(' x:qvari s:{"^" stvar}? "↦" a:(form FFull) ')'
                                               when prio = FAtom -> FLamb(x,s,a)
-  | a:(form FAtom) s:subs                     when prio = FAtom -> FSubs(a,s)
+  | a:(form FAtom) s:subs$                    when prio = FAtom -> FSubs(a,s)
   | a:(form FAtom) '(' b:(form FFull) ')'     when prio = FAtom -> FAppl(a,b)
   | '(' a:(form FFull) ')'                    when prio = FAtom -> FGrou(a)
   | a:(form FAtom) fs:{"⇒" b:(form FAtom)}*$  when prio = FFull -> ffunc (a::fs)
@@ -157,8 +157,8 @@ and        form prio =
   | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
       m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'
       when prio = FAtom -> FWitn(x,s,t,m,b)
-and ffield = l:label ':' a:(form FFull)
-and fpatt  = c:const ':' a:(form FFull)
+and ffield = l:label ':' a:(form FFull)$
+and fpatt  = c:const ':' a:(form FFull)$
 and equa   = t:(term TAppl)$ "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
 and        subs =
   | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)

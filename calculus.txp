@@ -936,7 +936,9 @@ $k ∉ I$ and $K ≠ ∅$.
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line2 p1 p2       = line [p1; p2] in
+    (*
     let line3 p1 p2 p3    = line [p1; p2; p3] in
+    *)
     let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
     tabular_layout 0.8 2.0
     [ line4 "Cn[v].lm ∗ π"

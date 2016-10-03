@@ -142,7 +142,9 @@ let reduction_def ?pad:(pad = 6.0) sym lines =
         let r = Document.draw env r in
         let n = Document.draw env n in
         let (wl,_) = size_box l in
+        (*
         let (wr,_) = size_box r in
+        *)
         let (wn,_) = size_box n in
         let l =
           let y = ((pagew -. wsym) /. 2.0) -. wl -. pad in 
@@ -212,7 +214,9 @@ let bnfs lines =
         let r = Document.draw env r in
         let n = Document.draw env n in
         let (wl,_) = size_box l in
+        (*
         let (wr,_) = size_box r in
+        *)
         let (wn,_) = size_box n in
         let l =
           let y = left +. maxl -. wl in
@@ -280,7 +284,9 @@ let large_bnfs lines =
         let l = Document.draw env l in
         let r = Document.draw env r in
         let (wl,_) = size_box l in
+        (*
         let (wr,_) = size_box r in
+        *)
         let l =
           let y = left +. maxl -. wl in
           List.map (RawContent.translate y 0.0) l
