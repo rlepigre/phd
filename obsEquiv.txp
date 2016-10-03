@@ -25,12 +25,9 @@ amounts to quantifying over every stacks. In this thesis, the
 considered observable behaviour is successful termination (versus
 non-termination or runtime error).
 \begin{def}
-Let $R ⊆ (Λ×Π)×(Λ×Π)$ be a reduction relation which reflexive-transitive
-closure is denoted $R^{∗}$. We say that a process $p ∈ Λ×Π$ converges,
-and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such that
-$(p,q) ∈ {R^{∗}}$. If $p$ does not converge we say that it diverges and
-we write $p {⇑}_R$. Note that we will write $p {⇓}_i$ and $p {⇑}_i$ when
-working with indexed relation symbols such as $({\epi}_i)$.
+We say that a process $p ∈ Λ×Π$ converges, and we write $p {⇓}_{≻}$,
+if there is a final state $q ∈ Λ×Π$ such that $p ≻^{∗} q$. If $p$
+does not converge we say that it diverges and we write $p {⇑}_{≻}$.
 \end{def}
 
 The idea now is to relate terms that form converging processes when put
@@ -119,17 +116,17 @@ term $\t("U({})")$. Indeed, the corresponding reduction rules do not
 involve an interaction with the stack. In particular, they leave the stack
 unchanged.
 \begin{thm}
-Let $I$ be a finite set of index such that $v_i ∈ Λ_ι$ and $l_i ∈ \cal{L}$
-for all $i ∈ I$. If $k ∈ I$ then $\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
+Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i ∈ I$.
+If $k ∈ I$ then $\t("{(li = vi) i∈I}.lk") ≡_{≻} \t("vk")$.
 \begin{proof}
 Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
 can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
-Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of index such that
-$x_i ∈ \cal{V}_ι$, $C_i ∈ \cal{C}$ and $\t("ti") ∈ Λ$ for all $i ∈ I$.
-If $k ∈ I$ then $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
+Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of indices such that for
+all $i ∈ I$ we have $x_i ∈ \cal{V}_ι$ and $\t("ti") ∈ Λ$. If $k ∈ I$ then
+$\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡_{≻} \t("tk[xk≔v]")$.
 \begin{proof}
 Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ for
 every stack $π$ we can use \lemRef("redtosame").
@@ -164,6 +161,7 @@ Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p(
 for all $π$ we can apply \lemRef("redtosame") to conclude.
 \end{proof}
 \end{thm}
+(* FIXME Enlever ? Conjecture à la fin ? (Christophe) *)
 Similarly, it seems to be possible to prove an equivalence corresponding
 to (a call-by-value version of) the $η$-equivalence relation. We only
 include it as a claim as the author did not write a full proof.
@@ -198,8 +196,8 @@ Since we have
 $\p("(μαt) v∗π") ≻ \p("v∗[μαt]π") ≻ \p("μαt∗v·π") ≻ \p("t[α≔v·π]∗v·π")$
 and
 $\p("μβ t[α≔v·β] v ∗ π") ≻ \p("t[α≔v·π] v ∗ π") ≻ \p("v ∗ [t[α≔v·π]]π") ≻
- \p("t[α≔v·π]∗v·π")$
-for every stack $π$, we can conclude using \lemRef("redequiv").
+  \p("t[α≔v·π]∗v·π")$
+for all stack $π$, we can conclude using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 Similarly, the following theorem provides an equivalence corresponding to
@@ -301,11 +299,12 @@ remarked by Michel Parigot in \cite("Parigot1992").
 Using the theorems of the previous section, it is possible to derive
 equivalences in a direct way. However, we will sometimes need to
 reason in an indirect way by exhibiting a contradiction. We will hence
-provide several means of identifying false equivalences (or inequivalences).
+provide several means of identifying inequivalences.
 \begin{def}
 Given $t$, $u∈Λ$ we write $t \nequiv_{≻} u$ if and only if we do not have
 $t ≡_{≻} u$.
 \end{def}
+(* FIXME deux lemmes inutiles ? (Christophe) *)
 \begin{lem}\label("equivcounterex")
 Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ and a substitution
 $ρ∈\cal{S}$ such that ${\p("tρ ∗ π")} {⇓}_{≻}p$ and ${\p("uρ ∗ π")} {⇑}_{≻}p$
@@ -328,22 +327,20 @@ be equivalent. Similarly, we will show that variants with different
 constructors are never equivalent. In both case, it is not difficult to
 find a stack distinguishing between the two values.
 \begin{thm}\label("consnequiv")
-Let $C$, $D ∈ \cal{C}$ be two constructors and $v$, $w ∈ Λ_ι$ be two values.
-If $C ≠ D$ then $\v("C[v]") \nequiv_{≻} \v("D[w]")$.
+Let $m$, $n ∈ \bbN$ be two natural numbers and $v$, $w ∈ Λ_ι$ be two values.
+If we have $m ≠ n$ then $\v("Cm[v]") \nequiv_{≻} \v("Cn[w]")$.
 \begin{proof}
-We can apply \lemRef("stackcounterex") with $π = \s("[λy [y | C[z] → {}]]ε")$.
-Indeed, ${\p("C[v] ∗ π")} {⇓}_{≻}$ since
-$\p("C[v] ∗ π") ≻ \p("λy [y | C[z] → {}] ∗ C[v] · ε") ≻
-\p("[C[v] | C[z] → {}] ∗ ε") ≻ \p("{} ∗ ε")$. Moreover,
-${\p("D[w] ∗ π")} {⇑}_{≻}$ as
-$\p("D[v] ∗ π") ≻ \p("λy [y | C[z] → {}] ∗ D[w] · ε") ≻
-\p("[D[w] | C[z] → {}] ∗ ε")$ and $\p("[D[w] | C[z] → {}] ∗ ε")$ is stuck.
+We can apply \lemRef("stackcounterex") with $π = \s("[λy[y|Cm[z]→{}]]ε")$.
+Indeed, ${\p("Cm[v] ∗ π")} {⇓}_{≻}$ since $\p("Cm[v] ∗ π") ≻
+\p("λy[y|Cm[z]→{}] ∗ Cm[v]·ε") ≻ \p("[Cm[v]|Cm[z]→{}] ∗ ε") ≻ \p("{} ∗ ε")$.
+Moreover, we have ${\p("Cn[w] ∗ π")} {⇑}_{≻}$ as $\p("Cn[v] ∗ π") ≻
+\p("λy[y|Cm[z]→{}] ∗ Cn[w]·ε") ≻ \p("[Cn[w]|Cm[z]→{}] ∗ ε")$ and
+$\p("[Cn[w]|Cm[z]→{}] ∗ ε")$ is stuck since $m ≠ n$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("reconequiv")
-Let $I₁$, $I₂$ be two set of index such that for all $i ∈ I₁ ∪ I₂$ we have
-$l_i ∈ \cal{L}$. We assume that for all $i∈I₁$ we have $v_i ∈ Λ_ι$ and for
-all $i∈I₂$ we have $w_i ∈ Λ_ι$. If $I₁ ≠ I₂$ then
+Let $I₁$, $I₂$ be two set of indices such that for all $i∈I₁$ we have
+$v_i ∈ Λ_ι$ and for all $i∈I₂$ we have $w_i ∈ Λ_ι$. If $I₁ ≠ I₂$ then
 $\v("{(li = vi) i∈I₁}") \nequiv_{≻} \v("{(li = wi) i∈I₂}")$.
 \begin{proof}
 Since $I₁ ≠ I₂$ there must be $k$ such that $k∈I₁$ and $k∉I₂$ (up to
@@ -361,29 +358,28 @@ Similarly, we can show that a record and a variant can never be equivalent.
 Indeed, pattern-matching on a record will lead to a stuck state. The same
 argument can also be used to distinguish $λ$-abstractions from variants.
 \begin{thm}\label("consneqrec")
-Let $C ∈ \cal{C}$ be a constructor, $v ∈ Λ_ι$ be a value and $I$ be a
-finite set of index such that for all $i∈I$ we have $l_i ∈ \cal{L}$ and
-$v_i ∈ Λ_ι$. We have $\t("C[v]") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
+Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value and $I$ be a
+finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
+$\t("Cm[v]") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
 \begin{proof}
 We can apply \lemRef("stackcounterex") using the stack
-$π = \s("[λy [y|C[z]→{}]]ε")$. Indeed, we have ${\p("C[v] ∗ π")} {⇓}_{≻}$
+$π = \s("[λy [y|Cm[z]→{}]]ε")$. Indeed, we have ${\p("Cm[v] ∗ π")} {⇓}_{≻}$
 like in the proof of \thmRef("consnequiv"). Moreover, we have
 ${\p("{(li = vi) i∈I} ∗ π")} {⇑}_{≻}$ since
-$\p("{(li = vi) i∈I} ∗ π") ≻ \p("λy [y|C[z]→{}] ∗ {(li = vi) i∈I} · ε") ≻
-\p("[{(li = vi) i∈I} | C[z] → {}] ∗ ε")$ and we know that the process
-$\p("[{(li = vi) i∈I} | C[z] → {}] ∗ ε")$ is stuck.
+$\p("{(li = vi) i∈I} ∗ π") ≻ \p("λy [y|Cm[z]→{}] ∗ {(li = vi) i∈I} · ε") ≻
+\p("[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε")$ and we know that the process
+$\p("[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε")$ is stuck.
 \end{proof}
 \end{thm}
 \begin{thm}\label("nequivlamcons")
-Let $C ∈ \cal{C}$ be a constructor, $v ∈ Λ_ι$ be a value, $x ∈ \cal{V}_ι$
-be a $λ$-variable, $t ∈ Λ$ be a term.
-We have $\t("C[v]") \nequiv_{≻} \t("λx t")$.
+Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value, $x ∈ \cal{V}_ι$
+be a $λ$-variable and $t ∈ Λ$ be a term. We have
+$\t("Cm[v]") \nequiv_{≻} \t("λx t")$.
 \begin{proof}
-As for \lemRef("consneqrec") we can apply \lemRef("stackcounterex") using
-the stack $π = \s("[λy [y|C[z]→{}]]ε")$. Indeed, ${\p("λxt∗π")} {⇑}_{≻}$
-since $\p("λx t ∗ π") ≻ \p("λy [y|C[z]→z] ∗ λx t · ε") ≻
-\p("[λx t|C[z]→z] ∗ ε")$ and the process $\p("[λx t|C[z]→z] ∗ ε")$
-is stuck
+As for \thmRef("consneqrec") we can apply \lemRef("stackcounterex") using
+$π = \s("[λy [y|Cm[z]→{}]]ε")$. Indeed, ${\p("λxt∗π")} {⇑}_{≻}$ since we have
+$\p("λx t ∗ π") ≻ \p("λy [y|Cm[z]→z] ∗ λx t·ε") ≻ \p("[λx t|Cm[z]→z] ∗ ε")$
+and the process $\p("[λx t|Cm[z]→z] ∗ ε")$ is stuck
 \end{proof}
 \end{thm}
 
@@ -395,10 +391,10 @@ use the $\t("U(v)")$ term constructor, which has been introduced for
 exactly this purpose.
 \begin{thm}\label("nequivlamreco")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $I$ be a
-finite set of index such that $l_i ∈ \cal{L}$ and $v_i ∈ Λ_ι$ for all
-$i∈I$. We have $\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
+finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
+$\t("λx t") \nequiv_{≻} \t("{(li = vi) i∈I}")$.
 \begin{proof}
-If $I ≠ ∅$ then we have $k ∈ I$ we can use \lemRef("stackcounterex")
+If $I ≠ ∅$ then we have $k ∈ I$ so we can use \lemRef("stackcounterex")
 with the stack $π = \s("[λy y.lk]ε")$. Indeed, we have
 ${\p("{(li = vi) i∈I} ∗ π")} {⇓}_{≻}$ as
 $\p("{(li = vi) i∈I} ∗ π") ≻^{∗} \p("vk ∗ ε")$ and we have
@@ -414,25 +410,25 @@ $\p("U(λxt) ∗ ε")$ is stuck.
 To conclude this section, we consider two more ways of deriving an
 inequivalence when working with records and variants. Provided that
 two values stored in a given record field or in a constructor are
-not equivalent, it is possible to defive that two records or two
+not equivalent, it is possible to derive that two records or two
 variants are not equivalent.
 \begin{thm}
-Let $C ∈ \cal{C}$ be a constructor and $v$, $w ∈ Λ_ι$ be two values.
-If $v \nequiv_{≻} w$ then $\v("C[v]") \nequiv_{≻} \v("C[w]")$.
+Let $m ∈ \bbN$ be a natural number and $v$, $w ∈ Λ_ι$ be two values.
+If $v \nequiv_{≻} w$ then $\v("Cm[v]") \nequiv_{≻} \v("Cm[w]")$.
 \begin{proof}
 As $v \nequiv_{≻} w$ there must be a stack $π ∈ Π$ and a substitution
 $ρ ∈ \cal{S}$ such that we have ${\p("vρ∗π")} {⇓}_{≻}$ and
 ${\p("wρ∗π")} {⇑}_{≻}$ (up to symmetry). We
 hence apply \lemRef("equivcounterex") with $ρ$ and the stack
-$\s("[λx [x|C[y]→y]]π")$ since we have
-$\p("(C[v])ρ∗[λx [x|C[y]→y]]π") ≻^{∗} {\p("vρ ∗ π")} {⇓}_{≻}$
-and $\p("(C[w])ρ∗[λx [x|C[y]→y]]π") ≻^{∗} {\p("wρ ∗ π")} {⇑}_{≻}$.
+$\s("[λx [x|Cm[y]→y]]π")$ since we have
+$\p("(Cm[v])ρ∗[λx [x|Cm[y]→y]]π") ≻^{∗} {\p("vρ ∗ π")} {⇓}_{≻}$
+and $\p("(Cm[w])ρ∗[λx [x|Cm[y]→y]]π") ≻^{∗} {\p("wρ ∗ π")} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 \begin{thm}
-Let $I$ be a finite set of index such that for all $i∈I$ we have
-$l_i ∈ \cal{L}$ and $v_i$, $w_i ∈ Λ_ι$. If there is $k ∈ I$ such
-that $\v("vk") \nequiv_{≻} \v("wk")$ then
+Let $I$ be a finite set of indices such that for all $i∈I$ we have
+$v_i$, $w_i ∈ Λ_ι$. If there is $k ∈ I$ such that
+$\v("vk") \nequiv_{≻} \v("wk")$ then
 $\v("{(li = vi) i∈I}") \nequiv_{≻} \v("{(li = wi) i∈I}")$.
 \begin{proof}
 As $\v("vk") \nequiv_{≻} \v("wk")$ there must be a stack $π ∈ Π$ and
@@ -440,7 +436,7 @@ a substitution $ρ ∈ \cal{S}$ such that we have ${\p("vkρ∗π")} {⇓}_{≻}
 and ${\p("wkρ∗π")} {⇑}_{≻}$ (up to symmetry). We hence apply
 \lemRef("equivcounterex") with $ρ$ and the stack $π₀ = \s("[λx x.lk]π")$
 as we have $\p("{(li = vi) i∈I}ρ∗π₀") ≻^{∗} {\p("vkρ ∗ π")} {⇓}_{≻}$
-and we also  $\p("{(li = wi) i∈I}ρ∗π₀") ≻^{∗} {\p("wkρ ∗ π")} {⇑}_{≻}$.
+and we also have $\p("{(li = wi) i∈I}ρ∗π₀") ≻^{∗} {\p("wkρ ∗ π")} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 
@@ -482,24 +478,22 @@ $\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
 \lemRef("subsneq").
 \begin{itemize}
 \item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
-      then we consider the substitution $ρ = \subs("[x≔C[{}]][y≔D[{}]]")$
-      where $C∈\cal{C}$ and $D∈\cal{C}$ are two distinct constructors. We have
-      $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("D[{}]") = \t("yρ")$ according
-      to \lemRef("subsneq").
+      then we consider the substitution $ρ = \subs("[x≔Cm[{}]][y≔Cn[{}]]")$
+      where $m$, $n ∈ \bbN$ are two distinct natural numbers. We have
+      $\t("xρ") = \t("Cm[{}]") \nequiv_{≻} \t("Cn[{}]") = \t("yρ")$
+      according to \lemRef("subsneq").
 \item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
-      $v = \v("λy t")$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
-      We have $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
+      $v = \v("λy t")$ then we consider $ρ=\subs("[x≔{}]")$. We have
+      $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
       \thmRef("nequivlamreco").
-\item If there is constructor $C ∈ \cal{C}$ and a value $w ∈ Λ_ι$ such
-      that $v = \v("C[w]")$ then we consider the substitution
-      $ρ=\subs("[x≔{}]")$. We have
-      $\t("xρ") = \t("{}") \nequiv_{≻} \t("C[vρ]")$ according to
+\item If there is a natural number $m ∈ \bbN$ and a value $w ∈ Λ_ι$ such
+      that $v = \v("Cm[w]")$ then we consider $ρ=\subs("[x≔{}]")$. We have
+      $\t("xρ") = \t("{}") \nequiv_{≻} \t("Cm[vρ]")$ according to
       \thmRef("consneqrec").
-\item If there is a set of index $I$ and for all $i∈I$ a label
-      $l_i ∈ \cal{L}$ and a value $v_i ∈ Λ_ι$ such that
-      $v = \v("{(li = vi) i∈I}")$ then we consider the substitution
-      $ρ=\subs("[x≔C[{}]]")$ where $C∈\cal{C}$ is a constructor.
-      We have $\t("xρ") = \t("C[{}]") \nequiv_{≻} \t("{(li = viρ) i∈I}")$
+\item If there is a set of indices $I$ such that $v_i ∈ Λ_ι$ for all $i∈I$
+      and $v = \v("{(li = vi) i∈I}")$ then we consider the substitution
+      $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We have
+      $\t("xρ") = \t("Cm[{}]") \nequiv_{≻} \t("{(li = viρ) i∈I}")$
       according to \thmRef("consneqrec").
 \end{itemize}
 \end{proof}
@@ -509,49 +503,43 @@ We will now identify the value that are equivalent to a given variant, and
 those that are equivalent to a given record. In both case, the equivalent
 values have the same structure and equivalent subvalues.
 \begin{thm}
-Let $C ∈ \cal{C}$ be a constructor and $v$, $w₀ ∈ Λ_ι$ be two values. The
-equivalence $\v("C[v]") ≡_{≻} w₀$ holds if and only if $w₀ = \v("C[w]")$
+Let $m ∈ \bbN$ be a natural number and $v$, $w₀ ∈ Λ_ι$ be two values. The
+equivalence $\v("Cm[v]") ≡_{≻} w₀$ holds if and only if $w₀ = \v("Cm[w]")$
 for some $w ∈ Λ_ι$ such that $w ≡_{≻} v$.
 \begin{proof}
-Let us first assume that $w₀ = \v("C[w]")$ for some $w ∈ Λ_ι$ such that
-$w ≡_{≻} v$ and show $\v("C[v]") ≡_{≻} w₀$. We do a proof by contradiction
-so we suppose that $\v("C[v]") \nequiv_{≻} w₀ = \v("C[w]")$. By definition,
-there must be a stack $π ∈ Π$ and a substitution $ρ ∈ \cal{S}$ such that
-${\p("C[vρ] ∗ π")} {⇓}_{≻}$ and ${\p("C[wρ] ∗ π")} {⇑}_{≻}$ (up to
-symmetry). We can thus use \lemRef("equivcounterex") with $ρ$ and the stack
-$\s("[λx C[x]]π")$ to show that $\v("C[v]") \nequiv_{≻} \v("C[w]")$ since
-we have $\p("vρ ∗ [λx C[x]]π") ≻^{∗} {\p("C[vρ] ∗ π")} {⇓}_{≻}$ and
-$\p("wρ ∗ [λx C[x]]π") ≻^{∗} {\p("C[wρ] ∗ π")} {⇑}_{≻}$. This contradicts
-our hypothesis that $w ≡_{≻} v$, and hence we can conclude that
-$\v("C[v]") ≡_{≻} \v("C[w]")$.
+Let us first assume $w₀ = \v("Cm[w]")$ for some $w ∈ Λ_ι$ such that
+$w ≡_{≻} v$ and show $\v("Cm[v]") ≡_{≻} w₀$. We do a proof by contradiction
+so we suppose that $\v("Cm[v]") \nequiv_{≻} \v("Cm[w]")$. By definition,
+there is a stack $π ∈ Π$ and substitution $ρ ∈ \cal{S}$ such that
+${\p("Cm[vρ] ∗ π")} {⇓}_{≻}$ and ${\p("Cm[wρ] ∗ π")} {⇑}_{≻}$ (up to
+symmetry). We can thus use \lemRef("equivcounterex") to show
+$\v("v") \nequiv_{≻} \v("w")$ since we have
+$\p("vρ ∗ [λx Cm[x]]π") ≻^{∗} {\p("Cm[vρ] ∗ π")} {⇓}_{≻}$ and
+$\p("wρ ∗ [λx Cm[x]]π") ≻^{∗} {\p("Cm[wρ] ∗ π")} {⇑}_{≻}$. This
+contradicts $w ≡_{≻} v$ and hence we can conclude
+$\v("Cm[v]") ≡_{≻} \v("Cm[w]")$.
 
-Let us now suppose that $\v("C[v]") ≡_{≻} \v("w₀")$ and show that
-$\v("w₀")$ is of the form $\v("C[w]")$ for some $w ∈ Λ_ι$ such that
+Let us now suppose that $\v("Cm[v]") ≡_{≻} \v("w₀")$ and show that
+$\v("w₀")$ is of the form $\v("Cm[w]")$ for some $w ∈ Λ_ι$ such that
 $w ≡_{≻} v$. We reason by case on the possible forms of the value
-$\v("w₀")$. Using \thmRef("varequiv"), \thmRef("nequivlamcons") and
-\thmRef("consneqrec") we obtain that $\v("w₀")$ cannot be a $λ$-variable,
-a $λ$-abstraction or a record. Moreover, it cannot be that
-$\v("w₀") = \v("D[w]")$ with $D ≠ C$, otherwise \thmRef("consnequiv")
-would give us a contradiction.
-Let us now suppose that $\v("w₀") = \v("C[w]")$ for some $w ∈ Λ_ι$ such
-that $w \nequiv_{≻} v$. We hence have a stack $π ∈ Π$ and a substitution
-$ρ ∈ \cal{S}$ such that ${\p("vρ ∗ π")} {⇓}_{≻}$ and ${\p("wρ ∗ π")} {⇑}_{≻}$
-(up to symmetry). We can thus use \lemRef("equivcounterex") with $ρ$ and
-the stack $\s("[λx [x | C[x]→x]]π")$ to show
-$\v("C[v]") \nequiv_{≻} \v("C[w]")$
-since $\p("C[vρ] ∗ [λx [x | C[x]→x]]π") ≻^{∗} {\p("vρ ∗ π")} {⇓}_{≻}$ and
-$\p("C[wρ] ∗ [λx [x | C[x]→x]]π") ≻^{∗} {\p("wρ ∗ π")} {⇑}_{≻}$. This
-contradicts $\v("C[v]") ≡_{≻} \v("w₀")$ and the only remaining possibility
-is thus that $\v("w₀") = \v("C[w]")$ for some $w ∈ Λ_ι$ such that
-$w ≡_{≻} v$.
+$\v("w₀")$. Using \thmRef("varequiv"), \thmRef("nequivlamcons"),
+\thmRef("consneqrec") and \thmRef("consnequiv") we obtain
+$\v("w₀") = \v("Cm[w]")$ for some $\v("w") ∈ Λ_ι$. Let us now
+suppose that $w \nequiv_{≻} v$. By definition, there must be
+$π ∈ Π$ and $ρ ∈ \cal{S}$ such that ${\p("vρ ∗ π")} {⇓}_{≻}$
+and ${\p("wρ ∗ π")} {⇑}_{≻}$ (up to symmetry). We can thus use
+\lemRef("equivcounterex") to show $\v("Cm[v]") \nequiv_{≻} \v("Cm[w]")$
+since we have
+$\p("Cm[vρ] ∗ [λx [x|Cm[x]→x]]π") ≻^{∗} {\p("vρ ∗ π")} {⇓}_{≻}$ and we alse
+have $\p("Cm[wρ] ∗ [λx [x | Cm[x]→x]]π") ≻^{∗} {\p("wρ ∗ π")} {⇑}_{≻}$. This
+contradicts $\v("Cm[v]") ≡_{≻} \v("w₀")$ and thus $w ≡_{≻} v$.
 \end{proof}
 \end{thm}
 \begin{thm}
-Let $I$ be a finite set of index such that $l_i ∈ \cal{L}$ and
-$v_i ∈ Λ_ι$ for all $i∈I$, and let $w₀ ∈ Λ_ι$ be a value. We have
-$\v("{(li = vi) i∈I}") ≡_{≻} w₀$ if and only if
-$w₀ = \v("{(li = wi) i∈I}")$ for some values $\v("wi") ∈ Λ_ι$
-such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
+Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$, and
+let $w₀ ∈ Λ_ι$ be a value. We have $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ if and
+only if $w₀ = \v("{(li = wi) i∈I}")$ for some values $\v("wi") ∈ Λ_ι$ such
+that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \begin{proof}
 Let us first assume that $w₀ = \v("{(li = wi) i∈I}")$ with
 $\v("vi") ≡_{≻} \v("wi")$ for all $i∈I$ and show
@@ -560,17 +548,13 @@ $\v("{(li = vi) i∈I}") ≡_{≻} \v("{(li = wi) i∈I}")$.
 
 Let us now suppose $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ and show that $w₀$ is
 of the form $\v("{(li = wi) i∈I}")$ with $\v("wi") ≡_{≻} \v("vi")$ for all
-$i∈I$. We reason by case on the possible forms of the value $\v("w₀")$.
-Using \thmRef("varequiv"), \thmRef("nequivlamreco") and
-\thmRef("consneqrec") we obtain that $\v("w₀")$ cannot be a $λ$-variable,
-a $λ$-abstraction or a variant. Moreover, it cannot be that
-$\v("w₀") = \v("{(li = wi) i∈I₀}")$ with $I₀ ≠ I$, as \thmRef("reconequiv")
-would give us a contradiction. We must hence have $w₀ = \v("{(li=wi) i∈I}")$
-with $w_i ∈ Λ_ι$ for all $i∈I$. Let us now suppose that $v_k \nequiv_{≻} w_k$
-for some $k ∈ I$. By definition, there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such
+$i∈I$. Using \thmRef("varequiv"), \thmRef("nequivlamreco"),
+\thmRef("consneqrec") and \thmRef("reconequiv") we obtain
+$\v("w₀") = \v("{(li=wi) i∈I}")$ with $w_i ∈ Λ_ι$ for all $i∈I$.
+We now suppose $v_k \nequiv_{≻} w_k$ for some $k ∈ I$.
+By definition, there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such
 that ${\p("vkρ ∗ π")} {⇓}_{≻}$ and ${\p("wkρ ∗ π")} {⇑}_{≻}$ (up to symmetry).
-We can thus apply \lemRef("equivcounterex") with $ρ$ and the stack
-$\s("[λx x.lk]π")$ to show
+We can thus apply \lemRef("equivcounterex") to show that
 $\v("{(li=vi) i∈I}") \nequiv_{≻} \v("{(li=wi) i∈I}")$
 as $\p("{(li=vi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("vkρ ∗ π")} {⇓}_{≻}$ and
 $\p("{(li=wi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("wkρ ∗ π")} {⇑}_{≻}$. This
@@ -578,8 +562,6 @@ contradicts $\v("{(li=vi) i∈I}") ≡_{≻} \v("w₀")$ and hence
 $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \end{proof}
 \end{thm}
-
-(* TODO from here *)
 
 \begin{thm}
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
@@ -645,14 +627,15 @@ $v ∈ Λ_ι$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈
 such that $p ≻^{∗} \p("a ∗ π")$.
 \begin{proof}
 There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
-the case $p$ would be non-termination, and hence $\p("p[a≔t]")$ would also
-be non-termination according to \lemRef("redstable"). This would hence
+the case $p$ would be non-terminating, and hence $\p("p[a≔t]")$ would also
+be non-terminating according to \lemRef("redstable"). This would hence
 contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
 $\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
-\thmRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We then
-proceed by case analysis according to \lemRef("possibilities"). If $q$ is
-not of the form $\p("v ∗ ε")$ or $\p("a ∗ π")$ then $\p("q[a≔t]")$ cannot
-be reduced, which contradicts ${\p("q[a≔t]")} {⇓}_{≻}$.
+\thmRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We can then
+proceed by case analysis according to \lemRef("possibilities") as $q$ is
+blocked. If $q$ is not of the form $\p("v ∗ ε")$ nor of the form
+$\p("a ∗ π")$ then $\p("q[a≔t]")$ is a blocked process that is not final.
+Consequently, we obtain a contradiction with ${\p("q[a≔t]")} {⇓}_{≻}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("sextterm")
@@ -678,23 +661,21 @@ possibilities.
 \item If $\p("tρ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
   $\p("(tρ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
   $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
-  \thmRef("redcompatall"). As a consequence, it is enough to show
-  ${{\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}} ⇒ {{\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}}$.
-  We assume ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
+  \thmRef("redcompatall"). As a consequence, we assume
+  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
   ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
   stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
   $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
-  that the sequence has to be finite, otherwise the reduction of
-  $\p("(a ∗ π₀)[a≔u₁]")$ would be infinite and this would contradict
-  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$. To define $π_{i+1}$ we consider
-  $\p("u₁ ∗ πi")$. By transitivity
+  that the sequence has to be finite since otherwise there would be an
+  infinite sequence of reductions from $\p("(a ∗ π₀)[a≔u₁]")$. To define
+  $π_{i+1}$ we consider $\p("u₁ ∗ πi")$. By transitivity
   $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
   and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
   \lemRef("sexttermaux") there are two possibilities for the reduction of
   $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
   $v$ and the sequence ends with $n = i$, or
-  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ρ")$ for some stack $ρ$ and we define
-  $π_{i+1} = ρ$.
+  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ξ")$ for some stack $ξ$ and we define
+  $π_{i+1} = ξ$.
   
   To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
   $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
@@ -714,6 +695,7 @@ possibilities.
   ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
   ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
 \end{itemize}
+(* FIXME ajouter un diagramme pour la preuve. *)
 \end{proof}
 \end{thm}
 
