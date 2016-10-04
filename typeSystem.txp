@@ -9,7 +9,7 @@
 )
 \Include{Macros}
 
-=> Higher-order types and semantics \label("typeSystem")
+=> Type and realisability semantics \label("typeSystem")
 
 In this chapter, we present a new type system which distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
@@ -66,24 +66,26 @@ An equational context $Ξ ⊆ \cal{P}(Λ × Λ)$ is a finite set of couples
 of terms denoting hypothetical equivalences. For convenience, equational
 contexts we will represented using lists generated using the following
 ||bnf|| grammar.
-\Caml(let _ = sidenote << $Ξ ::= • \| {Ξ, t ≡ u}$ >> << $t,u ∈ Λ$ >>)
+\Caml(let _ = sidenote << $Ξ ::= ∅ \| {Ξ, t ≡ u}$ >> << $t,u ∈ Λ$ >>)
 \end{def}
 
 During the construction of a proof, the equational context grows with new
 hypotheses and equivalences need to be proved eventually. As mentioned
 previously, we rely on a partial decision procedure that is supposed
 correct, but remains otherwise unspecified. The implementation of such a
-decision procedure is discussed in \chapter("implem").
+decision procedure is discussed in \chapter("implem"). Although we cannot
+hope for completeness, we will argue that our implementation is good a
+good enough approximation in practice.
 \begin{def}
 Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
-//realizes// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
+//realises// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
 $\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 \begin{def}
 Let $Ξ$ be an equational context and $t ∈ Λ$ and $u ∈ Λ$ be two terms. We
-write $Ξ ⊢ t ≡ u$ if our (unspecified by supposed correct) decision
-procedure is able to show that for every substitution $ρ$ such that $ρ ⊩ Ξ$
-we have $\t("tρ") ≡_{≻} \t("uρ")$.
+write $Ξ ⊢ t ≡ u$ if our (yet unspecified) decision procedure is able to
+show that for every substitution $ρ$ such that $ρ ⊩ Ξ$ we have
+$\t("tρ") ≡_{≻} \t("uρ")$.
 \end{def}
 
 =<
@@ -99,15 +101,16 @@ Terms can contain free variables of several sorts: $λ$-variables (i.e. value
 variables), term variables and $μ$-variables (i.e. stack variables). As open
 terms may appear in types, and in particular in equality types, it is natural
 to allow universal and existential quantification over all three sorts of
-variables. We can hence use types like $\f("∀y (λx x) y ≡ y")$ or
-$\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$.
+variables. This will enables the specification of properties such as
+$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$ inside the
+system.
 \begin{rem}
 The forms of quantification described here range over all (closed) value,
 terms or stacks regardless of their types.
 \end{rem}
 \begin{rem}
 It is not clear whether quantification over stacks has a practical use. We
-only include it as it fits well in the framework and has no extra cost.
+only include it as it fits well in the framework with no extra cost.
 \end{rem}
 
 Quantifying over all the (closed) values or terms is not always enough.
@@ -118,12 +121,12 @@ not correspond to matched constructors. This would not happen when
 quantifying over value of the appropriate sum type only.
 
 To achieve typed quantification we introduce a membership type constructor
-$\f("t ∈ A")$ where $t ∈ Λ$ is a term and $A ∈ \cal{F}$ is a type. The
-elements of $\f("t∈A")$ are those of $A$ that are equivalent to $t$. In
-particular, $\f("t ∈ A")$ is empty if $t$ does not have type $A$.
-Intuitively, $\f("t∈A")$ can be read as the proposition "$t$ has type $A$",
-but we will see later that a more appropriate interpretation would be
-"$t$ realizes $A$". Using membership, we can use the well-known relativized
+$\f("t ∈ A")$ where $t$ is a term and $A$ is a type. The elements of
+$\f("t∈A")$ are those of $A$ that are equivalent to $t$. In particular,
+$\f("t ∈ A")$ is empty if $t$ does not have type $A$. Intuitively,
+$\f("t∈A")$ can be read as the proposition "$t$ has type $A$", but we will
+see later that a more appropriate interpretation would be
+"$t$ realises $A$". Using membership, we can use the well-known relativised
 quantification scheme to obtain a dependent function type.
 $$ Π_{x : A} B ≔ \f("∀x (x∈A ⇒ B)") $$
 The dependent function type exactly correspond to typed quantification as
@@ -159,12 +162,12 @@ and in the semantics thanks to a higher-order formulation.
 
 The higher-order features of the system allow us to define (and quantify
 over) types with parameters of any sort. For example, we can define a type
-parametrized by another type or a term. This leads to a system in which
+parametrised by another type or a term. This leads to a system in which
 it is syntactically correct to use a (not fully applied) parametric type,
-or even a term, as a type. This does not make sense, and hence we must make
-sure that this does not happen. The usual approach to tackle this problem
-is to assign a form of type (called sort) to the types themselves. This
-will give use the guarantee that our types are "well-formed".
+or even a term, as a proposition. This does not make sense, and hence we
+must make sure that this does not happen. The usual approach to tackle this
+problem is to assign a form of type (called sort) to the types themselves.
+This will give use the guarantee that our types are "well-formed".
 \begin{def}
 We denote $\cal{S}₀ = \{ο, ι, τ, σ\}$ our set of atomic sorts. It contains
 the sort of propositions $ο$, the sort of values $ι$, the sort of terms $τ$
@@ -198,12 +201,18 @@ sort $s$.
 The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_{val}$,
 $Λ$ and $Π$ using the following ||bnf|| grammar.
 \begin{center}
-\linesBefore(2)
-$ A,B ::= v \| t \| π \| \f("χ") \| \f("(χ^s ↦ A)") \| \f("A(B)")
-  \| \f("A⇒B") \| \f("t∈A") \| \f("A|t≡u")$
+\Caml(
+let _ = large_bnfs
+  [ ( << $(\cal{F})$ >>
+    , << $A, B$ >>
+    , << $v \| t \| π \| \f("χ^s") \| \f("(χ^s ↦ A)") \| \f("A(B)") \|
+          \f("A⇒B") \| \f("t∈A") \| \f("A|t≡u") \| \f("{(li : Ai) i∈I}")$ >> )
+  ; ( []
+    , []
+    , << $\id([]) \| \f("[(Ci : Ai) i∈I]") \| \f("∀χ^s A") \|
+         \f("∃χ^s A")$ >> ) ]
 
-$ \id([]) \| \f("{(li : Ai) i∈I}") \| \f("[(Ci : Ai) i∈I]")
-  \| \f("∀χ^s A") \| \f("∃χ^s A") $
+)
 \end{center}
 \end{def}
 Our types contain values, terms and stacks, as they will correspond to
@@ -211,7 +220,7 @@ types of sort $ι$, $τ$ and $σ$. We then have variables of all sorts,
 abstraction to build types with an arrow sort and application. All the
 remaining constructors are used to build propositions (i.e. actual
 formulas) which will be given sort $ο$. Note that the quantifiers may
-range over and produce types of any sort. They are hence very general.
+range over types of any sort. They are hence very general.
 \begin{rem}
 The variable constructor in the syntax of types is somewhat redundant for
 values, terms and stacks. Indeed, these syntactic entities already provide
@@ -227,7 +236,7 @@ A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
 $χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, we will represent
 sorting contexts using comma-separated lists of sort assignments generated
 by the following ||bnf|| grammar.
-\Caml(let _ = sidenote << $Σ ::= • \| {Σ, χ : s}$ >>
+\Caml(let _ = sidenote << $Σ ::= ∅ \| {Σ, χ : s}$ >>
   << $χ ∈ \cal{V}, s ∈ \cal{S} $ >>)
 \end{def}
 \begin{def}
@@ -332,7 +341,7 @@ $$
 $$
 
 As types contain the $λ$-calculus, we need to consider their reduction and
-normalization. First we define the notion of $β$-reduction in a type.
+normalisation. First we define the notion of $β$-reduction in a type.
 \begin{def}
 We call a redex a type of the form $\f("(χ^s ↦ A)(B)")$, and we say that a
 type is in normal form if it does not contain any redex. The reduction
@@ -356,7 +365,7 @@ Well-known properties of the simply typed $λ$-calculus. (* FIXME ref ? *)
 \end{thm}
 In the following sections, we will always consider well-formed types. As a
 consequence, we may also assume that a type is in normal form as we can
-alway normalize well-formed types according to the previous theorem.
+alway normalise well-formed types according to the previous theorem.
 ###
 
 ###
@@ -380,7 +389,7 @@ A //value context// is a finite map $Γ$ over $\cal{V}_ι$ such that for all
 $x ∈ dom(Γ)$ we have $Γ(x) ∈ \cal{F}$. For convenience, we will represent
 typing contexts using comma-separated lists of type assignments generated
 by the following ||bnf|| grammar.
-\Caml(let _ = sidenote << $Γ ::= • \| {Γ, x : A}$ >>
+\Caml(let _ = sidenote << $Γ ::= ∅ \| {Γ, x : A}$ >>
   << $x ∈ \cal{V}_ι, A ∈ \cal{F} $ >>)
 \end{def}
 \begin{def}
@@ -388,7 +397,7 @@ A //stack context// is a finite map $Δ$ over $\cal{V}_σ$ such that
 for all $α ∈ dom(Δ)$ we have $Δ(α) ∈ \cal{F}$. For convenience, we will
 represent typing contexts using comma-separated lists of type assignments
 generated by the following ||bnf|| grammar.
-\Caml(let _ = sidenote << $Δ ::= • \| {Δ, α : A}$ >>
+\Caml(let _ = sidenote << $Δ ::= ∅ \| {Δ, α : A}$ >>
   << $α ∈ \cal{V}_σ, A ∈ \cal{F} $ >>)
 \end{def}
 
@@ -578,15 +587,15 @@ let _ = figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
 )
 
 =<
-=> Call-by-value realizability semantics
+=> Call-by-value realisability semantics
 
 The abstract machine presented in \chapter("calculus") is part of a
-//classical realizability// machinery that will be built upon here.
+//classical realisability// machinery that will be built upon here.
 We aim at obtaining a semantical interpretation of our higher-order
 type system. In particular, a proposition (i.e. a type of sort $ο$)
 will be interpreted by three sets: a set of values, a set of stacks
-and a set of terms. As always in classical realizability, the model
-is parametrized by a pole, which serves as an exchange point between
+and a set of terms. As always in classical realisability, the model
+is parametrised by a pole, which serves as an exchange point between
 the world of programs and the world of execution contexts, encoded
 as stacks.
 \begin{def}
@@ -600,7 +609,7 @@ will consider, if not otherwise specified, a fixed (but arbitrary)
 pole $\dbot$.
 
 The notion of //orthogonality// is central in Krivine's classical
-realizability. In this framework a type is interpreted (or realized) by
+realisability. In this framework a type is interpreted (or realised) by
 programs computing corresponding values. This interpretation is spread
 in a three-layered construction, even though it is fully determined by
 the first layer and the choice of the pole. The first layer consists of
@@ -626,7 +635,7 @@ $$ Ψ^⊥ = \{t∈Λ \| ∀π∈Ψ \p("t ∗ π") ∈ \dbot\} $$
 \end{def}
 
 We now give several general properties of orthogonality, which hold in
-every call-by-value classical realizability model. They will be useful
+every call-by-value classical realisability model. They will be useful
 when proving the soundness of our type system.
 \begin{lem}\label("orthosimple")
 If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
@@ -688,7 +697,7 @@ From now on, and until the end of this chapter, we will only consider
 poles that $≻$-saturated and $≡_{≻}$-extensional. This information will
 be kept impicit most of the time.
 
-In our realizability model, the well-formed closed types will be
+In our realisability model, the well-formed closed types will be
 interpreted by the elements of a set defined according to their sort.
 Such a set can be seen as the interpretation, in the model, of the sort
 themselves.
@@ -885,16 +894,16 @@ Now that the interpretation of our types in our model has been specified,
 we need to show that our typing rules actually agree with the semantics.
 Intuitively, we need to check that whenever our type system can be used to
 prove that a term $t$ has type $A$, then $t$ is indeed in the term level
-interpretation of $A$. This will be summarized in the following theorem,
+interpretation of $A$. This will be summarised in the following theorem,
 but we first need some definition.
 \begin{def}
 Let $Σ$ be a sorting context and $Γ$ be a typing context such that $Σ ⊢ Γ$.
-If $ρ$ is a valuation over $Σ$ then we say that $ρ$ realizes $Γ$ and we
+If $ρ$ is a valuation over $Σ$ then we say that $ρ$ realises $Γ$ and we
 write $ρ ⊩ Γ$ if for every $x∈dom(Γ)$ we have $ρ(x) ∈ ⟦Γ(x)⟧$.
 \end{def}
 \begin{def}
 Let $Σ$ be a sorting context and $Δ$ be a stack context such that $Σ ⊢ Δ$.
-If $ρ$ is a valuation over $Σ$ then we say that $ρ$ realizes $Δ$ and we
+If $ρ$ is a valuation over $Σ$ then we say that $ρ$ realises $Δ$ and we
 write $ρ ⊩ Δ$ if for every $α∈dom(Δ)$ we have $ρ(α) ∈ ⟦Δ(α)⟧$.
 \end{def}
 \begin{thm}\label("vadequacy")
