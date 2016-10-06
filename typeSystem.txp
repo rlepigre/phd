@@ -280,7 +280,7 @@ let r53 =
 let r61 =
   << $\axiomR{Σ, χ : s ⊢ χ : s}$ >>
 let r62 =
-  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ ↦ A)") : s → r}$ >>
+  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ^s ↦ A)") : s → r}$ >>
 let r63 =
   << $\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}$ >>
 let r71 =
@@ -290,9 +290,9 @@ let r72 =
 let r73 =
   << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}$ >>
 let r81 =
-  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ A") : ο}$ >>
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ^s A") : ο}$ >>
 let r82 =
-  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ A") : ο}$ >>
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ^s A") : ο}$ >>
 let r83 =
   << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
 let r91 =
@@ -353,23 +353,29 @@ such that:
 \item $({\inj})$ is contextually closed. Reduction hence considers all the
       redexes in a type, and not only the surface ones.
 \end{itemize}
+We denote $({\inj}^{∗})$ its reflexive and transitive closure.
 \end{def}
+\Caml(let _ = sortrules ())
 \begin{thm}
-Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be a
-sort. If the sorting judgment $Σ ⊢ A : s$ is valid, then the reduction
-of $A$ terminates. More formally, there is a type $B$ that is in normal
-form such that $A \inj^{∗} B$.
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$
+be a sort. If the sorting judgment $Σ ⊢ A : s$ is valid, then there
+is a unique type $B∈\cal{F}$ such that $B$ is in normal form,
+$A \inj^{∗} B$ and the sorting judgment $Σ ⊢ B : s$ is valid.
 \begin{proof}
-Well-known properties of the simply typed $λ$-calculus. (* FIXME ref ? *)
+Our language of types can be seen as an instance of the simply typed
+$λ$-calculus extended with countably many constants. For instance, a
+type of the form $\f("∀χ^s A")$ can be encoded using a constant ${∀}$
+of sort $(s→ο)→ο$. Note that an infinite number of constants is
+required to encode product types, sum types, records and pattern
+matchings as they can be indexed by any finite subset of $\bbN$. As a
+consequence, the theorem follows from well-known properties of the
+simply typed $λ$-calculus with the subtyping relation induced by the
+axiom $ι ≤ τ$ on base types (See, e.g., \mcite(["Mitchell1996"])).
 \end{proof}
 \end{thm}
 In the following sections, we will always consider well-formed types. As a
 consequence, we may also assume that a type is in normal form as we can
 alway normalise well-formed types according to the previous theorem.
-###
-
-###
-\Caml(let _ = sortrules ())
 
 =<
 => Typing judgments for values and terms
