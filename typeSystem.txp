@@ -436,15 +436,18 @@ the sorting context $Σ$, and we write $Σ \sp Γ; Ξ ⊢ t : A$, if and
 only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$.
 \end{def}
 
-(* TODO from here. *)
 We can now give the typing rules of our system, which will involve
-well-formed term judgments and value judgments. Some of our rules also
-rely on our decision procedure for term equivalence. They hence only
-apply if the procedure succeeds.
+both value and term judgments. Note that our typing rules will only
+involve well-formed judgments. Moreover, some rules will also rely
+on a premisse of the form $Ξ ⊢ t ≡ u$. It can only be used when our
+(yet unspecified) equivalence decision procedure is successful in
+proving that $t$ is equivalent to $u$ in the equational context $Ξ$
+(see the first section of this chapter).
 \begin{def}
 A value or term judgment is said to be valid if it can be derived using the
 typing rules of \figRef("typerules").
 \end{def}
+(* TODO from here. *)
 The typing rules of our system, and hence typing derivations, only involve
 well-formed judgments. In particular, a typing rule can only be applied if
 all the involved judgments are well-formed.
@@ -463,94 +466,94 @@ of the dependent function type in \section("encodedep"), the latter will
 also need value restriction.
 
 \Caml(
-let r1 =
+let r_ax =
   <<$\axiomRN{Ax}{Σ, x:ι \sp Γ, x:A; Ξ ⊢_\tval \t("x") : A}$>>
 
-let r2 =
+let r_up =
   <<$\unaryRN{↑}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
    {Σ ⊢ (Γ;Ξ ⊢ \t("v") : A; Δ)}$>>
 
-let r3 =
+let r_arrow_i =
   <<$\unaryRN{⇒_i}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
    {Σ \sp Γ;Ξ ⊢_\tval \v("λx t") : A ⇒ B}$>>
 
-let r4 =
+let r_arrow_e =
   <<$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t("t") : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t("u") : A}
    {Σ \sp Γ;Ξ ⊢ \t("t u") : B}$>>
 
-let r5 =
+let r_mu =
   <<$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("t") : A}
    {Σ \sp Γ;Ξ ⊢ \t("μα t") : A}$>>
 
-let r6 =
+let r_name =
   <<$\unaryRN{[\wc]}{Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("t") : A}
    {Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("[α]t") : B}$>>
 
-let r7 =
+let r_forall_i =
   <<$\unaryRN{∀_i}{Σ, χ:s \sp Γ;Ξ ⊢_\tval \v("v") : A}
    {Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A")}$>>
 
-let r8 =
-  <<$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
+let r_forall_e =
+  <<$\unaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]")}$>>
 
-let r9 =
+let r_exists_i =
   <<$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]")}{Σ ⊢ B : s}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∃χ^s A")}$>>
 
-let rA =
+let r_exists_e =
   <<$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C")}
    {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C")}$>>
 
-let rB =
+let r_memb_i =
   <<$\unaryRN{∈_i}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
    {Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("v∈A")}$>>
 
-let rC =
+let r_memb_e =
   <<$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t("u") : C}
    {Σ, x:ι \sp Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C}$>>
 
-let rD =
+let r_rest_i =
   <<$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A | u₁≡u₂")}$>>
 
-let rE =
+let r_rest_e =
   <<$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C}
    {Σ, x:ι \sp Γ,x:\f("A | u₁≡u₂");Ξ ⊢ \t("t") : C}$>>
 
-let rF =
+let r_prod_i =
   <<$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢_\tval \v("vi") : \f("Ai")]_{i∈I}}
    {Σ \sp Γ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")}$>>
 
-let rG =
+let r_prod_e =
   <<$\binaryRN{×_e}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}")}
    {k∈I}{Σ \sp Γ;Ξ ⊢ \t("v.lk") : A_k}$>>
 
-let rH =
+let r_sum_i =
   <<$\binaryRN{+_i}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("Ak")}{k∈I}
    {Σ \sp Γ;Ξ ⊢_\tval \v("Ck[v]") : \f("[(Ci : Ai) i∈I]")}$>>
 
-let rI =
+let r_sum_e =
   <<$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]")}
    {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
    {Σ \sp Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B}$>>
 
-let rK =
+let r_eq_ti =
   <<$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
    {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
    {Σ \sp Γ[x≔w₂];Ξ ⊢ \t("t[x≔w₂]") : \f("A[x≔w₂]")}$>>
 
-let rJ =
+let r_eq_ii =
   <<$\binaryRN{≡_{ι,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢_\tval \v("v[x≔w₁]") : \f("A[x≔w₁]")}
    {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
    {Σ \sp Γ[x≔w₂];Ξ ⊢ \v("v[x≔w₂]") : \f("A[x≔w₂]")}$>>
 
-let rM =
+let r_eq_tt =
   <<$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
    {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
    {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>>
 
-let rL =
+let r_eq_it =
   <<$\binaryRN{≡_{ι,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢_\tval \v("v[a≔u₁]") : \f("A[a≔u₁]")}
    {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
    {Σ \sp Γ[a≔u₂];Ξ ⊢_\tval \v("v[a≔u₂]") : \f("A[a≔u₂]")}$>>
@@ -558,9 +561,10 @@ let rL =
 let rs env =
   let env = resize_env 3.2 env in
   let rs =
-    [ [ r1 ; r3 ] ; [ r2 ; r4 ] ; [ r5 ; r6 ] ; [ r7 ; rA ] ; [ r8 ; r9 ]
-    ; [ rC ; rD ] ; [ rB ; rE ] ; [ rG ; rH ] ; [ rF ] ; [ rI ]
-    ; [ rJ ] ; [ rK ] ; [ rL ] ; [ rM ] ]
+    [ [r_ax;r_arrow_i] ; [r_up;r_arrow_e] ; [r_mu;r_name]
+    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
+    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
+    ; [r_eq_ii] ; [r_eq_ti] ; [r_eq_it] ; [r_eq_tt] ]
   in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
 let _ = figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
