@@ -563,11 +563,11 @@ $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \end{proof}
 \end{thm}
 
-\begin{thm}
+\begin{thm}\label("canonlambda")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
 be a value. If the equivalence $\t("λx t") ≡_{≻} v$ holds, then there
 are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t("λy u")$ and
-$t ≡_{≻} \t("t[y≔x]")$.
+$t ≡_{≻} \t("u[y≔x]")$.
 \begin{proof}
 Let us first assume that $w₀ = \v("λyu")$ with $\t("t") ≡_{≻} \t("u[y≔x]")$
 and show $\v("λxt") ≡_{≻} \v("λy u")$.

@@ -200,7 +200,7 @@ $\cal{V}_s$ with $s ∈ \cal{S}₀$ will always be considered as variables of
 sort $s$.
 \end{def}
 \begin{def}
-The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_{val}$,
+The set of types (or formulas) $\cal{F}$ is built from $\cal{V}$, $Λ_ι$,
 $Λ$ and $Π$ using the following ||bnf|| grammar.
 \begin{center}
 \Caml(
@@ -423,7 +423,7 @@ Again, a notion of well-formedness need to be considered as our judgments
 contain objects of different sorts, which all need to be well-formed.
 \begin{def}
 A value judgement is a tuple of a typing context $Γ$, an equational
-context $Ξ$, a value $v ∈ Λ_{val}$ and a type $A ∈ \cal{F}$ that is
+context $Ξ$, a value $v ∈ Λ_ι$ and a type $A ∈ \cal{F}$ that is
 denoted $Γ; Ξ ⊢_\tval v : A$. We say that such a judgment is well-formed
 under the sorting context $Σ$, and we write $Σ \sp Γ; Ξ ⊢_\tval v : A$,
 if and only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ v : ι$ and $Σ ⊢ A : ο$.
@@ -437,20 +437,18 @@ only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$.
 \end{def}
 
 We can now give the typing rules of our system, which will involve
-both value and term judgments. Note that our typing rules will only
-involve well-formed judgments. Moreover, some rules will also rely
-on a premisse of the form $Ξ ⊢ t ≡ u$. It can only be used when our
+both value and term judgments. Moreover, some of our rules have a
+premise of the form $Ξ ⊢ t ≡ u$. They can only be applied if our
 (yet unspecified) equivalence decision procedure is successful in
-proving that $t$ is equivalent to $u$ in the equational context $Ξ$
-(see the first section of this chapter).
+proving that $t$ is equivalent to $u$ in the equational context
+$Ξ$ (see the first section of this chapter).
 \begin{def}
 A value or term judgment is said to be valid if it can be derived using the
 typing rules of \figRef("typerules").
 \end{def}
-(* TODO from here. *)
-The typing rules of our system, and hence typing derivations, only involve
-well-formed judgments. In particular, a typing rule can only be applied if
-all the involved judgments are well-formed.
+The typing rules of our system, and hence our typing derivations, only
+involve well-formed judgments. In particular, a typing rule can only be
+applied if all the involved judgments are well-formed.
 \begin{rem}
 Note that the $∀_i$ rule cannot apply if the variable $χ$ appears in the
 contexts $Γ$ and $Ξ$ nor in $t$. This would prevent the conclusion
@@ -460,7 +458,7 @@ judgment to be well-formed.
 As our system is call-by-value and has effect, the $∀_i$ rule needs value
 restriction to remain sound. In our formalism, this means that the $∀_i$
 rule applies to value judgments. The $∈_i$ rule requires value restriction
-as well, as otherise the system cannot be proved sound. As the $∈_i$ rule
+as well, as otherwise the system cannot be proved sound. As the $∈_i$ rule
 will be involved in the derivation of the typing rule for the elimination
 of the dependent function type in \section("encodedep"), the latter will
 also need value restriction.
@@ -494,7 +492,7 @@ let r_forall_i =
    {Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A")}$>>
 
 let r_forall_e =
-  <<$\unaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
+  <<$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]")}$>>
 
 let r_exists_i =
@@ -604,25 +602,33 @@ its raw semantics would be the set $\{\hat{n} \| n ∈ \bbN\}$ where
 $\hat{n}$ is some encoding of $n$.
 (* *)
 The second layer, called //falsity value//, is a set containing every
-stack that is a candidate for building a valid process using any value
-from the raw semantics. The notion of validity depends on the choice of
-the pole. The third layer, called //truth value// is a set of terms that
-is built by iterating the process once more. The formalism for the two
-levels of orthogonality is given in the following definitions.
+closed stack that is a candidate for building a valid process using any
+value from the raw semantics. The notion of validity depends on the
+choice of the pole. The third layer, called //truth value// is a set of
+closed terms that is built by iterating the process once more. The
+formalism for the two levels of orthogonality is given in the following
+definitions. Recall that $Λ_ι^{∗}$, $Λ^{∗}$ and $Π^{∗}$ denote the set
+of closed values, closed terms and closed stacks respectively.
 \begin{def}\label("orthodef1")
-For every set $Φ ⊆ Λ_{val}$ we define a set $Φ^⊥ ⊆ Π$ as follows.
-$$ Φ^⊥ = \{π∈Π \| ∀v∈Φ \p("v ∗ π") ∈ \dbot\} $$
+For every set $Φ ⊆ Λ_ι^{∗}$ we define a set $Φ^⊥ ⊆ Π^{∗}$ as follows.
+$$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p("v ∗ π") ∈ \dbot\} $$
 \end{def}
 \begin{def}\label("orthodef2")
-For every set $Ψ ⊆ Π$ we define a set $Ψ^⊥ ⊆ Λ$ as follows.
-$$ Ψ^⊥ = \{t∈Λ \| ∀π∈Ψ \p("t ∗ π") ∈ \dbot\} $$
+For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows.
+$$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p("t ∗ π") ∈ \dbot\} $$
 \end{def}
+\begin{rem}
+In the usual presentation of Krivine's classical realisability, the
+interpretation of types can contain open values, terms and stacks.
+Here, we need to restrict ourselves to closed objects for our model
+to be compatible with our notion of equivalence.
+\end{rem}
 
 We now give several general properties of orthogonality, which hold in
 every call-by-value classical realisability model. They will be useful
 when proving the soundness of our type system.
 \begin{lem}\label("orthosimple")
-If $Φ ⊆ Λ_{val}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
+If $Φ ⊆ Λ_ι^{∗}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
 \begin{proof}
 We take $v ∈ Φ$ and show $v ∈ Φ^{⊥⊥}$. By definition we need to
 show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^⊥$. This is immediate
@@ -630,7 +636,7 @@ by definition of $Φ^⊥$.
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoinclstack")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If $Φ ⊆ Ψ$ then
+Let $Φ$, $Ψ ⊆ Λ_ι^{∗}$ be sets of closed values. If $Φ ⊆ Ψ$ then
 $Ψ^⊥ ⊆ Φ^⊥$.
 \begin{proof}
 Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^⊥$ and show that $π ∈ Φ^⊥$.
@@ -639,8 +645,8 @@ Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^�
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoinclterm")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If
-$Ψ^⊥ ⊆ Φ^⊥$ then $Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
+Let $Φ$, $Ψ ⊆ Λ_ι^{∗}$ be sets of closed values. If $Ψ^⊥ ⊆ Φ^⊥$ then
+$Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
 \begin{proof}
 Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
 $t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
@@ -649,7 +655,7 @@ $π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
 \end{proof}
 \end{lem}
 \begin{lem}\label("orthoincl")
-Let $Φ ⊆ Λ_{val}$ and $Ψ ⊆ Λ_{val}$ be sets of values. If $Φ ⊆ Ψ$ then
+Let $Φ$, $Ψ ⊆ Λ_ι^{∗}$ be sets of closed values. If $Φ ⊆ Ψ$ then
 $Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
 \begin{proof}
 Let us suppose that $Φ ⊆ Ψ$ and apply \lemRef("orthoinclstack") to obtain
@@ -659,27 +665,37 @@ $Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
 
 When choosing a pole, it is important to check that it does not yield a
 degenerate model. In particular we need to check that no term is able to
-face every stacks. If it were the case, such a term could be use as a
+face every stacks. If it were the case, such a term could be used as a
 proof of $⊥$.
 \begin{def}
 A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
 $t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
 \end{def}
 
-In this thesis, an other property will be required of our poles. As we
+In this thesis, another property will be required of our poles. As we
 are in the presence of an equivalence relation over terms, we will need
 our poles to be closed under this relation in some sense. This will
 allow us to derive the same properties for equivalent terms, and handle
 the uniformly.
 \begin{def}
-Given an equivalence relation $E ⊆ Λ×Λ$, a pole $\dbot ⊆ Λ×Π$ is said to
-be $R$-extentional if for every closed terms $t ∈ Λ$ and $u ∈ Λ$ such
-that $t R u$, and for every stack $π ∈ Π$, if $\p("t∗π") ∈ \dbot$ then
-$\p("u∗π") ∈ \dbot$.
+Given an equivalence relation $R ⊆ Λ×Λ$, a pole $\dbot ⊆ Λ×Π$ is said to
+be $R$-extentional if for every closed terms $t$, $u ∈ Λ^{∗}$ such that
+$t R u$, and for every stack $π ∈ Π$, we have $\p("t∗π") ∈ \dbot$ if and
+only if $\p("u∗π") ∈ \dbot$.
 \end{def}
 From now on, and until the end of this chapter, we will only consider
 poles that $≻$-saturated and $≡_{≻}$-extensional. This information will
-be kept impicit most of the time.
+be kept implicit most of the time.
+\begin{thm}\label("poleext")
+Let $Φ ⊆ Λ_ι^{∗}$ be a set of closed values and $t$, $u ∈ Λ^{∗}$ be two
+closed terms. With an ${≡}_{≻}$-extentional pole, if $t ∈ Φ^{⊥⊥}$ and
+$t ≡_{≻} u$ then $u ∈ Φ^{⊥⊥}$.
+\begin{proof}
+By definition we need to take $π ∈ Φ^⊥$ and show that $\p("u∗π") ∈ \dbot$.
+Since $t ∈ Φ^{⊥⊥}$ we have $\p("t∗π") ∈ \dbot$ and hence we can conclude
+since our pole is ${≡}_{≻}$-extentional and we have $t ≡_{≻} u$.
+\end{proof}
+\end{thm}
 
 In our realisability model, the well-formed closed types will be
 interpreted by the elements of a set defined according to their sort.
@@ -687,25 +703,24 @@ Such a set can be seen as the interpretation, in the model, of the sort
 themselves.
 \begin{def}
 To every sort $s ∈ \cal{S}$ we associate a set $⟦s⟧$ defined as follows.
-$$
-  ⟦ι⟧ = Λ_{val}^{∗}
-  \hspace(3.0)
-  ⟦τ⟧   = Λ^{∗}
-  \hspace(3.0)
-  ⟦σ⟧   = Π^{∗}
-$$
-$$
-  ⟦ο⟧   = \cal{P}(Λ_{val}^{∗} / {≡}_≻)
-  \hspace(3.0)
-  ⟦s→r⟧ = ⟦r⟧^⟦s⟧
-$$
+\Caml(
+let _ = tabular_layout 0.6 2.0
+  [ [ <<$⟦ι⟧ = Λ_ι^{∗}$>>
+    ; <<$⟦τ⟧ = Λ^{∗}$>>
+    ; <<$⟦σ⟧ = Π^{∗}$>> ]
+  ; [ <<$⟦ο⟧ = \cal{P}(Λ_ι^{∗} / {≡}_≻)$>>
+    ; <<$⟦s→r⟧ = ⟦r⟧^⟦s⟧$>> ] ]
+)
 \end{def}
-As we will only interpret closed types, it is convenient to extend the
-syntax of types with the elements of the model. This widely used method
-will allow us to consider closed types only in the semantics, and not
-couples of open type and a substitution. Of course, an open type can
-always be made into a closed types by replacing its free variables by
-elements of the interpretation of the corresponding sort.
+
+The semantical interpretation of types usually relies on a substitution
+(or interpretation function) to interpret free variables. Here, we will
+use another common method consisting in extending the syntax of types
+with the elements of the model. We will thus substitute free variables
+with such elements of the model, which will allow us to interpret closed
+types only. Of course, an open type can always be made into a closed
+types by replacing its free variables by elements of the interpretation
+of the corresponding sorts.
 \begin{def}
 We extend the syntax of types with the elements of the model. As a
 consequence, we will consider that $⟦s⟧ ⊆ \cal{F}$ for every sort
@@ -733,10 +748,10 @@ grow when going through the rules that extend the context. The proof for
 the other rules can be handled immediably by induction hypothesis. The
 only interesting case is the axiom
 $$\axiomR{Σ₁, Σ₂ ⊢ χ : s}$$
-for which there are two cases. Either $χ∈dom(Σ₂)$ and in this case the
-derivation remains an axiom, or $χ∈dom(Σ₁)$. In this second case we have
-$χ∈dom(ρ)$, which gives us $χρ = ρ(χ) ∈ ⟦s⟧$. As a consequence the
-derivation becomes the following.
+for which there are two cases. Either $χ∈dom(Σ₂)$ and the derivation
+remains an axiom, or $χ∈dom(Σ₁)$. In this second case we have $χ∈dom(ρ)$
+and thus $χρ = ρ(χ) ∈ ⟦s⟧$. As a consequence the derivation becomes
+the following.
 $$ \unaryR{ρ(χ) ∈ ⟦s⟧}{Σ₂ ⊢ ρ(χ) : s} $$
 \end{proof}
 \end{lem}
@@ -792,11 +807,25 @@ over $Σ$ then $\vs("Aρ") ∈ ⟦s⟧$.
 The proof is done by induction on the derivation of $Σ ⊢ A : s$, and we
 consider the last used rule. In the case of the rule
 $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
-we can conclude immediatly. For the first heighteen first rules of
+we can conclude immediatly. For the first heighteen rules of
 \figRef("sortrules"), the proof is immediate using the induction
-hypothesis. The remaining cases are treated bellow.
+hypothesis. The remaining cases are treated bellow. Note that we
+recall the corresponding rule bellow the proof of each case.
 \begin{itemize}
-\item \todo(None) (* TODO *)
+\item In the case of the arrow type, we need to show $\vs("(A⇒B)ρ") ∈ ⟦ο⟧$.
+  By induction hypothesis, we know $\vs("Aρ") ∈ ⟦ο⟧$ and $\vs("Bρ") ∈ ⟦ο⟧$,
+  which give us $\vs("Aρ") ⊆ Λ_ι^{∗}$ and $\ts("Bρ") ∈ Λ^{∗}$.
+  Consequently, $\vs("Aρ⇒Bρ")$ is well-defined and $\vs("Aρ⇒Bρ") ⊆ Λ_ι^{∗}$.
+  Let us now take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$ and a value $w ∈ Λ_ι^{∗}$
+  such that $\v("λx t") ≡_{≻} \v("w")$. According to \thmRef("canonlambda")
+  we have $w = \v("λx u")$ for some $u ∈ Λ$ (up to renaming of $x$) and
+  $t ≡_{≻} u$. To prove $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take $v ∈ \vs("Aρ")$
+  and show $\t("u[x≔v]") ∈ \ts("Bρ")$. As we have $\v("λxt") ∈ \vs("Aρ⇒Bρ")$
+  we obtain $\t("t[x≔v]") ∈ \ts("Bρ")$ by definition. To conclude using
+  \thmRef("poleext") it only remains to show
+  $\t("u[x≔v]") ≡_{≻} \t("t[x≔v]")$. This is true according to
+  \thmRef("...").
+      (* TODO need theorem in obsEquiv.txp *)
       $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
 \item \todo(None) (* TODO *)
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
@@ -843,7 +872,7 @@ hypothesis. The remaining cases are treated bellow.
 
 \begin{thm}\label("vexttyp")
 Let $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a $λ$-variable and
-$v₁ ∈ Λ_{val}$ and $v₂ ∈ Λ_{val}$ be values such that $x : ι ⊢ A : ο$,
+$v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values such that $x : ι ⊢ A : ο$,
 $⊢ v₁ : ι$ and $⊢ v₂ : ι$.
 If we have $v₁ ≡_{≻} v₂$ then we also have $\vs("A[x≔v₁]") = \vs("A[x≔v₂]")$.
 \begin{proof}
@@ -856,18 +885,6 @@ and $u₂ ∈ Λ$ be terms such that $a : τ ⊢ A : ο$, $⊢ u₁ : τ$ and $�
 If we have $u₁ ≡_{≻} u₂$ then we also have $\vs("A[a≔u₁]") = \vs("A[a≔u₂]")$.
 \begin{proof}
 \todo(None) (* TODO *)
-\end{proof}
-\end{thm}
-
-\begin{thm}\label("eqortho")
-Let $Φ∈⟦ο⟧$ be a set of closed value that is closed under $({≡}_{≻})$ and
-$t∈Λ$ and $u∈Λ$ be terms. If we have $t ≡_{≻} u$ and $t ∈ \ts("Φ")$ then we
-also have $u ∈ \ts("Φ")$.
-\begin{proof}
-By definition we need to take $π ∈ \ss("Φ")$ and show that
-$\p("u∗π") ∈ \dbot$. Since $t ≡_{≻} u$ and $\dbot$ is $≡_{≻}$-saturated
-this is equivalent to showing that $\p("t∗π") ∈ \dbot$. This is immediate
-since we know that $t ∈ \ts("Φ")$.
 \end{proof}
 \end{thm}
 
@@ -1122,7 +1139,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       and $\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$. By hypothesis we have
       $\v("v₁ρ") ≡_{≻} \v("v₂ρ")$, hence \thmRef("sextval") gives us
       $\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. We can then conclude using
-      \thmRef("eqortho") since we have $\t("tρ[x≔v₁ρ]") ∈ \ts("Aρ")$
+      \thmRef("poleext") since we have $\t("tρ[x≔v₁ρ]") ∈ \ts("Aρ")$
       by induction hypothesis.
 
       $$\binaryRN{≡_{l,τ,ι}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[x≔v₁]") : A;Δ)}
@@ -1134,7 +1151,7 @@ or $Σ ⊢ (Γ;Ξ ⊢_\tval v:A;Δ)$, and we reason by case on the last used rul
       and $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$. By hypothesis we have
       $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, hence \thmRef("sextterm") gives us
       $\t("tρ[a≔u₁ρ]") ≡_{≻} \t("tρ[a≔u₂ρ]")$. We can then conclude using
-      \thmRef("eqortho") since we have $\t("tρ[a≔u₁ρ]") ∈ \ts("Aρ")$
+      \thmRef("poleext") since we have $\t("tρ[a≔u₁ρ]") ∈ \ts("Aρ")$
       by induction hypothesis.
 
       $$\binaryRN{≡_{l,τ,τ}}{Σ ⊢ (Γ;Ξ ⊢ \t("t[a≔u₁]") : A;Δ)}

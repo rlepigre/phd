@@ -778,7 +778,9 @@ Given a value, term, stack or process $ψ$ we denote $FV_ι(ψ)$ (resp.
 $FV_σ(ψ)$, $FV_τ(ψ)$) the set of free $λ$-variables (resp. free
 $μ$-variables, term variables) contained in $ψ$. We also denote
 $FV(ψ) = FV_ι(ψ) ∪ FV_σ(ψ) ∪ FV_τ(ψ)$ the set of all the free variables
-of $ψ$. We say that $ψ$ is closed if $FV(ψ) = ∅$.
+of $ψ$. We say that $ψ$ is closed if $FV(ψ) = ∅$. We denote $Λ_ι^{∗}$
+the set of all the closed values, $Λ^{∗}$ the set of all the closed terms
+and $Π^{∗}$ the set of all the closed stacks.
 \end{def}
 
 \begin{def}
