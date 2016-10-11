@@ -824,7 +824,7 @@ recall the corresponding rule bellow the proof of each case.
   we obtain $\t("t[x≔v]") ∈ \ts("Bρ")$ by definition. To conclude using
   \thmRef("poleext") it only remains to show
   $\t("u[x≔v]") ≡_{≻} \t("t[x≔v]")$. This is true according to
-  \thmRef("...").
+  \thmRef("substequiv").
       (* TODO need theorem in obsEquiv.txp *)
       $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
 \item \todo(None) (* TODO *)

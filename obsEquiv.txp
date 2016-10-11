@@ -79,6 +79,128 @@ This exactly means that $t ≡_{≻} u$.
 
 =<
 
+=> Substitutions and extentionality
+
+We will now show that our equivalence relation $({≡})_{≻}$ is well-behaved
+with respect to substitutions. First, we are going to check that arbitrary
+substitutions preserve equivalence. This property is summarised in the
+following theorem.
+\begin{thm}\label("substequiv")
+Let $t$, $u ∈ Λ$ be two terms and $ρ ∈ \cal{S}$ be a substitution. If we
+have $\t("t") ≡_{≻} \t("u")$ then $\t("tρ") ≡_{≻} \t("uρ")$.
+\begin{proof}
+Let us take $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove ${{\p("(tρ)ρ₀ ∗ π₀")}
+{⇓}_{≻}} ⇔ {{\p("(uρ)ρ₀ ∗ π₀")} {⇓}_{≻}}$, which can be rewritten as
+${{\p("t(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("u(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{≻}}$.
+We can thus conclude using the definition of $t ≡_{≻} u$ with the
+substitution $ρ ∘ ρ₀$ and the stack $π₀$.
+\end{proof}
+\end{thm}
+
+Another essential property of our equivalence relation is extensionality.
+In other words, it is possible to replace equals by equals at any place
+in terms without changing their observed behaviour. This property is
+expressed in the following two theorems.
+\begin{thm}\label("sextval")
+Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
+$x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
+$\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
+\begin{proof}
+We are going to prove the contrapositive so we suppose
+$\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
+By definition, there is a stack $π$ and a substitution $ρ$ such that we
+have ${\p("(t[x≔v₁])ρ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])ρ ∗ π")} {⇑}_{≻}$
+(up to symmetry). As $x$ is bound we can rename it so that
+$\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$ and
+$\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$. To finish the proof, we need to find
+a stack $π₀$ and a substitution $ρ₀$ such that ${\p("v₁ρ₀ ∗ π₀")} {⇓}_{≻}$
+and ${\p("v₂ρ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
+$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ since by definition we have
+${\p("v₁ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₁ρ] ∗ π")} {⇓}_{≻}$ and
+${\p("v₂ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₂ρ] ∗ π")} {⇑}_{≻}$.
+\end{proof}
+\end{thm}
+\begin{lem}\label("sexttermaux")
+Let $p ∈ Λ×Π$ be a process, $a ∈ \cal{V}_τ$ be a term variable and $t$ be
+a term such that ${\p("p[a≔t]")} {⇓}_{≻}$. Either there is a value
+$v ∈ Λ_ι$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈ Π$
+such that $p ≻^{∗} \p("a ∗ π")$.
+\begin{proof}
+There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
+the case $p$ would be non-terminating, and hence $\p("p[a≔t]")$ would also
+be non-terminating according to \lemRef("redstable"). This would hence
+contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
+$\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
+\thmRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We can then
+proceed by case analysis according to \lemRef("possibilities") as $q$ is
+blocked. If $q$ is not of the form $\p("v ∗ ε")$ nor of the form
+$\p("a ∗ π")$ then $\p("q[a≔t]")$ is a blocked process that is not final.
+Consequently, we obtain a contradiction with ${\p("q[a≔t]")} {⇓}_{≻}$.
+\end{proof}
+\end{lem}
+\begin{thm}\label("sextterm")
+Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
+term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+
+\begin{proof}
+Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+We take a stack $π$, a substitution $ρ$ and we show
+${{\p("(t[a≔u₁])ρ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])ρ ∗ π")} {⇓}_{≻}}$. As we
+are free to rename $a$ we may assume $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
+$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a ∉ FV(π)$. Consequently our goal
+is now ${{\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}}$.
+By symmetry we can suppose that ${\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}$ and show
+${\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
+process $\p("tρ ∗ π")$. According to \lemRef("sexttermaux") there are two
+possibilities.
+\begin{itemize}
+\item If $\p("tρ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
+  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \thmRef("redcompatall").
+  This rewrites to $\p("tρ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
+  $a ∉ FV(π)$, and hence we obtain ${\p("tρ[a≔u₂] ∗ π")} {⇓}_{≻}$.
+\item If $\p("tρ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
+  $\p("(tρ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
+  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
+  \thmRef("redcompatall"). As a consequence, we assume
+  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
+  ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
+  stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
+  $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
+  that the sequence has to be finite since otherwise there would be an
+  infinite sequence of reductions from $\p("(a ∗ π₀)[a≔u₁]")$. To define
+  $π_{i+1}$ we consider the process $\p("u₁ ∗ πi")$. We have
+  $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
+  by transitivity and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
+  \lemRef("sexttermaux") there are two possibilities for the reduction of
+  $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
+  $v$ and the sequence ends with $n = i$, or
+  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ξ")$ for some stack $ξ$ and we define
+  $π_{i+1} = ξ$.
+  
+  To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
+  $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
+  which is the expected result. For $i = n$ we know that
+  $\p("u₁ ∗ πn") ≻^{∗} {\p("v ∗ ε")} {⇓}_{≻}$, and hence
+  ${\p("u₂ ∗ πn")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
+  that ${\p("(a ∗ πn)[a≔u₂]")} = {\p("(u₂ ∗ πn)[a≔u₂]")} {⇓}_{≻}$ by
+  \lemRef("redstable"). Let us now suppose that we have
+  ${\p("(a ∗ πi+1)[a≔u₂]")} = {\p("u₂ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$ for some
+  $i<n$ and show that
+  ${\p("(a ∗ πi)[a≔u₂]")} = {\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$. Since we know
+  $u₁ ≡_{≻} u₂$ we can deduce that ${\p("u₁ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$.
+  Moreover, since $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ πi+1")$ we may use
+  \thmRef("redcompatall") to obtain
+  $\p("u₁ ∗ πi[a≔u₂]") = \p("(u₁ ∗ πi)[a≔u₂]") ≻^{∗} \p("(a ∗ πi+1)[a≔u₂]")
+  = \p("u₂ ∗ πi+1[a≔u₂]")$. As a consequence, we have
+  ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
+  ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
+\end{itemize}
+(* NOTE ajouter un diagramme pour la preuve. *)
+\end{proof}
+\end{thm}
+
+=<
+
 => Equivalences from reduction
 
 The equivalence relation $({≡}_{≻})$ identifies terms with the same
@@ -161,7 +283,7 @@ Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p(
 for all $π$ we can apply \lemRef("redtosame") to conclude.
 \end{proof}
 \end{thm}
-(* FIXME Enlever ? Conjecture à la fin ? (Christophe) *)
+(* NOTE Enlever ? Conjecture à la fin ? (Christophe) *)
 Similarly, it seems to be possible to prove an equivalence corresponding
 to (a call-by-value version of) the $η$-equivalence relation. We only
 include it as a claim as the author did not write a full proof.
@@ -304,7 +426,7 @@ provide several means of identifying inequivalences.
 Given $t$, $u∈Λ$ we write $t \nequiv_{≻} u$ if and only if we do not have
 $t ≡_{≻} u$.
 \end{def}
-(* FIXME deux lemmes inutiles ? (Christophe) *)
+(* NOTE deux lemmes inutiles ? (Christophe) *)
 \begin{lem}\label("equivcounterex")
 Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ and a substitution
 $ρ∈\cal{S}$ such that ${\p("tρ ∗ π")} {⇓}_{≻}p$ and ${\p("uρ ∗ π")} {⇑}_{≻}p$
@@ -537,20 +659,28 @@ contradicts $\v("Cm[v]") ≡_{≻} \v("w₀")$ and thus $w ≡_{≻} v$.
 \end{thm}
 \begin{thm}
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$, and
-let $w₀ ∈ Λ_ι$ be a value. We have $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ if and
-only if $w₀ = \v("{(li = wi) i∈I}")$ for some values $\v("wi") ∈ Λ_ι$ such
-that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
+let $w ∈ Λ_ι$ be a value. The equivalence $\v("{(li = vi) i∈I}") ≡_{≻} w$
+holds if and only if $w = \v("{(li = wi) i∈I}")$ for some values
+$\v("wi") ∈ Λ_ι$ such that $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \begin{proof}
-Let us first assume that $w₀ = \v("{(li = wi) i∈I}")$ with
+Let us first assume that $w = \v("{(li = wi) i∈I}")$ with
 $\v("vi") ≡_{≻} \v("wi")$ for all $i∈I$ and show
-$\v("{(li = vi) i∈I}") ≡_{≻} \v("{(li = wi) i∈I}")$.
-(* TODO *) \todo(Some "with extentionality")
+$\v("{(li = vi) i∈I}") ≡_{≻} \v("{(li = wi) i∈I}")$. Up to renaming,
+we may assume $I = \{i ∈ \bbN \| 1 ≤ i ≤ n\}$ with $n = |I|$. For all
+$0 ≤ k ≤ n$ we define $R_k = \v("{(li = ri) i∈I}")$ where $r_i = w_i$
+if $i < k$ and $r_i = v_i$ otherwise. We have $R₀ = \v("{(li = vi) i∈I}")$
+and $R_n = \v("{(li = wi) i∈I}")$, so we need to show that $R₀ ≡_{≻} R_n$.
+We are going to prove that $R₀ ≡_{≻} R_k$ for all $0 ≤ k ≤ n$ by induction
+on $k$. When $k = 0$ this is immediate by reflexivity. Let us now suppose
+that $R₀ ≡_{≻} R_k$ for some $0 ≤ k < n$ and show that $R₀ ≡_{≻} R_{k+1}$.
+By transitivity, it is enough to show $R_k ≡_{≻} R_{k+1}$, which is true
+by extentionality (\thmRef("sextval")) since $v_k ≡_{≻} w_k$.
 
-Let us now suppose $\v("{(li = vi) i∈I}") ≡_{≻} w₀$ and show that $w₀$ is
+Let us now suppose $\v("{(li = vi) i∈I}") ≡_{≻} w$ and show that $w$ is
 of the form $\v("{(li = wi) i∈I}")$ with $\v("wi") ≡_{≻} \v("vi")$ for all
 $i∈I$. Using \thmRef("varequiv"), \thmRef("nequivlamreco"),
 \thmRef("consneqrec") and \thmRef("reconequiv") we obtain
-$\v("w₀") = \v("{(li=wi) i∈I}")$ with $w_i ∈ Λ_ι$ for all $i∈I$.
+$\v("w") = \v("{(li=wi) i∈I}")$ with $w_i ∈ Λ_ι$ for all $i∈I$.
 We now suppose $v_k \nequiv_{≻} w_k$ for some $k ∈ I$.
 By definition, there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such
 that ${\p("vkρ ∗ π")} {⇓}_{≻}$ and ${\p("wkρ ∗ π")} {⇑}_{≻}$ (up to symmetry).
@@ -558,7 +688,7 @@ We can thus apply \lemRef("equivcounterex") to show that
 $\v("{(li=vi) i∈I}") \nequiv_{≻} \v("{(li=wi) i∈I}")$
 as $\p("{(li=vi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("vkρ ∗ π")} {⇓}_{≻}$ and
 $\p("{(li=wi) i∈I}ρ ∗ [λx x.lk]π") ≻^{∗} {\p("wkρ ∗ π")} {⇑}_{≻}$. This
-contradicts $\v("{(li=vi) i∈I}") ≡_{≻} \v("w₀")$ and hence
+contradicts $\v("{(li=vi) i∈I}") ≡_{≻} \v("w")$ and hence
 $\v("wi") ≡_{≻} \v("vi")$ for all $i∈I$.
 \end{proof}
 \end{thm}
@@ -571,7 +701,7 @@ $t ≡_{≻} \t("u[y≔x]")$.
 \begin{proof}
 Let us first assume that $w₀ = \v("λyu")$ with $\t("t") ≡_{≻} \t("u[y≔x]")$
 and show $\v("λxt") ≡_{≻} \v("λy u")$.
-(* TODO *) \todo(Some "not sure how")
+(* FIXME *) \todo(Some "not sure how, probably like extentionality")
 
 We now suppose $\v("λxt") ≡_{≻} \v("w₀")$ and show that $w₀$ has
 form $\v("λyu")$ with $t ≡_{≻} \t("u[y≔x]")$. We reason by case on the
@@ -591,117 +721,6 @@ $\v("λxt") \nequiv_{≻} \v("λyu")$, which gives us a contradiction. As a
 consequence, the equivalence $t ≡_{≻} u$ must hold.
 \end{proof}
 \end{thm}
-
-=<
-
-=> Extentionality
-
-(* TODO relecture. *)
-To be able to work with the equivalence relation $({≡})_{≻}$, we need to
-check that it is extensional. In other words, we need to be able to replace
-equals by equals at any place in terms without changing their observed
-behaviour. This property is summarized in the following two theorems.
-\begin{thm}\label("sextval")
-Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
-$x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
-$\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
-\begin{proof}
-We are going to prove the contrapositive so we suppose
-$\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
-By definition, there is a stack $π$ and a substitution $ρ$ such that we
-have ${\p("(t[x≔v₁])ρ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])ρ ∗ π")} {⇑}_{≻}$
-(up to symmetry). As $x$ is bound we can rename it so that
-$\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$ and
-$\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$. To finish the proof, we need to find
-a stack $π₀$ and a substitution $ρ₀$ such that ${\p("v₁ρ₀ ∗ π₀")} {⇓}_{≻}$
-and ${\p("v₂ρ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
-$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ since by definition we know that
-${\p("v₁ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₁ρ] ∗ π")} {⇓}_{≻}$ and
-${\p("v₂ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₂ρ] ∗ π")} {⇑}_{≻}$.
-\end{proof}
-\end{thm}
-\begin{lem}\label("sexttermaux")
-Let $p ∈ Λ×Π$ be a process, $a ∈ \cal{V}_τ$ be a term variable and $t$ be
-a term such that ${\p("p[a≔t]")} {⇓}_{≻}$. Either there is a value
-$v ∈ Λ_ι$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈ Π$
-such that $p ≻^{∗} \p("a ∗ π")$.
-\begin{proof}
-There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
-the case $p$ would be non-terminating, and hence $\p("p[a≔t]")$ would also
-be non-terminating according to \lemRef("redstable"). This would hence
-contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
-$\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
-\thmRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We can then
-proceed by case analysis according to \lemRef("possibilities") as $q$ is
-blocked. If $q$ is not of the form $\p("v ∗ ε")$ nor of the form
-$\p("a ∗ π")$ then $\p("q[a≔t]")$ is a blocked process that is not final.
-Consequently, we obtain a contradiction with ${\p("q[a≔t]")} {⇓}_{≻}$.
-\end{proof}
-\end{lem}
-\begin{thm}\label("sextterm")
-Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
-term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-
-\begin{proof}
-Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-We take a stack $π$, a substitution $ρ$ and we show
-${{\p("(t[a≔u₁])ρ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])ρ ∗ π")} {⇓}_{≻}}$. As we
-are free to rename $a$ we may assume $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
-$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a ∉ FV(π)$. Consequently our goal
-is now ${{\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}}$.
-By symmetry we can suppose that ${\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}$ and show
-${\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
-process $\p("tρ ∗ π")$. According to \lemRef("sexttermaux") there are two
-possibilities.
-\begin{itemize}
-\item If $\p("tρ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
-  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \thmRef("redcompatall").
-  This rewrites to $\p("tρ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
-  $a ∉ FV(π)$, and hence we obtain ${\p("tρ[a≔u₂] ∗ π")} {⇓}_{≻}$.
-\item If $\p("tρ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
-  $\p("(tρ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
-  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
-  \thmRef("redcompatall"). As a consequence, we assume
-  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
-  ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
-  stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
-  $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
-  that the sequence has to be finite since otherwise there would be an
-  infinite sequence of reductions from $\p("(a ∗ π₀)[a≔u₁]")$. To define
-  $π_{i+1}$ we consider $\p("u₁ ∗ πi")$. By transitivity
-  $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
-  and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
-  \lemRef("sexttermaux") there are two possibilities for the reduction of
-  $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
-  $v$ and the sequence ends with $n = i$, or
-  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ξ")$ for some stack $ξ$ and we define
-  $π_{i+1} = ξ$.
-  
-  To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
-  $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
-  which is the expected result. For $i = n$ we know that
-  $\p("u₁ ∗ πn") ≻^{∗} {\p("v ∗ ε")} {⇓}_{≻}$, and hence
-  ${\p("u₂ ∗ πn")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
-  that ${\p("(a ∗ πn)[a≔u₂]")} = {\p("(u₂ ∗ πn)[a≔u₂]")} {⇓}_{≻}$ by
-  \lemRef("redstable"). Let us now suppose that we have
-  ${\p("(a ∗ πi+1)[a≔u₂]")} = {\p("u₂ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$ for some
-  $i<n$ and show that
-  ${\p("(a ∗ πi)[a≔u₂]")} = {\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$. Since we know
-  $u₁ ≡_{≻} u₂$ we can deduce that ${\p("u₁ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$.
-  Moreover, since $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ πi+1")$ we may use
-  \thmRef("redcompatall") to obtain
-  $\p("u₁ ∗ πi[a≔u₂]") = \p("(u₁ ∗ πi)[a≔u₂]") ≻^{∗} \p("(a ∗ πi+1)[a≔u₂]")
-  = \p("u₂ ∗ πi+1[a≔u₂]")$. As a consequence, we have
-  ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
-  ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
-\end{itemize}
-(* FIXME ajouter un diagramme pour la preuve. *)
-\end{proof}
-\end{thm}
-
-It is not enough for our equivalence relation to be extentional. As we want
-to identify programs with the same computational behaviour, we expect
-equivalence to be preserved by evaluation.
 
 =<
 

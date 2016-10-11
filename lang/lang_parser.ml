@@ -19,7 +19,7 @@ let vari ns =
 
 (* Predifined parsers for all kind of variables and metavariables. *)
 let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
-let vmeta = vari ["v"; "w"]
+let vmeta = vari ["v"; "w"; "r"]
 let tvari = vari ["a"; "b"; "c"]
 let tmeta = vari ["t"; "u"; "Ω"]
 let cmeta = vari ["E"; "F"]
