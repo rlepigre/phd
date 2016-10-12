@@ -804,29 +804,30 @@ Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort. If we have a derivation of $Σ ⊢ A : s$ and if $ρ$ is a valuation
 over $Σ$ then $\vs("Aρ") ∈ ⟦s⟧$.
 \begin{proof}
-The proof is done by induction on the derivation of $Σ ⊢ A : s$, and we
-consider the last used rule. In the case of the rule
+The proof is done by induction on the derivation of $Σ ⊢ A : s$. We reason
+by case on the last rules used in the deduction tree. In the case of the
+rule
 $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
-we can conclude immediatly. For the first heighteen rules of
-\figRef("sortrules"), the proof is immediate using the induction
-hypothesis. The remaining cases are treated bellow. Note that we
-recall the corresponding rule bellow the proof of each case.
+the proof is trivial. For the first heighteen rules of \figRef("sortrules"),
+the proof is immediate using the induction hypothesis. The remaining cases
+are treated bellow. Note that We recall the corresponding rules after the
+proof of each case.
 \begin{itemize}
 \item In the case of the arrow type, we need to show $\vs("(A⇒B)ρ") ∈ ⟦ο⟧$.
   By induction hypothesis, we know $\vs("Aρ") ∈ ⟦ο⟧$ and $\vs("Bρ") ∈ ⟦ο⟧$,
   which give us $\vs("Aρ") ⊆ Λ_ι^{∗}$ and $\ts("Bρ") ∈ Λ^{∗}$.
   Consequently, $\vs("Aρ⇒Bρ")$ is well-defined and $\vs("Aρ⇒Bρ") ⊆ Λ_ι^{∗}$.
-  Let us now take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$ and a value $w ∈ Λ_ι^{∗}$
+  It remains to show that $\vs("Aρ⇒Bρ")$ is closed under $({≡}_{≻})$.
+  Let us take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$ and a value $w ∈ Λ_ι^{∗}$
   such that $\v("λx t") ≡_{≻} \v("w")$. According to \thmRef("canonlambda")
   we have $w = \v("λx u")$ for some $u ∈ Λ$ (up to renaming of $x$) and
-  $t ≡_{≻} u$. To prove $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take $v ∈ \vs("Aρ")$
-  and show $\t("u[x≔v]") ∈ \ts("Bρ")$. As we have $\v("λxt") ∈ \vs("Aρ⇒Bρ")$
-  we obtain $\t("t[x≔v]") ∈ \ts("Bρ")$ by definition. To conclude using
-  \thmRef("poleext") it only remains to show
-  $\t("u[x≔v]") ≡_{≻} \t("t[x≔v]")$. This is true according to
+  $t ≡_{≻} u$. To prove $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take a value
+  $v ∈ \vs("Aρ")$ and show $\t("u[x≔v]") ∈ \ts("Bρ")$. As
+  $\v("λxt") ∈ \vs("Aρ⇒Bρ")$ we know that by definition we have
+  $\t("t[x≔v]") ∈ \ts("Bρ")$. We can hence conclude with \thmRef("poleext")
+  as we have $\t("u[x≔v]") ≡_{≻} \t("t[x≔v]")$ according to
   \thmRef("substequiv").
-      (* TODO need theorem in obsEquiv.txp *)
-      $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
+  $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
 \item \todo(None) (* TODO *)
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
 \item \todo(None) (* TODO *)

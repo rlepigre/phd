@@ -699,26 +699,20 @@ be a value. If the equivalence $\t("λx t") ≡_{≻} v$ holds, then there
 are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t("λy u")$ and
 $t ≡_{≻} \t("u[y≔x]")$.
 \begin{proof}
-Let us first assume that $w₀ = \v("λyu")$ with $\t("t") ≡_{≻} \t("u[y≔x]")$
-and show $\v("λxt") ≡_{≻} \v("λy u")$.
-(* FIXME *) \todo(Some "not sure how, probably like extentionality")
-
-We now suppose $\v("λxt") ≡_{≻} \v("w₀")$ and show that $w₀$ has
-form $\v("λyu")$ with $t ≡_{≻} \t("u[y≔x]")$. We reason by case on the
-possible forms of the value $\v("w₀")$. Using \thmRef("varequiv"),
-\thmRef("nequivlamreco") and \thmRef("nequivlamcons") we obtain that
-$\v("w₀")$ cannot be a $λ$-variable, a record or a variant. Consequently,
-we know that $w₀ = \v("λy u")$ for some $y ∈ \cal{V}_ι$ and $u ∈ Λ$. We
-now assume that $t \nequiv_{≻} u$. By our second definition of equivalence,
-there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such that ${\p("(t ∗ π)ρ")} {⇓}_{≻}$
-and ${\p("(u ∗ π)ρ")} {⇑}_{≻}$ (up to symmetry). Moreover, we have
-$\p("λxt ∗ x·π") ≻ \p("t ∗ π")$ and we also have
-$\p("λyu ∗ x·π") ≻ \p("u[y≔x] ∗ π")$ so can use \thmRef("redcompatall") to
-obtain $\p("(λxt ∗ x·π)ρ") ≻ {\p("(t ∗ π)ρ")} {⇓}_{≻}$ and
+We reason by case on the possible forms of $\v("v")$. Using
+\thmRef("varequiv"), \thmRef("nequivlamreco") and \thmRef("nequivlamcons")
+we obtain that $\v("v")$ cannot be a $λ$-variable, a record or a variant.
+Consequently, we know that $v = \v("λy u")$ for some $y ∈ \cal{V}_ι$ and
+$u ∈ Λ$. We now assume that $t \nequiv_{≻} \t("u[y≔x]")$. By our second
+definition of equivalence, there must be $π ∈ Π$ and $ρ ∈ \cal{S}$ such
+that we have ${\p("(t ∗ π)ρ")} {⇓}_{≻}$ and ${\p("(u[y≔x] ∗ π)ρ")} {⇑}_{≻}$
+(up to symmetry). Since we have $\p("λxt ∗ x·π") ≻ \p("t ∗ π")$ and
+$\p("λyu ∗ x·π") ≻ \p("u[y≔x] ∗ π")$ we can use \thmRef("redcompatall") to
+get $\p("(λxt ∗ x·π)ρ") ≻ {\p("(t ∗ π)ρ")} {⇓}_{≻}$ and
 $\p("(λyu ∗ x·π)ρ") ≻ {\p("(u[y≔x] ∗ π)ρ")} {⇑}_{≻}$. We can thus apply
 \lemRef("equivcounterex") with $ρ$ and the stack $\s("x · π")$ to obtain
 $\v("λxt") \nequiv_{≻} \v("λyu")$, which gives us a contradiction. As a
-consequence, the equivalence $t ≡_{≻} u$ must hold.
+consequence, the equivalence $t ≡_{≻} \t("u[y≔x]")$ must hold.
 \end{proof}
 \end{thm}
 
