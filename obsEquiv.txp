@@ -624,7 +624,7 @@ $\t("xρ") \nequiv_{≻} \t("vρ")$ as we can then conclude using
 We will now identify the value that are equivalent to a given variant, and
 those that are equivalent to a given record. In both case, the equivalent
 values have the same structure and equivalent subvalues.
-\begin{thm}
+\begin{thm}\label("canoncons")
 Let $m ∈ \bbN$ be a natural number and $v$, $w₀ ∈ Λ_ι$ be two values. The
 equivalence $\v("Cm[v]") ≡_{≻} w₀$ holds if and only if $w₀ = \v("Cm[w]")$
 for some $w ∈ Λ_ι$ such that $w ≡_{≻} v$.
@@ -657,7 +657,7 @@ have $\p("Cm[wρ] ∗ [λx [x | Cm[x]→x]]π") ≻^{∗} {\p("wρ ∗ π")} {�
 contradicts $\v("Cm[v]") ≡_{≻} \v("w₀")$ and thus $w ≡_{≻} v$.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("canonrecord")
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$, and
 let $w ∈ Λ_ι$ be a value. The equivalence $\v("{(li = vi) i∈I}") ≡_{≻} w$
 holds if and only if $w = \v("{(li = wi) i∈I}")$ for some values
