@@ -11,7 +11,7 @@
 )
 \Include{Macros}
 
-=> Type and realisability semantics \label("typeSystem")
+=> Types and realisability semantics \label("typeSystem")
 
 In this chapter, we present a new type system which distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
@@ -544,7 +544,7 @@ let r_eq_ti =
 let r_eq_ii =
   <$\binaryRN{≡_{ι,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢_\tval \v("v[x≔w₁]") : \f("A[x≔w₁]")}
    {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
-   {Σ \sp Γ[x≔w₂];Ξ ⊢ \v("v[x≔w₂]") : \f("A[x≔w₂]")}$>
+   {Σ \sp Γ[x≔w₂];Ξ ⊢_\tval \v("v[x≔w₂]") : \f("A[x≔w₂]")}$>
 
 let r_eq_tt =
   <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
@@ -894,20 +894,50 @@ proof of each case.
 \end{thm}
 
 \begin{thm}\label("vexttyp")
-Let $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a $λ$-variable and
-$v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values such that $x : ι ⊢ A : ο$,
-$⊢ v₁ : ι$ and $⊢ v₂ : ι$.
-If we have $v₁ ≡_{≻} v₂$ then we also have $\vs("A[x≔v₁]") = \vs("A[x≔v₂]")$.
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a
+$λ$-variable and $v₁$, $v₂ ∈ Λ_ι$ be values such that $Σ, x : ι ⊢ A : ο$,
+$Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. If $ρ$ is a valuation over $Σ$ and if
+$v₁ρ ≡_{≻} v₂ρ$ then we have $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$.
 \begin{proof}
-\todo(None) (* TODO *)
+According to \thmRef("sortsem"), we have $⟦v₁ρ⟧ = v₁ρ ∈ ⟦ι⟧$ and
+$⟦v₂ρ⟧ = v₂ρ ∈ ⟦ι⟧$ since we have $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. 
+As a consequence, $\subs("ρ[x≔v₁ρ]")$ and $\subs("ρ[x≔v₂ρ]")$ are
+both valuations over the sorting context $Σ, x : ι$, and thus we
+obtain $\vs("Aρ[x≔v₁ρ]") ∈ ⟦ο⟧$ and $\vs("Aρ[x≔v₂ρ]") ∈ ⟦ο⟧$ using
+\thmRef("sortsem") once again. We will now show, by induction on
+the derivation of $Σ, x : ι ⊢ A : ο$, that
+$\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. The only interesting cases
+(that are not immediate by induction hypothesis) are membership and
+restriction. In the case of membership
+$$\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$$
+we need to show that $\vs("(t∈A)ρ[x≔v₁ρ]") = \vs("(t∈A)ρ[x≔v₂ρ]")$.
+By definition, we need to show
+$\{\v("v") ∈ \vs("Aρ[x≔v₁ρ]") \| \v("v") ≡_{≻} \t("tρ[x≔v₁ρ]")\} =
+ \{\v("v") ∈ \vs("Aρ[x≔v₂ρ]") \| \v("v") ≡_{≻} \t("tρ[x≔v₂ρ]")\}$.
+As we know that $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$ by
+induction hypothesis, we only need to show that
+$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. This follows from
+extentionality (\thmRef("sextval")) since we know that
+$v₁ρ ≡_{≻} v₂ρ$. In the case of restriction
+$$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο}$$
+we need to show that $\vs("(A|t≡u)ρ[x≔v₁ρ]") = \vs("(A|t≡u)ρ[x≔v₂ρ]")$.
+By definition, we need to show that
+$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("uρ[x≔v₁ρ]")$ if and only if
+$\t("tρ[x≔v₂ρ]") ≡_{≻} \t("uρ[x≔v₂ρ]")$ since
+$\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$
+by induction hypothesis. We can then conclude since we have
+$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$ and
+$\t("uρ[x≔v₁ρ]") ≡_{≻} \t("uρ[x≔v₂ρ]")$ according to \thmRef("sextval").
 \end{proof}
 \end{thm}
 \begin{thm}\label("texttyp")
-Let $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a term variable and $u₁ ∈ Λ$
-and $u₂ ∈ Λ$ be terms such that $a : τ ⊢ A : ο$, $⊢ u₁ : τ$ and $⊢ u₂ : τ$.
-If we have $u₁ ≡_{≻} u₂$ then we also have $\vs("A[a≔u₁]") = \vs("A[a≔u₂]")$.
+Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a
+term variable and $u₁$, $u₂ ∈ Λ_ι$ be terms such that $Σ, a : τ ⊢ A : ο$,
+$Σ ⊢ u₁ : τ$ and $Σ ⊢ u₂ : τ$. If $ρ$ is a valuation over $Σ$ and if
+$u₁ρ ≡_{≻} u₂ρ$ then $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$.
 \begin{proof}
-\todo(None) (* TODO *)
+Similar to the proof of \thmRef("vexttyp") using \thmRef("sextterm")
+instead of \thmRef("sextval").
 \end{proof}
 \end{thm}
 
@@ -919,25 +949,20 @@ we need to show that our typing rules actually agree with the semantics.
 Intuitively, we need to check that whenever our type system can be used to
 prove that a term $t$ has type $A$, then $t$ is indeed in the term level
 interpretation of $A$. This will be summarised in the following theorem,
-but we first need some definition.
+but we first need the following definition.
 \begin{def}
 Let $Σ$ be a sorting context, $ρ$ be a valuation over $Σ$ and $Γ$ be a
-typing context such that $Σ ⊢ Γ$. We say that $ρ$ realises $Γ$ and we
-write $ρ ⊩ Γ$ if for every $x ∈ dom(Γ) ∩ \cal{V}_ι$ we have $ρ(x) ∈ ⟦Γ(x)⟧$
-and for every $α ∈ dom(Γ) ∩ \cal{V}_σ$ we have $ρ(α) ∈ ⟦Γ(x)⟧^\bot$.
+typing context such that $Σ ⊢ Γ$ is derivable. We say that $ρ$ realises
+$Γ$ and we write $ρ ⊩ Γ$ if for every $x ∈ dom(Γ) ∩ \cal{V}_ι$ we have
+$ρ(x) ∈ ⟦(Γ(x))ρ⟧$ and for every $α ∈ dom(Γ) ∩ \cal{V}_σ$ we have
+$ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
 \end{def}
-\begin{thm}\label("vadequacy")
-Let $Σ$ be a sorting context and $ρ$ be a valuation over $Σ$. If the value
-judgment $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable and if $ρ ⊩ Γ$ and $ρ ⊩ Ξ$
-then $\v("vρ") ∈ \vs("Aρ")$.
-\begin{proof}
-Proof by mutual induction with the proof of \thmRef("tadequacy").
-\end{proof}
-\end{thm}
-\begin{thm}\label("tadequacy")
-Let $Σ$ be a sorting context and $ρ$ be a valuation over $Σ$. If the term
-judgment $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable and if $ρ ⊩ Γ$ and $ρ ⊩ Ξ$ then
-$\t("tρ") ∈ \ts("Aρ")$.
+\begin{thm}\label("adequacy")
+Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
+context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
+that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$. If $t$ is a term such that $Σ \sp Γ ; Ξ ⊢ t:A$ is
+derivable, then $\t("tρ") ∈ \ts("Aρ")$. Moreover, if $v$ is a value such
+that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v("vρ") ∈ \vs("Aρ")$.
 \begin{proof}
 We proceed by induction on the derivation of the judgment
 $Σ \sp Γ ; Ξ ⊢_\tval v : A$ or $Σ \sp Γ ; Ξ ⊢ t : A$, and
@@ -1145,19 +1170,40 @@ correspoding case.
 
       $$ \id(r_sum_e) $$
 
-\item If the last used rule is ($≡_{ι,ι}$) \todo(None) (* TODO *)
+\item If the last used rule is ($≡_{ι,ι}$) then we need to show
+      $\t("(v[x≔w₂])ρ") ∈ \vs("(A[x≔w₂])ρ")$. As we are free to rename
+      $x$ we may assume that it does not appear in $dom(ρ)$, and our
+      goal rewrites as $\t("vρ[x≔w₂ρ]") ∈ \vs("Aρ[x≔w₂ρ]")$. According
+      to our second premise we have $\t("w₁ρ") ≡_{≻} \t("w₂ρ")$ and
+      thus we get $\vs("Aρ[x≔w₂ρ]") = \vs("Aρ[x≔w₁ρ]")$ using
+      \thmRef("vexttyp") and $\t("vρ[x≔w₂ρ]") = \t("vρ[x≔w₁ρ]")$ using
+      \thmRef("sextval"). Now, since $\vs("Aρ[x≔w₁ρ]")$ is closed under
+      $({≡}_{≻})$ we only have to show $\t("vρ[x≔w₁ρ]") ∈ \vs("Aρ[x≔w₁ρ]")$.
+      To be able to conclude using the induction hypothesis, we need to
+      show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
+      need to show that for every type $B$ appearing in $Γ$ we have
+      $\vs("(B[x≔w₁])ρ") = \vs("(B[x≔w₂])ρ")$. As we are again free to
+      rename $x$ we may rewrite our goal as
+      $\vs("Bρ[x≔w₁ρ]") = \vs("Bρ[x≔w₂ρ]")$. We can then conclude the
+      proof using \thmRef("vexttyp") one more time.
 
       $$ \id(r_eq_ii) $$
 
-\item If the last used rule is ($≡_{τ,ι}$) \todo(None) (* TODO *)
+\item If the last used rule is ($≡_{τ,ι}$) the proof is similar to the
+      previous case, using the fact that $Φ₁ = Φ₂$ implies
+      $Φ₁^{⊥⊥} = φ₂^{⊥⊥}$.
 
       $$ \id(r_eq_ti) $$
 
-\item If the last used rule is ($≡_{ι,τ}$) \todo(None) (* TODO *)
+\item If the last used rule is ($≡_{ι,τ}$) the proof is similar to the
+      proof for ($≡_{ι,ι}$), but \thmRef("sextterm") is used instead of
+      \thmRef("sextval").
 
       $$ \id(r_eq_it) $$
 
-\item If the last used rule is ($≡_{τ,τ}$) \todo(None) (* TODO *)
+\item If the last used rule is ($≡_{τ,τ}$) the proof is similar to the
+      ($≡_{τ,ι}$) using again \thmRef("sextterm") instead of
+      \thmRef("sextval").
 
       $$ \id(r_eq_tt) $$
 
@@ -1165,97 +1211,32 @@ correspoding case.
 \end{proof}
 \end{thm}
 
-=<
-=> Properties of the system
+Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
+of our language and type system by choosing appropriate poles. For instance,
+we can easily check that a typed term normalises using a pole containing
+only processes reducing to a final state.
+\begin{thm}
+The typed terms of our language normalise. More formally, if the judgment
+$Σ \sp Γ; Ξ ⊢ t : A$ is derivable, and if $ρ$ is a substitution over $Σ$
+such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for every stack $π ∈ \ss("Aρ")$ there
+is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+\begin{proof}
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
+which is trivially saturated. We will first check that it is also
+$≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
+$\p("t∗π") ∈ \dbot$. By definition of $\dbot$, there must be a value
+$v$ such that $\p("t∗π") ≻^{∗} \p("v∗ε")$, and thus we have
+${\p("t∗π")} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
+${\p("u∗π")} {⇓}_{≻}$, and thus there must be a value $w$ such that
+$\p("u∗π") ≻ \p("w∗ε")$. This exactly means that $\p("u∗π") ∈ \dbot$.
 
-\todo(None) (* TODO from here *)
-
-=<
-=> Derived rules for dependent types
-
-\label("encodedep") (* FIXME why do I need to put the label here ???!!!! *)
-
-(* The weak Π_i rule and its derivation *)
-$$
-\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
-}
-$$
-$$
-\proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
-   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
-     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
-}
-$$
-(* The weak Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
-$$
-$$
-\proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
-  }
- }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
-   }
-  }
- }
-}
-$$
-
-(* The Π_i rule and its derivation *)
-$$
-\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
-}
-$$
-$$
-\proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
-   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
-     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
-}
-$$
-
-(* The Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
-$$
-$$
-\proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
-  }
- }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
-   }
-  }
- }
-}
-$$
-(* TODO *)
+We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
+$\t("tρ") ∈ \ts("Aρ")$. By definition, this means that $\p("tρ∗ξ") ∈ \dbot$
+for every stack $ξ ∈ \ss("Aρ")$, and in particular $\p("tρ ∗ π") ∈ \dbot$.
+We can hence conclude by definition of $\dbot$ as this exactly means that
+there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+\end{proof}
+\end{thm}
 
 =<
 

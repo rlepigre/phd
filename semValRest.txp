@@ -3,6 +3,94 @@
 
 => A model for a semantical value restriction \label("semValRest")
 
+=> Derived rules for dependent types
+
+\label("encodedep") (* FIXME why do I need to put the label here ???!!!! *)
+
+(* The weak Π_i rule and its derivation *)
+$$
+\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
+}
+$$
+$$
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
+   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
+     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
+  }
+ }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+(* The weak Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
+  }
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
+   }
+  }
+ }
+}
+$$
+
+(* The Π_i rule and its derivation *)
+$$
+\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
+  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
+}
+$$
+$$
+\proofTree{
+ \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
+  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
+   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
+    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
+     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
+    }
+   }
+  }
+ }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
+}
+$$
+
+(* The Π_e rule and its derivation *)
+$$
+\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
+  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
+  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
+   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
+  }
+ }{
+  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
+   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
+    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
+   }
+  }
+ }
+}
+$$
+(* TODO *)
+
+=<
+
 => The limits of value restriction
 
 $$\v("w") = \v("λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]")$$
