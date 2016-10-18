@@ -130,21 +130,21 @@ $\f("t∈A")$ can be read as the proposition "$t$ has type $A$", but we will
 see later that a more appropriate interpretation would be
 "$t$ realises $A$". Using membership, we can use the well-known relativised
 quantification scheme to obtain a dependent function type.
-$$ Π_{x : A} B ≔ \f("∀x (x∈A ⇒ B)") $$
+$$ \f("Π_(x∈A) B") ≔ \f("∀x (x∈A ⇒ B)") $$
 The dependent function type exactly correspond to typed quantification as
 its elements can only be applied to values of type $A$. Other values are
 simply filtered out.
 (* *)
 Note that we can define a dependent pair type using existential
 quantification as follows.
-$$ Σ_{x : A} B ≔ \f("∃x {l₁ : x∈A ; l₂ : B}") $$
+$$ \f("Σ_(x∈A) B") ≔ \f("∃x {l₁ : x∈A ; l₂ : B}") $$
 (* *)
 We can also define the same kind of type constructors by quantifying over
 term variables in the exact same way.
 $$
-  Π_{a : A} B ≔ \f("∀a (a∈A ⇒ B)")
+  \f("Π_(a∈A) B") ≔ \f("∀a (a∈A ⇒ B)")
   \hspace(4.0)
-  Σ_{a : A} B ≔ \f("∃a {l₁ : a∈A ; l₂ : B}")
+  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁ : a∈A ; l₂ : B}")
 $$
 \begin{rem}
 Nothing prevents the variable that is quantified over to appear in $A$.
@@ -1237,6 +1237,39 @@ We can hence conclude by definition of $\dbot$ as this exactly means that
 there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
 \end{proof}
 \end{thm}
+
+(* FIXME needs δ ?
+Using a similar technique, it is possible to show a stronger safety
+in the case of //pure// types (i.e. types that do not contain arrows).
+Indeed, when a term $t$ has type $A$ and $A$ is pure, then we can show
+that $t$ reduces to a value of type $A$.
+\begin{thm}
+If the judgment $Σ \sp Γ; Ξ ⊢ t : A$ is derivable for a pure type $A$, and
+if $ρ$ is a substitution over $Σ$ such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for
+every stack $π ∈ \ss("Aρ")$ there is a value $v ∈ \vs("Aρ")$ such that
+$\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+\begin{proof}
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈\vs("Aρ"), p ≻^{∗} \p("v∗ε")\}$
+which is trivially saturated.
+(*
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
+which is trivially saturated. We will first check that it is also
+$≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
+$\p("t∗π") ∈ \dbot$. By definition of $\dbot$, there must be a value
+$v$ such that $\p("t∗π") ≻^{∗} \p("v∗ε")$, and thus we have
+${\p("t∗π")} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
+${\p("u∗π")} {⇓}_{≻}$, and thus there must be a value $w$ such that
+$\p("u∗π") ≻ \p("w∗ε")$. This exactly means that $\p("u∗π") ∈ \dbot$.
+
+We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
+$\t("tρ") ∈ \ts("Aρ")$. By definition, this means that $\p("tρ∗ξ") ∈ \dbot$
+for every stack $ξ ∈ \ss("Aρ")$, and in particular $\p("tρ ∗ π") ∈ \dbot$.
+We can hence conclude by definition of $\dbot$ as this exactly means that
+there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+*)
+\end{proof}
+\end{thm}
+*)
 
 =<
 

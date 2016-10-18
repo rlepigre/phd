@@ -176,6 +176,16 @@ and f2m : form -> Maths.math list = function
                         | None   -> x
                         | Some s -> with_rsup x (vari2m s)
                       in (str "∃") @ c @ (str ".") @ (f2m a)
+  | FDVFn(x,a,b)
+  | FDTFn(x,a,b)   -> let subscript_right = bin' 3 "∈" (vari2m x, f2m a) in
+                      let n = Maths.node (Maths.glyphs "Π") in
+                      let n = [Maths.Ordinary {n with subscript_right}] in
+                      n @ (f2m b)
+  | FDVPd(x,a,b)
+  | FDTPd(x,a,b)   -> let subscript_right = bin' 3 "∈" (vari2m x, f2m a) in
+                      let n = Maths.node (Maths.glyphs "Σ") in
+                      let n = [Maths.Ordinary {n with subscript_right}] in
+                      n @ (f2m b)
   | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (str ".") @ (f2m a)
   | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (str ".") @ (f2m a)
   | FMemb(t,a)     -> bin' 3 "∈" (t2m t, f2m a)

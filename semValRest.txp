@@ -3,9 +3,27 @@
 
 => A model for a semantical value restriction \label("semValRest")
 
-=> Derived rules for dependent types
+In this chapter, we consider the encoding of dependent types (i.e. forms
+of typed quantifications) into our system. However, the expressiveness of
+such constructs is considerably limited by value restriction. To solve
+this issue we introduce the notion of //semantical value restriction//,
+which allows the system to accept many more programs. Obtaining a model
+justifying //semantical value restriction// will require us to change our
+notions or reduction and observational equivalence.
 
-\label("encodedep") (* FIXME why do I need to put the label here ???!!!! *)
+=> Typing rules for dependent types
+
+As\label("encodedep")
+discussed at the begining of \chapter("typeSystem"), it is possible
+to encode a form of dependent types into our system using (untyped)
+quantification and the membership predicate. The dependent function
+types (ranging over terms or values) can be encoded as follows, and
+they range over terms and variables respectively.
+$$
+  \f("Π_(x∈A) B") ≔ \f("∀x(x∈A ⇒ B)")
+  \hspace(6.0)
+  \f("Π_(a∈A) B") ≔ \f("∀a(a∈A ⇒ B)")
+$$
 
 (* The weak Π_i rule and its derivation *)
 $$
