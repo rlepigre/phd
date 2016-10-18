@@ -1,4 +1,14 @@
-\Caml(open Diagrams open ProofTree open Lang)
+\Caml(
+  open Diagrams
+  open ProofTree
+  open Lang
+
+  let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
+
+  let vs a = <$ ⟦\f(a)⟧ $>
+  let ss a = <$ ⟦\f(a)⟧^⊥ $>
+  let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
+)
 \Include{Macros}
 
 => A model for a semantical value restriction \label("semValRest")
@@ -18,19 +28,59 @@ discussed at the begining of \chapter("typeSystem"), it is possible
 to encode a form of dependent types into our system using (untyped)
 quantification and the membership predicate. The dependent function
 types (ranging over terms or values) can be encoded as follows, and
-they range over terms and variables respectively.
+range over terms and values respectively.
 $$
   \f("Π_(x∈A) B") ≔ \f("∀x(x∈A ⇒ B)")
   \hspace(6.0)
   \f("Π_(a∈A) B") ≔ \f("∀a(a∈A ⇒ B)")
 $$
+To work with our dependent function types more easily, we can define
+the corresponding introduction and elimination rules as follows.
+$$
+\unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("λx t") : \f("Π_(y∈A) B")}
+$$
+$$
+\unaryRN{Π_{τ,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[a≔x]}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("λx t") : \f("Π_(a∈A) B")}
+$$
+$$
+\binaryRN{Π_{ι,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(x∈A) B")}
+  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[x≔v]")}
+$$
+$$
+\binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}
+$$
+Note that both elemination rules require value restriction on the
+side of the argument. In other words, dependent functions can only
+be applied to values.
 
-(* The weak Π_i rule and its derivation *)
+
+
+(* TODO *)
 $$
-\binaryRN{Π_i}{{Σ, x:ι_v}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{x ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)
-}
+  \f("Σ_(x∈A) B") ≔ \f("∃x {l₁:x∈A; l₂:B}")
+  \hspace(6.0)
+  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁:a∈A; l₂:B}")
 $$
+
+$$
+\binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[y≔v₁]")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(y∈A) B")}
+$$
+$$
+\binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[a≔v₁]")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(a∈A) B")}
+$$
+
+
+Note that the encoding makes sence semantically as we will only be
+able to apply a dependent function to an element of its domain $A$.
+Indeed, As a consequence, only the elements that live in the domain
+of the dependent function will be quantified over in the type of its
+codomain $B$.
+
 $$
 \proofTree{
  \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
@@ -44,11 +94,7 @@ $$
  }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
 }
 $$
-(* The weak Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}
-$$
+
 $$
 \proofTree{
  \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
@@ -85,11 +131,6 @@ $$
 }
 $$
 
-(* The Π_e rule and its derivation *)
-$$
-\binaryRN{Π_e}{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]
-  }{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}
-$$
 $$
 \proofTree{
  \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
@@ -105,7 +146,6 @@ $$
  }
 }
 $$
-(* TODO *)
 
 =<
 
