@@ -159,6 +159,13 @@ if we quantify over a term variable.
 
 => The limits of value restriction
 
+In languages like ||OCaml||, value restriction is not an issue. As it is
+only required on the typing rule for polymorphism, programmers almost never
+notice it as they mostly define functions (which are values). Moreover, if
+a problematic instance of value restriction is encountered, one can always
+use a dummy $λ$-abstraction (or an $η$-expension) to transform a term into
+a value.
+
 $$\v("w") = \v("λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]")$$
 $$\t("t")  = \v("λf ((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (f Z[{}]))) (f S[Z[{}]])")$$
 
