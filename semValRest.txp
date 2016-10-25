@@ -21,14 +21,14 @@ which allows the system to accept many more programs. Obtaining a model
 justifying //semantical value restriction// will require us to change our
 notions or reduction and observational equivalence.
 
-=> Typing rules for dependent types
+=> Dependent function types
 
 As\label("encodedep")
 discussed at the begining of \chapter("typeSystem"), it is possible
 to encode a form of dependent types into our system using (untyped)
 quantification and the membership predicate. The dependent function
-types (ranging over terms or values) can be encoded as follows, and
-range over terms and values respectively.
+types can be encoded as follows, and it may range over either values
+or terms.
 $$
   \f("Π_(x∈A) B") ≔ \f("∀x(x∈A ⇒ B)")
   \hspace(6.0)
@@ -56,96 +56,104 @@ Note that both elemination rules require value restriction on the
 side of the argument. In other words, dependent functions can only
 be applied to values.
 
-
-
-(* TODO *)
-$$
-  \f("Σ_(x∈A) B") ≔ \f("∃x {l₁:x∈A; l₂:B}")
-  \hspace(6.0)
-  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁:a∈A; l₂:B}")
-$$
-
-$$
-\binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[y≔v₁]")}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(y∈A) B")}
-$$
-$$
-\binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[a≔v₁]")}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(a∈A) B")}
-$$
-
-
-Note that the encoding makes sence semantically as we will only be
-able to apply a dependent function to an element of its domain $A$.
-Indeed, As a consequence, only the elements that live in the domain
-of the dependent function will be quantified over in the type of its
-codomain $B$.
-
+The four new typing rules can immediatly be used to extend the type
+system as they are all derivable. In particular, this means that we
+do not have to extend our adequacy lemma (\thmRef("adequacy")). The
+proofs for the derivation of the rules are given bellow.
 $$
 \proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀x (x∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, x:ι_v}; Γ; Δ; Ξ ⊢_\tval λx t : x∈A ⇒ B}{
-   \unaryN{∈}{{Σ, x:ι_v}; {Γ, x:{x∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, x:ι_v}; {Γ, x:A}; Δ; {Ξ, x≡x} ⊢ t : B}{
-     \hyp{{Σ, x:ι_v} ; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{x ∉ FV(Γ; Δ; Σ)}}
+  \unary{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("Π_(y∈A) B")}{
+  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("∀y (y∈A ⇒ B)")}{
+  \unaryN{⇒_i}{Σ, y:ι \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("y∈A ⇒ B")}{
+  \unaryN{∈_e}{Σ, y:ι, x:ι \sp Γ, x : \f("y∈A"); Ξ ⊢ t : B}{
+  \unaryN{≡_{τ,ι}}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ, x≡y ⊢ t : B}{
+  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ, x≡y ⊢ t : \f("B[y≔x]")}{
+  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[y≔x]")}{
+    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[y≔x]")}
+  }}}}}}}
 }
 $$
-
 $$
 \proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[x := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[x := v] ⇒ B[x := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀x (x∈A ⇒ B)}
-  }
+  \unary{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("Π_(a∈A) B")}{
+  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("∀a (a∈A ⇒ B)")}{
+  \unaryN{⇒_i}{Σ, a:τ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("a∈A ⇒ B")}{
+  \unaryN{∈_e}{Σ, a:τ, x:ι \sp Γ, x : \f("a∈A"); Ξ ⊢ t : B}{
+  \unaryN{≡_{τ,τ}}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ, x≡a ⊢ t : B}{
+  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ, x≡a ⊢ t : \f("B[a≔x]")}{
+  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[a≔x]")}{
+    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[a≔x]")}
+  }}}}}}}
+}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[x≔v]")}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("v∈A ⇒ B[x≔v]")}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀x (x∈A ⇒ B)")}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(x∈A) B")}
+   }}
  }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[x := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[x := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[x := v]}
-   }
-  }
+  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f("v∈A")}{
+  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f("v∈A")}{
+    \hyp{Σ \sp Γ ; Ξ ⊢_\tval v : A}
+  }}
  }
 }
 $$
-
-(* The Π_i rule and its derivation *)
-$$
-\binaryRN{Π_i}{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}{a ∉ FV(Γ; Δ; Ξ)}{
-  Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)
-}
-$$
 $$
 \proofTree{
- \binaryN{∀_i}{Σ; Γ; Δ; Ξ ⊢_\tval λx t : ∀a (a∈A ⇒ B)}{
-  \unaryN{⇒_i}{{Σ, a:ι}; Γ; Δ; Ξ ⊢_\tval λx t : a∈A ⇒ B}{
-   \unaryN{∈}{{Σ, a:ι}; {Γ, x:{a∈A}}; Δ; Ξ ⊢ t : B}{
-    \unaryN{wk}{{Σ, a:ι}; {Γ, x:A}; Δ; {Ξ, x≡a} ⊢ t : B}{
-     \hyp{{Σ, a:ι}; {Γ, x:A}; Δ; Ξ ⊢ t : B}
-    }
-   }
-  }
- }{\hyp{a ∉ FV(Γ; Δ; Σ)}}
-}
-$$
-
-$$
-\proofTree{
- \binaryN{⇒_e}{Σ; Γ; Δ; Ξ ⊢ t v : B[a := v]}{
-  \unaryN{∀_e}{Σ; Γ; Δ; Ξ ⊢ t : v∈A[a := v] ⇒ B[a := v]}{
-   \hyp{Σ; Γ; Δ; Ξ ⊢ t : ∀a (a∈A ⇒ B)}
-  }
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("v∈A ⇒ B[a≔v]")}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀a (a∈A ⇒ B)")}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+   }}
  }{
-  \unaryN{↑}{Σ; Γ; Δ; Ξ ⊢ v : v∈A[a := v]}{
-   \unaryN{∈_i}{Σ; Γ; Δ; Ξ ⊢_\tval v : v∈A[a := v]}{
-    \hyp{Σ; Γ; Δ; Ξ ⊢_\tval v : A[a := v]}
-   }
-  }
+  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f("v∈A")}{
+  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f("v∈A")}{
+    \hyp{Σ \sp Γ ; Ξ ⊢_\tval v : A}
+  }}
  }
 }
 $$
+\begin{rem}
+Note that in the typing rules we consider, the variable bound by the
+dependent type (i.e. $x$ or $a$ respectively) does not appear free in
+the type $A$. In fact, this restriction is not necessary, and we could
+addapt our rules accordingly. However, the considered types would not
+correspond to dependent functions anymore.
+\end{rem}
+
+Note that our encoding of the dependent products makes sense with
+respect to the semantics. Indeed, their interpretation is similar to
+the arrow type (i.e. non-dependent functions), but the type of the
+body depends on the input. If the variable that is quantified over is
+a value variable (i.e. a $λ$-variable) then we have
+\begin{center}
+\diagram(
+let _ =
+  let first e1 e2 = [ e1; <$=$>; e2 ] in
+  let line e = [ []; <$=$>; e ] in
+  array [`East ; `East ; `West]
+  [ first <$\vs("Π_(x∈A) B")$> <$\vs("∀x (x∈A ⇒ B)")$>
+  ; line <$\biginter_{Φ∈⟦ι⟧} \vs("Φ∈A ⇒ B[x≔Φ]")$>
+  ; line <$\biginter_{Φ∈⟦ι⟧} \{\v("λx t") \| ∀v∈\vs("Φ∈A"),
+      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
+  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\vs("Φ∈A"),
+      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
+  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs("A") \| w ≡_{≻} Φ\},
+      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
+  ; line <$\{\v("λx t") \| ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[x≔v]")\}$> ]
+)
+\end{center}
+and similarly, we have
+$$
+  \vs("Π_(a∈A) B") = \{\v("λx t") \|
+    ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[x≔v]")\}
+$$
+if we quantify over a term variable.
+
+(* TODO from here *)
 
 =<
 
@@ -592,6 +600,26 @@ let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
           Σ ⊢ (Γ;Δ;Ξ ⊢_\tval \v("v") : A)} $
       \end{center}
 *)
+
+=<
+
+=> Dependent pair types
+
+(* TODO *)
+$$
+  \f("Σ_(x∈A) B") ≔ \f("∃x {l₁:x∈A; l₂:B}")
+  \hspace(6.0)
+  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁:a∈A; l₂:B}")
+$$
+
+$$
+\binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[y≔v₁]")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(y∈A) B")}
+$$
+$$
+\binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[a≔v₁]")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(a∈A) B")}
+$$
 
 =<
 
