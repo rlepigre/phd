@@ -153,7 +153,7 @@ $$
 $$
 if we quantify over a term variable.
 
-(* TODO from here *)
+(* TODO improve *)
 
 =<
 
@@ -191,13 +191,17 @@ able to apply it to parsers of one fixed (but yet unknown) type. Of course,
 lack of generality, one need to rely on an $η$-expension as in ##poly##,
 which has the expected type ##'a parser -> (char, 'a) parser##.
 
-As the definition of the combinator ##seq## is probably something like
+As the definition of ##seq## is probably something like
 ##fun p1 p2 -> body##, the value restriction is actually not required in
 ##mono##. Indeed, the evaluation of ##seq any## would instantly reduce to
 a value (without any side-effect) in one $β$-reduction. This means that
-##seq any## could actually be considered a value.
+##seq any## could actually be considered a value. However, as discussed
+in the introduction, value restriction is a very simple and elegent way
+to ensure the soundness of the type system. For this reason, the
+limitations discussed here are certainly not enough of a problem to
+motivate the implementing a more complex cryterion.
 
-
+(* TODO from here *)
 
 $$\v("w") = \v("λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]")$$
 $$\t("t")  = \v("λf ((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (f Z[{}]))) (f S[Z[{}]])")$$
