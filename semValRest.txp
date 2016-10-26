@@ -164,7 +164,40 @@ only required on the typing rule for polymorphism, programmers almost never
 notice it as they mostly define functions (which are values). Moreover, if
 a problematic instance of value restriction is encountered, one can always
 use a dummy $λ$-abstraction (or an $η$-expension) to transform a term into
-a value.
+a value. A common example of this situation arises when working with
+combinators (e.g. parser combinators) and partial application. As an
+example, let us consider the code bellow (written in ||OCaml|| syntax).
+### OCaml
+(* type 'a gr                               *)
+(* val any : char gr                        *)
+(* val seq : 'a gr -> 'b gr -> ('a * 'b) gr *)
+
+let mono = seq any
+let poly = fun g -> seq any g
+###
+Here, ##t gr## represents a parser (or grammar) returning a value of type
+##t##. The atomic parser ##any## reads one character on the parsed stream
+and returns its value. The combinator ##seq## takes as input two parsers
+and puts them in sequence to obtain a new parser. The return value of this
+new parser is a couple of the return values of the parser it is build with.
+Now, if ##seq## is partially applied with the parser ##any##, the expected
+result is a combinator taking as input a parser ##g##, and returning a
+parser for the sequence build with ##any## and ##g##. Of course, we want
+this new combinator to be as generic as possible, so that it can be applied
+to any parser, with any return type. However, the combinator ##mono##
+defined above is only weakly polymorphic. This means that we will only be
+able to apply it to parsers of one fixed (but yet unknown) type. Of course,
+##seq any## is not a value, and value restriction applies. To solve this
+lack of generality, one need to rely on an $η$-expension as in ##poly##,
+which has the expected type ##'a parser -> (char, 'a) parser##.
+
+As the definition of the combinator ##seq## is probably something like
+##fun p1 p2 -> body##, the value restriction is actually not required in
+##mono##. Indeed, the evaluation of ##seq any## would instantly reduce to
+a value (without any side-effect) in one $β$-reduction. This means that
+##seq any## could actually be considered a value.
+
+
 
 $$\v("w") = \v("λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]")$$
 $$\t("t")  = \v("λf ((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (f Z[{}]))) (f S[Z[{}]])")$$
