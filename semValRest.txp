@@ -149,7 +149,7 @@ let _ =
 and similarly, we have
 $$
   \vs("Π_(a∈A) B") = \{\v("λx t") \|
-    ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[x≔v]")\}
+    ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[a≔v]")\}
 $$
 if we quantify over a term variable.
 
@@ -179,7 +179,7 @@ Here, ##t gr## represents a parser (or grammar) returning a value of type
 ##t##. The atomic parser ##any## reads one character on the parsed stream
 and returns its value. The combinator ##seq## takes as input two parsers
 and puts them in sequence to obtain a new parser. The return value of this
-new parser is a couple of the return values of the parser it is build with.
+new parser is a couple of the return values of the parsers it is build with.
 Now, if ##seq## is partially applied with the parser ##any##, the expected
 result is a combinator taking as input a parser ##g##, and returning a
 parser for the sequence build with ##any## and ##g##. Of course, we want
@@ -199,56 +199,65 @@ a value (without any side-effect) in one $β$-reduction. This means that
 in the introduction, value restriction is a very simple and elegent way
 to ensure the soundness of the type system. For this reason, the
 limitations discussed here are certainly not enough of a problem to
-motivate the implementing a more complex cryterion.
+motivate the design and implementation of a more complex cryterion.
 
-(* TODO from here *)
-
-$$\v("w") = \v("λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]")$$
-$$\t("t")  = \v("λf ((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (f Z[{}]))) (f S[Z[{}]])")$$
-
-\begin{env}(scale 0.6)
+Unlike in ||OCaml|| (and other similar languages), our system requires
+value restriction on the introduction rule for the membership types. As
+they are used to encode dependent product types, their elimination rule
+is also affected. This restriction is indeed necessary as unrestricted
+typing rules would break the consistency (and the type safety) of our
+system. As an example, let us consider the term $\t("t u")$ where the
+two terms $t$ and $u$ are defined as follows.
 \begin{center}
-\linesBefore(4)
 \diagram(
 let _ =
-  let line s = [ []; <$≻$>; <$\p(s)$> ] in
+  let line s1 s2 = [ <$\t(s1)$> ; <$=$>; <$\t(s2)$> ] in
   array [`East ; `East ; `West]
-  [ [ <$\p("t (μα w) ∗ ε")$>; <$≻$>; <$\p("μα w ∗ [t] ε")$> ]
-  ; line "w[α≔[t]ε] ∗ [t] ε"
-  ; line "t ∗ w[α≔[t]ε] · ε"
-  ; line "((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}]))) (w[α≔[t]ε] S[Z[{}]]) ∗ ε"
-  ; line "w[α≔[t]ε] S[Z[{}]] ∗ [((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}])))] ε"
-  ; line "S[Z[{}]] ∗ [w[α≔[t]ε]] [((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}])))] ε"
-  ; line "w[α≔[t]ε] ∗ S[Z[{}]] · [((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}])))] ε"
-  ; line "[S[Z[{}]] | Z[_] → S[Z[{}]] | S[_] → [[t]α]λ_ Z[{}]] ∗ [((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}])))] ε"
-  ; line "[[t]α]λ_ Z[{}] ∗ [((λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) (w[α≔[t]ε] Z[{}])))] ε"
-  ; line "λ_ Z[{}] ∗ [t]ε"
-  ; line "(λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}])) ((λ_ Z[{}]) S[Z[{}]]) ∗ ε"
-  ; line "(λ_ Z[{}]) S[Z[{}]] ∗ [λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}])] ε"
-  ; line "S[Z[{}]] ∗ [λ_ Z[{}]] [λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}])] ε"
-  ; line "λ_ Z[{}] ∗ S[Z[{}]] · [λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}])] ε"
-  ; line "Z[{}] ∗ [λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}])] ε"
-  ; line "λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}]) ∗ Z[{}] · ε"
-  ; line "(λy [y | Z[_] → C₁[S[Z[{}]]] | S[_] → C₀[Z[{}]]]) ((λ_ Z[{}]) Z[{}]) ∗ ε"
-  ; line "(λ_ Z[{}]) Z[{}] ∗ [λy [y | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]]] ε"
-  ; line "Z[{}] ∗ [λ_ Z[{}]] [λy [y | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]]] ε"
-  ; line "λ_ Z[{}] ∗ Z[{}] · [λy [y | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]]] ε"
-  ; line "Z[{}] ∗ [λy [y | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]]] ε"
-  ; line "λy [y | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]] ∗ Z[{}] · ε"
-  ; line "[Z[{}] | Z[_]→C₁[S[Z[{}]]] | S[_]→C₀[Z[{}]]] ∗ ε"
-  ; line "C₁[S[Z[{}]]] ∗ ε"
-  ]
+  [ line "t" ("λf (λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] |"
+             ^ "S[_] → C₀[Z[{}]]]) (f Z[{}])) (f S[Z[{}]])")
+  ; line "v" "λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]" ]
 )
 \end{center}
-\end{env}
-We can show that
-$\id([]) ⊢ \t("t (μα w)") : \f("[C₀ : Z[{}]∈A | C₁ : A|(μα w) Z[{}] ≡ Z[{}]]")$,
-but we have $⟦\f("A | (μα w) Z[{}] ≡ Z[{}]")⟧ = ∅$ as
-$\t("(μα w) Z[{}]") \nequiv_{≻} \t("Z[{}]")$ since
-$\p("(μα w) Z[{}] ∗ π") ≻^{∗} \p("S[Z[{}]] ∗ π")$ for all stack $π$ and
-obviously $\v("Z[{}]") \nequiv_{≻} \v("S[Z[{}]]")$.
+We can show that $\id([]) ⊢ \t("t (μα w)") : \f("[C₀ : Z[{}]∈A | C₁ : A"
+^ "|(μα w) Z[{}] ≡ Z[{}]]")$ and we have $\p("t (μα w) ∗ ε") ≻^{∗}
+\p("C₁[S[Z[{}]]] ∗ ε")$. However, $⟦\f("A | (μα w) Z[{}] ≡ Z[{}]")⟧ = ∅$
+since we have $\t("(μα w) Z[{}]") \nequiv_{≻} \t("Z[{}]")$
+($\p("(μα w) Z[{}] ∗ π") ≻^{∗} \p("S[Z[{}]] ∗ π")$ for all stack $π$,
+and $\v("Z[{}]") \nequiv_{≻} \v("S[Z[{}]]")$). As a consequence, the
+term $\t("t (μα w)")$ realises the empty type, and thus the system is
+inconsistent. Value restriction is thus necessary for the system to
+remain sound.
+(* TODO check if the counter example is real *)
 
+Let us now consider the system with value restriction that has been
+proved sound in the previous chapter. As for ||OCaml||, the restriction
+on the introduction rule for the universal quantifier is not too big of
+a problem. However, the restriction on the elimination rule of the
+dependent functions type leads to a certain lack of expressivity.
 (* TODO *)
+
+=<
+
+=> Semantical value restriction
+
+To solve the expressivity problem, the author introduced the notion of
+//semantical value restriction// \cite("Lepigre2016"). The main idea is
+to concider that a term "behaving like" a value can be considered as a
+value. Thanks to our notion of observational equivalence, this property
+can be expressed easily in the syntax. Indeed, we will replace a typing
+rule like
+$$
+\binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}
+$$
+with the following.
+$$
+\ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}{Σ \sp Γ ; Ξ ⊢ u : A}
+  {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")}
+$$
+This new relaxed rule relies on a third premise stating that the argument
+$u$ (which does not have to be a value anymore) is equivalent to some
+value $v$.
 
 =<
 

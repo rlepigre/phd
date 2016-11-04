@@ -229,7 +229,7 @@ module Format (D:DocumentStructure) = struct
   module Env_noindent = Default.Env_noindent
   let figure_here = Default.figure_here
   let figure = Default.figure
-  let verb_default = Default.verb_default
+  let verbs_default = Default.verbs_default
 
   (* Secial page. *)
   let special_page pages_after contents =

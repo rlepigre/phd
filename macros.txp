@@ -417,7 +417,7 @@ let scissors : math list =
 
 (* PML verbatim environments. *)
 module PMLVerbatim : sig
-    val verb_PML : string option -> string list -> unit
+    val verbs_PML : string option -> string list -> unit
     val verbatim : string -> content list
   end = struct
     let pad = 2.0
@@ -443,7 +443,7 @@ module PMLVerbatim : sig
       ; simple_verb "Π"
       ; ("8<", scissors) ]
 
-    let verb_PML fn lines =
+    let verbs_PML fn lines =
       let open Verbatim in
       lines_to_file lines fn;
       let params = {keywords ; separators ; symbols} in
@@ -460,7 +460,7 @@ module PMLVerbatim : sig
       verb_text (handle_word {keywords = []; separators; symbols})
   end
 
-let verb_OCaml fn lines =
+let verbs_OCaml fn lines =
   let open Verbatim in
   lines_to_file lines fn;
   let extra = ["ref"; "throw"; "callcc"] in
