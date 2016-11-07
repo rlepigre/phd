@@ -1273,4 +1273,135 @@ there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε"
 
 =<
 
+=> Typing stacks
+
+In our system, the typing rule for the named terms of the \lmcalc is
+limited to stack variables. As a consequence, terms can only contain
+terms of the form $\t("[π]t")$ when $π$ is a stack variable.
+$$ \id(r_name) $$
+It is however possible to generalise this typing rule to accept more
+stacks, provided that they can be typed in some sense.
+\begin{def}
+A stack judgement is a tuple of a typing context $Γ$, an equational
+context $Ξ$, a stack $π ∈ Π$ and a type $A ∈ \cal{F}$ that is denoted
+$Γ; Ξ ⊢ π : A^⊥$. We say that such a judgment is well-formed under
+the sorting context $Σ$, and we write $Σ \sp Γ; Ξ ⊢ π : A^⊥$, if and
+only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ π : σ$ and $Σ ⊢ A : ο$.
+\end{def}
+
+\Caml(
+let r_name' =
+  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t("t") : A}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : A^⊥}
+   {Σ \sp Γ;Ξ ⊢ \t("[π]t") : B}$>
+
+let r_ax' =
+  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s("α") : A^⊥}$>
+
+let r_push =
+  <$\binaryRN{\wc·\wc}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s("v·π") : \f("A⇒B")^⊥}$>
+
+let r_fram =
+  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A⇒B")}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s("[t]π") : \f("A")^⊥}$>
+)
+
+Using a stack judgment, the typing rule for named terms can replaced
+by the following, provided that we have enough rules for typing stacks.
+$$ \id(r_name') $$
+To recover our previous typing rule for named terms, we need at least
+a rule for handling stack variables. This typing rule is very similar
+to the axiom rule ($Ax$), as it refers to the context.
+$$ \id(r_ax') $$
+Using ($Ax^⊥$), the old ($[\wc]$) rule can be derived as follows.
+$$
+\proofTree{
+  \binaryN{[\wc]}{Σ, α:σ \sp Γ, α:A ; Ξ ⊢ \t("[α] t") : B}{
+    \hyp{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \t("t") : A}
+  }{
+    \axiomN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \s("α") : A^⊥}
+  }
+}
+$$
+
+In addition to the ($Ax^⊥$) rule, we provide two rules for stacked
+formed by pushing a value on a stack, or stack frames. Note that it
+is also possible to give a typing rule for the empty stack. We will
+not use it here as it requires all the processes of the form
+$\p("v∗ε")$ to be in the pole.
+$$ \id(r_push) $$
+$$ \id(r_fram) $$
+
+Semantically, we will interpret stack judgments in a similar way as
+value and term judgments. The new adequacy lemma will then involve the
+three forms of judgments.
+\begin{lem}\label("push")
+Let $A$, $B∈\cal{F}$ be two closed types such that $⊢ A : ο$ and $⊢ B : ο$.
+If $v ∈ \vs("A")$ and $π ∈ \ss("B")$ then $\s("v·π") ∈ \ss("A⇒B")$.
+\begin{proof}
+Let us take $\v("λx t") ∈ \vs("A⇒B")$ and show $\p("λx t ∗ v·π") ∈ \dbot$.
+Since $\dbot$ is saturated and $\p("λx t ∗ v·π") ≻ \p("t[x≔v] ∗ π")$, it is
+enough to show $\p("t[x≔v] ∗ π") ∈ \dbot$. As $π ∈ \ss("B")$ we only need
+to show $\t("t[x≔v]") ∈ \ts("B")$. This follows from the definition of
+$\vs("A⇒B")$ since we have $v ∈ \vs("A")$.
+\end{proof}
+\end{lem}
+\begin{thm}\label("stack_adequacy")
+Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
+context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
+that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
+\begin{itemize}
+\item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t("tρ") ∈ \ts("Aρ")$.
+\item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s("πρ") ∈ \ss("Aρ")$.
+\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v("vρ") ∈ \vs("Aρ")$.
+\end{itemize}
+\begin{proof}
+As for \thmRef("adequacy"), the proof is done by induction of the derivation
+of the typing judgments. For all the rules of \figRef("typerules") but
+($[\wc]$) the proof is exactly the same as for \thmRef("adequacy"). Four
+new cases are displayed bellow.
+\begin{itemize}
+\item If the last used rule is ($[\wc]$) then we need to show
+      $\t("([π]t)ρ") = \t("[πρ]tρ") ∈ \ts("Bρ")$. Let us take
+      $ξ ∈ \ss("Bρ")$ and show $\p("[πρ]tρ ∗ π") ∈ \dbot$. Since
+      $\p("[πρ]tρ ∗ π") ≻ \p("tρ ∗ πρ")$ and $\dbot$ is saturated, it
+      is enough to show $\p("tρ ∗ πρ") ∈ \dbot$. This is immediate
+      since, by induction hypothesis, we have $\t("tρ") ∈ \ts("Aρ")$
+      and $\s("πρ") ∈ \ss("Aρ")$.
+
+      $$ \id(r_name') $$
+
+\item If the last used rule is ($Ax^⊥$) then we immediately have
+      $\s("αρ") = \s("ρ(α)") ∈ \ss("Aρ")$ since we know that
+      $ρ ⊩ Γ, α:A^⊥$.
+
+      $$ \id(r_ax') $$
+
+\item If the last used rule is ($\wc·\wc$) then we need to show
+      $\s("vρ·πρ") ∈ \ss("Aρ⇒Bρ")$. This follows from \lemRef("push")
+      since we have $vρ ∈ \vs("Aρ")$ and $\s("πρ") ∈ \ss("Bρ")$ by
+      induction hypothesis.
+
+      $$ \id(r_push) $$
+
+\item If the last used rule is ($[\wc]\wc$) then we need to show
+      $\s("[tρ]πρ") ∈ \ss("Aρ")$. Let us take $v ∈ \vs("Aρ")$ and
+      show $\p("v ∗ [tρ]πρ") ∈ \dbot$. Since we know that
+      $\p("v ∗ [tρ]πρ") ≻ \p("tρ ∗ v·πρ")$ and $\dbot$ is saturated,
+      it is enough to show $\p("tρ ∗ v·πρ") ∈ \dbot$. By induction
+      hypothesis, we have $\t("tρ") ∈ \ts("Aρ⇒Bρ")$ so it is enough
+      to show $\s("v·πρ") ∈ \ss("Aρ⇒Bρ")$. This follows from
+      \lemRef("push") since $v ∈ \vs("Aρ")$ and $\s("πρ") ∈ \ss("Bρ")$
+      by induction hypothesis.
+
+      $$ \id(r_fram) $$
+\end{itemize}
+\end{proof}
+\end{thm}
+
+=<
+
 =<

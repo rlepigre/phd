@@ -227,6 +227,58 @@ and $\v("Z[{}]") \nequiv_{≻} \v("S[Z[{}]]")$). As a consequence, the
 term $\t("t (μα w)")$ realises the empty type, and thus the system is
 inconsistent. Value restriction is thus necessary for the system to
 remain sound.
+\begin{env}(scale 0.4)
+\Caml(
+let tt = "(λ_(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])) (f T[{}])"
+let tt1 = "λ_(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])"
+let tt2 = "(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])"
+let tt3 = "λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]"
+let tt4 = "[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]"
+)
+$$
+\proofTree{
+ \unaryN{Π_i}{
+   Σ \sp Γ ; Ξ ⊢ \t("λf t") : \f("Π_(a∈B⇒B) [C₀:{}|C₁:B|a F[{}]≡F[{}]]")
+ }{
+ \binaryN{⇒_e}{
+   Σ, f:ι \sp Γ, f:\f("B⇒B") ; Ξ ⊢ \t(tt) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
+ }{
+   \unaryN{⇒_i}{
+     Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt1) : \f("B ⇒ [C₀:{}|C₁:B|f F[{}]≡F[{}]]")
+   }{
+     \binaryN{⇒_e}{
+       Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt2) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
+     }{
+       \unaryN{⇒_i}{
+         Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt3) : \f("B⇒[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
+       }{
+         \hyp{Σ,f:ι,x:ι\sp Γ,f:\f("B⇒B"),x:B;Ξ ⊢ \t(tt4) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")}
+       }
+     }{
+       \binaryN{⇒_e}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f F[{}]"):\f("B")}{
+         \axiomN{Ax}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f"):\f("B⇒B")}
+       }{
+         \unaryN{+_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("F[{}]"):\f("B")}{
+           \axiomN{χ_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("{}"):\f("{}")}}
+       }
+     }
+   }
+ }{
+   \binaryN{⇒_e}{
+     Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f T[{}]") : \f("B")
+   }{
+     \axiomN{Ax}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f") : \f("B⇒B")}
+   }{
+     \unaryN{+_i}{
+       Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("T[{}]") : \f("B")
+     }{
+       \axiomN{χ_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("{}") : \f("{}")}
+     }
+   }
+ }}
+}
+$$
+\end{env}
 (* TODO check if the counter example is real *)
 
 Let us now consider the system with value restriction that has been
