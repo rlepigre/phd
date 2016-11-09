@@ -201,92 +201,261 @@ to ensure the soundness of the type system. For this reason, the
 limitations discussed here are certainly not enough of a problem to
 motivate the design and implementation of a more complex cryterion.
 
-Unlike in ||OCaml|| (and other similar languages), our system requires
-value restriction on the introduction rule for the membership types. As
-they are used to encode dependent product types, their elimination rule
-is also affected. This restriction is indeed necessary as unrestricted
-typing rules would break the consistency (and the type safety) of our
-system. As an example, let us consider the term $\t("t u")$ where the
-two terms $t$ and $u$ are defined as follows.
+In our system, value restriction is not only required on the introduction
+rule for the universal quantifier, but also on the introduction rule for
+the membership predicate. As it is used to derive the ($Π_{ι,e}$) and
+($Π_{τ,e}$) rules, value restriction is enforced on the argument of
+dependent functions. This restriction is indeed necessary as with an
+unrestricted ($∈_i$) rule breaks the consistency (and the type safety) of
+our system. To support this claim, we will consider the system in which
+($∈_i$) has been replaced by the following (unrestricted) typing rule.
+$$
+\unaryRN{∈_{i,⊥}}
+  {Σ \sp Γ,Ξ ⊢ t : A}
+  {Σ \sp Γ,Ξ ⊢ t : \f("t∈A")}
+$$
+In this system, the following (unrestricted) typing rule for the
+elimination of the dependent function type can be derived (see the
+typing derivation bellow the rule).
+$$
+  \binaryRN{Π_{e,⊥}}
+    {Σ \sp Γ,Ξ ⊢ t : \f("Π_(a∈A) B")}
+    {Σ \sp Γ,Ξ ⊢ u : \f("A")}
+    {Σ \sp Γ,Ξ ⊢ \t("t u") : \f("B[a≔u]")}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("u∈A ⇒ B[a≔u]")}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀a (a∈A ⇒ B)")}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+   }}
+ }{
+  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f("u∈A")}{
+    \hyp{Σ \sp Γ ; Ξ ⊢ u : A}
+  }
+ }
+}
+$$
+
+For convenience, we will also introduced a strong application rule that
+can also be derived directly using ($∈_{i,⊥}$). This typing rule will be
+used to keep track of the argument used for a function, while typing the
+function itself.
+$$
+  \binaryRN{⇒_{e,{∈},⊥}}
+    {Σ \sp Γ;Σ ⊢ t : \f("u∈A⇒B")}
+    {Σ \sp Γ;Σ ⊢ u : A}
+    {Σ \sp Γ;Σ ⊢ \t("t u") : B}
+$$
+$$
+\proofTree{
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B")}{
+   \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("u∈A ⇒ B")}
+ }{
+  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f("u∈A")}{
+    \hyp{Σ \sp Γ ; Ξ ⊢ u : A}
+  }
+ }
+}
+$$
+
+We will now build a counter-example to the consistency of the system
+without the value restriction on the introduction of the membership
+predicate. We will provide a typable term that that reduces to a value
+that is not in its type. We consider the term
+$t = \t("(λf(λ_v (f F[{}])) (f T[{}])) μα w")$
+in which $v$ and $w$ are defined as follows.
 \begin{center}
 \diagram(
 let _ =
   let line s1 s2 = [ <$\t(s1)$> ; <$=$>; <$\t(s2)$> ] in
   array [`East ; `East ; `West]
-  [ line "t" ("λf (λ_ (λy [y | Z[_] → C₁[S[Z[{}]]] |"
-             ^ "S[_] → C₀[Z[{}]]]) (f Z[{}])) (f S[Z[{}]])")
-  ; line "v" "λx [x | Z[_] → S[Z[{}]] | S[_] → [α]λ_ Z[{}]]" ]
+  [ line "v" "λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]"
+  ; line "w" "λx [x | F[_] → T[{}] | T[_] → [α]λ_ F[{}]]" ]
 )
 \end{center}
-We can show that $\id([]) ⊢ \t("t (μα w)") : \f("[C₀ : Z[{}]∈A | C₁ : A"
-^ "|(μα w) Z[{}] ≡ Z[{}]]")$ and we have $\p("t (μα w) ∗ ε") ≻^{∗}
-\p("C₁[S[Z[{}]]] ∗ ε")$. However, $⟦\f("A | (μα w) Z[{}] ≡ Z[{}]")⟧ = ∅$
-since we have $\t("(μα w) Z[{}]") \nequiv_{≻} \t("Z[{}]")$
-($\p("(μα w) Z[{}] ∗ π") ≻^{∗} \p("S[Z[{}]] ∗ π")$ for all stack $π$,
-and $\v("Z[{}]") \nequiv_{≻} \v("S[Z[{}]]")$). As a consequence, the
-term $\t("t (μα w)")$ realises the empty type, and thus the system is
-inconsistent. Value restriction is thus necessary for the system to
-remain sound.
-\begin{env}(scale 0.4)
-\Caml(
-let tt = "(λ_(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])) (f T[{}])"
-let tt1 = "λ_(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])"
-let tt2 = "(λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]) (f F[{}])"
-let tt3 = "λx[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]"
-let tt4 = "[x|T[_]→C₁[T[{}]]|F[_]→C₀[{}]]"
+In many reduction steps, we have $\p("t∗ε") ≻^{∗} \p("C₁[{}]∗ε")$. To
+obtain our counter-example, we will show that $\t("t")$ has type
+$\f("[C₀:{} | C₁:{} | (μα v) F[{}] ≡ F[{}]]")$. As we have
+\begin{center}
+\linesBefore(6)
+\diagram(
+let _ =
+  let full s1 s2 = [ <$\p(s1)$> ; <$≻$> ; <$\p(s2)$> ] in
+  let line s = [ [] ; <$≻$> ; <$\p(s)$> ] in
+  array [`East ; `East ; `West]
+  [ full "(μα w) F[{}] ∗ π"
+         "F[{}] ∗ [μα w] π"
+  ; line "μα w ∗ F[{}]·π"
+  ; line "w[α≔F[{}]·π] ∗ F[{}]·π"
+  ; line "[F[{}] | F[_] → T[{}] | T[_] → [F[{}]·π]λ_ F[{}]] ∗ π"
+  ; line "T[{}] ∗ π" ]
 )
-$$
-\proofTree{
- \unaryN{Π_i}{
-   Σ \sp Γ ; Ξ ⊢ \t("λf t") : \f("Π_(a∈B⇒B) [C₀:{}|C₁:B|a F[{}]≡F[{}]]")
- }{
- \binaryN{⇒_e}{
-   Σ, f:ι \sp Γ, f:\f("B⇒B") ; Ξ ⊢ \t(tt) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
- }{
-   \unaryN{⇒_i}{
-     Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt1) : \f("B ⇒ [C₀:{}|C₁:B|f F[{}]≡F[{}]]")
-   }{
-     \binaryN{⇒_e}{
-       Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt2) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
-     }{
-       \unaryN{⇒_i}{
-         Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t(tt3) : \f("B⇒[C₀:{}|C₁:B|f F[{}]≡F[{}]]")
-       }{
-         \hyp{Σ,f:ι,x:ι\sp Γ,f:\f("B⇒B"),x:B;Ξ ⊢ \t(tt4) : \f("[C₀:{}|C₁:B|f F[{}]≡F[{}]]")}
-       }
-     }{
-       \binaryN{⇒_e}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f F[{}]"):\f("B")}{
-         \axiomN{Ax}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f"):\f("B⇒B")}
-       }{
-         \unaryN{+_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("F[{}]"):\f("B")}{
-           \axiomN{χ_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("{}"):\f("{}")}}
-       }
-     }
-   }
- }{
-   \binaryN{⇒_e}{
-     Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f T[{}]") : \f("B")
-   }{
-     \axiomN{Ax}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("f") : \f("B⇒B")}
-   }{
-     \unaryN{+_i}{
-       Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("T[{}]") : \f("B")
-     }{
-       \axiomN{χ_i}{Σ,f:ι\sp Γ,f:\f("B⇒B");Ξ ⊢ \t("{}") : \f("{}")}
-     }
-   }
- }}
-}
-$$
-\end{env}
-(* TODO check if the counter example is real *)
+\end{center}
+for every stack $π∈Π$, \lemRef("redtosame") tells us that
+$\t("(μα w) F[{}]") ≡_{≻} \t("T[{}]")$. As a consequence, it cannot
+be that $\t("(μα w) F[{}]") ≡_{≻} \t("F[{}]")$ and thus the type
+$\f("[C₀:{} | C₁:{} | (μα w) F[{}] ≡ F[{}]]")$ is equivalent to
+$\f("[C₀ : {}]")$ (i.e. they have the same semantical interpretation).
+This means that if we manage to show that $\t("t")$ has type
+$\f("[C₀:{} | C₁:{} | (μα w) F[{}] ≡ F[{}]]")$, then we will have a
+contradiction to the type safety as $\t("t")$ reduces to $\v("C₁[{}]")$,
+which is not contained in $\vs("[C₀ : {}]")$. In the typing derivation
+displayed bellow, the type $\f("B")$ is defined as $\f("[T:{}|F:{}]")$.
+\begin{env}(scale 0.76)
+\begin{proofTree}
+\Caml(
+let p =
+  let leaf = ax in
+  leaf   ~name:<$p₁$>
+    <$ f:\f("B⇒B") ⊢ \t("v")
+       : \f("(f F[{}])∈B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
 
-Let us now consider the system with value restriction that has been
-proved sound in the previous chapter. As for ||OCaml||, the restriction
-on the introduction rule for the universal quantifier is not too big of
-a problem. However, the restriction on the elimination rule of the
-dependent functions type leads to a certain lack of expressivity.
-(* TODO *)
+  leaf   ~name:<$p₂$>
+    <$ f:\f("B⇒B") ⊢ \t("f F[{}]") : \f("B") $>;
+
+  binary ~name:<$⇒_{e,{∈},⊥}$>
+    <$ f:\f("B⇒B") ⊢ \t("v (f F[{}])")
+       : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$⇒_i$>
+    <$ f:\f("B⇒B") ⊢ \t("λ_ v (f F[{}])")
+       : \f("B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+
+  leaf   ~name:<$p₃$>
+    <$ f:\f("B⇒B") ⊢ \t("f T[{}]") : \f("B") $>;
+
+  binary ~name:<$⇒_e$>
+    <$ f:\f("B⇒B") ⊢ \t("(λ_ v (f F[{}])) (f T[{}])")
+       : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$Π_{τ,i}$>
+    <$ ⊢ \t("λf (λ_ v (f F[{}])) (f T[{}])")
+       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{}|a F[{}] ≡ F[{}]]") $>;
+
+  leaf    ~name:<$p₄$>
+    <$ ⊢ \t("u") : \f("B⇒B") $>;
+
+  binary ~name:<$Π_{e,⊥}$>
+    <$ ⊢ \t("(λf (λ_ v (f F[{}])) (f T[{}])) u")
+       : \f("[C₀:{} | C₁:{} | u F[{}] ≡ F[{}]]") $>;
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
+\begin{env}(scale 0.54)
+\begin{proofTree}
+\Caml(
+let p =
+  ax     ~name:<$Ax$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]") ⊢ y : \f("B") $>;
+
+  ax      ~name:<$×_i$>
+    <$ f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]"), y≡\t("F[{}]")
+      ⊢ \t("{}") : \f("{}")$>;
+  hyp <$y≡\t("f F[{}]"), y≡\t("F[{}]") ⊢ \t("f F[{}]") ≡ \t("F[{}]")$>;
+  binary ~name:<$\restriction_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("F[{}]")
+       ⊢ \t("{}") : \f("{}|f F[{}] ≡ F[{}]") $>;
+  unary  ~name:<$+_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("F[{}]")
+       ⊢ \t("C₁[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+
+  ax      ~name:<$×_i$>
+    <$ f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]"), y≡\t("T[{}]")
+      ⊢ \t("{}") : \f("{}")$>;
+  unary  ~name:<$+_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("T[{}]")
+       ⊢ \t("C₀[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+
+  ternary  ~name:<$+_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]")
+       ⊢ \t("[y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
+       : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$∈_e$>
+    <$ f:\f("B⇒B"), y:\f("(f F[{}])∈B")
+       ⊢ \t("[y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
+       : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$⇒_ι$>
+    <$ f:\f("B⇒B") ⊢ \t("λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
+       : \f("(f F[{}])∈B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary   ~name:<$p₁$> (mcolor white <$...$>);
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
+\end{env}
+\begin{proofTree}
+\Caml(
+let p =
+  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
+
+  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢ \t("{}") : \f("{}")$>;
+  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢ \t("F[{}]") : \f("B")$>;
+
+  binary  ~name:<$⇒_e$>
+    <$ f:\f("B⇒B") ⊢ \t("f F[{}]") : \f("B") $>;
+  unary   ~name:<$p₂$> (mcolor white <$...$>);
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
+\begin{proofTree}
+\Caml(
+let p =
+  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
+
+  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢ \t("{}") : \f("{}")$>;
+  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢ \t("T[{}]") : \f("B")$>;
+
+  binary  ~name:<$⇒_e$>
+    <$ f:\f("B⇒B") ⊢ \t("f T[{}]") : \f("B") $>;
+  unary   ~name:<$p₃$> (mcolor white <$...$>);
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
+\begin{proofTree}
+\Caml(
+let p =
+  ax      ~name:<$Ax$>  <$ α:\f("B⇒B")^⊥,x:B ⊢ x:B $>;
+  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("{}") : \f("{}") $>;
+  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("T[{}]") : \f("B") $>;
+  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("{}") : \f("{}") $>;
+  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("F[{}]") : \f("B") $>;
+  unary   ~name:<$⇒_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("λ_F[{}]") : \f("B⇒B") $>;
+  unary   ~name:<$[\wc]$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \t("[α]λ_F[{}]"):\f("B") $>;
+  ternary ~name:<$+_e$>
+    <$ α:\f("B⇒B")^⊥,x:B ⊢
+       \t("[x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : B $>;
+  unary   ~name:<$⇒_i$>
+    <$ α:\f("B⇒B")^⊥ ⊢
+       \t("λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+  unary   ~name:<$μ$>
+    <$ ⊢ \t("μα λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+  unary   ~name:<$p4$> (mcolor white <$...$>);
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
+\end{env}
+
+
+
+
+
+
+
+
+
+
+
+(* FIXME from here *)
+$$
+\binaryRN{⇒_{e,{∈}}}
+  {Σ \sp Γ;Σ ⊢ t : \f("v∈A⇒B")}
+  {Σ \sp Γ;Σ ⊢_\tval v : A}
+  {Σ \sp Γ;Σ ⊢ \t("t v") : B}
+$$
 
 =<
 
