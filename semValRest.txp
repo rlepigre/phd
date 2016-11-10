@@ -303,36 +303,63 @@ $\f("[C₀:{} | C₁:{} | (μα w) F[{}] ≡ F[{}]]")$, then we will have a
 contradiction to the type safety as $\t("t")$ reduces to $\v("C₁[{}]")$,
 which is not contained in $\vs("[C₀ : {}]")$. In the typing derivation
 displayed bellow, the type $\f("B")$ is defined as $\f("[T:{}|F:{}]")$.
-\begin{env}(scale 0.76)
+\begin{env}(scale 0.6)
 \begin{proofTree}
 \Caml(
 let p =
   let leaf = ax in
   leaf   ~name:<$p₁$>
+    <$ f:\f("B⇒B") ⊢_\tval \t("v")
+       : \f("(f F[{}])∈B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$↑$>
     <$ f:\f("B⇒B") ⊢ \t("v")
        : \f("(f F[{}])∈B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
 
-  leaf   ~name:<$p₂$>
+
+  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢_\tval \t("f") : \f("B⇒B")$>;
+  unary   ~name:<$↑$>   <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
+
+  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢_\tval \t("{}") : \f("{}")$>;
+  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢_\tval \t("F[{}]") : \f("B")$>;
+  unary   ~name:<$↑$>    <$ f:\f("B⇒B") ⊢ \t("F[{}]") : \f("B")$>;
+
+  binary  ~name:<$⇒_e$>
     <$ f:\f("B⇒B") ⊢ \t("f F[{}]") : \f("B") $>;
+
 
   binary ~name:<$⇒_{e,{∈},⊥}$>
     <$ f:\f("B⇒B") ⊢ \t("v (f F[{}])")
        : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
   unary  ~name:<$⇒_i$>
+    <$ f:\f("B⇒B") ⊢_\tval \t("λ_ v (f F[{}])")
+       : \f("B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$↑$>
     <$ f:\f("B⇒B") ⊢ \t("λ_ v (f F[{}])")
        : \f("B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
 
-  leaf   ~name:<$p₃$>
+
+  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢_\tval \t("f") : \f("B⇒B")$>;
+  unary   ~name:<$↑$>   <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
+
+  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢_\tval \t("{}") : \f("{}")$>;
+  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢_\tval \t("T[{}]") : \f("B")$>;
+  unary   ~name:<$↑$>    <$ f:\f("B⇒B") ⊢ \t("T[{}]") : \f("B")$>;
+
+  binary  ~name:<$⇒_e$>
     <$ f:\f("B⇒B") ⊢ \t("f T[{}]") : \f("B") $>;
+
 
   binary ~name:<$⇒_e$>
     <$ f:\f("B⇒B") ⊢ \t("(λ_ v (f F[{}])) (f T[{}])")
        : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
   unary  ~name:<$Π_{τ,i}$>
+    <$ ⊢_\tval \t("λf (λ_ v (f F[{}])) (f T[{}])")
+       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{}|a F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$↑$>
     <$ ⊢ \t("λf (λ_ v (f F[{}])) (f T[{}])")
        : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{}|a F[{}] ≡ F[{}]]") $>;
 
-  leaf    ~name:<$p₄$>
+  leaf    ~name:<$p₂$>
     <$ ⊢ \t("u") : \f("B⇒B") $>;
 
   binary ~name:<$Π_{e,⊥}$>
@@ -342,28 +369,33 @@ let p =
 )
 $$ \id(p) $$
 \end{proofTree}
-\begin{env}(scale 0.54)
 \begin{proofTree}
 \Caml(
 let p =
   ax     ~name:<$Ax$>
-    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]") ⊢ y : \f("B") $>;
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]") ⊢_\tval y : \f("B") $>;
 
   ax      ~name:<$×_i$>
     <$ f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]"), y≡\t("F[{}]")
-      ⊢ \t("{}") : \f("{}")$>;
+      ⊢_\tval \t("{}") : \f("{}")$>;
   hyp <$y≡\t("f F[{}]"), y≡\t("F[{}]") ⊢ \t("f F[{}]") ≡ \t("F[{}]")$>;
   binary ~name:<$\restriction_e$>
     <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("F[{}]")
-       ⊢ \t("{}") : \f("{}|f F[{}] ≡ F[{}]") $>;
+       ⊢_\tval \t("{}") : \f("{}|f F[{}] ≡ F[{}]") $>;
   unary  ~name:<$+_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("F[{}]")
+       ⊢_\tval \t("C₁[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$↑$>
     <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("F[{}]")
        ⊢ \t("C₁[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
 
   ax      ~name:<$×_i$>
     <$ f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]"), y≡\t("T[{}]")
-      ⊢ \t("{}") : \f("{}")$>;
+      ⊢_\tval \t("{}") : \f("{}")$>;
   unary  ~name:<$+_e$>
+    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("T[{}]")
+       ⊢_\tval \t("C₀[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+  unary  ~name:<$↑$>
     <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]"), y ≡ \t("T[{}]")
        ⊢ \t("C₀[{}]") : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
 
@@ -376,63 +408,38 @@ let p =
        ⊢ \t("[y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
        : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
   unary  ~name:<$⇒_ι$>
-    <$ f:\f("B⇒B") ⊢ \t("λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
+    <$ f:\f("B⇒B") ⊢_\tval \t("λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
        : \f("(f F[{}])∈B ⇒ [C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
   unary   ~name:<$p₁$> (mcolor white <$...$>);
   display_proof ()
 )
 $$ \id(p) $$
 \end{proofTree}
-\end{env}
 \begin{proofTree}
 \Caml(
 let p =
-  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
-
-  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢ \t("{}") : \f("{}")$>;
-  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢ \t("F[{}]") : \f("B")$>;
-
-  binary  ~name:<$⇒_e$>
-    <$ f:\f("B⇒B") ⊢ \t("f F[{}]") : \f("B") $>;
-  unary   ~name:<$p₂$> (mcolor white <$...$>);
-  display_proof ()
-)
-$$ \id(p) $$
-\end{proofTree}
-\begin{proofTree}
-\Caml(
-let p =
-  ax      ~name:<$Ax$>  <$ f:\f("B⇒B") ⊢ \t("f") : \f("B⇒B")$>;
-
-  ax      ~name:<$×_i$>  <$ f:\f("B⇒B") ⊢ \t("{}") : \f("{}")$>;
-  unary   ~name:<$+_i$>  <$ f:\f("B⇒B") ⊢ \t("T[{}]") : \f("B")$>;
-
-  binary  ~name:<$⇒_e$>
-    <$ f:\f("B⇒B") ⊢ \t("f T[{}]") : \f("B") $>;
-  unary   ~name:<$p₃$> (mcolor white <$...$>);
-  display_proof ()
-)
-$$ \id(p) $$
-\end{proofTree}
-\begin{proofTree}
-\Caml(
-let p =
-  ax      ~name:<$Ax$>  <$ α:\f("B⇒B")^⊥,x:B ⊢ x:B $>;
-  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("{}") : \f("{}") $>;
-  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("T[{}]") : \f("B") $>;
-  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("{}") : \f("{}") $>;
-  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("F[{}]") : \f("B") $>;
-  unary   ~name:<$⇒_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("λ_F[{}]") : \f("B⇒B") $>;
+  ax      ~name:<$Ax$>  <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval x:B $>;
+  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval \v("{}") : \f("{}") $>;
+  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval \v("T[{}]") : \f("B") $>;
+  unary   ~name:<$↑$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("T[{}]") : \f("B") $>;
+  ax      ~name:<$×_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval \v("{}") : \f("{}") $>;
+  unary   ~name:<$+_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval \v("F[{}]") : \f("B") $>;
+  unary   ~name:<$↑$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("F[{}]") : \f("B") $>;
+  unary   ~name:<$⇒_i$> <$ α:\f("B⇒B")^⊥,x:B ⊢_\tval \v("λ_F[{}]") : \f("B⇒B") $>;
+  unary   ~name:<$↑$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \v("λ_F[{}]") : \f("B⇒B") $>;
   unary   ~name:<$[\wc]$> <$ α:\f("B⇒B")^⊥,x:B ⊢ \t("[α]λ_F[{}]"):\f("B") $>;
   ternary ~name:<$+_e$>
     <$ α:\f("B⇒B")^⊥,x:B ⊢
        \t("[x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : B $>;
   unary   ~name:<$⇒_i$>
+    <$ α:\f("B⇒B")^⊥ ⊢_\tval
+       \t("λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+  unary   ~name:<$↑$>
     <$ α:\f("B⇒B")^⊥ ⊢
        \t("λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
   unary   ~name:<$μ$>
     <$ ⊢ \t("μα λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
-  unary   ~name:<$p4$> (mcolor white <$...$>);
+  unary   ~name:<$p₂$> (mcolor white <$...$>);
   display_proof ()
 )
 $$ \id(p) $$
@@ -450,12 +457,6 @@ $$ \id(p) $$
 
 
 (* FIXME from here *)
-$$
-\binaryRN{⇒_{e,{∈}}}
-  {Σ \sp Γ;Σ ⊢ t : \f("v∈A⇒B")}
-  {Σ \sp Γ;Σ ⊢_\tval v : A}
-  {Σ \sp Γ;Σ ⊢ \t("t v") : B}
-$$
 
 =<
 
@@ -479,6 +480,13 @@ $$
 This new relaxed rule relies on a third premise stating that the argument
 $u$ (which does not have to be a value anymore) is equivalent to some
 value $v$.
+
+$$
+\binaryRN{⇒_{e,{∈}}}
+  {Σ \sp Γ;Σ ⊢ t : \f("v∈A⇒B")}
+  {Σ \sp Γ;Σ ⊢_\tval v : A}
+  {Σ \sp Γ;Σ ⊢ \t("t v") : B}
+$$
 
 =<
 
