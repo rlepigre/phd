@@ -1,7 +1,5 @@
 open Lang_ast
 
-let debug = false
-
 (* Parser for symbols allowed as index. *)
 let parser index =
   | "₀" -> "0" | "₁" -> "1" | "₂" -> "2" | "₃" -> "3" | "₄" -> "4"
@@ -10,12 +8,12 @@ let parser index =
   | "i+1" -> "i+1" | "α" -> "α" | "f" -> "f"
 
 (* Generic parser for variables. *)
-let parser vari p   = x:p i:index? _:Decap.relax
+let parser vari p   = x:p {- i:index}?
 let parser wildcard = "_" -> ("_", None)
 let vari ns =
-  let str s = Decap.string s s in
-  let normal = vari (Decap.alternatives (List.map str ns)) in
-  Decap.alternatives [wildcard; normal]
+  let str s = Earley.string s s in
+  let normal = vari (Earley.alternatives (List.map str ns)) in
+  Earley.alternatives [wildcard; normal]
 
 (* Predifined parsers for all kind of variables and metavariables. *)
 let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
@@ -38,15 +36,13 @@ let stvar = vari ["s"]
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
 
+let blank = EarleyStr.blank_regexp ''[ ]*''
+
 (* Generic parsing function with exception handling. *)
 let parse name g =
-  let parse = Decap.parse_string g (Decap.blank_regexp ''[ ]*'') in
+  let parse s = Earley.parse_string ~filename:s g blank s in
   (fun s ->
-    try
-      if debug then Printf.eprintf "Parsing \"%s\" as a %s...\n%!" s name;
-      let res = Decap.handle_exception parse s in
-      if debug then Printf.eprintf "Done.\n%!";
-      res
+    try Earley.handle_exception parse s
     with _ ->
       Printf.eprintf "Could not parse the %s \"%s\".\n%!" name s;
       exit 1)

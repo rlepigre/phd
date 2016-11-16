@@ -1,7 +1,7 @@
 open Typography
 open DefaultFormat
 open Maths
-open Decap
+open Earley
 
 type vari = string * int option
 
@@ -30,10 +30,10 @@ let build_sub t = function
   | Some s -> Sub(t,s)
 
 type prio = Atom | Subs | Appl
-let parser lvar = ''[a-z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
-  | "₄" -> 4 | "₅" -> 5}? _:relax
-let parser cvar = ''[A-Z]'' - {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
-  | "₄" -> 4 | "₅" -> 5}? _:relax
+let parser lvar = ''[a-z]'' {- {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
+  | "₄" -> 4 | "₅" -> 5}}?
+let parser cvar = ''[A-Z]'' {- {"₀" -> 0 | "₁" -> 1 | "₂" -> 2 | "₃" -> 3
+  | "₄" -> 4 | "₅" -> 5}}?
 
 let parser lterm prio =
   | x:lvar                             when prio = Atom -> Var(x)
@@ -68,21 +68,23 @@ let parser proc =
 let lterm = lterm Appl
 let lctxt = lctxt Appl
 
-let parse_term =
-  let parse = parse_string lterm (blank_regexp ''[ ]*'') in
-  handle_exception parse
+let blank = EarleyStr.blank_regexp ''[ ]*''
 
-let parse_ctxt =
-  let parse = parse_string lctxt (blank_regexp ''[ ]*'') in
-  handle_exception parse
+let parse_term s =
+  let parse = parse_string ~filename:s lterm blank in
+  handle_exception parse s
 
-let parse_stac =
-  let parse = parse_string stack (blank_regexp ''[ ]*'') in
-  handle_exception parse
+let parse_ctxt s =
+  let parse = parse_string ~filename:s lctxt blank in
+  handle_exception parse s
 
-let parse_proc =
-  let parse = parse_string proc (blank_regexp ''[ ]*'') in
-  handle_exception parse
+let parse_stac s =
+  let parse = parse_string ~filename:s stack blank in
+  handle_exception parse s
+
+let parse_proc s =
+  let parse = parse_string ~filename:s proc blank in
+  handle_exception parse s
 
 let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
 let asana n i = [Maths.Ordinary (Maths.node (MathFonts.asana n i))]

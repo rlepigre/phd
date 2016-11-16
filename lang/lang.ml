@@ -19,19 +19,3 @@ let p : string -> maths = with_cache (fun s -> p2m (parse_proc s))
 let f : string -> maths = with_cache (fun s -> f2m (parse_form s))
 
 let subs : string -> maths = with_cache (fun s -> subs2m (parse_subs s))
-
-(*
-let debug name f s =
-  Printf.printf "Parsing \"%s\" as a %s ... %!" s name;
-  let res = f s in
-  Printf.printf "Done.\n%!"; res
-
-let v = debug "value"   v
-let t = debug "term"    t
-let c = debug "context" c
-let s = debug "stack"   s
-let p = debug "process" p
-let f = debug "formula" f
-
-let subs = debug "substitution" subs
-*)
