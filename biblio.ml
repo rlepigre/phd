@@ -273,6 +273,12 @@ let biblio =
   ; notes   = "Proceedings of TLDI"
   ; year    = "2005" };
 
+  { key     = "Mitchell1996"
+  ; authors = "John C. Mitchell"
+  ; title   = "Foundations for Programming Languages"
+  ; notes   = "MIT Press"
+  ; year    = "1996" };
+
   ]
 
 let init () =

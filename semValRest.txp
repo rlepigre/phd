@@ -153,8 +153,6 @@ $$
 $$
 if we quantify over a term variable.
 
-(* TODO improve *)
-
 =<
 
 => The limits of value restriction
@@ -429,47 +427,99 @@ $$ \id(p) $$
 \end{proofTree}
 \end{env}
 
+As the empty type can be inhabited in the presence of a typing rule
+without value restriction for the membership type, we can deduce that
+the unrestricted rule is unsound. As a consequence, there is no hope
+of encoding an unrestricted elimination rule for the dependent product
+into our system. Indeed, only the membership types are able to link
+the world of terms and the world of types thanks to their semantics.
 
-
-
-
-
-
-
-
-(* FIXME from here *)
-
-
-
+The limitation imposed by the value restriction on the dependent
+products leads to an expressivity problem. Indeed, it completely
+forbids the composition of dependent functions, which is very usual
+in practice. In \chapter("implem"), we will consider interesting
+examples of programs that could not be accepted under the usual
+syntactic restriction. For them to be accepted in our system, we
+need another cryterion that accepts more programs, while still being
+sound.
 
 =<
 
 => Semantical value restriction
 
-To solve the expressivity problem, the author introduced the notion of
-//semantical value restriction// \cite("Lepigre2016"). The main idea is
-to concider that a term "behaving like" a value can be considered as a
-value. Thanks to our notion of observational equivalence, this property
-can be expressed easily in the syntax. Indeed, we will replace a typing
-rule like
+As discussed in the previous section, value restriction is an issue in
+the presence of the membership type (and thus the dependent function
+type). To solve the related expressivity problem, the author introduced
+the notion of //semantical value restriction// \cite("Lepigre2016").
+The main idea is to relax the restriction to allow terms "behaving like",
+and not syntactic values only. Thanks to our notion of observational
+equivalence, this property can be expressed easily in the syntax. Indeed,
+we will replace a typing rule like
+\begin{center}
+$ \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")} $
+\end{center}
+with the following, where value restriction is replaced by an additional
+premise involving an equivalence.
+\begin{center}
+$ \ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}{Σ \sp Γ ; Ξ ⊢ u : A}
+      {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")} $
+\end{center}
+The third premise requires the term $u$, which does not have to be a
+value anymore, to be equivalent to some value $v$.
+
+\begin{rem}
+Semantical value restriction is a strict relaxation of value restriction.
+Indeed, value restriction exactly corresponds to a version of semantical
+value restriction in which we would only be able to use reflexivity to
+show that two terms are equal.
+\end{rem}
+
+In the syntax, semantical value restriction will be presented as a simple
+extention of our type system with the following, seemingly obvious, typing
+rule.
+\begin{center}
+$ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
+\end{center}
+Note that it should not be mistaken with our (${↑}$) rule, which premise
+is a value judgment and which conclusion is a term judgment. Our new
+(${↓}$) rule allows us to transform a term judgment into a value judgment,
+provided that the considered term is a value. Now, the whole trick relies
+on the fact that we can apply the (${≡}_{τ,τ}$) rule to obtain
+$Σ \sp Γ ; Ξ ⊢ v : A$ from a proof of $Σ \sp Γ ; Ξ ⊢ t : A$, provided
+$Ξ ⊢ t ≡ v$ can be proved. We can, for example, derive a relaxed version
+of the membership introduction typing rule as follows.
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                       <$ Σ \sp Γ ; Ξ ⊢ \t("t") : \f("A") $>;
+  hyp                       <$ Ξ ⊢ \t("t") ≡ \t("v") $>;
+  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t("v") : \f("A") $>;
+  unary   ~name:<$↓$>       <$ Σ \sp Γ ; Ξ ⊢_\tval \t("v") : \f("A") $>;
+  unary   ~name:<$∈_i$>     <$ Σ \sp Γ ; Ξ ⊢_\tval \t("v") : \f("v∈A") $>;
+  unary   ~name:<$↑$>       <$ Σ \sp Γ ; Ξ ⊢ \t("v") : \f("v∈A") $>;
+  hyp                       <$ Ξ ⊢ \t("t") ≡ \t("v") $>;
+  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t("t") : \f("t∈A") $>;
+  display_proof ()
+)
+\begin{center}
+$\id(p)$
+\end{center}
+\end{proofTree}
+
+(* TODO *)
 $$
-\binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
-  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}
+\binaryRN{∈_{i,τ}}
+  {Σ \sp Γ;Σ ⊢ \t("t") : \f("A")}
+  {Ξ ⊢ \t("t") ≡ \t("v")}
+  {Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")}
 $$
-with the following.
-$$
-\ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}{Σ \sp Γ ; Ξ ⊢ u : A}
-  {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")}
-$$
-This new relaxed rule relies on a third premise stating that the argument
-$u$ (which does not have to be a value anymore) is equivalent to some
-value $v$.
 
 $$
 \binaryRN{⇒_{e,{∈}}}
-  {Σ \sp Γ;Σ ⊢ t : \f("v∈A⇒B")}
-  {Σ \sp Γ;Σ ⊢_\tval v : A}
-  {Σ \sp Γ;Σ ⊢ \t("t v") : B}
+  {Σ \sp Γ;Ξ ⊢ t : \f("v∈A⇒B")}
+  {Σ \sp Γ;Ξ ⊢_\tval v : A}
+  {Σ \sp Γ;Ξ ⊢ \t("t v") : B}
 $$
 
 =<
