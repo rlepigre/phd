@@ -18,7 +18,7 @@ let vari ns =
 (* Predifined parsers for all kind of variables and metavariables. *)
 let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
 let vmeta = vari ["v"; "w"; "r"; "Φ"]
-let tvari = vari ["a"; "b"; "c"; "Φ"]
+let tvari = vari ["a"; "b"; "c"]
 let tmeta = vari ["t"; "u"; "Ω"]
 let cmeta = vari ["E"; "F"]
 let svari = vari ["α"; "β"; "γ"]
@@ -28,7 +28,7 @@ let const = vari ["C"; "D" ; "S" ; "Z"; "T"; "F"]
 let label = vari ["l"; "k"]
 let subsm = vari ["σ"; "ρ"]
 let vfset = vari ["I"; "J"; "K"]
-let fmeta = vari ["A"; "B"; "C"; "Φ"]
+let fmeta = vari ["A"; "B"; "C"]
 let fvari = vari ["χ"]
 let ovari = vari ["X"; "Y"; "Z"]
 let stvar = vari ["s"]
@@ -156,7 +156,7 @@ and        form prio =
   | "μ" x:ovari a:(form FFull)                when prio = FAtom -> FLFix(x,a)
   | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
   | t:(term TAppl) "∈" a:(form FAtom)         when prio = FAtom -> FMemb(t,a)
-  | a:{a:(form FAtom) '|'}? e:equa            when prio = FAtom -> FRest(a,e)
+  | a:{a:(form FAtom) "∧"}? e:equa            when prio = FAtom -> FRest(a,e)
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
   | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
       m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'

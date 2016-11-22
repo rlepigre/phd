@@ -208,7 +208,7 @@ let _ = large_bnfs
   [ ( << $(\cal{F})$ >>
     , << $A, B$ >>
     , << $v \| t \| π \| \f("χ^s") \| \f("(χ^s ↦ A)") \| \f("A(B)") \|
-          \f("A⇒B") \| \f("t∈A") \| \f("A|t≡u") \| \f("{(li : Ai) i∈I}")$ >> )
+          \f("A⇒B") \| \f("t∈A") \| \f("A∧t≡u") \| \f("{(li : Ai) i∈I}")$ >> )
   ; ( []
     , []
     , << $\id([]) \| \f("[(Ci : Ai) i∈I]") \| \f("∀χ^s A") \|
@@ -298,7 +298,7 @@ let r82 =
 let r83 =
   << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
 let r91 =
-  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο}$ >>
+  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A ∧ t≡u") : ο}$ >>
 
 let rs env =
   (* let env = resize_env 3.4 env in *)
@@ -513,11 +513,11 @@ let r_memb_e =
 
 let r_rest_i =
   <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A | u₁≡u₂")}$>
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A ∧ u₁≡u₂")}$>
 
 let r_rest_e =
   <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C}
-   {Σ, x:ι \sp Γ,x:\f("A | u₁≡u₂");Ξ ⊢ \t("t") : C}$>
+   {Σ, x:ι \sp Γ,x:\f("A ∧ u₁≡u₂");Ξ ⊢ \t("t") : C}$>
 
 let r_prod_i =
   <$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢_\tval \v("vi") : \f("Ai")]_{i∈I}}
@@ -787,7 +787,7 @@ let _ =
                                  \t("t[x≔v]") ∈ \ts("B")\} $>
   ; line "t ∈ A"           <$ \{\v("v") ∈ \vs("A") \|
                                  \v("v") ≡_{≻} \t("t")\} $>
-  ; line "A | t ≡ u"       <$ \{\v("v") ∈ \vs("A") \|
+  ; line "A ∧ t ≡ u"       <$ \{\v("v") ∈ \vs("A") \|
                                  \t("t") ≡_{≻} \t("u")\} $>
   ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I,
                                  \v("vi")∈\vs("Ai")\} $>
@@ -798,8 +798,8 @@ let _ =
 \end{center}
 \end{def}
 \begin{rem}
-We have $\vs("A | t ≡ u") = \vs("A")$ if $t ≡_{≻} u$ and
-$\vs("A | t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
+We have $\vs("A ∧ t ≡ u") = \vs("A")$ if $t ≡_{≻} u$ and
+$\vs("A ∧ t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
 is no $v ∈ \vs("A")$ such that $v ≡_{≻} t$.
 \end{rem}
 \begin{thm}\label("sortsem")
@@ -881,14 +881,14 @@ proof of each case.
       the $({≡}_{≻})$ relation so we have $\vs("tρ∈Aρ") ∈ ⟦ο⟧$.
       $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο} $$
 \item In the case of the restriction type, we need to show that
-      $\vs("Aρ|tρ≡uρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
+      $\vs("Aρ∧tρ≡uρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
       $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
       $\vs("uρ") = \t("uρ") ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
-      $t ≡_{≻} u$ is well-defined, so $\vs("Aρ|tρ≡uρ")$ is either
+      $t ≡_{≻} u$ is well-defined, so $\vs("Aρ∧tρ≡uρ")$ is either
       equal to $\vs("Aρ")$, in which case we can conclude by
       induction hypothesis, or to $∅$. In this second case we can
       also conclude since $∅ ∈ ⟦ο⟧$.
-      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο} $$
+      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A∧t≡u") : ο} $$
 \end{itemize}
 \end{proof}
 \end{thm}
@@ -919,8 +919,8 @@ induction hypothesis, we only need to show that
 $\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. This follows from
 extentionality (\thmRef("sextval")) since we know that
 $v₁ρ ≡_{≻} v₂ρ$. In the case of restriction
-$$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A|t≡u") : ο}$$
-we need to show that $\vs("(A|t≡u)ρ[x≔v₁ρ]") = \vs("(A|t≡u)ρ[x≔v₂ρ]")$.
+$$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A∧t≡u") : ο}$$
+we need to show that $\vs("(A∧t≡u)ρ[x≔v₁ρ]") = \vs("(A∧t≡u)ρ[x≔v₂ρ]")$.
 By definition, we need to show that
 $\t("tρ[x≔v₁ρ]") ≡_{≻} \t("uρ[x≔v₁ρ]")$ if and only if
 $\t("tρ[x≔v₂ρ]") ≡_{≻} \t("uρ[x≔v₂ρ]")$ since
@@ -1106,10 +1106,10 @@ correspoding case.
       $$ \id(r_memb_i) $$
 
 \item If the last used rule is ($↾_i$) then we need to show
-      $\t("tρ") ∈ \ts("(A | u₁≡u₂)ρ")$. Using the right premise
+      $\t("tρ") ∈ \ts("(A ∧ u₁≡u₂)ρ")$. Using the right premise
       we know that $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, and hence
-      $\vs("Aρ | u₁ρ ≡ u₂ρ") = \vs("Aρ")$ by definition. Consequently
-      we have $\ts("Aρ | u₁ρ ≡ u₂ρ") = \ts("Aρ")$ by
+      $\vs("Aρ ∧ u₁ρ ≡ u₂ρ") = \vs("Aρ")$ by definition. Consequently
+      we have $\ts("Aρ ∧ u₁ρ ≡ u₂ρ") = \ts("Aρ")$ by
       \lemRef("orthoincl"), and hence we can conclude since
       $\t("tρ") ∈ \ts("Aρ")$ by induction hypothesis.
 
@@ -1118,8 +1118,8 @@ correspoding case.
 \item If the last used rule is ($↾_e$) then we need to show
       $\t("tρ") ∈ \ts("Cρ")$. To be able to apply the induction hypothesis,
       we only have to show $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡_{≻} u₂ρ$ under the
-      assumption that $ρ(x) ∈ \vs("Aρ | u₁ρ ≡ u₂ρ") ≠ ∅$. This immediately
-      follows from the definition of $\vs("Aρ | u₁ρ ≡ u₂ρ")$ since it
+      assumption that $ρ(x) ∈ \vs("Aρ ∧ u₁ρ ≡ u₂ρ") ≠ ∅$. This immediately
+      follows from the definition of $\vs("Aρ ∧ u₁ρ ≡ u₂ρ")$ since it
       contains $ρ(x)$.
 
       $$ \id(r_rest_e) $$

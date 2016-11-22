@@ -310,13 +310,13 @@ let r82 =
 let r91 =
   <<$\unaryRN{\restriction_l}
     {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("A | u₁ ≡ u₂") ⊆ \f("B")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊆ \f("B")}$>>
 
 let r92 =
   <<$\binaryRN{\restriction_r}
     {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
     {Ξ ⊢ u₁ ≡ u₂}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B | u₁ ≡ u₂")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B ∧ u₁ ≡ u₂")}$>>
 
 let rA1 =
   <<$\unaryRN{∈_l}

@@ -275,7 +275,7 @@ let _ =
 \end{center}
 In many reduction steps, we have $\p("t∗ε") ≻^{∗} \p("C₁[{}]∗ε")$. To
 obtain our counter-example, we will show that $\t("t")$ has type
-$\f("[C₀:{} | C₁:{} | (μα v) F[{}] ≡ F[{}]]")$. As we have
+$\f("[C₀:{} | C₁:{} ∧ (μα v) F[{}] ≡ F[{}]]")$. As we have
 \begin{center}
 \linesBefore(6)
 \diagram(
@@ -294,16 +294,16 @@ let _ =
 for every stack $π∈Π$, \lemRef("redtosame") tells us that
 $\t("(μα w) F[{}]") ≡_{≻} \t("T[{}]")$. As a consequence, it cannot
 be that $\t("(μα w) F[{}]") ≡_{≻} \t("F[{}]")$ and thus the type
-$\f("[C₀:{} | C₁:{} | (μα w) F[{}] ≡ F[{}]]")$ is equivalent to
+$\f("[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]")$ is equivalent to
 $\f("[C₀ : {}]")$ (i.e. they have the same semantical interpretation).
 This means that if we manage to show that $\t("t")$ has type
-$\f("[C₀:{} | C₁:{} | (μα w) F[{}] ≡ F[{}]]")$, then we will have a
+$\f("[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]")$, then we will have a
 contradiction to the type safety as $\t("t")$ reduces to $\v("C₁[{}]")$,
 which is not contained in $\vs("[C₀ : {}]")$.
 
 In the typing derivation displayed bellow, the type $\f("B")$ is
 defined as $\f("[T:{}|F:{}]")$, the type $\f("C")$ is defined as
-$\f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]")$, the context $Γ₁$ is
+$\f("[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]")$, the context $Γ₁$ is
 defined as $f : \f("B⇒B")$, the context $Γ₂$ is defined as
 $f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]")$ and $Γ₃$ is defined as
 $α:\f("B⇒B")^⊥,x:B$.
@@ -345,20 +345,20 @@ let p =
 
   binary ~name:<$⇒_e$>
     <$ f:\f("B⇒B") ⊢ \t("(λ_ v (f F[{}])) (f T[{}])")
-       : \f("[C₀:{} | C₁:{}|f F[{}] ≡ F[{}]]") $>;
+       : \f("[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]") $>;
   unary  ~name:<$Π_{τ,i}$>
     <$ ⊢_\tval \t("λf (λ_ v (f F[{}])) (f T[{}])")
-       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{}|a F[{}] ≡ F[{}]]") $>;
+       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]") $>;
   unary  ~name:<$↑$>
     <$ ⊢ \t("λf (λ_ v (f F[{}])) (f T[{}])")
-       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{}|a F[{}] ≡ F[{}]]") $>;
+       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]") $>;
 
   leaf    ~name:<$p₂$>
     <$ ⊢ \t("u") : \f("B⇒B") $>;
 
   binary ~name:<$Π_{e,⊥}$>
     <$ ⊢ \t("(λf (λ_ v (f F[{}])) (f T[{}])) u")
-       : \f("[C₀:{} | C₁:{} | u F[{}] ≡ F[{}]]") $>;
+       : \f("[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]") $>;
   display_proof ()
 )
 $$ \id(p) $$
@@ -372,7 +372,7 @@ let p =
   ax      ~name:<$×_i$> <$ Γ₂, y≡\t("F[{}]") ⊢_\tval \t("{}") : \f("{}")$>;
   hyp <$y≡\t("f F[{}]"), y≡\t("F[{}]") ⊢ \t("f F[{}]") ≡ \t("F[{}]")$>;
   binary ~name:<$\restriction_e$>
-    <$ Γ₂, y ≡ \t("F[{}]") ⊢_\tval \t("{}") : \f("{}|f F[{}] ≡ F[{}]") $>;
+    <$ Γ₂, y ≡ \t("F[{}]") ⊢_\tval \t("{}") : \f("{} ∧ f F[{}] ≡ F[{}]") $>;
   unary  ~name:<$+_e$> <$ Γ₂, y ≡ \t("F[{}]") ⊢_\tval \t("C₁[{}]") : \f("C") $>;
   unary  ~name:<$↑$> <$ Γ₂, y ≡ \t("F[{}]") ⊢ \t("C₁[{}]") : \f("C") $>;
 
@@ -484,11 +484,11 @@ $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
 Note that it should not be mistaken with our (${↑}$) rule, which premise
 is a value judgment and which conclusion is a term judgment. Our new
 (${↓}$) rule allows us to transform a term judgment into a value judgment,
-provided that the considered term is a value. Now, the whole trick relies
-on the fact that we can apply the (${≡}_{τ,τ}$) rule to obtain
-$Σ \sp Γ ; Ξ ⊢ v : A$ from a proof of $Σ \sp Γ ; Ξ ⊢ t : A$, provided
-$Ξ ⊢ t ≡ v$ can be proved. We can, for example, derive a relaxed version
-of the membership introduction typing rule as follows.
+provided that the considered term is a value. The (${≡}_{τ,τ}$) rule can
+then be used to obtain a proof of $Σ \sp Γ ; Ξ ⊢ v : A$ from
+$Σ \sp Γ ; Ξ ⊢ t : A$, provided $Ξ ⊢ t ≡ v$ can be proved. We can, for
+example, derive a relaxed version of the membership introduction typing
+rule as follows.
 \begin{proofTree}
 \Caml(
 let p =
@@ -506,21 +506,74 @@ let p =
 $\id(p)$
 \end{center}
 \end{proofTree}
+The obtained, relaxed version of the membership introduction rule
+\begin{center}
+$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t("t") : \f("A")}
+    {Ξ ⊢ \t("t") ≡ \t("v")}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")} $
+\end{center}
+can then immediatly be used to derive a relaxed version of the
+elimination of the dependent function type (having again an equivalence
+as a premise).
+\begin{center}
+$ \ternaryRN{Π_{e,τ}}{Σ \sp Γ;Σ ⊢ \t("t") : \f("Π_(a∈A) B")}
+    {Σ \sp Γ;Σ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("u") ≡ \t("v")}
+    {Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]")} $
+\end{center}
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t("t") : \f("Π_(a∈A) B")$>;
+  unary                     <$Σ \sp Γ;Σ ⊢ \t("t") : \f("∀a (a∈A ⇒ B)")$>;
+  unary   ~name:<$∀_e$>     <$Σ \sp Γ;Σ ⊢ \t("t") : \f("u∈A ⇒ B[a≔u]")$>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t("u") : \f("A")$>;
+  hyp                       <$Ξ ⊢ \t("u") ≡ \t("v")$>;
+  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t("u") : \f("u∈A")$>;
+  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]") $>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+
+Aditionally, semantical value restriction allows us to derive a strong
+typing rule for general application. It can be seen as a relaxed form
+of the following rule (which can be derived easily in the initial
+system).
+\begin{center}
+$ \binaryRN{⇒_{e,{∈}}}{Σ \sp Γ;Ξ ⊢ t : \f("v∈A⇒B")}
+    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ;Ξ ⊢ \t("t v") : B} $
+\end{center}
+The interest of such a rule is to keep track of the argument a function
+will be applied to, when typing the function itself. In particular, this
+is useful to learn equivalences when the argument of a function is used
+in a case analysis. However, in its restricted form, this typing rule is
+rather useless since a term of the form $\t("(λx [x|(Ci[xi]→ti) i∈I]) v")$
+is equivalent to $\t("[v|(Ci[xi]→ti) i∈I]")$, and thus the same effect
+can be obtained using the ($≡_{τ,τ}$). Using semantical value restriction,
+we can derive the following relaxed rule.
+\begin{center}
+$ \ternaryRN{⇒_{e,{∈},τ}}{Σ \sp Γ;Ξ ⊢ t : \f("u∈A⇒B")}{Σ \sp Γ;Ξ ⊢ u : A}
+    {Ξ ⊢ u ≡ v}{Σ \sp Γ;Ξ ⊢ \t("t u") : B} $
+\end{center}
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t("t") : \f("u∈A ⇒ B")$>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t("u") : \f("A")$>;
+  hyp                       <$Ξ ⊢ \t("u") ≡ \t("v")$>;
+  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t("u") : \f("u∈A")$>;
+  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t("t u") : B$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+The relaxed rule is very useful to obtain a typing rule for a generalised
+form of case analysis ranging over terms (and not only values).
 
 (* TODO *)
-$$
-\binaryRN{∈_{i,τ}}
-  {Σ \sp Γ;Σ ⊢ \t("t") : \f("A")}
-  {Ξ ⊢ \t("t") ≡ \t("v")}
-  {Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")}
-$$
-
-$$
-\binaryRN{⇒_{e,{∈}}}
-  {Σ \sp Γ;Ξ ⊢ t : \f("v∈A⇒B")}
-  {Σ \sp Γ;Ξ ⊢_\tval v : A}
-  {Σ \sp Γ;Ξ ⊢ \t("t v") : B}
-$$
 
 =<
 
@@ -856,11 +909,11 @@ let rC =
 
 let rD =
   <<$\unaryRN{↾_i}{Σ ⊢ (Γ;Ξ,t≡u ⊢ \t("t") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A | t≡u");Δ)}$>>
+   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A ∧ t≡u");Δ)}$>>
 
 let rE =
   <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,t≡u ⊢ \t("t") : C;Δ)}
-   {Σ, x:ι ⊢ (Γ,x:\f("A | t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
+   {Σ, x:ι ⊢ (Γ,x:\f("A ∧ t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
 
 let rF =
   <<$\unaryRN{×_i}{[Σ ⊢ (Γ;Ξ ⊢ \v("vi") : \f("Ai");Δ)]_{i∈I}}
