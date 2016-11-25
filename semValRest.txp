@@ -572,13 +572,109 @@ $$\id(p)$$
 \end{proofTree}
 The relaxed rule is very useful to obtain a typing rule for a generalised
 form of case analysis ranging over terms (and not only values).
+\begin{center}
+$ \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("[(Ci : Ai) i∈I]")}{Ξ ⊢ t ≡ v}
+     {[Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
+     {Σ \sp Γ;Ξ ⊢ \t("(λx [x | (Ci[xi] → ti) i∈I]) t") : B} $
+\end{center}
+\begin{env}(scale 0.65)
+\Caml(
+let subp = <$
+    \proofTree{
+      \unaryN{≡_{τ,τ}}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t("Ci[xi]") ⊢ t_i : B}{
+        \unaryN{Wk}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t("Ci[xi]") ⊢ t_i : B}{
+          \hyp{Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t("Ci[xi]") ⊢ t_i : B}
+        }
+      }
+    }
+  $>
+)
+\begin{proofTree}
+\Caml(
+let p =
+  ax       ~name:<$Ax$> (* FIXME floating in the air *)
+    <$Σ \sp Γ,x:\f("[(Ci : Ai) i∈I]");Σ,x≡t ⊢_\tval x:\f("[(Ci : Ai) i∈I]")$>;
+  hyp <$[\id(subp)]_{i∈I}$>;
+  binary   ~name:<$+_e$>
+    <$Σ \sp Γ,x:\f("[(Ci : Ai) i∈I]");Σ,x≡t ⊢ \t("[x|(Ci[xi]→ti) i∈I]"):B$>;
+  unary    ~name:<$∈_e$>
+    <$Σ \sp Γ,x:\f("t∈[(Ci : Ai) i∈I]");Σ ⊢ \t("[x|(Ci[xi]→ti) i∈I]"):B$>;
+  unary    ~name:<$⇒_i$>
+    <$Σ \sp Γ;Σ ⊢_\tval \t("λx [x | (Ci[xi] → ti) i∈I]") :
+        \f("t∈[(Ci : Ai) i∈I] ⇒ B")$>;
+  unary    ~name:<$↑$>
+    <$Σ \sp Γ;Σ ⊢ \t("λx [x | (Ci[xi] → ti) i∈I]") :
+        \f("t∈[(Ci : Ai) i∈I] ⇒ B")$>;
+  hyp                       <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("[(Ci : Ai) i∈I]")$>;
+  hyp                       <$Ξ ⊢ \t("t") ≡ \t("v")$>;
+  ternary  ~name:<$⇒_{e,{∈},τ}$>
+    <$Σ \sp Γ;Ξ ⊢ \t("(λx [x | (Ci[xi] → ti) i∈I]) t") : B$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+\end{env}
+Note that without the ($+_{e,τ}$) rule, it would be impossible to preserve
+the equivalences of the form $t ≡ \t("Ci[xi]")$. We would only know that
+$x ≡ \t("Ci[xi]")$, which is not enough since we would have no way of
+linking $x$ to the term $t$.
 
-(* TODO *)
+Of course, we can only apply semantical value restriction to our system if
+we can addapt our model so that the ($↓$) rule is adequate. As we will see
+in the next sections, the required modifications are highly non-trivial and
+require a modification of our notions of reduction and equivalence.
 
 =<
 
-=> Reduction, equivalence and $\t("δ(v,w)")$
+=> Semantics for semantical value restriction
 
+As mentioned in the previous section, semantical value restriction can be
+enabled in our system by extending it with the ($↓$) typing rule (recalled
+bellow).
+\begin{center}
+$ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
+\end{center}
+In order to give a semantical justification to this rule (i.e. to show
+that it is adequate), we need to find a model in which the following
+property holds for every $Φ ∈ ⟦ο⟧$.
+$$ Φ^{⊥⊥} ∩ Λ_ι^{∗} ⊆ Φ $$
+This property is not true in general, and in particular it is not true in
+our current model. A counter-example is given in the following theorem.
+\begin{thm}
+There is a pole $\dbot$ and a set of values $Φ ∈ ⟦ο⟧$ such that
+$Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values that $Φ$.
+\begin{proof}
+Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λι, p ≻^{∗} \p("v∗ε")\}$
+and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v("λx Ω")\}$ is suitable. As
+we have $Λ_ι ⊆ Λ_ι^{⊥⊥}$ by \lemRef("orthosimple"), it is enough to show
+that $Φ^⊥ = Λ_ι^⊥$ since in this case we get $Λ_ι ⊆ Φ^{⊥⊥} = Λ_ι^{⊥⊥}$. Of
+course, there are many values that are in $Λ_ι$, but not in $Φ$. For example,
+we have $\v("{}") ∈ Λ_ι$ but $\v("{}") \nequiv_{≻} \v("λxΩ")$ according to
+\thmRef("nequivlamreco"). Since $Φ ⊆ Λ_ι$ we must have $Φ^⊥ ⊇ Λ_ι^⊥$ by
+\lemRef("orthoinclstack"), so it only remains to show that $Φ^⊥ ⊆ Λ_ι^⊥$.
+Let us take a stack $π ∈ Φ^⊥$. By definition, we know $\p("w∗π") ∈ \dbot$
+for every value $w ≡_{≻} \v("λxΩ")$. Let us now take a value $v∈Λ_ι$ and
+show that $\p("v∗π") ∈ \dbot$. We will now perform a case analysis on the
+form of $π$.
+\begin{itemize}
+\item If $π = ε$, then $\p("v∗π") ∈ \dbot$ by definition of $\dbot$.
+\item If $π = α$ for some $α∈\cal{V}_σ$ then it cannot be that $π ∈ Φ^⊥$.
+      If it were the case, we would have $\p("λxΩ ∗ α") ∈ \dbot$, which
+      cannot be true since this process is blocked.
+\item If $Π = \s("v₀·ξ")$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
+      it cannot be that $π ∈ Φ^⊥$. If it were the case, we would have
+      $\p("λxΩ ∗ v₀·ξ") ≻ \p("Ω ∗ ξ") ∈ \dbot$, which cannot be true since
+      this process is non-terminating.
+\item If $Π = \s("[t]ξ")$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
+      consider the reduction of the process $\p("t ∗ z·ξ")$, where
+      $z∈\cal{V}_ι$ is a fresh $λ$-variable. \todo(None)
+\end{itemize}
+\end{proof}
+\end{thm}
+
+(* TODO *)
 The idea now is to define a notion of observational equivalence over terms
 using a relation $({≡})$. We then extend the reduction relation with a rule
 reducing a state of the form $\p("δ(v,w) ∗ π")$ to $\p("v ∗ π")$ if
