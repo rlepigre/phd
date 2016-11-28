@@ -646,7 +646,7 @@ our current model. A counter-example is given in the following theorem.
 There is a pole $\dbot$ and a set of values $Φ ∈ ⟦ο⟧$ such that
 $Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values that $Φ$.
 \begin{proof}
-Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λι, p ≻^{∗} \p("v∗ε")\}$
+Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
 and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v("λx Ω")\}$ is suitable. As
 we have $Λ_ι ⊆ Λ_ι^{⊥⊥}$ by \lemRef("orthosimple"), it is enough to show
 that $Φ^⊥ = Λ_ι^⊥$ since in this case we get $Λ_ι ⊆ Φ^{⊥⊥} = Λ_ι^{⊥⊥}$. Of
@@ -663,13 +663,23 @@ form of $π$.
 \item If $π = α$ for some $α∈\cal{V}_σ$ then it cannot be that $π ∈ Φ^⊥$.
       If it were the case, we would have $\p("λxΩ ∗ α") ∈ \dbot$, which
       cannot be true since this process is blocked.
-\item If $Π = \s("v₀·ξ")$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
+\item If $π = \s("v₀·ξ")$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
       it cannot be that $π ∈ Φ^⊥$. If it were the case, we would have
       $\p("λxΩ ∗ v₀·ξ") ≻ \p("Ω ∗ ξ") ∈ \dbot$, which cannot be true since
       this process is non-terminating.
-\item If $Π = \s("[t]ξ")$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
+\item If $π = \s("[t]ξ")$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
       consider the reduction of the process $\p("t ∗ z·ξ")$, where
-      $z∈\cal{V}_ι$ is a fresh $λ$-variable. \todo(None)
+      $z∈\cal{V}_ι$ is a fresh $λ$-variable. We know that $\p("t∗z·ξ")$
+      cannot be non-terminating, as otherwise
+      $\p("(t∗z·ξ)[z≔λxΩ]") = \p("t∗λxΩ·ξ")$ would also be non-terminating
+      according to \lemRef("redstable"). This would contradict
+      $\s("[t]ξ") ∈ Φ^⊥$ since we have $\p("λxΩ∗[t]ξ") ≻ \p("t∗λxΩ·ξ")$.
+      Consequently, there is $q ∈ Λ×Π$ such that $\p("z∗[t]ξ") ≻ \p("q")$.
+      We now reason by case analysis following \lemRef("possibilities"). If
+      $q$ is final, then $\p("q[z≔v]")$ is also final by
+      \lemRef("redstable"), and thus $\p("v∗[t]ξ") ∈ \dbot$. In all the
+      other cases, $\p("q[z≔λxΩ]")$ is either still blocked, or
+      non-terminating, which contradicts the fact that $\s("[t]ξ") ∈ Φ^⊥$.
 \end{itemize}
 \end{proof}
 \end{thm}
