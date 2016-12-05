@@ -1089,12 +1089,79 @@ substitution.
 
 => Derived type system
 
+Now that our type system contains both the ($↑$) and the ($↓$) typing
+rules, it is always possible to switch between term and value judgments
+(at least when the subject of the considered judgment is a value). As
+a consequence, we will simply forget about the value judgments and only
+work using term judgments. The obtained system will be simpler, in
+particular it will have less typing rules.
+
+Note that all the typing rules of our new system will be derivable in
+the current one. As a consequence, we will not need to go through a new
+adequacy lemma, nor a modification of our semantics. In fact, the
+derivation of our new typing rules will mostly consist in composing
+the current typing rules with ($↑$) on the conclusion. For example,
+we will derive the new arrow introduction rule ($⇒_{i,τ}$) as follows.
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                 <$Σ,x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : \f("A")$>;
+  unary ~name:<$⇒_i$> <$Σ \sp Γ;Ξ ⊢_\tval \t("λx t") : \f("A⇒B")$>;
+  unary ~name:<$↑$>   <$Σ \sp Γ;Ξ ⊢ \t("λx t") : \f("A⇒B")$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+As for value judgments appearing in a premise, we will simply precompose
+them with the ($↓$) rule. For example, we will derive the new product
+elimination rule ($×_{e,τ}$) as follows.
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                  <$Σ \sp Γ;Ξ ⊢ v : \f("{(li:Ai)i∈I}")$>;
+  unary  ~name:<$↓$>   <$Σ \sp Γ;Ξ ⊢_\tval v : \f("{(li:Ai)i∈I}")$>;
+  hyp                  <$k∈I$>;
+  binary ~name:<$×_e$> <$Σ \sp Γ;Ξ ⊢ \t("v.lk") : \f("Ak")$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+
+The full set of our new rule is displayed in \figRef("derivedrules").
+Note that some rules, like ($⇒_e$) have not changed from our original
+system. All the modified rules but ($∀_{i,τ}$) and ($∈_{i,τ}$) can be
+derived immediatly as demonstrated above. The rules ($∀_{i,τ}$) and
+($∈_{i,τ}$) are instances of the semantical value restriction. The
+former can be derived as follows, and a derivation for the latter was
+given in a previous section.
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                      <$Σ,χ:s \sp Γ;Ξ ⊢ \t("t") : \f("A")$>;
+  hyp                      <$Ξ ⊢ t ≡ v$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ,χ:s \sp Γ;Ξ ⊢ \t("v") : \f("A")$>;
+  unary  ~name:<$↓$>       <$Σ,χ:s \sp Γ;Ξ ⊢_\tval \t("v") : \f("A")$>;
+  unary  ~name:<$∀_i$>     <$Σ \sp Γ;Ξ ⊢_\tval \t("v") : \f("∀χ^s A")$>;
+  unary  ~name:<$↑$>       <$Σ \sp Γ;Ξ ⊢ \t("v") : \f("∀χ^s A")$>;
+  hyp                      <$Ξ ⊢ t ≡ v$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+
 \Caml(
 let r_ax =
-  <$\axiomRN{Ax}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t("x") : A}$>
+  <$\axiomRN{Ax_τ}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t("x") : A}$>
 
 let r_arrow_i =
-  <$\unaryRN{⇒_i}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
+  <$\unaryRN{⇒_{i,τ}}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
    {Σ \sp Γ;Ξ ⊢ \v("λx t") : A ⇒ B}$>
 
 let r_arrow_e =
@@ -1114,7 +1181,7 @@ let r_ax' =
   <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s("α") : A^⊥}$>
 
 let r_push =
-  <$\binaryRN{\wc·\wc}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
+  <$\binaryRN{\wc·\wc_τ}{Σ \sp Γ;Ξ ⊢ \v("v") : A}
    {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
    {Σ \sp Γ;Ξ ⊢ \s("v·π") : \f("A⇒B")^⊥}$>
 
@@ -1124,7 +1191,7 @@ let r_fram =
    {Σ \sp Γ;Ξ ⊢ \s("[t]π") : \f("A")^⊥}$>
 
 let r_forall_i =
-  <$\binaryRN{∀_i}{Σ, χ:s \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
+  <$\binaryRN{∀_{i,τ}}{Σ, χ:s \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}$>
 
 let r_forall_e =
@@ -1140,7 +1207,7 @@ let r_exists_e =
    {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C")}$>
 
 let r_memb_i =
-  <$\binaryRN{∈_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
+  <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
    {Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")}$>
 
 let r_memb_e =
@@ -1156,29 +1223,29 @@ let r_rest_e =
    {Σ, x:ι \sp Γ,x:\f("A ∧ u₁≡u₂");Ξ ⊢ \t("t") : C}$>
 
 let r_prod_i =
-  <$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢ \v("vi") : \f("Ai")]_{i∈I}}
+  <$\unaryRN{×_{i,τ}}{[Σ \sp Γ;Ξ ⊢ \v("vi") : \f("Ai")]_{i∈I}}
    {Σ \sp Γ;Ξ ⊢ \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")}$>
 
 let r_prod_e =
-  <$\binaryRN{×_e}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}")}
+  <$\binaryRN{×_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}")}
    {k∈I}{Σ \sp Γ;Ξ ⊢ \t("v.lk") : A_k}$>
 
 let r_sum_i =
-  <$\binaryRN{+_i}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("Ak")}{k∈I}
+  <$\binaryRN{+_{i,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("Ak")}{k∈I}
    {Σ \sp Γ;Ξ ⊢ \v("Ck[v]") : \f("[(Ci : Ai) i∈I]")}$>
 
 let r_sum_e =
-  <$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]")}
+  <$\binaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]")}
    {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
    {Σ \sp Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B}$>
 
 let r_eq_i =
-  <$\binaryRN{≡_ι}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
+  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
    {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
    {Σ \sp Γ[x≔w₂];Ξ ⊢ \t("t[x≔w₂]") : \f("A[x≔w₂]")}$>
 
 let r_eq_t =
-  <$\binaryRN{≡_τ}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
+  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
    {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
    {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>
 
