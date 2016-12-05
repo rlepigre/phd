@@ -480,7 +480,7 @@ let r_arrow_e =
    {Σ \sp Γ;Ξ ⊢ \t("t u") : B}$>
 
 let r_mu =
-  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("t") : A}
+  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t("t") : A}
    {Σ \sp Γ;Ξ ⊢ \t("μα t") : A}$>
 
 let r_name =

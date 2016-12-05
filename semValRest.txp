@@ -703,7 +703,7 @@ let _ =
   ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
   [ line <$({↠}_i)$> <$({≻}) ∪ \{(\p("δ(v,w) ∗ π"), \p("v ∗ π")) \st
       ∃j < i, v \nequiv_j w\}$>
-  ; line <$({≡}_i)$> <$\{(t,u) \st ∀j ≤ i, ∀π, ∀ρ,
+  ; line <$({≡}_i)$> <$\{(t,u) \st ∀j ≤ i, ∀π∈Π, ∀ρ∈\cal{S},
       {{\p("tρ∗π")} {⇓}_j} ⇔ {{\p("uρ∗π")} {⇓}_j}\}$> ]
 )
 \end{center}
@@ -752,10 +752,10 @@ let _ =
   array [`East ; `Main ; `West]
   ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
   [ line <$({≡})$>
-      <$ \{(t,u) \st ∀i, ∀π, ∀ρ,
+      <$ \{(t,u) \st ∀i∈\bbN, ∀π∈Π, ∀ρ∈\cal{S},
          {{\p("tρ∗π")} {⇓}_i} ⇔ {{\p("uρ∗π")} {⇓}_i}\} $>
   ; line <$({\nequiv})$>
-      <$ \{(t,u), (u,t) \st ∃i, ∃π, ∃ρ,
+      <$ \{(t,u), (u,t) \st ∃i∈\bbN, ∃π∈Π, ∃ρ∈\cal{S},
          {{\p("tρ∗π")} {⇓}_i} ∧ {{\p("uρ∗π")} {⇑}_i}\}$>
   ; line <$({↠})$>
       <$({≻}) ∪ \{(\p("δ(v,w)∗π"), \p("v∗π")) \st v \nequiv w\}$> ]
@@ -764,6 +764,289 @@ let _ =
 Note that the definition of $({↠})$ corresponds exactly to what we aimed
 for: an extention of $({≻})$ with a reduction rule for $δ$-like terms
 carrying two non-equivalent values.
+
+\begin{thm}\label("main")
+Let $\dbot ⊆ Λ×Π$ be a non-empty, $↠$-saturated set of processes such that
+for every $p∈\dbot$ we have $p {⇓_{↠}}$. If $Φ ⊆ Λ_ι$ is a set of values
+closed under the equivalence relation $({≡})$ (i.e. for all $v$, $w∈Λ_ι$,
+if $v∈Φ$ and $w≡v$ then $w∈Φ$), then we have the following property.
+$$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
+\begin{proof}
+We need to show that for every value $v∈Φ^{⊥⊥}$ we also have $v∈Φ$. We
+are going to show the contrapositive, so let us assume $v∉Φ$ and show
+$v∉Φ^{⊥⊥}$. By definition, we need to find a stack $π∈Φ^⊥$ such that
+$\p("v∗π")∉\dbot$. We will take $π=\s("[λxδ(x,v)][[π₀]t₀]ε")$ and show
+that it is suitable. We first need to show that $π∈Φ^⊥$ so we take
+$w∈Φ$ and we show that $\p("w∗π")∈\dbot$. By definition, we have
+\begin{center}
+\linesBefore(7)
+\diagram(
+let _ =
+  let fst s1 s2 = [ <$\p(s1)$>; <$↠$>; <$\p(s2)$> ] in
+  let line s = [ []; <$↠$>; <$\p(s)$> ] in
+  let last s = [ []; <$↠$>; s ] in
+  array [`East ; `East ; `West]
+  [ fst  "w∗[λxδ(x,v)][[π₀]t₀]ε"
+         "λxδ(x,v)∗w·[[π₀]t₀]ε"
+  ; line "δ(w,v)∗[[π₀]t₀]ε"
+  ; line "w∗[[π₀]t₀]ε"
+  ; line "[π₀]t₀∗w·ε"
+  ; last <$\p("t₀∗π₀") ∈ \dbot$> ]
+)
+\linesAfter(2)
+\end{center}
+as $v ≡ w$ since $v∉Φ$, $w∈Φ$ and $Φ$ is closed under $({≡})$. We can
+thus conclude using the fact that $\dbot$ is $↠$-saturated. It now
+remains to show that $\p("v∗π₀")∉\dbot$. As we have
+\begin{center}
+\linesBefore(4)
+\diagram(
+let _ =
+  let fst s1 s2 = [ <$\p(s1)$>; <$↠$>; <$\p(s2)$> ] in
+  let line s = [ []; <$↠$>; <$\p(s)$> ] in
+  let last s = [ []; <$↠$>; s ] in
+  array [`East ; `East ; `West]
+  [ fst  "v∗[λxδ(x,v)][[π₀]t₀]ε"
+         "λxδ(x,v)∗v·[[π₀]t₀]ε"
+  ; line "δ(v,v)∗[[π₀]t₀]ε" ]
+)
+\linesAfter(2)
+\end{center}
+and $\p("δ(v,v)∗[[π₀]t₀]ε")$ is blocked (since $v ≡ v$ by reflexivity)
+we have ${\p("δ(v,v)∗[[π₀]t₀]ε")} {⇑_{↠}}$. As a consequence we have
+we have ${\p("v∗π")} {⇑_{↠}}$ and thus $\p("v∗π") ∉ \dbot$.
+\end{proof}
+\end{thm}
+\begin{rem}
+\thmRef("main") gives only gives us the required property of the model
+for poles of terminating processes (i.e. processes that eventually
+reduce to a final states). This limitation is not a problem here as
+we will only consider poles having this property in the following.
+\end{rem}
+
+=<
+
+=> Recovering properties of equivalence
+
+We are now going to check that our new definition of equivalence has
+(roughly) the same properties as $({≡}_{≻})$ (see \chapter("obsEquiv")).
+We will start by showing that $({≡})$ is extentional, as this property
+is essential for the semantical interpretation of typing rules involving
+the substitution of equivalent subterms. Extentionality is given by the
+following two theorems.
+\begin{thm}\label("fullextval")
+Let $v$, $w∈Λ_ι$ be values, $t∈Λ$ be a term and $x∈\cal{V}_ι$ be a
+$λ$-variable. If $v ≡ w$ then we have $\t("t[x≔v]") ≡ \t("t[x≔w]")$.
+\begin{proof}
+We are going to prove the contrapositive so we suppose
+$\t("t[x≔v]") \nequiv \t("t[x≔w]")$ and show $v \nequiv w$.
+By definition there is $i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that
+${\p("(t[x≔v])ρ ∗ π")} {⇓}_i$ and ${\p("(t[x≔w])ρ ∗ π")} {⇑}_i$
+(up to symmetry). Since we are free to rename $x$, we may assume
+that we have $\p("(t[x≔v])ρ ∗ π") = \p("tρ[x≔vρ] ∗ π")$ and
+$\p("(t[x≔w])ρ ∗ π") = \p("tρ[x≔wρ] ∗ π")$. We thus suppose that
+${\p("tρ[x≔vρ] ∗ π")} {⇓}_i$ and that ${\p("tρ[x≔wρ] ∗ π")} {⇑}_i$.
+To show $v \nequiv w$ we need to find $i₀∈\bbN$, $π₀∈Π$ and
+$ρ₀∈\cal{S}$ such that ${\p("vρ₀ ∗ π")₀} {⇓}_{i₀}$ and
+${\p("wρ₀ ∗ π₀")} {⇑}_{i₀}$ (up to symmetry). We can take $i₀ = i$,
+$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ as
+${\p("vρ₀ ∗ [λx tρ]π") ↠ \p("tρ[x≔vρ] ∗ π")}_i$ and
+${\p("wρ₀ ∗ [λx tρ]π") ↠ \p("tρ[x≔wρ] ∗ π")}_i$. By hypothesis,
+the first of these processes converges while the second diverges.
+\end{proof}
+\end{thm}
+
+\begin{lem}\label("aposs")
+Let $p∈Λ×Π$ be a process, $t∈Λ$ be a term and $a∈\cal{V}_τ$ be a term
+variable. If we have ${\p("p[a≔t]")} {⇓}_k$ for some $k∈\bbN$ then
+there is a blocked process $q∈Λ×Π$ such that $p ≻^{∗} q$ and either
+\begin{itemize}
+\item $q = \p("v∗ε")$ for some value $v∈Λ_ι$,
+\item $q = \p("a∗π")$ for some stack $π∈Π$,
+\item $k ≠ 0$ and $q = \p("δ(v,w)∗π")$ for some values $v$, $w∈Λ_ι$
+      and $π∈Π$. Moreover, in this case we know that
+      $\v("v[a≔t]") \nequiv_j \v("w[a≔t]")$ for some $j < k$.
+\end{itemize}
+\begin{proof}
+If $p$ is non-terminating then $\p("p[a≔t]")$ is also non-terminating
+according to \lemRef("redstable"). As this contradicts the fact that
+${\p("p[a≔t]")} {⇓}_k$, there must be a blocked process $q∈Λ×Π$ such
+that $p ≻^{∗} q$ since $({≻}) ⊆ ({↠}_k)$. Using \thmRef("redcompatall"),
+we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$, which tells us that
+${\p("q[a≔t]")} {⇓}_k$. This means that $q$ cannot be stuck, as
+otherwise $q[a≔t]$ would also be stuck by \lemRef("redstable") and
+this would contradict ${\p("q[a≔t]")} {⇓}_k$.
+(* *)
+Let us now suppose that $p = \p("δ(v,w)∗π")$ for some $v$, $w∈Λ_ι$
+and $π∈Π$. Since ${\p("δ(vρ,wρ)∗π")} {⇓}_k$ there must be $i < k$
+(and thus $k≠0$) such that $\v("vρ") \nequiv_j \v("wρ")$, otherwise
+we would obtain a contradiction.
+(* *)
+According to \lemRef("possibilities"), it remains to rule out the
+possibility of $q$ having one of the following forms, where $I≠∅$
+and $b≠a$.
+\Caml(
+  let _ =
+    let line = List.map (fun pr -> <<$\p(pr)$>>) in
+    let line3 p1 p2 p3    = line [p1; p2; p3] in
+    tabular_layout 0.6 2.0
+    [ line3 "x.lk ∗ π"
+            "x ∗ v·π"
+            "[x | (Ci[xi] → ti) i∈I] ∗ π"
+    ; line3 "U(x) ∗ π"
+            "b ∗ π"
+            "v ∗ α" ]
+)
+If $q$ was of one of these forms, then $\p("q[a≔t]")$ would still be
+blocked, which would again contradict ${\p("q[a≔t]")} {⇓}_k$.
+\end{proof}
+\end{lem}
+
+\begin{lem}\label("afullextlem")
+Let $u₁$, $u₂$, $t∈Λ$ be three terms and $a∈\cal{V}_τ$ be a term
+variable. For all $k ∈ \bbN$, if $\t("u₁") ≡_k \t("u₂")$ then
+$\t("t[a≔u₁]") ≡_k \t("t[a≔u₂]")$.
+\begin{proof}
+We take $k ∈ \bbN$, suppose that $\t("u₁") ≡_k \t("u₂")$ and show that
+$\t("t[a≔u₁]") ≡_k \t("t[a≔u₂]")$. By definition, we need to take $π∈Π$
+and $ρ∈\cal{S}$, and show the following.
+$$ {{\p("(t[a≔u₁])ρ∗π")} {⇓}_k} ⇔ {{\p("(t[a≔u₂])ρ∗π")} {⇓}_k} $$
+As we are free to rename the variable $a$, we may assume
+$\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
+$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a∉FV_σ(π)$.
+By symmetry, we can thus assume that we have ${\p("tρ[a≔u₁ρ]∗π")} {⇓}_k$
+and show ${\p("tρ[a≔u₂ρ]∗π")} {⇓}_k$.
+
+We will now build a sequence $(t_i,π_i,l_i)_{i ∈ I}$ defined in such
+a way that for all $i∈I$ we have
+$\p("tρ[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$
+in $l_i$ steps. We will also require $(l_i)_{i ∈ I}$ to be increasing
+and to have a strictly increasing subsequence. Under this condition our
+sequence will be finite. If it was infinite, $\p("tρ[a≔u₁ρ]∗π")$ would
+be non-terminating, and this would contradict ${\p("tρ[a≔u₁ρ]∗π")} {⇓}_k$.
+As a consequence, our sequence has a finite number $n+1$ of elements
+(for some $n∈\bbN$), and we can denote it $(t_i,π_i,l_i)_{i ≤ n}$.
+To show that $(l_i)_{i ≤ n}$ has a strictly increasing subsequence,
+we will ensure that it does not have three equal consecutive values.
+(*
+More formally, if $0 < i < n$ and $l_{i-1} = l_i$ then we will ask
+that $l_{i+1} > l_i$.
+*)
+
+To define $(t₀,π₀,l₀)$ we consider the reduction of the process
+$\p("tρ∗π")$. Since we have
+$\p("(tρ∗π)[a≔u₁ρ]") = {\p("tρ[a≔u₁]∗π")} {⇓}_k$
+we can apply \lemRef("aposs") to obtain a blocked process $p$ such
+that $\p("tρ∗π") ≻^j p$. We thus take $\p("t₀∗π₀") = p$ and $l₀=j$.
+According to \thmRef("redcompatall") we have
+$\p("(tρ∗π)[a≔u₁ρ]") ≻^j \p("t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]")$. Consequently,
+we can deduce that
+$\p("(tρ∗π)[a≔u₁ρ]") ↠_k^{∗} \p("t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]")$
+in $l₀ = j$ steps.
+
+To define $(t_{i+1},π_{i+1},l_{i+1})$ we consider the process
+$\p("ti[a≔u₁ρ]∗πi")$. By construction we know that
+$\p("tρ[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in $l_i$ steps.
+According to \lemRef("aposs"), $\p("ti∗πi")$ can only be of three
+different shapes.
+\begin{itemize}
+\item If $\p("ti∗πi") = \p("v∗ε")$ for some $v∈Λ_ι$ then the
+      sequence ends with $n = i$.
+\item If $\t("ti") = a$ then we consider the process $\p("ti[a≔u₁ρ]∗πi")$.
+      By construction we know ${\p("(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]")} {⇓}_k$, and
+      thus \lemRef("aposs") gives us a blocked process $p$ such that
+      $\p("ti[a≔u₁ρ]∗πi") ≻^j p$. By \thmRef("redcompatall")
+      $\p("(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]") ≻^j \p("p[a≔u₁ρ]")$, and hence
+      $\p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k^{∗} \p("p[a≔u₁ρ]")$ in $j$ steps.
+      We then take as a definition $\p("ti+1∗πi+1") = p$ and
+      $l_{i+1} = l_i + j$.
+
+      Now, is it possible to have $j=0$? This can only happen when
+      $\p("ti[a≔u₁ρ]∗πi")$ is of one of the three forms of \lemRef("aposs").
+      It cannot be of the form $\p("a∗π")$ as we assumed that $a$ does not
+      appear in $\t("u₁ρ")$. If it is of the form $\p("v∗ε")$, then we
+      reached the end of the sequence with $i = n$ so there is no problem.
+      We only have to be careful when $\t("ti[a≔u₁ρ]") = \t("δ(v,w)")$. In
+      this case, we will make sure that we always have $l_{i+2} > l_{i+1}$
+      (see the following case).
+\item If $\t("ti") = \t("δ(v,w)")$ for some $v$, $w∈Λ_ι$ then we know
+      $\v("v[a≔u₁ρ]") \nequiv_m \v("w[a≔u₁ρ]")$ for some $m < k$. Hence,
+      we have $\p("ti[a≔u₁ρ]∗πi") = \p("δ(v[a≔u₁ρ],w[a≔u₁ρ])∗πi") ↠_k
+      \p("v[a≔u₁ρ]∗πi")$ by definition. Moreover,
+      $\p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k \p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")$
+      by (an extention of) \thmRef("redcompatall"). Since
+      $\p("t[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in $l_i$ steps
+      we get that $\p("t[a≔u₁ρ]∗π") ↠_k^{∗} \p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in
+      $l_i+1$ steps, and hence we have
+      $\p("(v[a≔u₁ρ]∗πi)[a≔u₁ρ]") = {\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")} {⇓}_k$.
+
+      We now consider the reduction of the process $\p("v[a≔u₁ρ]∗πi")$.
+      According to \lemRef("aposs") there is a blocked process $p$ such
+      that $\p("v[a≔u₁ρ]∗πi") ≻^j p$. Using \thmRef("redcompatall") we
+      obtain $\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]") ≻^j \p("p[a≔u₁ρ]")$ from which we can
+      deduce that we have $\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k^{∗} \p("p[a≔u₁ρ]")$
+      in $j$ steps. We then take $\p("ti+1∗πi+1") = p$ and
+      $l_{i+1} = l_i + j + 1$ (and thus $l_{i+1} > l_i$).
+\end{itemize}
+Intuitively $(t_i,π_i,l_i)_{i ≤ n}$ mimics the reduction of the process
+$\p("t[a≔u₁ρ]∗π")$ while making explicit every substitution of $a$ and
+every reduction of a $δ$-like state.
+
+To end the proof we will show that for all $i ≤ n$ we have
+${\p("ti[a≔u₂ρ]∗πi[a≔u₂ρ]")} {⇓}_k$. For $i = 0$ this will give
+us ${\p("t[a≔u₂ρ]∗π")} {⇓}_k$, which is the expected result. As
+by construction $\p("tn∗πn") = \p("v∗ε")$, we have
+$\p("tn[a≔u₂ρ]∗πn[a≔u₂ρ]") = \p("v[a≔u₂ρ]∗ε")$
+from which we get ${\p("tn[a≔u₂ρ]∗πn[a≔u₂ρ]")} {⇓}_k$.
+We now suppose that ${\p("ti+1[a≔u₁ρ]∗πi+1[a≔u₂ρ]")} {⇓}_k$ for
+$0 ≤ i < n$ and show that ${\p("ti[a≔u₁ρ]∗πi[a≔u₂ρ]")} {⇓}_k$.
+By construction $\p("ti∗πi")$ can be of two shapes since only
+$\p("tn∗πn")$ can be of the form $\p("v∗ε")$.
+\begin{itemize}
+\item If $\t("ti") = a$ then we have
+      $\p("u₁ρ∗πi") ↠_k^{∗} \p("ti+1 ∗ πi+1")$.
+      As a consequence, \thmRef("redcompatall") gives us
+      $\p("u₁ρ∗πi[a≔u₂ρ]") ↠_k \p("ti+1[a≔u₂ρ]∗πi[a≔u₂ρ]")$
+      from which we can deduce that we have ${\p("u₁ρ∗πi[a≔u₂ρ]")} {⇓}_k$
+      by induction hypothesis. Since $\t("u₁") ≡_k \t("u₂")$ by hypothesis,
+      we obtain $\p("u₂ρ∗πi[a≔u₂ρ]") = {\p("(ti∗πi)[a≔u₂ρ]")} {⇓}_k$.
+\item If $\t("ti") = \t("δ(v,w)")$ then we have
+      $\p("v∗πi") ↠_k \p("ti+1∗πi+1")$. As a consequence,
+      \thmRef("redcompatall") gives us
+      $\p("v[a≔u₂ρ]∗πi[a≔u₂ρ]") ↠_k \p("ti+1[a≔u₂ρ]∗πi+1[a≔u₂ρ]")$.
+      Using the induction hypothesis we obtain
+      ${\p("v[a≔u₂ρ]∗πi[a≔u₂ρ]")} {⇓}_k$. It remains to show that we have
+      $\p("δ(v[a≔u₂ρ],w[a≔u₂ρ])∗πi[a≔u₂ρ]") ↠_k^{∗}
+      \p("v[a≔u₂ρ]∗πi[a≔u₂ρ]")$. We need to find $j < k$ such that
+      $\v("v[a≔u₂ρ]") \nequiv_k \v("w[a≔u₂ρ]")$.
+      By construction, there is $m < k$ such that we have
+      $\v("v[a≔u₁ρ]") \nequiv_m \v("w[a≔u₁ρ]")$, and we will show
+      $\v("v[a≔u₂ρ]") \nequiv_m \v("w[a≔u₂ρ]")$. Using the global
+      induction hypothesis twice, we obtain that
+      $\v("v[a≔u₁ρ]") ≡_m \v("v[a≔u₂ρ]")$ and that
+      $\v("w[a≔u₁ρ]") ≡_m \v("w[a≔u₂ρ]")$.
+      Now if we suppose $\v("v[a≔u₂ρ]") ≡_m \v("w[a≔u₂ρ]")$ then we
+      have $\v("v[a≔u₁ρ]") ≡_m \v("v[a≔u₂ρ]") ≡_m \v("w[a≔u₂ρ]") ≡_m
+      \v("v[a≔u₁ρ]")$, which contradicts $\v("v[a≔u₁ρ]") \nequiv_m
+      \v("w[a≔u₁ρ]")$. Hence we must have $\v("v[a≔u₂ρ]") \nequiv_m
+      \v("w[a≔u₂ρ]")$.
+\end{itemize}
+\end{proof}
+\end{lem}
+\begin{thm}\label("fullextterm")
+Let $u₁$, $u₂$, $t∈Λ$ be three terms and $a∈\cal{V}_τ$ be a term variable.
+If $u₁ ≡ u₂$ then $\t("t[a≔u₁]") ≡ \t("t[a≔u₂]")$.
+\begin{proof}
+We suppose that $u₁ ≡ u₂$ which means that $u₁ ≡_i u₂$ for all $i∈\bbN$. We
+need to show that $\t("t[a≔u₁]") ≡ \t("t[a≔u₂]")$ so we take $i₀∈\bbN$ and
+show $\t("t[a≔u₁]") ≡_{i₀} \t("t[a≔u₂]")$. By hypothesis we have
+$u₁ ≡_{i₀} u₂$ and hence we can conclude using \lemRef("afullextlem").
+\end{proof}
+\end{thm}
+
+
+
+
 
 (* TODO from here. *) \todo(None)
 \begin{thm}\label("equivpole")
@@ -798,282 +1081,124 @@ substitution.
 
 =<
 
-=> Extensionality of equivalence
+=> Back to adequacy
 
-In order to be able to work with the equivalence relation $({≡})$, we
-need to check that it is extensional. In other words, we need to be able
-to replace equals by equals at any place in terms without changing their
-observed behaviour. This property is summarized in the following two
-theorems.
-
-\begin{thm}\label("extval")
-Let $v$ and $w$ be values, $t$ be a term and $x$ be a $λ$-variable. If
-$v ≡ w$ then we have $\t("t[x≔v]") ≡ \t("t[x≔w]")$.
-\begin{proof}
-We are going to prove the contrapositive so we suppose
-$\t("t[x≔v]") \nequiv \t("t[x≔w]")$ and show $v \nequiv w$. By definition
-there is a natural number $i$, a stack $π$ and a substitution $σ$ such that
-we have ${\p("(t[x≔v])σ ∗ π")} {\converge}_i$ and
-${\p("(t[x≔w])σ ∗ π")} {\diverge}_i$ (up to symmetry).
-Since we can rename $x$ in such a way that it does not appear in $dom(σ)$,
-we can suppose that we have ${\p("tσ[x≔vσ] ∗ π")} {\converge}_i$ and
-${\p("tσ[x≔wσ] ∗ π")} {\diverge}_i$. To show $v \nequiv w$ we need $i₀$,
-$π₀$ and $σ₀$ such that ${\p("vσ₀ ∗ π")₀} {\converge}_{i₀}$ and
-${\p("wσ₀ ∗ π₀")} {\diverge}_{i₀}$ (up to symmetry). We take
-$i₀ = i$, $π₀ = \s("[λx tσ]π")$ and $σ₀ = σ$ as
-${\p("vσ₀ ∗ [λx tσ]π") \epi \p("tσ[x≔vσ] ∗ π")}_i$ and
-${\p("wσ₀ ∗ [λx tσ]π") \epi \p("tσ[x≔wσ] ∗ π")}_i$.
-\end{proof}
-\end{thm}
-
-(* TODO macros from here *)
-\begin{lem}\label("aposs")
-Let $s$ be a process, $t$ be a term, $a$ be a term variable and $k$ be a
-natural number. If $s[a := t] {\converge}_k$ then there is a blocked state
-$p$ such that ${s ≻ p}^{∗}$ and either
-\begin{itemize}
-\item $p = v ∗ α$ for some value $v$ and a stack variable $α$,
-\item $p = a ∗ π$ for some stack $π$,
-\item $k > 0$ and $p = δ(v,w) ∗ π$ for some values $v$ and $w$ and
-      stack $π$, and in this case $v[a := t] \nequiv_j w[a := t]$ for
-      some $j < k$.
-\end{itemize}
-\begin{proof}
-Let $σ$ be the substitution $[a := t]$. If $s$ is non-terminating,
-\lemRef("redstable") tells us that $sσ$ is also non-terminating, which
-contradicts $sσ {\converge}_k$. Consequently, there is a blocked process
-$p$ such that ${s ≻ p}^{∗}$ since $({≻}) ⊆ ({\epi}_k)$.
-(* *)
-Using \thmRef("redcompatall") we get ${sσ ≻ pσ}^{∗}$ from which we obtain
-$pσ {\converge}_k$. The process $p$ cannot be stuck, otherwise $pσ$ would
-also be stuck by \lemRef("redstable"), which would contradict
-$pσ {\converge}_k$. Let us now suppose that $p = δ_{v,w} ∗ π$ for some
-values $v$ and $w$ and some stack $π$. Since $δ_{vσ,wσ} ∗ π {\converge}_k$
-there must be $i < k$ such that $vσ \nequiv_j wσ$, otherwise this would
-contradict $δ_{vσ,wσ} ∗ π {\converge}_k$. In this case we necessarily
-have $k > 0$, otherwise there would be no possible candidate for $i$.
-According to \lemRef("possibilities") we need to rule out four more forms
-of therms: $x.l ∗ π$, $x ∗ v.π$, $case_x B ∗ π$ and $b ∗ π$ in the case
-where $b ≠ a$. If $p$ was of one of these forms the substitution $σ$ would
-not be able to unblock the reduction of $p$, which would contradict again
-$pσ {\converge}_k$.
-\end{proof}
-\end{lem}
-
-\begin{lem}\label("aextlem")
-Let $t₁$, $t₂$ and $E$ be terms and $a$ be a term variable. For every
-$k ∈ \bbN$, if $t₁ ≡_k t₂$ then $E[a := t₁] ≡_k E[a := t₂]$.
-\begin{proof}
-Let us take $k ∈ \bbN$, suppose that ${t₁ ≡ t₂}_k$ and show that
-$E[a := t₁] ≡_k E[a := t₁]$. By symmetry we can assume that we have
-$i ≤ k$, $π ∈ Π$ and a substitution $σ$ such that $(E[a := t₁])σ ∗ π 
-{\converge}_i$ and show that $(E[a := t₂])σ ∗ π {\converge}_i$. As we are
-free to rename $a$, we can suppose that it does not appear in $dom(σ)$,
-$TV(π)$, $TV(t₁)$ or $TV(t₂)$. In order to lighten the notations we define
-$E' = Eσ$, $σ₁ = [a := t₁σ]$ and $σ₂ = [a := t₂σ]$. We are hence assuming
-$E'σ₁ ∗ π {\converge}_i$ and trying to show $E'σ₂ ∗ π {\converge}_i$.
-
-We will now build a sequence $(E_i,π_i,l_i)_{i ∈ I}$ such that
-${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k$ in $l_i$ steps for every $i ∈ I$.
-Furthermore, we require that $(l_i)_{i ∈ I}$ is increasing and that it has
-a strictly increasing subsequence. Under this condition our sequence will
-be finite. If it was infinite the number of reduction steps that could be
-taken from $E'σ₁ ∗ π$ would not be bounded, which would contradict
-$E'σ₁ ∗ π {\converge}_i$. We now denote our finite sequence
-$(E_i,π_i,l_i)_{i ≤ n}$ with $n ∈ \bbN$. To show that
-$(l_i)_{i ≤ n}$ has a strictly increasing subsequence, we will ensure that
-it does not have three equal consecutive values. More formally, we will
-require that if $0 < i < n$ and $l_{i-1} = l_i$ then $l_{i+1} > l_i$.
-
-To define $(E₀,π₀,l₀)$ we consider the reduction of $E' ∗ π$. Since we know
-that we have $(E' ∗ π)σ₁ = E'σ₁ ∗ π {\converge}_i$ we use \lemRef("aposs")
-to obtain a blocked state $p$ such that ${{E' ∗ π} ≻ p}^j$. We can now take
-$E₀ ∗ π₀ = p$ and $l₀ = j$. By \thmRef("redcompatall") we have ${(E' ∗ π)σ₁
-≻ {E₀σ₁ ∗ π₀σ₁}}^j$ from which we can deduce that ${(E' ∗ π)σ₁ \epi {E₀σ₁ ∗
-π₀σ₁}}_k$ in $l₀ = j$ steps.
-
-To define $(E_{i+1},π_{i+1},l_{i+1})$ we consider the process $E_iσ₁ ∗ π_i$.
-By construction we know that ${{E'σ₁ ∗ π} \epi {E_iσ₁ ∗ π_iσ₁}}_k = (E_iσ₁ ∗
-π_i)σ₁$ in $l_i$ steps. Using \lemRef("aposs"), we obtain that the process
-$E_i ∗ π_i$ can be of three different shapes.
-\begin{itemize}
-\item If ${E_i ∗ π_i} = {v ∗ α}$ for some value $v$ and stack variable $α$
-      then the end of the sequence was reached with $n = i$.
-\item If $E_i = a$ then we consider the reduction of $E_iσ₁ ∗ π_i$. Since
-      $(E_iσ₁ ∗ π_i)σ₁ {\converge}_k$ we know from \lemRef("aposs") that
-      there is a blocked process $p$ such that ${{E_iσ₁ ∗ π_i} ≻ p}^j$.
-      Using \thmRef("redcompatall") we obtain ${{E_iσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$
-      from which we can deduce that ${{E_iσ₁ ∗ π_iσ₁} \epi pσ₁}_k$ in $j$
-      steps. We then take $E_{i+1} ∗ π_{i+1} = p$ and $l_{i+1} = l_i + j$.
-
-      Is it possible to have $j=0$? This can only happen when $E_iσ₁ ∗ π_i$
-      is of one of the three forms of \lemRef("aposs"). It cannot be of the
-      form $a ∗ π$ as we assumed that $a$ does not appear in $t₁$ or $σ$.
-      If it is of the form $v ∗ α$, then we reached the end of the sequence
-      with $i + 1 = n$ so there is no problem. In the case where the process
-      $E_iσ₁ ∗ π_i$ is of the form $δ(v,w) ∗ π$, but we will have $l_{i+2} >
-      l_{i+1}$.
-\item If $E_i = δ(v,w)$ for some values $v$ and $w$ we have $m < k$ such
-      that ${vσ₁ \nequiv wσ₁}_m$. Hence ${{E_iσ₁ ∗ π_i = δ(vσ₁,wσ₁) ∗ π_i}
-      \epi {vσ₁ ∗ π_i}}_k$ by definition. Moreover, we know that
-      ${{E_iσ₁ ∗ π_iσ₁} \epi {vσ₁ ∗ π_iσ₁}}_k$ by \thmRef("redcompatall").
-      Since ${{E'σ₁ ∗ π} \epi
-      {E_iσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i$ steps we get that ${{E'σ₁ ∗ π}
-      \epi {vσ₁ ∗ π_iσ₁}}_k^{∗}$ in $l_i + 1$ steps, and hence
-      ${(vσ₁ ∗ π_i)σ₁ = vσ₁ ∗ π_iσ₁} {\converge}_k$.
-      
-      We now consider the reduction of the process $vσ₁ ∗ π_i$. By
-      \lemRef("aposs") there is a blocked process $p$ such that
-      ${{vσ₁ ∗ π_i} ≻ p}^j$. Using \thmRef("redcompatall") we obtain
-      ${{vσ₁ ∗ π_iσ₁} ≻ pσ₁}^j$ from which we deduce that ${{vσ₁ ∗ π_iσ₁}
-      \epi pσ₁}_k^{∗}$ in $j$ steps. We then take $E_{i+1} ∗ π_{i+1} = p$
-      and $l_{i+1} = l_i + j + 1$. Note that in this case we have $l_{i+1}
-      > l_i$.
-\end{itemize}
-Intuitively $(E_i,π_i,l_i)_{i ≤ n}$ mimics the reduction of $E'σ₁ ∗ π$ while
-making explicit every substitution of $a$ and every reduction of a $δ$-like
-state.
-
-To end the proof we show that for every $i ≤ n$ we have ${E_iσ₂ ∗ π_iσ₂}
-{\converge}_k$. For $i = 0$ this will give us ${E'σ₂ ∗ π} {\converge}_k$,
-which is the expected result. Since $E_n ∗ π_n = v ∗ α$ we have $E_nσ₂ ∗
-π_nσ₂ = vσ₂ ∗ α$ from which we trivially obtain ${E_nσ₂ ∗ π_nσ₂}
-{\converge}_k$. We now suppose that ${E_{i+1}σ₂ ∗ π_iσ₂} {\converge}_k$ for
-$0 ≤ i < n$ and show that ${E_iσ₂ ∗ π_iσ₂} {\converge}_k$. By construction
-$E_i ∗ π_i$ can be of two shapes since only $E_n ∗ π_n$ can be of the form
-$v ∗ α$.
-\begin{itemize}
-\item If $E_i = a$ then ${{t₁σ ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k^{∗}$. by
-      \thmRef("redcompatall") we get ${{t₁σ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗
-      π_iσ₂}}_k$ from which we deduce ${t₁σ ∗ π_iσ₂}
-      {\converge}_k$ by induction hypothesis. Since ${t₁ ≡ t₂}_k$ we obtain
-      ${t₂σ ∗ π_iσ₂ = (E_i ∗ π_i)σ₂} {\converge}_k$.
-\item If $E_i = δ(v,w)$ then ${{v ∗ π_i} \epi {E_{i+1} ∗ π_{i+1}}}_k$ and
-      hence ${{vσ₂ ∗ π_iσ₂} \epi {E_{i+1}σ₂ ∗ π_{i+1}σ₂}}_k$ by
-      \thmRef("redcompatall"). Using the induction hypothesis we obtain
-      ${vσ₂ ∗ π_iσ₂} {\converge}_k$. It remains to show that
-      ${{δ(vσ₂,wσ₂) ∗ π_iσ₂} \epi {vσ₂ ∗ π_iσ₂}}_k^{∗}$. We need to find
-      $j < k$ such that ${vσ₂ \nequiv wσ₂}_j$. By construction there is
-      $m < k$ such that ${vσ₁ \nequiv wσ₁}_m$. We are going to show that
-      ${vσ₂ \nequiv wσ₂}_m$. By using the global induction hypothesis twice
-      we obtain ${vσ₁ ≡ vσ₂}_m$ and ${wσ₁ ≡ vσ₂}_m$. Now if ${vσ₂ ≡ wσ₂}_m$
-      then ${{vσ₁ ≡ vσ₂}_m ≡ {wσ₂ ≡ wσ₁}_m}_m$ contradicts
-      $vσ₁ \nequiv wσ₁$. Hence we must have ${vσ₂ \nequiv wσ₂}_m$.
-\end{itemize}
-\end{proof}
-\end{lem}
-
-\begin{thm}\label("extterm")
-Let $t₁$, $t₂$ and $E$ be three terms and $a$ be a term variable. If
-$t₁ ≡ t₂$ then $E[a := t₁] ≡ E[a := t₂]$.
-\begin{proof}
-We suppose that $t₁ ≡ t₂$ which means that ${t₁ ≡ t₂}_i$ for every
-$i ∈ \bbN$. We need to show that $E[a := t₁] ≡ E[a := t₂]$ so we take
-$i₀ ∈ \bbN$ and show ${E[a := t₁] ≡ E[a := t₂]}_{i₀}$. By hypothesis we
-have ${t₁ ≡ t₂}_{i₀}$ and hence we can conclude using \lemRef("aextlem").
-\end{proof}
-\end{thm}
+\todo(None)
 
 =<
+
 => Derived type system
 
 \Caml(
-let r1 =
-  <<$\axiomRN{Ax}{Σ, x:ι ⊢ (Γ, x:A; Ξ ⊢ \t("x") : A; Δ)}$>>
+let r_ax =
+  <$\axiomRN{Ax}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t("x") : A}$>
 
-let r3 =
-  <<$\unaryRN{⇒_i}{Σ, x:ι ⊢ (Γ,x:A;Ξ ⊢ \t("t") : B; Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \v("λx t") : A ⇒ B; Δ)}$>>
+let r_arrow_i =
+  <$\unaryRN{⇒_i}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
+   {Σ \sp Γ;Ξ ⊢ \v("λx t") : A ⇒ B}$>
 
-let r4 =
-  <<$\binaryRN{⇒_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : A ⇒ B; Δ)}{Σ ⊢ (Γ;Ξ ⊢ \t("u") : A; Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t u") : B; Δ)}$>>
+let r_arrow_e =
+  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t("t") : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t("u") : A}
+   {Σ \sp Γ;Ξ ⊢ \t("t u") : B}$>
 
-let r5 =
-  <<$\unaryRN{μ}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("μα t") : A; Δ)}$>>
+let r_mu =
+  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t("t") : A}
+   {Σ \sp Γ;Ξ ⊢ \t("μα t") : A}$>
 
-let r6 =
-  <<$\unaryRN{[\wc]}{Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("t") : A; Δ,α:A)}
-   {Σ, α:σ ⊢ (Γ;Ξ ⊢ \t("[α]t") : B; Δ,α:A)}$>>
+let r_name =
+  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t("t") : A}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : A^⊥}
+   {Σ \sp Γ;Ξ ⊢ \t("[π]t") : B}$>
 
-(* FIXME add semantical value restriction *)
-let r7 =
-  <<$\unaryRN{∀_i}{Σ, χ:s ⊢ (Γ;Ξ ⊢ \v("v") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("∀χ^s A");Δ)}$>>
+let r_ax' =
+  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s("α") : A^⊥}$>
 
-let r8 =
-  <<$\binaryRN{∀_e}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∀χ^s A");Δ)}{Σ ⊢ B : s}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]");Δ)}$>>
+let r_push =
+  <$\binaryRN{\wc·\wc}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s("v·π") : \f("A⇒B")^⊥}$>
 
-let r9 =
-  <<$\binaryRN{∃_i}{Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]");Δ)}{Σ ⊢ B : s}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("∃χ^s A");Δ)}$>>
+let r_fram =
+  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A⇒B")}
+   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s("[t]π") : \f("A")^⊥}$>
 
-let rA =
-  <<$\binaryRN{∃_e}{Σ, x:ι ⊢ (Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C");Δ)}
-   {Σ ⊢ B : s}{Σ, x:ι ⊢ (Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C");Δ)}$>>
+let r_forall_i =
+  <$\binaryRN{∀_i}{Σ, χ:s \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}$>
 
-(* FIXME add semantical value restriction *)
-let rB =
-  <<$\unaryRN{∈_i}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("v∈A");Δ)}$>>
+let r_forall_e =
+  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]")}$>
 
-let rC =
-  <<$\unaryRN{∈_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,x≡t ⊢ \t("t") : C;Δ)}
-   {Σ, x:ι ⊢ (Γ,x:\f("t∈A");Ξ ⊢ \t("t") : C;Δ)}$>>
+let r_exists_i =
+  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]")}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∃χ^s A")}$>
 
-let rD =
-  <<$\unaryRN{↾_i}{Σ ⊢ (Γ;Ξ,t≡u ⊢ \t("t") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("t") : \f("A ∧ t≡u");Δ)}$>>
+let r_exists_e =
+  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C")}
+   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C")}$>
 
-let rE =
-  <<$\unaryRN{↾_e}{Σ, x:ι ⊢ (Γ,x:A;Ξ,t≡u ⊢ \t("t") : C;Δ)}
-   {Σ, x:ι ⊢ (Γ,x:\f("A ∧ t≡u");Ξ ⊢ \t("t") : C;Δ)}$>>
+let r_memb_i =
+  <$\binaryRN{∈_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")}$>
 
-let rF =
-  <<$\unaryRN{×_i}{[Σ ⊢ (Γ;Ξ ⊢ \v("vi") : \f("Ai");Δ)]_{i∈I}}
-   {Σ ⊢ (Γ;Ξ ⊢ \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}");Δ)}$>>
+let r_memb_e =
+  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t("u") : C}
+   {Σ, x:ι \sp Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C}$>
 
-let rG =
-  <<$\binaryRN{×_e}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}");Δ)}
-   {k∈I}{Σ ⊢ (Γ;Ξ ⊢ \t("v.lk") : A_k;Δ)}$>>
+let r_rest_i =
+  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
+   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A ∧ u₁≡u₂")}$>
 
-let rH =
-  <<$\binaryRN{+_i}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("Ak");Δ)}{k∈I}
-   {Σ ⊢ (Γ;Ξ ⊢ \v("Ck[v]") : \f("[(Ci : Ai) i∈I]");Δ)}$>>
+let r_rest_e =
+  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C}
+   {Σ, x:ι \sp Γ,x:\f("A ∧ u₁≡u₂");Ξ ⊢ \t("t") : C}$>
 
-let rI =
-  <<$\binaryRN{+_e}{Σ ⊢ (Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]");Δ)}
-   {[Σ ⊢ (Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B;Δ)]_{i∈I}}
-   {Σ ⊢ (Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B;Δ)}$>>
+let r_prod_i =
+  <$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢ \v("vi") : \f("Ai")]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")}$>
 
-let rJ =
-  <<$\unaryRN{≡_{l, {val}}}{Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔v]") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ,v≡w ⊢ \t("t[x≔w]") : A;Δ)}$>>
+let r_prod_e =
+  <$\binaryRN{×_e}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}")}
+   {k∈I}{Σ \sp Γ;Ξ ⊢ \t("v.lk") : A_k}$>
 
-let rK =
-  <<$\unaryRN{≡_{l}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₁]") : A;Δ)}
-   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ \t("t[a≔u₂]") : A;Δ)}$>>
+let r_sum_i =
+  <$\binaryRN{+_i}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("Ak")}{k∈I}
+   {Σ \sp Γ;Ξ ⊢ \v("Ck[v]") : \f("[(Ci : Ai) i∈I]")}$>
 
-let rL =
-  <<$\unaryRN{≡_{r, {val}}}{Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₁]");Δ)}
-   {Σ ⊢ (Γ;Ξ,v₁≡v₂ ⊢ t : \f("A[x≔v₂]");Δ)}$>>
+let r_sum_e =
+  <$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]")}
+   {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B}$>
 
-let rM =
-  <<$\unaryRN{≡_{r}}{Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₁]");Δ)}
-   {Σ ⊢ (Γ;Ξ,u₁≡u₂ ⊢ t : \f("A[a≔u₂]");Δ)}$>>
+let r_eq_i =
+  <$\binaryRN{≡_ι}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
+   {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
+   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t("t[x≔w₂]") : \f("A[x≔w₂]")}$>
+
+let r_eq_t =
+  <$\binaryRN{≡_τ}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
+   {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
+   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>
 
 let rs env =
-  let env = resize_env 3.4 env in
+  let env = resize_env 3.2 env in
   let rs =
-    [ [ r1 ; r3 ] ; [ r4 ] ; [ r5 ; r6 ] ; [ r7 ; rA ] ; [ r8 ; r9 ]
-    ; [ rB ; rC ] ; [ rD ; rE ] ; [ rG ; rH ] ; [ rF ] ; [ rI ] ; [ rJ ; rK ]
-    ; [ rL ; rM ] ]
-  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+    [ [r_ax;r_arrow_e] ; [r_ax';r_arrow_i] ; [r_mu; r_name] ; [r_push; r_fram]
+    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
+    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
+    ; [r_eq_i] ; [r_eq_t] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs ->
+    draw_boxes env (boxify_scoped env cs))) rs
 
-let _ = figure_here ~name:"sortrules" ~caption:[tT "Typing rules."] (dr rs)
+let _ =
+  figure_here ~name:"derivedrules"
+              ~caption:[tT "Derived typing rules."] (dr rs)
 )
+
 
 (* ADEQUACY CASE
 \item If the last used rule is ($↓$) then we need to show

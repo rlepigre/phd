@@ -445,8 +445,9 @@ module Format (D:DocumentStructure) = struct
              replace_utf8 (Str.regexp_string "``") 8220;
              replace_utf8 (Str.regexp_string "''") 8221
            ]
-        );
-         counters=StrMap.add "figure" (2,[]) StrMap.empty
+        )
+    ; counters = StrMap.add "figure" (2,[]) StrMap.empty
+    ; math_break_badness = infinity
     }
 
   let title=Default.title
