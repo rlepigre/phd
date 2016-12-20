@@ -15,7 +15,7 @@ let cover_data =
   { author    = "Rodolphe Lepigre"
   ; title     = [ "Restriction Sémantique par Valeurs" (* FIXME *)
                 ; "pour la Preuve de Programmes" ]
-  ; def_date  = "XX XXXXX 2016" (* FIXME *)
+  ; def_date  = "XX XXXXX 2017" (* FIXME *)
   ; lab       = "LAMA, " ^ usmb
   ; advisor   = ("Christophe Raffalli", usmb)
   ; coadvisor = Some ("Pierre Hyvernat", usmb)
