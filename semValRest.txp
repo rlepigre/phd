@@ -1044,40 +1044,83 @@ $u₁ ≡_{i₀} u₂$ and hence we can conclude using \lemRef("afullextlem").
 \end{proof}
 \end{thm}
 
-
-
-
-
-(* TODO from here. *) \todo(None)
-\begin{thm}\label("equivpole")
-Let $t$ and $u$ be terms. If $t ≡ u$ then for every stack $π ∈ Π$ and
-substitution $σ$ we have ${{\p("tσ∗π")} {⇓}_{↠}} ⇔ {{\p("uσ∗π")} {⇓}_{↠}}$.
+To better understand our new definition of equivalence, we can compare it
+to another equivalence relation with a more intuitive definition. The
+definition of this new relation, denoted $({≡}_{↠})$, will be very similar
+to that of $({≡}_{≻})$ (see \chapter("obsEquiv")). It can be seen as the
+observational equivalence induced by $({↠})$
+\begin{def}
+The relation $({≡}_{↠}) ⊆ Λ×Λ$ is defined as follows.
+$$ ({≡}_{↠}) = \{(t,u) \| ∀π∈Π, ∀ρ∈\cal{S},
+     {{\p("tρ∗π")} {⇓}_{↠}} ⇔ {{\p("uρ∗π")} {⇓}_{↠}} \} $$
+\end{def}
+\begin{lem}
+The relation $({≡}_{↠}) ⊆ Λ×Λ$ is and equivalence relation.
 \begin{proof}
-We suppose that $t ≡ u$ and we take $π₀ ∈ Π$ and a substitution $σ₀$. By
-symmetry we can assume that ${\p("tσ₀∗π₀")} {⇓}_{↠}$ and show that
-${\p("uσ₀∗π₀")} {⇓}_{↠}$. By definition there is $i₀ ∈ \bbN$ such that
-${\p("tσ₀∗π₀")} {⇓}_{i₀}$. Since $t ≡ u$ we know that for every $i ∈ \bbN$,
-$π ∈ Π$ and substitution $σ$ we have
-${{\p("tσ∗π")} {⇓}_i} ⇔ {{\p("uσ∗π")} {⇓}_i}$. This is true in particular
-for $i = i₀$, $π = π₀$ and $σ = σ₀$. We hence obtain
-${\p("uσ₀∗π₀")} {⇓}_{i₀}$ which give us ${\p("uσ₀∗π₀")} {⇓}_{↠}$.
+Immediate.
+\end{proof}
+\end{lem}
+
+\begin{thm}\label("eq_incl")
+If $t$, $u∈Λ$ are two terms such that $t ≡ u$ then $t ≡_{↠} u$. In other
+words, we have $({≡}) ⊆ ({≡}_{↠})$
+\begin{proof}
+Let us suppose that $t ≡ u$, take $π₀∈Π$ and take $ρ₀∈\cal{S}$. By
+symmetry we can assume that ${\p("tρ₀∗π₀")} {⇓}_{↠}$ and show that
+${\p("uρ₀∗π₀")} {⇓}_{↠}$. By definition there is $i₀∈\bbN$ such that
+${\p("tρ₀∗π₀")} {⇓}_{i₀}$. Since $t ≡ u$ we know that for all $i∈\bbN$,
+$π∈Π$ and $ρ∈\cal{S}$ we have
+${{\p("tσ∗π")} {⇓}_i} ⇔ {{\p("uσ∗π")} {⇓}_i}$.
+This is true in particular for $i = i₀$, $π = π₀$ and $ρ = ρ₀$. We
+hence obtain ${\p("uρ₀∗π₀")} {⇓}_{i₀}$ which give us
+${\p("uρ₀∗π₀")} {⇓}_{↠}$.
 \end{proof}
 \end{thm}
-
 \begin{rem}
-The converse implication is not true in general: taking
-$t = \t("δ(λx x, {})")$ and $u = \t("λx x")$ gives a counter-example.
-More generally ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does not necessarily imply
-${p {⇓}_i} ⇒ {q {⇓}_i}$ for all $i ∈ \bbN$.
+The converse implication is not true in general, that is we do not
+have $({≡}) ⊇ ({≡}_{↠})$. A counter-example is given by the terms
+$t = \t("δ(λx x, {})")$ and $u = \t("λx x")$. More generally, if
+$p ∈ Λ×Π$ is a process, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does not
+imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number $i ∈ \bbN$.
 \end{rem}
-\begin{cor}\label("eqconvconv")
-Let $t$ and $u$ be terms and $π$ be a stack. If $t ≡ u$ and
-${\p("t∗π")} {⇓}_{↠}$ then ${\p("u∗π")} {⇓}_{↠}$.
+As shown by the \thmRef("eq_incl"), our $({≡})$ relation is more
+fine-grained (i.e. it disctiminates more terms than $({≡}_{↠})$).
+However, its formulation does not really provide more intuition
+on the behaviour of our equivalence relation. Indeed, the definition
+of $({↠})$ still involves $({≡})$, an thus the definition of
+$({≡}_{↠})$ is still very subtle, even if its statement remains
+relatively simple.
+
+In the end, what really matters to us is for our equivalence relation
+to be compatible with the notion of reduction. And in fact, the only
+part of the reduction relation that will matter in practice is $({≻})$.
+Indeed, $δ$-like terms are only provided in the system for obtaining
+a well-behaved semantics. In particular, we do not want to expose them
+to the users of our implementation. It will thus be enough for us to
+prove that $({≡})$ has the same properties as $({≡}_{≻})$ (has shown
+in \chapter("obsEquiv")). In particular, we will be able to obtain
+negative results immediatly thanks the following theorem.
+\begin{thm}\label("eq_incl_base")
+If $t$, $u∈Λ$ are two terms such that $t ≡ u$ then $t ≡_{≻} u$. In
+other words, we have $({≡}) ⊆ ({≡}_{≻})$
 \begin{proof}
-Direct consequence of \thmRef("equivpole") using $π$ and an empty
-substitution.
+Let us suppose that $t ≡ u$. By definition, we must have $t ≡_i u$ for
+every natural number $i∈\bbN$. In particular, this is true for $i = 0$
+and thus we have $t ≡_{≻} u$ since $({≡}_i) = ({≡}_{≻})$.
+\end{proof}
+\end{thm}
+\begin{cor}
+If $t$ and $u∈Λ$ are two terms such that $t \nequiv_{≻} u$ then
+$t \nequiv u$.
+\begin{proof}
+Immediate by the contrapositive of \thmRef("eq_incl_base").
 \end{proof}
 \end{cor}
+For instance, \thmRef("consnequiv"), \thmRef("reconequiv"),
+\thmRef("consneqrec"), \thmRef("nequivlamcons") and
+\thmRef("nequivlamreco") are still valid for $({≡})$.
+
+(* TODO from here. *)
 
 =<
 
