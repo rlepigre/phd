@@ -15,34 +15,33 @@ of computation. General equational properties will then be
 derived for any equivalence relation satisfying specific
 compatibility conditions. These properties will then be
 essential for the definition of our realisability semantics
-in the next chapters. Moreover, they will be used as a base
-for the implementation of a partial decision procedure for
-program equivalence.
+in the next chapters. Moreover, they will be used for
+implementing a partial decision procedure for program
+equivalence.
 
 => Equivalence relation and properties
 
 We will now consider a notion of //observational equivalence//
 over terms. More precisely, we will say that two terms are
 equivalent if and only if they have the same computational
-behaviour in every evaluations context. Using the formalism of
+behaviour in every evaluation context. Using the formalism of
 our abstract machine, it is very easy to quantify over every
-such evaluation contexts. Indeed, this only amounts to
-quantifying over every stack. In this thesis, the considered
-observable behaviour is successful termination (versus
-non-termination or runtime error). We will consider that a
-process terminates successfully if it eventually reduces to a
-final process.
+such context. Indeed, it only amounts to quantifying over every
+stack. In this thesis, the considered observable behaviour is
+successful termination (versus non-termination or runtime
+error). We will consider that a process terminates successfully
+if it eventually reduces to a final process.
 \begin{def}
 Let $R ⊆ (Λ×Π)×(Λ×Π)$ be a relation such that for every final
 process $p ∈ Λ×Π$, there is no $q ∈ Λ×Π$ such that $p R q$. We
-say that a process $p ∈ Λ×Π$ converges for the relation $R$ and
-we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$ such
-that $p R^{∗} q$. If $p$ does not converge we say that it
-diverges for the relation $R$ and we write $p {⇑}_R$.
+say that a process $p ∈ Λ×Π$ converges for the relation $R$,
+and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$
+such that $p R^{∗} q$. If $p$ does not converge we say that it
+diverges (for the relation $R$) and we write $p {⇑}_R$.
 \end{def}
 Note that the previous definition is rather general, but we
 will only use it with relations extending $({≻})$. Of course,
-such extentions should not allow final processes to be reduced.
+such extensions should not allow final processes to be reduced.
 Indeed, this would go against the intuition that they are the
 evidence of a successfully terminated computation.
 
@@ -187,9 +186,9 @@ possibilities.
 => Compatible equivalence relations
 
 The purpose of the theorems given in the previous section was to show
-that the $({≡}_{≻})$ relation is a form of congruence. These properties
-will be essential to the construction of our realisability model and
-semantics in the following chapter.
+that $({≡}_{≻})$ is a form of congruence. This property will be
+essential to the construction of our realisability model and semantics
+in the following chapter.
 \begin{def}
 An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be a congruence if
 it satisfies the following conditions.
@@ -210,14 +209,14 @@ Combination of \thmRef("substequiv"), \thmRef("sextval") and
 \end{proof}
 \end{thm}
 
-The precise definition of our equivalence will not play a direct role in
-our construction. In fact, we will be able to build several different
-models using several different equivalence relations. To use such an
-equivalence, we will only have to make sure that it is a congruence
-and that it is compatible with $({≡}_{≻})$ in some sense. Of course,
-this property will hold for $({≡}_{≻})$ itself, but we will eventually
-need to use a different, compatible equivalence relation starting from
-\chapter("semValRest").
+The precise definition of our equivalence relation will not play a
+direct role in our construction. In fact, we will be able to build
+several different models using several different equivalence relations.
+To use such an equivalence, we will only have to make sure that it is a
+congruence and that it is compatible with $({≡}_{≻})$ in some sense. Of
+course, this property will hold for $({≡}_{≻})$ itself, but we will
+eventually need to use a different, compatible equivalence relation
+starting from \chapter("semValRest").
 \begin{def}
 An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be compatible with
 $({≡}_{≻})$, or (simply) compatible, if it satisfies the following
@@ -249,11 +248,11 @@ and $\p("u∗π") ≻^{∗} p$. Let us take $π₀ ∈ Π$, $ρ₀ ∈ \cal{S}$ 
 that we have ${{\p("tρ₀∗π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{≻}}$. As
 we are free to rename the variables of $t$ and $u$ that are bound
 $\t("tρ₀")$ and $\t("uρ₀")$, we may assume that $\s("π₀ρ₀") = π₀$.
-By hypothesis, we know $\p("t∗π₀") ≻^{∗} p$ and $\p("u∗π₀") ≻^{∗} p$ and
-thus we can apply \lemRef("redcompatall") to obtain
-$\p("(t∗π₀)ρ₀") = \p("tρ₀∗π₀") ≻^{∗} pρ₀$ and
-$\p("(u∗π₀)ρ₀") = \p("uρ₀∗π₀") ≻^{∗} pρ₀$. As a consequence, we indeed
-have ${{\p("tρ₀∗π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{≻}}$.
+By hypothesis, there is $p₀ ∈ Λ×Π$ such that $\p("t∗π₀") ≻^{∗} p₀$
+and $\p("u∗π₀") ≻^{∗} p₀$. We can thus apply \lemRef("redcompatall")
+to obtain $\p("(t∗π₀)ρ₀") = \p("tρ₀∗π₀") ≻^{∗} p₀ρ₀$ and
+$\p("(u∗π₀)ρ₀") = \p("uρ₀∗π₀") ≻^{∗} p₀ρ₀$. As a consequence, we
+indeed have ${{\p("tρ₀∗π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{≻}}$.
 
 Let us now prove the third condition. We take $t₁$, $t₂∈Λ$ and we suppose
 that we have $u∈Λ$ such that $\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
@@ -280,20 +279,20 @@ From now on and until the end of the current chapter we will consider
 properties of compatible equivalences in general. In particular, we
 will use the symbol $({≡})$ to denote an arbitrary compatible
 equivalence. Moreover, We will always assume that $({≡})$ is a
-congruence. Although this proprety will almost never be required in
-this chapter, it will be absolutely necessary to use the equivalence
-relation in the semantics.
+congruence. Although this property be seldom required in this chapter,
+it will be absolutely necessary to use the equivalence relation in the
+definition of our semantics.
 
 =<
 
 => Equivalences from reduction
 
-The main aim of a compatibile equivalence relation $({≡})$ is to
+The main aim of a compatible equivalence relation $({≡})$ is to
 identify terms with the same computational behaviour. In particular,
 taking reduction steps does not fundamentally change the observable
 computational behaviour of a term. We can thus derive several
 primitive equivalences using the second property of compatible
-equivalences that is recalled bellow as a lemma. 
+equivalences, that is recalled bellow as a lemma. 
 \begin{lem}\label("redequiv")
 Let $t$, $u ∈ Λ$ be two terms. If for all stack $π∈Π$ there is a
 process $p ∈ Λ×Π$ such that $\p("t ∗ π") ≻^{∗} p$ and
@@ -306,7 +305,7 @@ By definition of a compatible equivalence.
 Let $t$, $u∈Λ$ be two terms. If we have $\p("t∗π") ≻^{∗} \p("u∗π")$ for
 every stack $π∈Π$ then $t ≡_{≻} u$.
 \begin{proof}
-Direct conseqence of \lemRef("redequiv") using $p = \p("u∗π")$.
+Direct consequence of \lemRef("redequiv") using $p = \p("u∗π")$.
 \end{proof}
 \end{lem}
 
@@ -351,9 +350,9 @@ Since $\p("U({}) ∗ π") ≻ \p("{} ∗ π")$ for every stack $π$ we can use
 
 To go a little bit further, we can look at the first three rules of
 \defRef("reduction"), which are used to handle $β$-reduction. In
-particular, these three rules can be composed immediatly in the case
-where we consider the application of a $λ$-abstraction to a value.
-This corresponds exactly to the call-by-value $β$-reduction relation.
+particular, these rules can be composed immediately when a
+$λ$-abstraction is applied to a value. This corresponds exactly to a
+call-by-value $β$-reduction step.
 \begin{thm}\label("cbvbeta")
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
 $\t("(λx t) v") ≡ \t("t[x≔v]")$.
@@ -408,7 +407,7 @@ $\p("[ξ]t[β≔ξ] ∗ π") ≻ \p("t[β≔ξ] ∗ ξ")$ we can conclude using
 \end{proof}
 \end{thm}
 
-As a named term has the effect of erasing the whole stack. Consequently,
+As a named term has the effect of erasing the whole stack,
 terms that are applied (as functions) to a named term can always be
 removed. Similarly, values used as arguments of a named term can be
 removed as they will never be considered. The following two theorems will
@@ -459,7 +458,7 @@ $\p("[ξ₂]t ∗ π") ≻ \p("t ∗ ξ₂")$ for all $π$ we can use \lemRef("r
 \end{proof}
 \end{thm}
 
-Finaly, we provide two last equivalences allowing the simplification of
+Finally, we provide two last equivalences allowing the simplification of
 terms involving $μ$-abstractions. For instance, if the variable bound by
 a $μ$-abstraction does not occur in its body, then it can be removed.
 Similarly, it is not useful to restore a stack right after it has been
@@ -508,8 +507,8 @@ inequivalences using the definition of $({≻})$. The former will
 in fact be exactly equivalent to \id(lemRef "equivcounterex_aux")
 (through its contrapositive), and the latter will directly follow.
 \begin{def}
-Given $t$ and $u∈Λ$, the netations of $t ≡_{≻} u$ and $t ≡ u$ are
-repectively denoted $t \nequiv_{≻} u$ and $t \nequiv u$.
+Given $t$ and $u∈Λ$, the negations of $t ≡_{≻} u$ and $t ≡ u$ are
+respectively denoted $t \nequiv_{≻} u$ and $t \nequiv u$.
 \end{def}
 \begin{lem}\label("equivcounterex")
 Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ and a
@@ -533,7 +532,7 @@ $ρ = ρ_{id}$.
 We will now start by showing that records with different fields cannot
 be equivalent. Similarly, we will show that variants with different
 constructors are never equivalent. In both case, it is not difficult to
-find a stack distinguishing between the two values.
+find a stack distinguishing the two values.
 \begin{thm}\label("consnequiv")
 Let $m$, $n ∈ \bbN$ be two natural numbers and $v$, $w ∈ Λ_ι$ be two values.
 If we have $m ≠ n$ then $\v("Cm[v]") \nequiv \v("Cn[w]")$.
@@ -547,7 +546,7 @@ $\p("[Cn[w]|Cm[z]→{}] ∗ ε")$ is stuck since $m ≠ n$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("reconequiv")
-Let $I₁$, $I₂$ be two set of indices such that for all $i∈I₁$ we have
+Let $I₁$, $I₂$ be two sets of indices such that for all $i∈I₁$ we have
 $v_i ∈ Λ_ι$ and for all $i∈I₂$ we have $w_i ∈ Λ_ι$. If $I₁ ≠ I₂$ then
 $\v("{(li = vi) i∈I₁}") \nequiv \v("{(li = wi) i∈I₂}")$.
 \begin{proof}
@@ -671,12 +670,12 @@ different forms of values. The results presented here will be
 required in \chapter("typeSystem") to show that the semantics
 of our types is well-formed in some sense. We will first start
 by showing that a $λ$-variable is only equivalent to itself if
-we only consider values.
+among all values.
 \begin{thm}\label("varequiv")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The
 equivalence $x ≡ v$ holds if and only if $v = x$.
 \begin{proof}
-If $v = x$ then we immediatly have $v ≡ x$ by reflexivity. It remains
+If $v = x$ then we immediately have $v ≡ x$ by reflexivity. It remains
 to show that $x \nequiv v$ for every value $v ≠ x$. In fact, thanks to
 \lemRef("equivcounterex_aux"), it is enough to show $x \nequiv_{≻} v$.
 Moreover, according to \lemRef("substequiv") it is sufficient to
