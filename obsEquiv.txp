@@ -83,7 +83,7 @@ Another essential property of our equivalence relation is extensionality.
 In other words, it is possible to replace equals by equals at any place
 in terms without changing their observed behaviour. This property is
 expressed in the following two theorems.
-\begin{thm}\label("sextval")
+\begin{thm}\label("base_extval")
 Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
 $x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
 $\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
@@ -120,10 +120,9 @@ $\p("a ∗ π")$ then $\p("q[a≔t]")$ is a blocked process that is not final.
 Consequently, we obtain a contradiction with ${\p("q[a≔t]")} {⇓}_{≻}$.
 \end{proof}
 \end{lem}
-\begin{thm}\label("sextterm")
+\begin{thm}\label("base_extterm")
 Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
 term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
-
 \begin{proof}
 Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
 We take a stack $π$, a substitution $ρ$ and we show
@@ -204,8 +203,8 @@ it satisfies the following conditions.
 \begin{thm}
 The relation $({≡}_{≻})$ is a congruence.
 \begin{proof}
-Combination of \thmRef("substequiv"), \thmRef("sextval") and
-\thmRef("sextterm").
+Combination of \thmRef("substequiv"), \thmRef("base_extval") and
+\thmRef("base_extterm").
 \end{proof}
 \end{thm}
 

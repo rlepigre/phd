@@ -26,19 +26,26 @@ One of the main goals of this thesis is to build a type system that can be
 used to reason about programs. To achieve this goal, we need to be able to
 specify program behaviours using types. We hence introduce equality types
 of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped) terms.
-Intuitively, an equality type is interpreted as $⊤$ (i.e. logical truth,
-the biggest type) if $t ≡_{≻} u$, and as $⊥$ (i.e. logical absurdity, the
-empty type) if $t \nequiv_{≻} u$. For example, the type
-$\f("(λx x) λx x ≡ λx x")$ is inhabited as $\t("(λx x) λx x") ≡_{≻}
-\t("λx x")$ according to \thmRef("cbvbeta"), but $\f("λx x ≡ {}")$ is empty
-as $\t("λx x") \nequiv_{≻} \t("{}")$ according to \thmRef("nequivlamreco").
+Note that here, the equivalence symbol is part of the syntax and does not
+refer to a specific equivalence relation.
+(* *)
+An equivalence relation $({≡})$ will however be used for the semantical
+interpretation of equality types. We will require that it is extentional
+and compatible with $({≡}_{≻})$, but it will remain otherwise unspecified.
+In other words, it will be considered as a parameter of our type system
+and semantics.
 
-Of course, it is undecidable whether two terms are equivalent or not. As a
-consequence, we will not be able to decide, in general, whether an equality
-type is inhabited or not. We will hence need to rely on a partial decision
-procedure that will only approximate our observational equivalence relation.
+Intuitively, an equality type $\f("t≡u")$ will be interpreted as $⊤$
+(i.e. logical truth or the biggest type) if the equivalence $t ≡ u$ holds,
+and as $⊥$ (i.e. logical absurdity or the empty type) otherwise. For
+example, the type $\f("(λx x) λx x ≡ λx x")$ will be inhabited as we have
+$\t("(λx x) λx x") ≡ \t("λx x")$ according to \thmRef("cbvbeta"), but the
+type $\f("λx x ≡ {}")$ will be empty as $\t("λx x") \nequiv \t("{}")$
+according to \thmRef("nequivlamreco"). Of course, a compatible equivalence
+is likely to be undecidable. Indeed, such equivalences are similar to
+$({≡}_{≻})$, which is itself undecidable.
 \begin{thm}
-Given $t ∈ Λ$ and $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
+Given $t$, $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
 $t \nequiv_{≻} u$.
 \begin{proof}
 We are going to encode the halting problem $H_t$ using equivalence. In our
@@ -56,6 +63,9 @@ ${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
 ${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")}$ we obtain $H_t$.
 \end{proof}
 \end{thm}
+As a consequence, we cannot hope to decide, in general, whether an
+equivalence holds or not. We will hence need to rely on a partial decision
+procedure that will only approximate our observational equivalence relation.
 
 In the system, proving a program equivalence amounts to showing that the
 corresponding equality type is inhabited. However, an equivalence type
@@ -81,13 +91,13 @@ good enough approximation in practice.
 \begin{def}
 Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
 //realises// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
-$\t("tρ") ≡_{≻} \t("uρ")$.
+$\t("tρ") ≡ \t("uρ")$.
 \end{def}
 \begin{def}
 Let $Ξ$ be an equational context and $t ∈ Λ$ and $u ∈ Λ$ be two terms. We
 write $Ξ ⊢ t ≡ u$ if our (yet unspecified) decision procedure is able to
 show that for every substitution $ρ$ such that $ρ ⊩ Ξ$ we have
-$\t("tρ") ≡_{≻} \t("uρ")$.
+$\t("tρ") ≡ \t("uρ")$.
 \end{def}
 
 =<
@@ -95,9 +105,9 @@ $\t("tρ") ≡_{≻} \t("uρ")$.
 
 Although equality types can be used to derive simple equational properties,
 their use is rather limited without a form of quantification. Indeed, they
-only allow the derivation of static equivalences like $\t("(λx x) {}") ≡_{≻}
+only allow the derivation of static equivalences like $\t("(λx x) {}") ≡
 \t("{}")$, but they cannot be used to show more general properties like
-"$\t("(λx x) v") ≡_{≻} \t("v")$ for every value $v$".
+"$\t("(λx x) v") ≡ \t("v")$ for every value $v$".
 (* *)
 Terms can contain free variables of several sorts: $λ$-variables (i.e. value
 variables), term variables and $μ$-variables (i.e. stack variables). As open
@@ -344,6 +354,7 @@ $$
 
 As types contain the $λ$-calculus, we need to consider their reduction and
 normalisation. First we define the notion of $β$-reduction in a type.
+\Caml(let _ = sortrules ())\linesAfter(2)
 \begin{def}
 We call a redex a type of the form $\f("(χ^s ↦ A)(B)")$, and we say that a
 type is in normal form if it does not contain any redex. The reduction
@@ -357,7 +368,7 @@ such that:
 \end{itemize}
 We denote $({\inj}^{∗})$ its reflexive and transitive closure.
 \end{def}
-\Caml(let _ = sortrules ())
+
 \begin{thm}
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$
 be a sort. If the sorting judgment $Σ ⊢ A : s$ is valid, then there
@@ -568,7 +579,8 @@ let rs env =
   List.map (List.map (fun cs ->
     draw_boxes env (boxify_scoped env cs))) rs
 
-let _ = figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
+let typrules () =
+  figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
 )
 
 =<
@@ -620,6 +632,7 @@ $$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p("v ∗ π") ∈ \dbot\} $$
 For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows.
 $$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p("t ∗ π") ∈ \dbot\} $$
 \end{def}
+\Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{rem}
 In the usual presentation of Krivine's classical realisability, the
 interpretation of types can contain open values, terms and stacks.
@@ -679,24 +692,26 @@ In this thesis, another property will be required of our poles. As we
 are in the presence of an equivalence relation over terms, we will need
 our poles to be closed under this relation in some sense. This will
 allow us to derive the same properties for equivalent terms, and handle
-the uniformly.
+them uniformly.
 \begin{def}
 Given an equivalence relation $R ⊆ Λ×Λ$, a pole $\dbot ⊆ Λ×Π$ is said to
-be $R$-extentional if for every closed terms $t$, $u ∈ Λ^{∗}$ such that
+be $R$-extensional if for every closed terms $t$, $u ∈ Λ^{∗}$ such that
 $t R u$, and for every stack $π ∈ Π$, we have $\p("t∗π") ∈ \dbot$ if and
 only if $\p("u∗π") ∈ \dbot$.
 \end{def}
 From now on, and until the end of this chapter, we will only consider
-poles that $≻$-saturated and $≡_{≻}$-extensional. This information will
-be kept implicit most of the time.
+poles that are both $≡$-extensional and $R$-saturated for some reduction
+relation $R ⊆ (Λ×Π)×(Λ×Π)$ such that $({≻}) ⊆ R$. This information will
+be kept implicit most of the time. Note that $R$, much like $({≡})$ is
+a parameter of our type system and realisability semantics.
 \begin{thm}\label("poleext")
 Let $Φ ⊆ Λ_ι^{∗}$ be a set of closed values and $t$, $u ∈ Λ^{∗}$ be two
-closed terms. With an ${≡}_{≻}$-extentional pole, if $t ∈ Φ^{⊥⊥}$ and
-$t ≡_{≻} u$ then $u ∈ Φ^{⊥⊥}$.
+closed terms. With an $≡$-extensional pole, if $t ∈ Φ^{⊥⊥}$ and $t ≡ u$
+then $u ∈ Φ^{⊥⊥}$.
 \begin{proof}
 By definition we need to take $π ∈ Φ^⊥$ and show that $\p("u∗π") ∈ \dbot$.
 Since $t ∈ Φ^{⊥⊥}$ we have $\p("t∗π") ∈ \dbot$ and hence we can conclude
-since our pole is ${≡}_{≻}$-extentional and we have $t ≡_{≻} u$.
+using the $≡$-extensionality of our pole since we have $t ≡ u$.
 \end{proof}
 \end{thm}
 
@@ -711,7 +726,7 @@ let _ = tabular_layout 0.6 2.0
   [ [ <<$⟦ι⟧ = Λ_ι^{∗}$>>
     ; <<$⟦τ⟧ = Λ^{∗}$>>
     ; <<$⟦σ⟧ = Π^{∗}$>> ]
-  ; [ <<$⟦ο⟧ = \cal{P}(Λ_ι^{∗} / {≡}_≻)$>>
+  ; [ <<$⟦ο⟧ = \cal{P}(Λ_ι^{∗} / {≡})$>>
     ; <<$⟦s→r⟧ = ⟦r⟧^⟦s⟧$>> ] ]
 )
 \end{def}
@@ -748,7 +763,7 @@ $Σ₂ ⊢ \f("Aρ") : s$.
 Simple induction on the derivation of $Σ₁, Σ₂ ⊢ A : s$ by replacing the
 variables of $Σ₁$ by their value in $ρ$. During the induction $Σ₂$ will
 grow when going through the rules that extend the context. The proof for
-the other rules can be handled immediably by induction hypothesis. The
+the other rules can be handled immediately by induction hypothesis. The
 only interesting case is the axiom
 $$\axiomR{Σ₁, Σ₂ ⊢ χ : s}$$
 for which there are two cases. Either $χ∈dom(Σ₂)$ and the derivation
@@ -763,7 +778,7 @@ Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort such that we have $Σ ⊢ A : s$. If $ρ$ is a valuation over $Σ$ then
 $⊢ \f("Aρ") : s$.
 \begin{proof}
-Direct consequence of \lemRef("typevalaux") by takind $Σ₁ = Σ$ and
+Direct consequence of \lemRef("typevalaux") by taking $Σ₁ = Σ$ and
 $Σ₂ = ∅$.
 \end{proof}
 \end{lem}
@@ -786,9 +801,9 @@ let _ =
   ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A"),
                                  \t("t[x≔v]") ∈ \ts("B")\} $>
   ; line "t ∈ A"           <$ \{\v("v") ∈ \vs("A") \|
-                                 \v("v") ≡_{≻} \t("t")\} $>
+                                 \v("v") ≡ \t("t")\} $>
   ; line "A ∧ t ≡ u"       <$ \{\v("v") ∈ \vs("A") \|
-                                 \t("t") ≡_{≻} \t("u")\} $>
+                                 \t("t") ≡ \t("u")\} $>
   ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I,
                                  \v("vi")∈\vs("Ai")\} $>
   ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
@@ -798,9 +813,9 @@ let _ =
 \end{center}
 \end{def}
 \begin{rem}
-We have $\vs("A ∧ t ≡ u") = \vs("A")$ if $t ≡_{≻} u$ and
+We have $\vs("A ∧ t ≡ u") = \vs("A")$ if $t ≡ u$ and
 $\vs("A ∧ t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
-is no $v ∈ \vs("A")$ such that $v ≡_{≻} t$.
+is no $v ∈ \vs("A")$ such that $v ≡ t$.
 \end{rem}
 \begin{thm}\label("sortsem")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
@@ -811,34 +826,34 @@ The proof is done by induction on the derivation of $Σ ⊢ A : s$. We reason
 by case on the last rules used in the deduction tree. In the case of the
 rule
 $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
-the proof is trivial. For the first heighteen rules of \figRef("sortrules"),
+the proof is trivial. For the first eighteen rules of \figRef("sortrules"),
 the proof is immediate using the induction hypothesis. The remaining cases
 are treated bellow. Note that We recall the corresponding rules after the
 proof of each case.
 \begin{itemize}
+(* FIXME from here. *)
 \item In the case of the arrow type, we need to show $\vs("(A⇒B)ρ") ∈ ⟦ο⟧$.
       By induction hypothesis, we know $\vs("Aρ") ∈ ⟦ο⟧$ and
       $\vs("Bρ") ∈ ⟦ο⟧$, which give us $\vs("Aρ") ⊆ Λ_ι^{∗}$ and
       $\ts("Bρ") ∈ Λ^{∗}$. Consequently, $\vs("Aρ⇒Bρ")$ is well-defined and
       $\vs("Aρ⇒Bρ") ⊆ Λ_ι^{∗}$. It remains to show that $\vs("Aρ⇒Bρ")$ is
-      closed under $({≡}_{≻})$. Let us take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$
-      and a value $w ∈ Λ_ι^{∗}$ such that $\v("λx t") ≡_{≻} \v("w")$.
+      closed under $({≡})$. Let us take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$
+      and a value $w ∈ Λ_ι^{∗}$ such that $\v("λx t") ≡ \v("w")$.
       According to \thmRef("canonlambda") we have $w = \v("λx u")$ for some
-      $u ∈ Λ$ (up to renaming of $x$) and $t ≡_{≻} u$. To prove
-      $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take a value $v ∈ \vs("Aρ")$ and show
+      $u ∈ Λ$ (up to renaming of $x$) and $t ≡ u$. To prove
+      $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take $v ∈ \vs("Aρ")$ and show that
       $\t("u[x≔v]") ∈ \ts("Bρ")$. As $\v("λxt") ∈ \vs("Aρ⇒Bρ")$ we know that
-      by definition we have $\t("t[x≔v]") ∈ \ts("Bρ")$. We can hence conclude
-      with \thmRef("poleext") as we have $\t("u[x≔v]") ≡_{≻} \t("t[x≔v]")$
-      according to \thmRef("substequiv").
+      $\t("t[x≔v]") ∈ \ts("Bρ")$ by definition. We can hence conclude using
+      \thmRef("poleext") as $({≡})$ is congruence.
       $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
 \item In the case of the product type, we need to show
       $\vs("{(li : Ai) i∈I}ρ") ∈ ⟦ο⟧$. By induction hypothesis, we know that
       $\vs("Aiρ") ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
-      $\vs("Aiρ") ⊆ Λ_ι^{∗}$ for all $i ∈ I$, which immediatly gives us
+      $\vs("Aiρ") ⊆ Λ_ι^{∗}$ for all $i ∈ I$, which immediately gives us
       $\vs("{(li : Ai) i∈I}ρ") ⊆ Λ_ι^{∗}$. It remains to show that
-      $\vs("{(li : Ai) i∈I}ρ")$ is closed under $({≡}_{≻})$. This is a direct
+      $\vs("{(li : Ai) i∈I}ρ")$ is closed under $({≡})$. This is a direct
       consequence of \thmRef("canonrecord") as $\vs("Aiρ")$ is closed under
-      $({≡}_{≻})$ for all $i ∈ I$.
+      $({≡})$ for all $i ∈ I$.
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
 \item In the case of the sum type, we need to show
       $\vs("[(Ci : Ai) i∈I]ρ") ∈ ⟦ο⟧$. By induction hypothesis we know
@@ -847,18 +862,18 @@ proof of each case.
       $\vs("{(li : Ai) i∈I}ρ") ⊆ Λ_ι^{∗}$ as
       $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\} ⊆ Λ_ι^{∗}$ for all $i ∈ I$.
       Let us now show that $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\}$ is closed
-      under $({≡}_{≻})$ for all $i ∈ I$. This is an immediate consequence
-      of \thmRef("canoncons") since $\vs("Aiρ")$ is closed under $({≡}_{≻})$
+      under $({≡})$ for all $i ∈ I$. This is an immediate consequence
+      of \thmRef("canoncons") since $\vs("Aiρ")$ is closed under $({≡})$
       for all $i ∈ I$. Now, according to \thmRef("consnequiv") we have
       $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\} ∩ \{\v("Ck[v]") \| v ∈ \vs("Akρ")\}
       = ∅$ for all $i$, $k ∈I$ such that $i ≠ k$. Consequently,
-      $\vs("[(Ci : Ai) i∈I]ρ")$ is closed under $({≡}_{≻})$.
+      $\vs("[(Ci : Ai) i∈I]ρ")$ is closed under $({≡})$.
       $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο} $$
 \item In the case of the universal type, we need to show that
       $\vs("(∀χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
       assume that $χ ∉ dom(ρ)$ and hence our goal rewrites
       $\vs("∀χ Aρ") = \bigcap_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As an
-      intersection of sets closed under $({≡}_{≻})$ remains closed
+      intersection of sets closed under $({≡})$ remains closed
       under this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
       $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
       hypothesis with the valuation $ρ[χ≔Φ]$.
@@ -867,7 +882,7 @@ proof of each case.
       $\vs("(∃χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
       assume that $χ ∉ dom(ρ)$ and hence our goal can be rewritten as
       $\vs("∃χ Aρ") = \bigcup_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As a
-      union of sets closed under $({≡}_{≻})$ remains closed under
+      union of sets closed under $({≡})$ remains closed under
       this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
       $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
       hypothesis with the valuation $ρ[χ≔Φ]$.
@@ -876,15 +891,15 @@ proof of each case.
       $\vs("tρ∈Aρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
       $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
       $\vs("Aρ") ∈ ⟦ο⟧$. As a consequence, the set
-      $\{\v("v") ∈ \vs("A") \| \v("v") ≡_{≻} \t("t")\}$ is well-defined
+      $\{\v("v") ∈ \vs("A") \| \v("v") ≡ \t("t")\}$ is well-defined
       and it is a subset of $\vs("Aρ")$. Moreover, it is closed under
-      the $({≡}_{≻})$ relation so we have $\vs("tρ∈Aρ") ∈ ⟦ο⟧$.
+      the $({≡})$ relation so we have $\vs("tρ∈Aρ") ∈ ⟦ο⟧$.
       $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο} $$
 \item In the case of the restriction type, we need to show that
       $\vs("Aρ∧tρ≡uρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
       $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
       $\vs("uρ") = \t("uρ") ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
-      $t ≡_{≻} u$ is well-defined, so $\vs("Aρ∧tρ≡uρ")$ is either
+      $t ≡ u$ is well-defined, so $\vs("Aρ∧tρ≡uρ")$ is either
       equal to $\vs("Aρ")$, in which case we can conclude by
       induction hypothesis, or to $∅$. In this second case we can
       also conclude since $∅ ∈ ⟦ο⟧$.
@@ -897,7 +912,7 @@ proof of each case.
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a
 $λ$-variable and $v₁$, $v₂ ∈ Λ_ι$ be values such that $Σ, x : ι ⊢ A : ο$,
 $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. If $ρ$ is a valuation over $Σ$ and if
-$v₁ρ ≡_{≻} v₂ρ$ then we have $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$.
+$v₁ρ ≡ v₂ρ$ then we have $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$.
 \begin{proof}
 According to \thmRef("sortsem"), we have $⟦v₁ρ⟧ = v₁ρ ∈ ⟦ι⟧$ and
 $⟦v₂ρ⟧ = v₂ρ ∈ ⟦ι⟧$ since we have $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. 
@@ -912,32 +927,32 @@ restriction. In the case of membership
 $$\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$$
 we need to show that $\vs("(t∈A)ρ[x≔v₁ρ]") = \vs("(t∈A)ρ[x≔v₂ρ]")$.
 By definition, we need to show
-$\{\v("v") ∈ \vs("Aρ[x≔v₁ρ]") \| \v("v") ≡_{≻} \t("tρ[x≔v₁ρ]")\} =
- \{\v("v") ∈ \vs("Aρ[x≔v₂ρ]") \| \v("v") ≡_{≻} \t("tρ[x≔v₂ρ]")\}$.
+$\{\v("v") ∈ \vs("Aρ[x≔v₁ρ]") \| \v("v") ≡ \t("tρ[x≔v₁ρ]")\} =
+ \{\v("v") ∈ \vs("Aρ[x≔v₂ρ]") \| \v("v") ≡ \t("tρ[x≔v₂ρ]")\}$.
 As we know that $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$ by
 induction hypothesis, we only need to show that
-$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$. This follows from
-extentionality (\thmRef("sextval")) since we know that
-$v₁ρ ≡_{≻} v₂ρ$. In the case of restriction
+$\t("tρ[x≔v₁ρ]") ≡ \t("tρ[x≔v₂ρ]")$. This follows from the fact that
+$({≡})$ is a congruence since we have $v₁ρ ≡ v₂ρ$. In the case of
+restriction
 $$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A∧t≡u") : ο}$$
 we need to show that $\vs("(A∧t≡u)ρ[x≔v₁ρ]") = \vs("(A∧t≡u)ρ[x≔v₂ρ]")$.
 By definition, we need to show that
-$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("uρ[x≔v₁ρ]")$ if and only if
-$\t("tρ[x≔v₂ρ]") ≡_{≻} \t("uρ[x≔v₂ρ]")$ since
+$\t("tρ[x≔v₁ρ]") ≡ \t("uρ[x≔v₁ρ]")$ if and only if
+$\t("tρ[x≔v₂ρ]") ≡ \t("uρ[x≔v₂ρ]")$ since
 $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$
 by induction hypothesis. We can then conclude since we have
-$\t("tρ[x≔v₁ρ]") ≡_{≻} \t("tρ[x≔v₂ρ]")$ and
-$\t("uρ[x≔v₁ρ]") ≡_{≻} \t("uρ[x≔v₂ρ]")$ according to \thmRef("sextval").
+$\t("tρ[x≔v₁ρ]") ≡ \t("tρ[x≔v₂ρ]")$ and
+$\t("uρ[x≔v₁ρ]") ≡ \t("uρ[x≔v₂ρ]")$ using again the fact that $({≡})$
+is a congruence.
 \end{proof}
 \end{thm}
 \begin{thm}\label("texttyp")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a
 term variable and $u₁$, $u₂ ∈ Λ_ι$ be terms such that $Σ, a : τ ⊢ A : ο$,
 $Σ ⊢ u₁ : τ$ and $Σ ⊢ u₂ : τ$. If $ρ$ is a valuation over $Σ$ and if
-$u₁ρ ≡_{≻} u₂ρ$ then $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$.
+$u₁ρ ≡ u₂ρ$ then $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$.
 \begin{proof}
-Similar to the proof of \thmRef("vexttyp") using \thmRef("sextterm")
-instead of \thmRef("sextval").
+The proof is very similar to that of \thmRef("vexttyp").
 \end{proof}
 \end{thm}
 
@@ -968,7 +983,7 @@ We proceed by induction on the derivation of the judgment
 $Σ \sp Γ ; Ξ ⊢_\tval v : A$ or $Σ \sp Γ ; Ξ ⊢ t : A$, and
 we reason by case on the last used rule. Note that the
 deduction rules are recalled bellow the proof of the
-correspoding case.
+corresponding case.
 \begin{itemize}
 
 \item In the case of ($Ax$), we immediately have
@@ -1089,25 +1104,25 @@ correspoding case.
 \item If the last used rule is ($∈_e$) then we need to show
       $\t("uρ") ∈ \ts("Cρ")$. To apply the induction hypothesis,
       we need to check that $\v("ρ(x)") ∈ \vs("Aρ")$ and that
-      $\v("ρ(x)") ≡_{≻} \t("tρ")$, provided that we have
+      $\v("ρ(x)") ≡ \t("tρ")$, provided that we have
       $\v("xρ") ∈ \vs("(t∈A)ρ")$. By definition
-      $\vs("(t∈A)ρ") = \vs("tρ∈Aρ") = \{v∈\vs("Aρ") \st v ≡_{≻} \t("tρ")\}$
+      $\vs("(t∈A)ρ") = \vs("tρ∈Aρ") = \{v∈\vs("Aρ") \st v ≡ \t("tρ")\}$
       so we indeed have $\v("ρ(x)") ∈ \vs("Aρ")$ and
-      $\v("ρ(x)") ≡_{≻} \t("tρ")$.
+      $\v("ρ(x)") ≡ \t("tρ")$.
 
       $$ \id(r_memb_e) $$
 
 \item In the case of ($∈_i$) we need to show that
-      $\v("vρ") ∈ \vs("(v ∈ A)ρ") = \{w ∈ \vs("Aρ") \| w ≡_{≻} vρ\}$. By
+      $\v("vρ") ∈ \vs("(v ∈ A)ρ") = \{w ∈ \vs("Aρ") \| w ≡ vρ\}$. By
       induction hypothesis we have $\v("vρ") ∈ \vs("Aρ")$ so we only
-      need to show that $\t("vρ") ≡_{≻} \t("vρ")$, which follows from
-      the reflexivity of $({≡}_{≻})$.
+      need to show that $\t("vρ") ≡ \t("vρ")$, which follows from
+      the reflexivity of $({≡})$.
 
       $$ \id(r_memb_i) $$
 
 \item If the last used rule is ($↾_i$) then we need to show
       $\t("tρ") ∈ \ts("(A ∧ u₁≡u₂)ρ")$. Using the right premise
-      we know that $\t("u₁ρ") ≡_{≻} \t("u₂ρ")$, and hence
+      we know that $\t("u₁ρ") ≡ \t("u₂ρ")$, and hence
       $\vs("Aρ ∧ u₁ρ ≡ u₂ρ") = \vs("Aρ")$ by definition. Consequently
       we have $\ts("Aρ ∧ u₁ρ ≡ u₂ρ") = \ts("Aρ")$ by
       \lemRef("orthoincl"), and hence we can conclude since
@@ -1117,7 +1132,7 @@ correspoding case.
 
 \item If the last used rule is ($↾_e$) then we need to show
       $\t("tρ") ∈ \ts("Cρ")$. To be able to apply the induction hypothesis,
-      we only have to show $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡_{≻} u₂ρ$ under the
+      we only have to show $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡ u₂ρ$ under the
       assumption that $ρ(x) ∈ \vs("Aρ ∧ u₁ρ ≡ u₂ρ") ≠ ∅$. This immediately
       follows from the definition of $\vs("Aρ ∧ u₁ρ ≡ u₂ρ")$ since it
       contains $ρ(x)$.
@@ -1166,7 +1181,7 @@ correspoding case.
       Consequently we have $π ∈ \ss("Bρ[xk≔w]")$, hence it is enough to
       show that $\t("tkρ[xk≔w]") ∈ \ts("Bρ[xk≔w]")$. We can conclude by
       induction hypothesis using the valuation $\subs("ρ[xk≔w]")$ since
-      $\v("vρ[xk≔w]") ≡_{≻} \v("Ck[w]")$.
+      $\v("vρ[xk≔w]") ≡ \v("Ck[w]")$.
 
       $$ \id(r_sum_e) $$
 
@@ -1174,11 +1189,12 @@ correspoding case.
       $\t("(v[x≔w₂])ρ") ∈ \vs("(A[x≔w₂])ρ")$. As we are free to rename
       $x$ we may assume that it does not appear in $dom(ρ)$, and our
       goal rewrites as $\t("vρ[x≔w₂ρ]") ∈ \vs("Aρ[x≔w₂ρ]")$. According
-      to our second premise we have $\t("w₁ρ") ≡_{≻} \t("w₂ρ")$ and
+      to our second premise we have $\t("w₁ρ") ≡ \t("w₂ρ")$ and
       thus we get $\vs("Aρ[x≔w₂ρ]") = \vs("Aρ[x≔w₁ρ]")$ using
       \thmRef("vexttyp") and $\t("vρ[x≔w₂ρ]") = \t("vρ[x≔w₁ρ]")$ using
-      \thmRef("sextval"). Now, since $\vs("Aρ[x≔w₁ρ]")$ is closed under
-      $({≡}_{≻})$ we only have to show $\t("vρ[x≔w₁ρ]") ∈ \vs("Aρ[x≔w₁ρ]")$.
+      the fact that $({≡})$ is a congruence. Now, since
+      $\vs("Aρ[x≔w₁ρ]")$ is closed under $({≡})$ we only have to show
+      $\t("vρ[x≔w₁ρ]") ∈ \vs("Aρ[x≔w₁ρ]")$.
       To be able to conclude using the induction hypothesis, we need to
       show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
       need to show that for every type $B$ appearing in $Γ$ we have
@@ -1191,19 +1207,17 @@ correspoding case.
 
 \item If the last used rule is ($≡_{τ,ι}$) the proof is similar to the
       previous case, using the fact that $Φ₁ = Φ₂$ implies
-      $Φ₁^{⊥⊥} = φ₂^{⊥⊥}$.
+      $Φ₁^{⊥⊥} = Φ₂^{⊥⊥}$.
 
       $$ \id(r_eq_ti) $$
 
 \item If the last used rule is ($≡_{ι,τ}$) the proof is similar to the
-      proof for ($≡_{ι,ι}$), but \thmRef("sextterm") is used instead of
-      \thmRef("sextval").
+      proof for ($≡_{ι,ι}$).
 
       $$ \id(r_eq_it) $$
 
 \item If the last used rule is ($≡_{τ,τ}$) the proof is similar to the
-      ($≡_{τ,ι}$) using again \thmRef("sextterm") instead of
-      \thmRef("sextval").
+      ($≡_{τ,ι}$).
 
       $$ \id(r_eq_tt) $$
 
@@ -1214,16 +1228,19 @@ correspoding case.
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that a typed term normalises using a pole containing
-only processes reducing to a final state.
+only processes reducing to a final state. Note that we need to fix the
+parameters of the system (i.e. the reduction relation and the equivalence
+relation).
 \begin{thm}
-The typed terms of our language normalise. More formally, if the judgment
+If we choose $({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$ then the typed
+terms of our language normalise. More formally, if the judgment
 $Σ \sp Γ; Ξ ⊢ t : A$ is derivable, and if $ρ$ is a substitution over $Σ$
 such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for every stack $π ∈ \ss("Aρ")$ there
 is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
 \begin{proof}
 We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
 which is trivially saturated. We will first check that it is also
-$≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
+$≡_{≻}$-extensional. Let us suppose that $t ≡_{≻} u$ and that
 $\p("t∗π") ∈ \dbot$. By definition of $\dbot$, there must be a value
 $v$ such that $\p("t∗π") ≻^{∗} \p("v∗ε")$, and thus we have
 ${\p("t∗π")} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
