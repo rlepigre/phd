@@ -141,7 +141,7 @@ let _ =
       \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
   ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\vs("Φ∈A"),
       \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
-  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs("A") \| w ≡_{≻} Φ\},
+  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs("A") \| w ≡ Φ\},
       \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
   ; line <$\{\v("λx t") \| ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[x≔v]")\}$> ]
 )
@@ -292,8 +292,8 @@ let _ =
 )
 \end{center}
 for every stack $π∈Π$, \lemRef("redtosame") tells us that
-$\t("(μα w) F[{}]") ≡_{≻} \t("T[{}]")$. As a consequence, it cannot
-be that $\t("(μα w) F[{}]") ≡_{≻} \t("F[{}]")$ and thus the type
+$\t("(μα w) F[{}]") ≡ \t("T[{}]")$. As a consequence, it cannot
+be that $\t("(μα w) F[{}]") ≡ \t("F[{}]")$ and thus the type
 $\f("[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]")$ is equivalent to
 $\f("[C₀ : {}]")$ (i.e. they have the same semantical interpretation).
 This means that if we manage to show that $\t("t")$ has type
@@ -643,8 +643,10 @@ $$ Φ^{⊥⊥} ∩ Λ_ι^{∗} ⊆ Φ $$
 This property is not true in general, and in particular it is not true in
 our current model. A counter-example is given in the following theorem.
 \begin{thm}
-There is a pole $\dbot$ and a set of values $Φ ∈ ⟦ο⟧$ such that
-$Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values that $Φ$.
+If we choose $({≡}_{≻})$ as our equivalence relation and $({≻})$ as our
+reduction relation then there is a pole $\dbot$ and a set of values
+$Φ ∈ ⟦ο⟧$ such that $Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values
+that $Φ$.
 \begin{proof}
 Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
 and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v("λx Ω")\}$ is suitable. As
@@ -684,8 +686,8 @@ form of $π$.
 \end{proof}
 \end{thm}
 
-The idea now is to use our equivalence relation $({≡})$ to extend the
-reduction relation $({≻})$ with a new, surprising reduction rule. It
+The idea now is to use our equivalence relation $({≡}_{≻})$ to extend
+the reduction relation $({≻})$ with a new, surprising reduction rule. It
 will reduce processes having the form $\p("δ(v,w) ∗ π")$ to $\p("v ∗ π")$
 in the case where $v \nequiv_{≻} w$, and remain stuck otherwise. With
 such a reduction rule, the definitions of reduction and equivalence
@@ -709,7 +711,8 @@ let _ =
 \end{center}
 Here, all the relations are well-defined as there is no circularity. In
 particular, we have $({↠}₀) = ({≻})$ since there is no natural number
-that is strictly smaller than $0$.
+that is strictly smaller than $0$. This implies that we also have
+$({≡}₀) = ({≡}_{≻})$
 \end{def}
 \begin{lem}\label("isequiv")
 For every $i ∈ \bbN$, the relation $({≡}_i)$ is an equivalence relation.
@@ -818,7 +821,7 @@ we have ${\p("v∗π")} {⇑_{↠}}$ and thus $\p("v∗π") ∉ \dbot$.
 \end{proof}
 \end{thm}
 \begin{rem}
-\thmRef("main") gives only gives us the required property of the model
+\thmRef("main") only gives us the required property of the model
 for poles of terminating processes (i.e. processes that eventually
 reduce to a final states). This limitation is not a problem here as
 we will only consider poles having this property in the following.
@@ -826,14 +829,28 @@ we will only consider poles having this property in the following.
 
 =<
 
-=> Recovering properties of equivalence
+=> Final instance of our model
 
-We are now going to check that our new definition of equivalence has
-(roughly) the same properties as $({≡}_{≻})$ (see \chapter("obsEquiv")).
-We will start by showing that $({≡})$ is extentional, as this property
-is essential for the semantical interpretation of typing rules involving
-the substitution of equivalent subterms. Extentionality is given by the
-following two theorems.
+The reduction relation $({↠})$ and the equivalence relation $({≡})$ give
+us an essential property for semantical value restriction. However, we
+need to verify some properties before being able to fix the parameters of
+our model definitively. There is no problem in adopting $({↠})$ as our
+reduction relation as it contains $({≻})$. Nevertheless, we need to check
+that our equivalence relation $({≡})$ is a congruence and that it is
+compatible wiht $({≡}_{≻})$. Let us first show that it is indeed a
+congruence.
+\begin{thm}\label("fullsubstequiv")
+Let $t$, $u ∈ Λ$ be two terms and $ρ ∈ \cal{S}$ be a substitution. If we
+have $\t("t") ≡ \t("u")$ then $\t("tρ") ≡ \t("uρ")$.
+\begin{proof}
+Let us take $i₀ ∈ \bbN$, $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove
+${{\p("(tρ)ρ₀ ∗ π₀")} {⇓}_{i₀}} ⇔ {{\p("(uρ)ρ₀ ∗ π₀")} {⇓}_{i₀}}$,
+which can be rewritten as
+${{\p("t(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{i₀}} ⇔ {{\p("u(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{i₀}}$.
+We can thus conclude using the definition of $t ≡ u$ with the natural
+number $i₀$, the substitution $ρ ∘ ρ₀$ and the stack $π₀$.
+\end{proof}
+\end{thm}
 \begin{thm}\label("fullextval")
 Let $v$, $w∈Λ_ι$ be values, $t∈Λ$ be a term and $x∈\cal{V}_ι$ be a
 $λ$-variable. If $v ≡ w$ then we have $\t("t[x≔v]") ≡ \t("t[x≔w]")$.
@@ -1044,6 +1061,74 @@ $u₁ ≡_{i₀} u₂$ and hence we can conclude using \lemRef("afullextlem").
 \end{proof}
 \end{thm}
 
+\begin{thm}
+The relation $({≡})$ is a congruence.
+\begin{proof}
+Combination of \thmRef("fullsubstequiv"), \thmRef("fullextval") and
+\thmRef("fullextterm").
+\end{proof}
+\end{thm}
+
+Now that we have show that $({≡})$ is a congruence, it remains to show that
+it is compatible with $({≡}_{≻})$. To do so, we first need to show that we
+$({≡})$ contains $({≡}_{≻})$
+\begin{thm}\label("fullcompat1")
+For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$ (i.e.
+$({≡}) ⊆ ({≡}_{≻})$).
+\begin{proof}
+Let us suppose that $t ≡ u$. By definition, this means that $t ≡_i u$ for
+all $i ∈ \bbN$. In particular we have $t ≡₀ u$. We can thus conclude since
+$({≡}₀) = ({≡}_{≻})$.
+\end{proof}
+\end{thm}
+
+\begin{thm}\label("fullcompat2")
+Let $t$, $u∈Λ$ be two terms. If for every stack $π∈Π$ there is a process
+$p ∈ Λ×Π$ such that both $\p("t∗π") ≻^{∗} p$ and $\p("u∗π") ≻^{∗} p$,
+then $t ≡ u$.
+\begin{proof}
+By definition, we need to take $i₀ ∈ \bbN$, $π₀ ∈ Π$ and $ρ₀ ∈ \cal{S}$ and
+show that we have ${{\p("tρ₀∗π₀")} {⇓}_{i₀}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{i₀}}$.
+By symmetry, we may assume ${\p("tρ₀∗π₀")} {⇓}_{i₀}$ and show
+${\p("uρ₀∗π₀")} {⇓}_{i₀}$. By hypothesis, we know that there is $p₀ ∈ Λ×Π$
+such that $\p("t∗π₀") ≻^{∗} p₀$ and $\p("u∗π₀") ≻^{∗} p₀$. Now, using
+\thmRef("redcompatall") we obtain $\p("tρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$ and
+$\p("uρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$. Note that we may assume that $\s("π₀ρ₀")$
+since we are free to rename the variables bound by $ρ₀$ in $\t("tρ₀")$ and
+$\t("uρ₀")$. We can hence deduce that ${\p("p₀ρ₀")} {⇓}_{i₀}$ as otherwise
+we could not have ${\p("tρ₀∗π₀")} {⇓}_{i₀}$. Now, since 
+$\p("uρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$ we can conclude that 
+${\p("uρ₀∗π₀")} {⇓}_{≻}$.
+\end{proof}
+\end{thm}
+
+\begin{thm}\label("fullcompat3")
+Let $t₁$, $t₂∈Λ$ be two terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$. If
+there is a term $u∈Λ$ such that for all terms $v∈Λ_ι$ and stacks $π∈Π$
+we have $\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
+$\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$,
+and if $\t("t₁[x≔v₁]") ≡ \t("t₂[x≔v₂]")$ for some values $v₁$, $v₂∈Λ_ι$,
+then we have $v₁ ≡ v₂$.
+\begin{proof}
+... (* TODO *)
+\end{proof}
+\end{thm}
+
+\begin{thm}
+The relation $({≡})$ is compatible with $({≡}_{≻})$.
+\begin{proof}
+Combination of \thmRef("fullcompat1"), \thmRef("fullcompat2") and
+\thmRef("fullcompat3").
+\end{proof}
+\end{thm}
+
+
+
+=<
+
+=> Understanding our new equivalence
+
+(* FIXME FIXME FIXME chantier en cours. *)
 To better understand our new definition of equivalence, we can compare it
 to another equivalence relation with a more intuitive definition. The
 definition of this new relation, denoted $({≡}_{↠})$, will be very similar
