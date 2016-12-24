@@ -1110,7 +1110,21 @@ $\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$,
 and if $\t("t₁[x≔v₁]") ≡ \t("t₂[x≔v₂]")$ for some values $v₁$, $v₂∈Λ_ι$,
 then we have $v₁ ≡ v₂$.
 \begin{proof}
-... (* TODO *)
+Let us take $v₁$, $v₂∈Λ_ι$ such that $v₁ \nequiv v₂$ and show that
+$\t("t₁[x≔v₁]") \nequiv \t("t₂[x≔v₂]")$. By definition there is
+$i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that ${\p("v₁ρ∗π")} {⇓}_i$ and
+${\p("v₂ρ∗π")} {⇑}_i$ (up to symmetry). We need to find $i₀∈\bbN$,
+$π₀∈Π$ and $ρ₀∈\cal{S}$ such that ${\p("(t₁[x≔v₁])ρ₀∗π₀")} {⇓}_{i₀}$
+and ${\p("(t₂[x≔v₂])ρ₀∗π₀")} {⇑}_{i₀}$. We will now show that $i₀ = i$,
+$π₀ = \s("[u]π")$ and $ρ₀ = ρ$ are suitable. By hypothesis, we know
+that $\p("t₁[x≔v₁]∗[u]π") ≻^{∗} \p("v₁∗π")$ and that
+$\p("t₂[x≔v₂]∗[u]π") ≻^{∗} \p("v₂∗π")$. We then obtain
+$\p("(t₁[x≔v₁])ρ∗[u]π") = \p("(t₁[x≔v₁]∗[u]π)ρ") ≻^{∗}
+\p("(v₁∗π)ρ") = {\p("v₁ρ∗π")} {⇓}_i$ and $\p("(t₂[x≔v₂])ρ∗[u]π") =
+\p("(t₂[x≔v₂]∗[u]π)ρ") ≻^{∗} \p("(v₂∗π)ρ") = {\p("v₂ρ∗π")} {⇑}_i$
+using \lemRef("redcompatall"). Note that we may assume $\t("uρ") = u$
+and $\s("πρ") = π$ as we are free to rename the variables bound by $ρ$
+in $\t("(t₁[x≔v₁])ρ")$ and $\t("(t₂[x≔v₂])ρ")$.
 \end{proof}
 \end{thm}
 
@@ -1121,8 +1135,6 @@ Combination of \thmRef("fullcompat1"), \thmRef("fullcompat2") and
 \thmRef("fullcompat3").
 \end{proof}
 \end{thm}
-
-
 
 =<
 
