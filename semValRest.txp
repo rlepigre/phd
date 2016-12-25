@@ -1242,18 +1242,62 @@ $$\id(p)$$
 \end{proofTree}
 
 With our new set of typing rules, it is very easy to derive introduction
-and elimination rules for dependent product types. Using the ($∈_{i,τ}$)
+and elimination rules for the dependent product type. Using the ($∈_{i,τ}$)
 rule, semantical value restriction is immediately propagated to the
 elimination rules of the dependent product type.
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                  <$Σ,x:ι \sp Γ,x:\f("x∈A");Ξ ⊢ t : \f("B[a≔x]")$>;
+  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f("x∈A");Ξ ⊢ t : \f("B[a≔x]")$>;
+  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f("x∈A");Ξ,{x≡a}⊢t:\f("B[a≔x]")$>;
+  ax     ~name:<$⊤$>   <$Ξ,{x≡a} ⊢ x ≡ a$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ,a:τ,x:ι \sp Γ,x:\f("a∈A");Ξ,{x≡a}⊢t:\f("B")$>;
+  unary  ~name:<$∈_e$> <$Σ, a:τ, x:ι \sp Γ,x:A;Ξ,{x≡a} ⊢ t : B$>;
+  unary  ~name:<$∈_e$> <$Σ, a:τ, x:ι \sp Γ,x:\f("a∈A");Ξ ⊢ t : B$>;
+  unary  ~name:<$⇒_i$> <$Σ, a:τ \sp Γ;Ξ ⊢ \t("λx t") : \f("a∈A ⇒ B")$>;
+  ax     ~name:<$⊤$>   <$Ξ ⊢ \t("λx t") ≡ \v("λx t")$>;
+  binary ~name:<$∀_i$> <$Σ \sp Γ;Ξ ⊢ \t("λx t") : \f("∀a(a∈A ⇒ B)")$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
+\begin{proofTree}
+\Caml(
+let p =
+  hyp                  <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀a(a∈A ⇒ B)")$>;
+  unary  ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("u∈A ⇒ B[a≔u]")$>;
+  hyp                  <$Σ \sp Γ;Ξ ⊢ \t("u") : \f("A")$>;
+  hyp                  <$Ξ ⊢ u ≡ v$>;
+  binary ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t("u") : \f("u∈A")$>;
+  binary ~name:<$⇒_e$> <$Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]")$>;
+  display_proof ()
+)
+\begin{center}
+$$\id(p)$$
+\end{center}
+\end{proofTree}
 
-(* FIXME examples and dependent pair *)
-
+\begin{rem}
+Dually, it is possible to encode a form of dependent pair type using
+existential quantification and product types. As for the dependent
+function type, the membership predicate is used to bridge the world
+of terms and the world of types.
 $$
   \f("Σ_(x∈A) B") ≔ \f("∃x {l₁:x∈A; l₂:B}")
   \hspace(6.0)
   \f("Σ_(a∈A) B") ≔ \f("∃a {l₁:a∈A; l₂:B}")
 $$
+As dependent pair types are based on records (which can only contain
+values in our system), their use is rather limited. It seems however
+possible to rely on a dependent product type to obtain satisfactory
+typing rules based on terms of the following form.
+$$ \t("(λxλy{l₁=x;l₂=y;}) t₁ t₂") $$
+\end{rem}
 
+(*
 $$
 \binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[y≔v₁]")}
   {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(y∈A) B")}
@@ -1262,6 +1306,7 @@ $$
 \binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[a≔v₁]")}
   {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(a∈A) B")}
 $$
+*)
 
 \Caml(
 let r_ax =
@@ -1357,7 +1402,7 @@ let r_eq_t =
    {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>
 
 let rs env =
-  let env = resize_env 3.2 env in
+  let env = resize_env 3.4 env in
   let rs =
     [ [r_ax;r_arrow_e] ; [r_ax';r_arrow_i] ; [r_mu; r_name] ; [r_push; r_fram]
     ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
@@ -1377,7 +1422,6 @@ let _ =
 
 => Understanding our new equivalence
 
-(* FIXME FIXME FIXME chantier en cours. *)
 To better understand our new definition of equivalence, we can compare it
 to another equivalence relation with a more intuitive definition. The
 definition of this new relation, denoted $({≡}_{↠})$, will be very similar
@@ -1430,31 +1474,8 @@ to be compatible with the notion of reduction. And in fact, the only
 part of the reduction relation that will matter in practice is $({≻})$.
 Indeed, $δ$-like terms are only provided in the system for obtaining
 a well-behaved semantics. In particular, we do not want to expose them
-to the users of our implementation. It will thus be enough for us to
-prove that $({≡})$ has the same properties as $({≡}_{≻})$ (has shown
-in \chapter("obsEquiv")). In particular, we will be able to obtain
-negative results immediatly thanks the following theorem.
-\begin{thm}\label("eq_incl_base")
-If $t$, $u∈Λ$ are two terms such that $t ≡ u$ then $t ≡_{≻} u$. In
-other words, we have $({≡}) ⊆ ({≡}_{≻})$
-\begin{proof}
-Let us suppose that $t ≡ u$. By definition, we must have $t ≡_i u$ for
-every natural number $i∈\bbN$. In particular, this is true for $i = 0$
-and thus we have $t ≡_{≻} u$ since $({≡}_i) = ({≡}_{≻})$.
-\end{proof}
-\end{thm}
-\begin{cor}
-If $t$ and $u∈Λ$ are two terms such that $t \nequiv_{≻} u$ then
-$t \nequiv u$.
-\begin{proof}
-Immediate by the contrapositive of \thmRef("eq_incl_base").
-\end{proof}
-\end{cor}
-For instance, \thmRef("consnequiv"), \thmRef("reconequiv"),
-\thmRef("consneqrec"), \thmRef("nequivlamcons") and
-\thmRef("nequivlamreco") are still valid for $({≡})$.
-
-(* TODO from here. *)
+to the users of our implementation. It is thus enough for $({≡})$ to
+be compatible with $({≡}_{≻})$.
 
 =<
 
