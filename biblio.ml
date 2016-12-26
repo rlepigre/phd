@@ -54,12 +54,24 @@ let biblio =
   ; notes   = "Proceedings of the ML Workshop"
   ; year    = "1998" };
 
+  { key     = "MacQueen1984"
+  ; authors = "David MacQueen"
+  ; title   = "Modules for Standard ML"
+  ; notes   = "Proceedings of LFP"
+  ; year    = "1984" };
+
   { key     = "Girard1972"
   ; authors = "Jean-Yves Girard"
   ; title   = "Interprétation fonctionnelle et élimination des coupures "
               ++ "de l'arithmétique d'ordre supérieur"
   ; notes   = "Thèse de l'Université Paris VII"
   ; year    = "1972" };
+
+  { key     = "Girard1989"
+  ; authors = "Jean-Yves Girard, Paul Taylor and Yves Lafont"
+  ; title   = "Proofs and Types"
+  ; notes   = "Cambridge University Press"
+  ; year    = "1989" };
 
   { key     = "Reynolds1974"
   ; authors = "John C. Reynolds"
@@ -278,6 +290,24 @@ let biblio =
   ; title   = "Foundations for Programming Languages"
   ; notes   = "MIT Press"
   ; year    = "1996" };
+
+  { key     = "Castagna2016"
+  ; authors = "Giuseppe Castagna, Tommaso Petrucciani and Kim Nguyen"
+  ; title   = "Set-Theoretic Types for Polymorphic Variants"
+  ; notes   = "http://arxiv.org/abs/1606.01106"
+  ; year    = "2016" };
+
+  { key     = "Lepigre2017"
+  ; authors = "Rodolphe Lepigre and Christophe Raffalli"
+  ; title   = "Practical Subtyping for System F with Sized (Co-)Induction"
+  ; notes   = "Unpublished"
+  ; year    = "2017" };
+
+  { key     = "Hilbert1968"
+  ; authors = "David Hilbert and Paul Bernays"
+  ; title   = "Grundlagen der Mathematik, Volume 1"
+  ; notes   = "Grundlehren der mathematischen Wissenschaften"
+  ; year    = "1934" };
 
   ]
 

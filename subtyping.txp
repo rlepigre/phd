@@ -9,16 +9,135 @@
 )
 \Include{Macros}
 
-=> Subtyping and reccursive types \label("subtyping")
+=> Introducing subtyping into the system \label("subtyping")
 
 In this chapter, we reformulate the definition of our system to account for
 subtyping. The main idea is to transform the typing rules that do not have
-algorithmic contents into subtyping rules. For instance, quantifiers and
-fixpoints will be handled by subtyping.
+algorithmic contents into subtyping rules. For instance, quantifiers,
+fixpoints, membership types and equality types will be handled using
+subtyping.
 
-=> Thinking modular
+=> Interests of subtyping
 
-... (* TODO *)
+There is no denying that polymorphism and type abstraction are essential
+features for programming in a generic way. They lead to programs that are
+shorter, more modular, easier to understand and hence more reliable.
+Although subtyping also provides similar perspectives, it is considerably
+less widespread among programming languages. Practical languages only rely
+on limited forms of subtyping for their module system \cite("MacQueen1984"),
+or for the use of polymorphic variants \cite("Garrigue1998"). Overall,
+subtyping is useful for both product types (e.g. records or modules) and
+sum types (e.g. polymorphic variants). It provides canonical injections
+between a type and its subtypes. For example, unary natural numbers may
+be defined as a subtype of unary integers.
+
+The downside of subtyping is that it is difficult to incorporate in
+complex systems like //Haskell// or ||OCaml||. For example, ||OCaml||
+provides polymorphic variants \cite("Garrigue1998") for which complex
+annotated types are inferred. For instance, one would expect the
+following ||OCaml|| function to be given the type ##[`T | `F] -> [`T | `F]##.
+### OCaml
+  let neg = function
+    | `T -> `F
+    | `F -> `T
+###
+Indeed, the variance of the arrow type conveys enough information: ##neg##
+can be applied to elements of any subtype of ##[`T | `F]## (e.g. ##[`T]##)
+and produces elements of any supertype of ##[`T | `F]## (e.g.
+##[`T | `F | `M]##). ||OCaml|| infers the type ##[<`T | `F] -> [>`T | `F]##
+in which subtypes and supertypes are explicitly tagged. This is not very
+natural and hides a complex mechanism involving polymorphic type variables.
+More discussion on the limitations of ||OCaml||'s polymorphic variants, can
+be found in \cite("Castagna2016"), for example.
+
+In this thesis, we will show that it is possible to design a practical
+type system based on subtyping for our language. It allows for a rather
+straight-forward implementation using standard unification techniques
+following the typing and subtyping rules that will be given in the
+following sections. In particular, the typing and subtyping procedures
+never have to backtrack since they are directed by the syntax of terms
+and types respectively. The ideas presented here were introduced in a
+joint work of Christophe Raffalli and the author \cite("Lepigre2017").
+
+=<
+
+=> Symbolic witnesses and local subtyping
+
+Several related technical innovations are required to include subtyping
+into our system. In particular, we will need to generalise the usual
+subtyping relation $A ⊂ B$ (meaning "$A$ is a subtype of $B$") using a
+//local subtyping// relation $t ∈ A ⊂ B$. It will be interpreted as
+"if $t$ has type $A$ then it also has type $B$". Usual subtyping is then
+recovered using choice operators inspired from //Hilbert's Epsilon and
+Tau functions// \cite("Hilbert"). In our system, the choice operator
+$ε_{x∈A}(t∉B)$ denotes a value $v$ of type $A$ such that $\t("t[x≔v]")$
+does not have type $B$. If no such term exists, then an arbitrary term
+of type $A$ can be chosen. We can then take $ε_{x∈A}(x∉B) ∈ A ⊂ B$ as
+a definition of $A ⊂ B$.
+\begin{rem}
+Of course, for the choice operator $ε_{x∈A}(t∉B)$ to be well-defined
+we will need the interpretation of every type to non-empty. It is the
+case in \cite("Lepigre2017") as the model is based on Girard's
+reducibility candidates \mcite(["Girard1972"; "Girard1989"]).
+\end{rem}
+
+(*
+Choice operators can be used to replace free variables, and hence
+suppress the need for contexts in the usual sense.\footnote{We will
+still use contexts to store ordinals that are assumed to be positive
+(see Section \ref{language}).}
+Intuitively, $\eps_{x\in A}(t \notin B)$
+denotes a counterexample to the fact that $\lambda x\;t$ has type
+$A \to B$. Consequently, we can use the rule
+\begin{prooftree}
+\AxiomC{$\type{t[x := \epsilon_{x\in A}(t \notin B)]}{B}$}
+\UnaryInfC{$\type{\lambda x\;t}{A \to B}$}
+\end{prooftree}
+for typing $\lambda$-abstractions. It can be read as a proof by
+contradiction as its premise is only valid when there is no term $u$
+in $A$ such that $t[x := u]$ does not have type $B$.
+%
+The axiom rule is then replaced by the following typing rule for choice
+operators.
+\begin{prooftree}
+\AxiomC{}
+\UnaryInfC{$\type{}{\epsilon_{x\in A}(t \notin B)}{A}$}
+\end{prooftree}
+
+\subsection*{Choice operators for types.}
+We introduce two new type constructors $\eps_X(t \in A)$ and
+$\eps_X(t \notin A)$ for handling quantifiers in local subtyping
+relations. They correspond to choice operators satisfying the
+denoted properties. For example, $\eps_X(t \notin B)$ is a type
+such that $t$ does not have type $B[X := \eps_X(t \notin B)]$.
+Intuitively, $\eps_X(t \notin B)$ is a counter-example to
+$t : \forall X.B$. Hence, to show $t : \forall X.B$, it will be
+enough to show $t : B[X := \eps_X(t \notin B)]$.
+%
+As a consequence, the usual typing rule for universal quantifier
+introduction is subsumed by the following local subtyping
+rule.\footnote{Note that no freshness constraint is required
+thanks to choice operators.}
+\begin{prooftree}
+\AxiomC{$\subtype{}{t}{A}{B[X:=\epsilon_X(t\notin B)]}$}
+\UnaryInfC{$\subtype{}{t}{A}{\forall X.B}$}
+\end{prooftree}
+
+In conjunction with local subtyping, choice operators allow the
+derivation of valid permutations of quantifiers and connectors.
+For instance, Mitchell's containment axiom \cite{mitchell}
+$$\forall X.(A \to B) \subset (\forall X.A) \to (\forall X.B)$$
+can be easily derived. Consequently, our type system mostly
+contains typing and subtyping rules that are syntax-directed.
+In particular, we do not have a transitivity rule for subtyping.
+It is not a problem since such a rule cannot be implemented.
+Indeed, it would require the system to guess an intermediate
+type. Transitivity is generally admissible in subtyping systems.
+In our system however, it is an open problem whether a form of
+transitivity is admissible.
+
+
+*)
 
 =<
 => Semantics of subtyping
@@ -353,23 +472,7 @@ let _ =
     ~caption:[tT "Typing and subtyping rules."] (dr rs)
 )
 
-\pagesBefore(1)
-... (* TODO *)
-
-=<
-=> Completeness and hints
-
-... (* TODO *)
-
-=<
-=> Reccursion and inductive types
-
-... (* TODO *)
-
-=<
-=> Termination and totality
-
-... (* TODO *)
+(* TODO *)
 
 =<
 
