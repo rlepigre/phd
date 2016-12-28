@@ -291,6 +291,12 @@ let biblio =
   ; notes   = "MIT Press"
   ; year    = "1996" };
 
+  { key     = "Mitchell1991"
+  ; authors = "L. Cardelli, S. Martini, J. C. Mitchell and A. Scedrov"
+  ; title   = "An Extension of System F with Subtyping"
+  ; notes   = "Proceedins of TACS"
+  ; year    = "1991" };
+
   { key     = "Castagna2016"
   ; authors = "Giuseppe Castagna, Tommaso Petrucciani and Kim Nguyen"
   ; title   = "Set-Theoretic Types for Polymorphic Variants"

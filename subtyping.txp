@@ -3,6 +3,12 @@
   open Diagrams
   open Lang
 
+  let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
+
+  let vs a = <$ ⟦\f(a)⟧ $>
+  let ss a = <$ ⟦\f(a)⟧^⊥ $>
+  let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
+
   let mt = mathsText
   let wbox = <$\mathsize{3.}{\wbox}$>
   let bbox = <$\mathsize{3.}{\bbox}$>
@@ -69,64 +75,70 @@ subtyping relation $A ⊂ B$ (meaning "$A$ is a subtype of $B$") using a
 //local subtyping// relation $t ∈ A ⊂ B$. It will be interpreted as
 "if $t$ has type $A$ then it also has type $B$". Usual subtyping is then
 recovered using choice operators inspired from //Hilbert's Epsilon and
-Tau functions// \cite("Hilbert"). In our system, the choice operator
-$ε_{x∈A}(t∉B)$ denotes a value $v$ of type $A$ such that $\t("t[x≔v]")$
+Tau functions// \cite("Hilbert1968"). In our system, the choice operator
+$\v("εx∈A(t∉B)")$ denotes a value $v$ of type $A$ such that $\t("t[x≔v]")$
 does not have type $B$. If no such term exists, then an arbitrary term
-of type $A$ can be chosen. We can then take $ε_{x∈A}(x∉B) ∈ A ⊂ B$ as
+of type $A$ can be chosen. We can then take $\v("εx∈A(x∉B)") ∈ A ⊂ B$ as
 a definition of $A ⊂ B$.
 \begin{rem}
-Of course, for the choice operator $ε_{x∈A}(t∉B)$ to be well-defined
+Of course, for the choice operator $\v("εx∈A(t∉B)")$ to be well-defined
 we will need the interpretation of every type to non-empty. It is the
 case in \cite("Lepigre2017") as the model is based on Girard's
 reducibility candidates \mcite(["Girard1972"; "Girard1989"]).
 \end{rem}
 
-(*
-Choice operators can be used to replace free variables, and hence
-suppress the need for contexts in the usual sense.\footnote{We will
-still use contexts to store ordinals that are assumed to be positive
-(see Section \ref{language}).}
-Intuitively, $\eps_{x\in A}(t \notin B)$
-denotes a counterexample to the fact that $\lambda x\;t$ has type
-$A \to B$. Consequently, we can use the rule
-\begin{prooftree}
-\AxiomC{$\type{t[x := \epsilon_{x\in A}(t \notin B)]}{B}$}
-\UnaryInfC{$\type{\lambda x\;t}{A \to B}$}
-\end{prooftree}
-for typing $\lambda$-abstractions. It can be read as a proof by
-contradiction as its premise is only valid when there is no term $u$
-in $A$ such that $t[x := u]$ does not have type $B$.
-%
-The axiom rule is then replaced by the following typing rule for choice
-operators.
-\begin{prooftree}
-\AxiomC{}
-\UnaryInfC{$\type{}{\epsilon_{x\in A}(t \notin B)}{A}$}
-\end{prooftree}
+Choice operators can be used to replace the notion of free variables,
+and hence suppress the need for typing contexts. Intuitively,
+$\v("εx∈A(t∉B)")$ denotes a counterexample to the fact that $\t("λx t")$
+has type $\f("A⇒B")$. Consequently, we will use the rule of the form
+\begin{center}
+$ \unaryR{Ξ ⊢ \t("t[x≔εx∈A(t∉B)]") : B}
+    {Ξ ⊢ \t("λxt") : \f("A⇒B")} $
+\end{center}
+for typing $λ$-abstractions. It can be read as a proof by contradiction
+as its premise is only valid when there is no value $v$ of type $A$ such
+that $\t("t[x≔v]")$ does not have type $B$. The axiom rule is then
+replaced by the following typing rule for choice operators.
+\begin{center}
+$ \axiomR{Ξ ⊢ \t("εx∈A(t∉B)") : A} $
+\end{center}
+Obviously, the same trick can be used for $μ$-variables and
+$μ$-abstractions. As for choice operators for values, choice
+operators for stack will need to always be well-defined. As
+a consequence, we will need to make sure that each type contains
+at least one element.
 
-\subsection*{Choice operators for types.}
-We introduce two new type constructors $\eps_X(t \in A)$ and
-$\eps_X(t \notin A)$ for handling quantifiers in local subtyping
-relations. They correspond to choice operators satisfying the
-denoted properties. For example, $\eps_X(t \notin B)$ is a type
-such that $t$ does not have type $B[X := \eps_X(t \notin B)]$.
-Intuitively, $\eps_X(t \notin B)$ is a counter-example to
-$t : \forall X.B$. Hence, to show $t : \forall X.B$, it will be
-enough to show $t : B[X := \eps_X(t \notin B)]$.
-%
-As a consequence, the usual typing rule for universal quantifier
-introduction is subsumed by the following local subtyping
-rule.\footnote{Note that no freshness constraint is required
-thanks to choice operators.}
-\begin{prooftree}
-\AxiomC{$\subtype{}{t}{A}{B[X:=\epsilon_X(t\notin B)]}$}
-\UnaryInfC{$\subtype{}{t}{A}{\forall X.B}$}
-\end{prooftree}
+The use of choice operators and the elimination of typing contexts
+will plays an essential role in the definition of our type system
+with subtyping. Indeed, they will allow us to handle quantifiers
+using our local subtyping relation only. This will allow us to work
+with syntax-directed typing rules only, and most of the work will
+be done using subtyping.
+
+Choice operators will also be used for the handling of quantifiers.
+We will thus introduce two new type constructors $\f("εX(t∈A)")$ and
+$\f("εX(t∉A)")$ corresponding to choice operators for picking a type
+satisfying the denoted properties. For example, $\f("εX(t∉B)")$ is a
+type such that the term $t$ does not have type $\f("B[X≔εX(t∉B)]")$.
+Intuitively, $\f("εX(t∉B)")$ is a counter-example to the judgment
+"$t$ has type $\f("∀X B")$". Hence, to show that $t$ has type
+$\f("∀X B")$, it will be enough to show that it has type
+$\f("B[X≔εX(t∉B)]")$. As a consequence, the usual typing rule for
+universal quantifier introduction is subsumed by the following local
+subtyping rule.
+\begin{center}
+$ \binaryR{Ξ ⊢ t ∈ A ⊂ \f("B[X≔εX(t∉B)]")}{Ξ ⊢ t ≡ v}
+          {Ξ ⊢ t ∈ A ⊂ \f("∀X B")} $
+\end{center}
+Note that the rule include a premise stating the term $t$ carried by
+the judgments should be equivalent to a value. This corresponds to
+the semantical value restriction condition in our new system with
+subtyping.
 
 In conjunction with local subtyping, choice operators allow the
 derivation of valid permutations of quantifiers and connectors.
-For instance, Mitchell's containment axiom \cite{mitchell}
-$$\forall X.(A \to B) \subset (\forall X.A) \to (\forall X.B)$$
+For instance, Mitchell's containment axiom \cite("Mitchell1991")
+$$ \f("∀X (A ⇒ B)") ⊂ \f("(∀X A) ⇒ (∀X B)")$$
 can be easily derived. Consequently, our type system mostly
 contains typing and subtyping rules that are syntax-directed.
 In particular, we do not have a transitivity rule for subtyping.
@@ -136,8 +148,147 @@ type. Transitivity is generally admissible in subtyping systems.
 In our system however, it is an open problem whether a form of
 transitivity is admissible.
 
+=<
+=> Typing and subtyping rules
 
-*)
+We will now give the formal definition of our new type system
+with subtyping. We will mostly reuse the formalism given in
+\chapter("typeSystem"), but some modifications will be required.
+
+\Caml(
+let r11 =
+  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊂ C}
+    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
+
+let r12 =
+  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
+
+let r21 =
+  <<$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
+
+let r22 =
+  <<$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t("t") : \f("u∈A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ ∃v, v ≡ u}{Ξ ⊢ \t("t u") : \f("B")}$>>
+
+let r21' =
+  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
+
+let r22' =
+  <<$\binaryRN{[\wc]}{Ξ ⊢ u : A}{Ξ ⊢ π : ¬A}{Ξ ⊢ \t("[π]u") : \f("B")}$>>
+
+let r23' =
+  <<$\unaryRN{Ax^⊥}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \s("εα∈A(t∉A)") : ¬B}$>>
+
+let r2a =
+  <<$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f("A⇒B") ⊂ C}
+    {Ξ ⊢ \s("v·π") : ¬C}$>>
+
+let r2b =
+  <<$\binaryRN{[\wc]\wc}{Ξ ⊢ t : \f("A⇒B")}{Ξ ⊢ π : ¬B}
+    {Ξ ⊢ \s("[t]π") : ¬A}$>>
+
+let r31 =
+  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
+    {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
+      \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
+    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
+
+let r32 =
+  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
+
+let r41 =
+  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
+    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊂ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
+
+let r42 =
+  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊂ C}
+    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
+
+let r51 =
+  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
+    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊂ \f("B₂")}
+    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>>
+
+let r61 =
+  <<$\binaryRN{+}{I₁ ⊂ I₂}
+    {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₁}}
+    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊂ \f("[(Ci : Bi) i∈I₂]")}$>>
+
+let r62 =
+  <<$\binaryRN{×}{I₂ ⊂ I₁}
+    {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₂}}
+    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊂ \f("{(li : Bi) i∈I₂}")}$>>
+
+let r71 =
+  <<$\unaryRN{∀_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊂ \f("B")}$>>
+
+let r72 =
+  <<$\binaryRN{∀_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ ≔ εχ∈s(t∉B)]")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∀χ^s B")}$>>
+
+let r81 =
+  <<$\unaryRN{∃_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ≔C]")}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∃χ^s B")}$>>
+
+let r82 =
+  <<$\binaryRN{∃_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊂ \f("B")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊂ \f("B")}$>>
+
+let r91 =
+  <<$\unaryRN{\restriction_l}
+    {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊂ \f("B")}$>>
+
+let r92 =
+  <<$\binaryRN{\restriction_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ u₁ ≡ u₂}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B ∧ u₁ ≡ u₂")}$>>
+
+let rA1 =
+  <<$\unaryRN{∈_l}
+    {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊂ \f("B")}$>>
+
+let rA2 =
+  <<$\ternaryRN{∈_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ t ≡ u}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("u ∈ B")}$>>
+
+let rs env =
+  let env = resize_env 3.2 env in
+  let rs =
+    [ [ r11 ; r12 ]
+    ; [ r21 ; r22 ]
+    ; [ r21'; r22'; r23']
+    ; [ r2a ; r2b ]
+    ; [ r41 ; r42 ]
+    ; [ r31 ]
+    ; [ r32 ; r51 ]
+    ; [ r61 ; r62 ]
+    (* quantifiers. *)
+    ; [ r71 ; r72 ]
+    ; [ r81 ; r82 ]
+    (* restriction and membership. *)
+    ; [ r91 ; r92 ]
+    ; [ rA1 ; rA2 ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let _ =
+  figure_here
+    ~name:"subrules"
+    ~caption:[tT "Typing and subtyping rules."] (dr rs)
+)
 
 =<
 => Semantics of subtyping
@@ -348,131 +499,6 @@ can obtain $⟦v⟧ ∈ ⟦B⟧$ using the induction hypothesis.
 \end{noindent}
 \end{proof}
 \end{thm}
-
-=<
-=> Adequate subtyping rules
-
-Bla bla bla
-
-\Caml(
-let r11 =
-  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊆ C}
-    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
-
-let r12 =
-  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
-    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
-
-let r21 =
-  <<$\unaryRN{⊆}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊆ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
-
-let r22 =
-  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
-
-let r23 =
-  <<$\unaryRN{[\wc]}{Ξ ⊢ \t("u") : A}{Ξ ⊢ \t("[εα∈A(t∉A)]u") : \f("B")}$>>
-
-let r31 =
-  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
-    {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
-      \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
-    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
-
-let r32 =
-  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
-
-let r41 =
-  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
-    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊆ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
-
-let r42 =
-  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊆ C}
-    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
-
-let r51 =
-  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊆ \f("A₁")}
-    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊆ \f("B₂")}
-    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊆ \f("A₂ ⇒ B₂")}$>>
-
-let r61 =
-  <<$\binaryRN{+}{I₁ ⊆ I₂}
-    {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊆ \f("Bi"))_{i∈I₁}}
-    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊆ \f("[(Ci : Bi) i∈I₂]")}$>>
-
-let r62 =
-  <<$\binaryRN{×}{I₂ ⊆ I₁}
-    {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊆ \f("Bi"))_{i∈I₂}}
-    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊆ \f("{(li : Bi) i∈I₂}")}$>>
-
-let r71 =
-  <<$\unaryRN{∀_l}
-    {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊆ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊆ \f("B")}$>>
-
-let r72 =
-  <<$\binaryRN{∀_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B[χ ≔ εχ∈s(t∉B)]")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("∀χ^s B")}$>>
-
-let r81 =
-  <<$\unaryRN{∃_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B[χ≔C]")}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("∃χ^s B")}$>>
-
-let r82 =
-  <<$\binaryRN{∃_l}
-    {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊆ \f("B")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊆ \f("B")}$>>
-
-let r91 =
-  <<$\unaryRN{\restriction_l}
-    {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊆ \f("B")}$>>
-
-let r92 =
-  <<$\binaryRN{\restriction_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
-    {Ξ ⊢ u₁ ≡ u₂}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B ∧ u₁ ≡ u₂")}$>>
-
-let rA1 =
-  <<$\unaryRN{∈_l}
-    {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊆ \f("B")}$>>
-
-let rA2 =
-  <<$\ternaryRN{∈_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("B")}
-    {Ξ ⊢ t ≡ u}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊆ \f("u ∈ B")}$>>
-
-let rs env =
-  let env = resize_env 3.0 env in
-  let rs =
-    [ [ r11 ; r12 ]
-    ; [ r21 ; r22 ; r23 ]
-    ; [ r31 ; r32 ]
-    ; [ r41 ; r42 ]
-    ; [ r51 ]
-    ; [ r61 ; r62 ]
-    (* quantifiers. *)
-    ; [ r71 ; r72 ]
-    ; [ r81 ; r82 ]
-    (* restriction and membership. *)
-    ; [ r91 ; r92 ]
-    ; [ rA1 ; rA2 ] ]
-  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
-
-let _ =
-  figure_here
-    ~name:"subrules"
-    ~caption:[tT "Typing and subtyping rules."] (dr rs)
-)
-
-(* TODO *)
 
 =<
 
