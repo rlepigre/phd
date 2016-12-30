@@ -1,4 +1,4 @@
-Les travaux de thèse présentés ici s'articulent autours d'un but commun~:
+Les travaux de thèse présentés ici s'articulent autours d'un but commun :
 proposer un nouveau langage de programmation combinant un système de type
 expressif (produit dépendant, sous-typage) et rendant accessible la preuve
 de programme. Chacun des aspects du système de type ont été implémentés
@@ -20,10 +20,10 @@ des langages de la famille \sc{ml}, nous opterons pour l'appel par valeur.
 De ce fait, on doit prendre garde aux problèmes de correction liés à la
 combinaison de l'appel par valeur, des effets de bord et du polymorphisme
 à la \sc{ml}. Une solution classique à ce problème est d'opter pour la
-bien connue «~value restriction~»~: certaines règles de typage sont
+bien connue « value restriction » : certaines règles de typage sont
 restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques.
 
-Bien qu'étant une solution simple et élégante, la «~value restriction~»
+Bien qu'étant une solution simple et élégante, la « value restriction »
 n'est pas satisfaisante quand on étant le système avec une forme de
 produit dépendant. En effet, l'argument d'une fonction dépendante ne
 peut être qu'une valeur. Pour contourner ce problème il est possible
@@ -35,8 +35,8 @@ observationnelle. Pour montrer la correction de cette nouvelle approche,
 nous construisons un modèle de réalisabilité surprenant, qui nécessite
 l'ajout d'une instruction à la machine de calcul.
 
-Un des points essentiels pour autoriser la relaxation de la «~value
-restriction~» est d'intégrer une théorie equationnelle du langage au sein
+Un des points essentiels pour autoriser la relaxation de la « value
+restriction » est d'intégrer une théorie equationnelle du langage au sein
 de son système de type. On peut de ce fait ajouter des constructeurs de
 types pour tirer parti de cet ajout, ce qui augmente l'expressivité des
 spécifications significativement. En particulier, on pourra encoder le
@@ -86,8 +86,8 @@ de sauter cette partie, et de commencer directement au chapitre 2.
 Le chapitre 2 constitue la partie centrale de ce travail de thèse. En
 particulier il contient la définition formèle de notre langage avec sa
 sémantique opérationnelle et la notion d'équivalence observationnelle
-correspondante. En utilisant l'équivalence, une alternative à la «~value
-restriction~» est proposée, ce qui permet d'obtenir un produit dépendant
+correspondante. En utilisant l'équivalence, une alternative à la « value
+restriction » est proposée, ce qui permet d'obtenir un produit dépendant
 utilisable directement. Une alternative pourrait être d'avoir recours à
 des sucres syntaxiques invasifs qui pourraient poser un problème de
 clareté sémantique pour l'utilisateur.

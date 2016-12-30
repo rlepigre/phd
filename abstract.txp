@@ -17,14 +17,14 @@ On ajoute également au système une forme restreinte de type dépendant qui,
 comme le polymorphisme à la \sc{ml}, nécessite une restriction syntaxique.
 Cette limitation rend le produit dépendant difficile à utiliser en pratique,
 si on a pas recours à des sucres syntaxiques invasifs. Dans ce travail, une
-nouvelle approche est considérée après une réinvestigation de la «~value
-restriction~». On propose ici de limiter les règles concernées aux termes
+nouvelle approche est considérée après une réinvestigation de la « value
+restriction ». On propose ici de limiter les règles concernées aux termes
 équivalents à une valeur. Une preuve qu'un terme est équivalent à une valeur
 peut être obtenue par raisonnement équationnel. Une procédure de
 pseudo-décision peut être employée pour décider automatiquement les
 équivalences de programmes.
 
-De plus, nous introduisons deux nouveaux constructeurs de types~: un
+De plus, nous introduisons deux nouveaux constructeurs de types : un
 opérateur de restriction, et un prédicat d'appartenance. Le premier est
 interprété comme une conjonction sans contenu algorithmique entre une formule
 et une équivalence. Si l'équivalence se trouve être fausse, le type résultant
