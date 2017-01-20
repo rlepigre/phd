@@ -105,8 +105,8 @@ $ \axiomR{Ξ ⊢ \t("εx∈A(t∉B)") : A} $
 Obviously, the same trick can be used for $μ$-variables and
 $μ$-abstractions. As for choice operators for values, choice
 operators for stack will need to always be well-defined. As
-a consequence, we will need to make sure that each type contains
-at least one element.
+a consequence, we will need to make sure that the set of stacks
+associated to each type contain at least one element.
 
 The use of choice operators and the elimination of typing contexts
 will plays an essential role in the definition of our type system
@@ -136,7 +136,7 @@ the semantical value restriction condition in our new system with
 subtyping.
 
 In conjunction with local subtyping, choice operators allow the
-derivation of valid permutations of quantifiers and connectors.
+derivation of many valid permutations of quantifiers and connectors.
 For instance, Mitchell's containment axiom \cite("Mitchell1991")
 $$ \f("∀X (A ⇒ B)") ⊂ \f("(∀X A) ⇒ (∀X B)")$$
 can be easily derived. Consequently, our type system mostly
@@ -152,8 +152,66 @@ transitivity is admissible.
 => Typing and subtyping rules
 
 We will now give the formal definition of our new type system
-with subtyping. We will mostly reuse the formalism given in
-\chapter("typeSystem"), but some modifications will be required.
+with subtyping. We will reuse some of the formalism given in
+\chapter("typeSystem"), but modifications will be required. For
+instance, we will need to extend the language of values, stacks
+and formulas to include choice operators.
+\begin{def}
+We will extend the language of formulas $\cal{F}$ with two new
+constructors $\f("εχ∈s(t∈A)")$ and $\f("εχ∈s(t∉A)")$ representing
+choice operators. They will be made available in the syntax, and
+will provide an alternative presentation of quantifiers. Note that
+our system needs to be extended with the following two sorting
+rules.
+$$
+  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("εχ∈s(t∈A)") : ο}
+  \hspace(4.0)
+  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("εχ∈s(t∉A)") : ο}
+$$
+\end{def}
+
+To introduce value and stack witnesses into our system, we will
+need to make a distinction between values, terms, stacks and
+formulas that may contain value and stack witnesses and those
+that may not.
+\begin{def}
+We extend the syntax of values with a new constructor
+$\v("εx∈A(t∉B)")$, where $x∈\cal{V}_ι$ is a $λ$-variables,
+$t∈Λ$ is a term and $A$, $B∈\cal{F}$ are propositions.
+Similarly, the syntax of stacks is extended with a new
+constructor $\s("εα∈A(t∉A)")$, where $α∈\cal{V}_σ$ is a
+$μ$-variable, $t∈Λ$ is a term and $A∈\cal{F}$ is a
+proposition. Note that our system needs to be extended
+with the following two sorting rules.
+$$
+  \ternaryR{Σ ⊢ A : ο}{Σ, x : ι ⊢ t : τ}{Σ ⊢ B : ο}{Σ ⊢ \f("εχ∈s(t∈A)") : ο}
+  \hspace(4.0)
+  \binaryR{Σ ⊢ A : ο}{Σ, α : σ ⊢ t : τ}{Σ ⊢ \f("εχ∈s(t∈A)") : ο}
+$$
+\end{def}
+Note that our extension of the syntax of values and the syntax
+of stacks propagates to the terms and formulas in general.
+\begin{def}
+We will refer to values, terms and stacks that may contain value
+and stack witnesses as //raw// values, terms and stacks. The
+corresponding sets will be denoted $Λ^{+}_ι$, $Λ^{+}$ and $Π^{+}$
+respectively.
+\end{def}
+
+Before giving the new typing and subtyping rules of our system,
+we need to consider two (and in fact three) new forms of
+judgments.
+\begin{def}
+A //general typing judgment// is a triple of an equational context
+$Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
+$Ξ ⊢ t : A$. A //pointed subtyping judgment// is a quadruple of an
+equational context $Ξ$, a raw term $t∈Λ^{+}$ and two formulas
+$A$, $B ∈ \cal{F}$ that is denoted $Ξ ⊢ t ∈ A ⊂ B$. We will use the
+notation $Ξ ⊢ A ⊂ B$ when the term $t$ is of the form
+$\v("εx∈A(x∉B)")$.
+\end{def}
+
+(* TODO *)
 
 \Caml(
 let r11 =

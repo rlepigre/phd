@@ -54,7 +54,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Conclusion}
 
 (* Résumé en français *)
-\begin{minichap}{Résumé substantiel en français}
+\begin{minichap}{Résumé « substantiel » en français}
 \Include{Resume}
 \end{minichap}
 

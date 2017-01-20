@@ -1,18 +1,48 @@
+\Include{Macros}
+\Caml(
+  open ProofTree
+  open PMLVerbatim
+  open Lang
+)
+
 Les travaux de thèse présentés ici s'articulent autours d'un but commun :
 proposer un nouveau langage de programmation combinant un système de type
 expressif (produit dépendant, sous-typage) et rendant accessible la preuve
 de programme. Chacun des aspects du système de type ont été implémentés
-dans un prototype distribué avec ce manuscrit.
+dans un prototype.
 
--> Un système de type expressif
+-> Langage et système de types
 
-Notre nouveau langage de programmation s'inspire largement des langages de
-la famille \sc{ml} comme \sc{Caml} ou \sc{sml}. En particulier il contient
-le $λ$-calcul ainsi qu'une forme de type produit (enregistrement) et une
-forme de type somme (variants) qui enrichit un système de type d'ordre
-supérieur standard. Nous adoptons également la syntaxe du $λμ$-calcul pour
-obtenir un accès à la continuation des programmes. On obtient donc des
-opérateurs de contrôle tels que \emph{call/cc} dans le langage \sc{Lisp}.
+Notre nouveau langage de programmation s'inspire largement des langages
+de la famille ML (comme OCaml ou SML) et de leurs systèmes de types. En
+particulier, il suit le paradigme de la programmation fonctionnelle et
+il contient donc le $λ$-calcul. Il adopte également la syntaxe du
+$λμ$-calcul pour obtenir un accès à la continuation des programmes. On
+obtient donc des opérateurs de contrôle tels que \emph{call/cc} dans le
+langage \sc{Lisp}.
+
+Les types sont construits en utilisant une forme de type produit
+(enregistrement), une forme de type somme (variants) et un type
+flèche qui enrichissent un système de type d'ordre supérieur
+standard. En particulier, il est possible de programmer dans
+notre langage comme on le ferait en OCaml. Par exemple, on peut
+définir le type des listes avec leur fonction « map » comme suit.
+### PML
+type rec list<a> = [Nil | Cons of {hd : a; tl : list<a>}]
+
+val rec map : ∀a ∀b (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun fn l →
+  case l of
+  | Nil     → Nil
+  | Cons[c] → Cons[{hd = fn c.hd; tl = map fn c.tl}]
+###
+Cette dernière applique une fonction donnée à tous les éléments
+d'une liste. Évidemment, le type des éléments de la liste d'entrée
+et de la liste de sortie doivent correspondre aux types du domaine
+et du co-domaine de la fonction.
+
+-<
+
+-> Réstriction aux valeurs relaxée
 
 Du fait de la présence d'opérateurs de contrôle, et donc d'effets de bord,
 il est nécessaire de fixer une stratégie d'évaluation. Comme la plupart
@@ -20,15 +50,16 @@ des langages de la famille \sc{ml}, nous opterons pour l'appel par valeur.
 De ce fait, on doit prendre garde aux problèmes de correction liés à la
 combinaison de l'appel par valeur, des effets de bord et du polymorphisme
 à la \sc{ml}. Une solution classique à ce problème est d'opter pour la
-bien connue « value restriction » : certaines règles de typage sont
-restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques.
+bien connue « value restriction » : certaines règles de typage sont
+restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques (et
+non plus aux termes arbitraires).
 
-Bien qu'étant une solution simple et élégante, la « value restriction »
-n'est pas satisfaisante quand on étant le système avec une forme de
+Bien qu'étant une solution simple et élégante, la « value restriction »
+n'est pas satisfaisante quand on étend le système avec une forme de
 produit dépendant. En effet, l'argument d'une fonction dépendante ne
 peut être qu'une valeur. Pour contourner ce problème il est possible
 d'utiliser des sucres syntaxiques pour garder les arguments des fonctions
-dépendantes, mais nous ne considerons pas cette solution satisfaisante.
+dépendantes, mais nous ne considérons pas cette solution satisfaisante.
 Dans ce travail, nous relaxons la restriction syntaxique, et la remplaçons
 par un restriction sémantique exprimée en terme d'équivalence
 observationnelle. Pour montrer la correction de cette nouvelle approche,
@@ -36,11 +67,11 @@ nous construisons un modèle de réalisabilité surprenant, qui nécessite
 l'ajout d'une instruction à la machine de calcul.
 
 Un des points essentiels pour autoriser la relaxation de la « value
-restriction » est d'intégrer une théorie equationnelle du langage au sein
+restriction » est d'intégrer une théorie équationnelle du langage au sein
 de son système de type. On peut de ce fait ajouter des constructeurs de
 types pour tirer parti de cet ajout, ce qui augmente l'expressivité des
 spécifications significativement. En particulier, on pourra encoder le
-produit dépendant en utilisant ces noueaux constructeurs.
+produit dépendant en utilisant ces nouveaux constructeurs.
 
 Globalement, programmer avec notre langage devrait être
 une expérience relativement similaire à programmer en \sc{ml}.
@@ -51,69 +82,77 @@ une expérience relativement similaire à programmer en \sc{ml}.
 
 ... (* TODO *)
 
--> ...
-
-...
-
--<
-
--> ...
-
-...
-
--<
-
--<
-
--> Systèmes similaires
-
-... (* TODO *)
-
 -<
 
 -> Organisation du manuscrit
 
-Au travers de ce manuscrit, nous construisons le système de type de notre
-langage incrémentalement. Le point de départ est un système d'ordre
-supérieur standard (connu sous le nom de \sc{hol}) enrichit avec des types
-somme et produit correspondant aux enregistrements et aux constructeurs.
-Ce système est décrit formèlement dans le chapitre 1, qui
-contient également une introduction détaillée aux concepts et aux
-formalismes de la théorie des types ainsi qu'à ceux de la réalisabilité
-classique de Krivine. Un lecteur familier avec ces théories pourra décider
-de sauter cette partie, et de commencer directement au chapitre 2.
+Ce manuscrit, rédigé en grande partie en anglais, présente notre nouveau
+langage et son système de type de manière incrémentale. Après avoir
+donné les objectifs généraux (et divers travaux liés) dans le
+\chapitre("intro"), la présentation formelle du langage commence aux
+\chapitre("calculus"). Le point de départ est une extension du $λ$-calcul
+(ou plutôt du $λμ$-calcul) pur, présentée sous la forme d'une machine
+abstraite en appel par valeur, dérivée de la machine de Krivine. Ce
+formalisme permet, en outre, la définition d'une notion d'équivalence
+observationnelle sur les programmes dans le \chapitre("obsEquiv"). Dans
+ce même chapitre, une axiomatisation partielle est proposée pour la
+relation d'équivalence, ainsi que pour toute relation compatible en un
+certain sens. On pourra utiliser ces relations pour implanter une
+procédure de décision partielle pour l'équivalence de programmes. En
+particulier, cette procédure sera correcte, c'est à dire qu'il ne sera
+pas possible dériver une équivalence entre deux termes qui ne le sont
+pas. Par contre, elle ne sera pas complète, et ne pourra donc pas montrer
+toutes les équivalences valides.
 
-Le chapitre 2 constitue la partie centrale de ce travail de thèse. En
-particulier il contient la définition formèle de notre langage avec sa
-sémantique opérationnelle et la notion d'équivalence observationnelle
-correspondante. En utilisant l'équivalence, une alternative à la « value
-restriction » est proposée, ce qui permet d'obtenir un produit dépendant
-utilisable directement. Une alternative pourrait être d'avoir recours à
-des sucres syntaxiques invasifs qui pourraient poser un problème de
-clareté sémantique pour l'utilisateur.
+La construction du système de type de notre langage commence au
+\chapitre("typeSystem"). Le point de départ est un système d'ordre
+supérieur standard (connu sous le nom de \sc{hol}) enrichit avec des
+types somme et produit (correspondant aux enregistrements et aux
+variants). Le système est complété avec des types permettant la
+spécification de propriétés équationnelles entre les programmes
+(type restriction) et une forme de quantification typée (type
+appartenance). Leur combinaison permet d'exprimer des propriétés
+des programmes au sein du système de type. On peut donc prouver une
+telle propriété (c'est à dire un type) en construisant un programme
+habitant le type correspondant (à la manière de la correspondance
+de Curry-Howard). On notera ici qu'on ne considère pas les preuve
+comme des programmes, mais bien les programmes comme de preuves.
+Nous prenons donc à contre-pied l'usuelle correspondance
+« proof-as-program » de la logique classique.
+(* *)
+Le \chapitre("typeSystem") contient également la construction d'un
+modèle de réalisabilité classique pour notre système de type. Bien
+entendu, la relation d'équivalence du \chapitre("obsEquiv") est
+utilisée pour interpréter les types restriction et appartenance.
 
-Le chapitre 3 se concentre sur les aspects pratiques de l'équivalence. En
-effet, la notion sémantique d'équivalence ne peut pas être utilisée pour
-une implémentation et ne peut donc pas être appliquée en pratique. Pour
-palier à ce problème, nous dérivons des règles syntaxiques à partir de la
-définition de l'équivalence. Ces dernières correspondrons grossièrement
-aux règles de réduction de notre langage et on pourra les utiliser pour
-implémanter une procédure de pseudo-décision pour l'équivalence.
+Bien que le système présenté au \chapitre("typeSystem") contienne tous
+les ingrédients nécessaires à la preuve de programmes, une difficulté
+importante demeure. La restriction syntactique usuelle, qui est utilisée
+pour s'assurer de la correction de certaines règles de typage, pose un
+problème d'expressivité majeur en ce qui concerne la quantification
+typée (c'est à dire le type appartenance). En effet, le restriction
+limite l'élimination de cette quantification aux valeurs. Une solution
+à ce problème est présentée au \chapitre("semValRest"), qui constitue
+la partie centrale de ce manuscrit. L'idée principale consiste à
+utiliser notre relation d'équivalence pour proposer une relaxation de
+la « value restriction ». On ne se limitera donc plus aux valeurs
+syntactiques, mais à tous les termes qui leurs sont équivalent.
 
-Le chapitre 4 quant à lui modifie le système défini dans les chapitres 2
-et 3 pour intégrer une notion de sous-typage. En particulier, le sous-typage
-permet d'englober toutes les règles de typage qui n'ont aucun contenu
-algorithmique. En particulier, tout l'indécidabilité du typage de notre
-système sera contenue dans le sous-typage (et donc aussi dans
-l'équivalence). Dans notre cadre, le sous-typage peut également être utilisé
-pour définir plus petits et plus grands points fixes de types. Ceci nous
-permet donc d'obtenir types récursifs et types co-récursifs de manière
-élégante.
+À partir du chapitre du \chapitre("subtyping"), le système est modifié
+de manière à ce qu'il puisse être implanté. En particulier, une notion
+de sous-typage est incorporée au système pour prendre en charge les
+connecteurs logiques qui n'ont pas de contenu algorithmique (restriction,
+appartenance, quantification, ...). En particulier, tout l'indécidabilité
+du typage de notre système sera contenue dans le sous-typage, qui devra
+faire appel à la procédure de décision pour l'équivalence. Dans notre
+cadre, le sous-typage peut également être utilisé pour définir plus
+petits et plus grands points fixes de types. Ceci nous permet donc
+d'obtenir types récursifs et types co-récursifs de manière élégante.
 
-Finalement, le chapitre 5 contient une description de certaines parties
-de notre implémantation. Des examples de programmes standard et moins
+Finalement, le \chapitre("implem") contient une description de certaines
+parties de notre implantation. Des exemples de programmes standard et moins
 standard sont également fournis pour donner au lecteur une idée de
-l'utilisabilité du système en pratique. Les exemples sont également
+l'expressivité du système en pratique. Les exemples sont également
 distribués avec le code source du prototype, afin que le lecteur puisse
 s'essayer à les utiliser et à les modifier.
 
