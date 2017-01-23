@@ -15,6 +15,144 @@
 )
 \Include{Macros}
 
+\Caml(
+let r11 =
+  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊂ C}
+    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
+
+let r12 =
+  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
+
+let r21 =
+  <<$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
+
+let r22 =
+  <<$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t("t") : \f("u∈A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ ∃v, v ≡ u}{Ξ ⊢ \t("t u") : \f("B")}$>>
+
+let r21' =
+  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
+
+let r22' =
+  <<$\binaryRN{[\wc]}{Ξ ⊢ u : A}{Ξ ⊢ π : ¬A}{Ξ ⊢ \t("[π]u") : \f("B")}$>>
+
+let r23' =
+  <<$\unaryRN{Ax^⊥}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \s("εα∈A(t∉A)") : ¬B}$>>
+
+let r2a =
+  <<$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f("A⇒B") ⊂ C}
+    {Ξ ⊢ \s("v·π") : ¬C}$>>
+
+let r2b =
+  <<$\binaryRN{[\wc]\wc}{Ξ ⊢ t : \f("A⇒B")}{Ξ ⊢ π : ¬B}
+    {Ξ ⊢ \s("[t]π") : ¬A}$>>
+
+let r31 =
+  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
+    {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
+      \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
+    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
+
+let r32 =
+  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
+
+let r33 =
+  <<$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t("t") : A ⊂ A}$>>
+
+let r41 =
+  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
+    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊂ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
+
+let r42 =
+  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊂ C}
+    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
+
+let r51 =
+  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
+    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊂ \f("B₂")}
+    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>>
+
+let r61 =
+  <<$\binaryRN{+}{I₁ ⊂ I₂}
+    {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₁}}
+    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊂ \f("[(Ci : Bi) i∈I₂]")}$>>
+
+let r62 =
+  <<$\binaryRN{×}{I₂ ⊂ I₁}
+    {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₂}}
+    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊂ \f("{(li : Bi) i∈I₂}")}$>>
+
+let r71 =
+  <<$\unaryRN{∀_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊂ \f("B")}$>>
+
+let r72 =
+  <<$\binaryRN{∀_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ ≔ εχ∈s(t∉B)]")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∀χ^s B")}$>>
+
+let r81 =
+  <<$\unaryRN{∃_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ≔C]")}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∃χ^s B")}$>>
+
+let r82 =
+  <<$\binaryRN{∃_l}
+    {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊂ \f("B")}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊂ \f("B")}$>>
+
+let r91 =
+  <<$\unaryRN{\restriction_l}
+    {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊂ \f("B")}$>>
+
+let r92 =
+  <<$\binaryRN{\restriction_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ u₁ ≡ u₂}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B ∧ u₁ ≡ u₂")}$>>
+
+let rA1 =
+  <<$\unaryRN{∈_l}
+    {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊂ \f("B")}$>>
+
+let rA2 =
+  <<$\ternaryRN{∈_r}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
+    {Ξ ⊢ t ≡ u}
+    {Ξ ⊢ ∃v, v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("u ∈ B")}$>>
+
+let rs env =
+  let env = resize_env 3.2 env in
+  let rs =
+    [ [ r11 ; r12 ]
+    ; [ r21 ; r22 ]
+    ; [ r21'; r22'; r23']
+    ; [ r2a ; r2b ]
+    ; [ r32 ; r42 ]
+    ; [ r31 ]
+    ; [ r41 ; r33 ]
+    ; [ r51 ]
+    ; [ r61 ; r62 ]
+    (* quantifiers. *)
+    ; [ r71 ; r72 ]
+    ; [ r81 ; r82 ]
+    (* restriction and membership. *)
+    ; [ r91 ; r92 ]
+    ; [ rA1 ; rA2 ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let subrules () =
+  figure_here ~name:"subrules"
+    ~caption:[tT "Typing and subtyping rules."] (dr rs)
+)
+
 => Introducing subtyping into the system \label("subtyping")
 
 In this chapter, we reformulate the definition of our system to account for
@@ -193,9 +331,9 @@ Note that our extension of the syntax of values and the syntax
 of stacks propagates to the terms and formulas in general.
 \begin{def}
 We will refer to values, terms and stacks that may contain value
-and stack witnesses as //raw// values, terms and stacks. The
-corresponding sets will be denoted $Λ^{+}_ι$, $Λ^{+}$ and $Π^{+}$
-respectively.
+and stack witnesses as //raw// values, //raw// terms and //raw//
+stacks. The corresponding sets will be denoted $Λ^{+}_ι$, $Λ^{+}$
+and $Π^{+}$ respectively.
 \end{def}
 
 Before giving the new typing and subtyping rules of our system,
@@ -210,143 +348,33 @@ $A$, $B ∈ \cal{F}$ that is denoted $Ξ ⊢ t ∈ A ⊂ B$. We will use the
 notation $Ξ ⊢ A ⊂ B$ when the term $t$ is of the form
 $\v("εx∈A(x∉B)")$.
 \end{def}
+\begin{def}
+A general typing judgment or a pointed subtyping judgment is said to
+be correct if it is derivable using the deduction rules of
+\figRef("subrules").
+\end{def}
 
-(* TODO *)
+With the implementation in mind, it is important for our general typing
+rules to be directed by the syntax. This means that we should be able
+to select which rule to apply by looking at the surface constructor of
+the term we want to type-check. The general typing rules given in
+\figRef("subrules") can all be implemented as a syntax-directed procedure,
+with the exception of the ($⇒_e$) and ($⇒_{e,{∈}}$) rules (which form
+a critical pair). However, this is not really a problem since we can
+choose to apply the ($⇒_{e,{∈}}$) rule whenever possible, and fallback
+to the ($⇒_e$) rule. It is always safe to do so thanks to the following
+lemma.
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
-\Caml(
-let r11 =
-  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊂ C}
-    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
-
-let r12 =
-  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
-    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
-
-let r21 =
-  <<$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
-
-let r22 =
-  <<$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t("t") : \f("u∈A ⇒ B")}
-    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ ∃v, v ≡ u}{Ξ ⊢ \t("t u") : \f("B")}$>>
-
-let r21' =
-  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
-
-let r22' =
-  <<$\binaryRN{[\wc]}{Ξ ⊢ u : A}{Ξ ⊢ π : ¬A}{Ξ ⊢ \t("[π]u") : \f("B")}$>>
-
-let r23' =
-  <<$\unaryRN{Ax^⊥}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \s("εα∈A(t∉A)") : ¬B}$>>
-
-let r2a =
-  <<$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f("A⇒B") ⊂ C}
-    {Ξ ⊢ \s("v·π") : ¬C}$>>
-
-let r2b =
-  <<$\binaryRN{[\wc]\wc}{Ξ ⊢ t : \f("A⇒B")}{Ξ ⊢ π : ¬B}
-    {Ξ ⊢ \s("[t]π") : ¬A}$>>
-
-let r31 =
-  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
-    {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
-      \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
-    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
-
-let r32 =
-  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
-
-let r41 =
-  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
-    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊂ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
-
-let r42 =
-  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊂ C}
-    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
-
-let r51 =
-  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
-    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊂ \f("B₂")}
-    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>>
-
-let r61 =
-  <<$\binaryRN{+}{I₁ ⊂ I₂}
-    {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₁}}
-    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊂ \f("[(Ci : Bi) i∈I₂]")}$>>
-
-let r62 =
-  <<$\binaryRN{×}{I₂ ⊂ I₁}
-    {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₂}}
-    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊂ \f("{(li : Bi) i∈I₂}")}$>>
-
-let r71 =
-  <<$\unaryRN{∀_l}
-    {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊂ \f("B")}$>>
-
-let r72 =
-  <<$\binaryRN{∀_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ ≔ εχ∈s(t∉B)]")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∀χ^s B")}$>>
-
-let r81 =
-  <<$\unaryRN{∃_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ≔C]")}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∃χ^s B")}$>>
-
-let r82 =
-  <<$\binaryRN{∃_l}
-    {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊂ \f("B")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊂ \f("B")}$>>
-
-let r91 =
-  <<$\unaryRN{\restriction_l}
-    {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊂ \f("B")}$>>
-
-let r92 =
-  <<$\binaryRN{\restriction_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ u₁ ≡ u₂}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B ∧ u₁ ≡ u₂")}$>>
-
-let rA1 =
-  <<$\unaryRN{∈_l}
-    {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊂ \f("B")}$>>
-
-let rA2 =
-  <<$\ternaryRN{∈_r}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ t ≡ u}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("u ∈ B")}$>>
-
-let rs env =
-  let env = resize_env 3.2 env in
-  let rs =
-    [ [ r11 ; r12 ]
-    ; [ r21 ; r22 ]
-    ; [ r21'; r22'; r23']
-    ; [ r2a ; r2b ]
-    ; [ r41 ; r42 ]
-    ; [ r31 ]
-    ; [ r32 ; r51 ]
-    ; [ r61 ; r62 ]
-    (* quantifiers. *)
-    ; [ r71 ; r72 ]
-    ; [ r81 ; r82 ]
-    (* restriction and membership. *)
-    ; [ r91 ; r92 ]
-    ; [ rA1 ; rA2 ] ]
-  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
-
-let _ =
-  figure_here
-    ~name:"subrules"
-    ~caption:[tT "Typing and subtyping rules."] (dr rs)
-)
+\begin{lem}
+If a typing judgment $Ξ ⊢ \t("t u") : \f("B")$ has a typing proof starting
+with the ($⇒_e$) rule, and if the judgment $Ξ ⊢ ∃v, v≡u$ is provable, then
+$Ξ ⊢ \t("t u") : \f("B")$ also has a typing proof starting with the
+($⇒_{e,{∈}}$) rule.
+\begin{proof}
+Blah bla bla.
+\end{proof}
+\end{lem}
 
 =<
 => Semantics of subtyping
