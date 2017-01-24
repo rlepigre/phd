@@ -56,9 +56,26 @@ let fset2m : ('a -> maths) -> maths -> 'a fset -> maths = fun f s -> function
                          [Maths.Ordinary mid]
       end
 
+let semantic_brackets : Maths.math list -> Maths.math list = fun ms ->
+  (*
+  let l = asana "\\left_white_square_bracket"  3320 in
+  let r = asana "\\right_white_square_bracket" 3324 in
+  r @ ms @ r
+  *)
+  let l =
+    MathFonts.fix_asana_delimiters "\\left_white_square_bracket"
+      [3320; 3321; 3322; 3323]
+  in
+  let r =
+    MathFonts.fix_asana_delimiters "\\left_white_square_bracket"
+      [3324; 3325; 3326; 3327]
+  in
+  [Maths.Decoration (Maths.open_close l r, ms)]
+
 let rec v2m : valu -> Maths.math list = function
   | VVari(x)   -> vari2m x
   | VMeta(v)   -> vari2m v
+  | VSema(v)   -> semantic_brackets (v2m v)
   | VLAbs(x,t) -> (str "λ") @ (vari2m x) @ (str ".") @ (t2m t)
   | VCons(c,v) -> (vari2m c) @ (str "[") @ (v2m v) @ (str "]")
   | VReco(fs)  -> let aux (l,v) = bin' 2 "=" (vari2m l, v2m v) in
@@ -74,6 +91,7 @@ let rec v2m : valu -> Maths.math list = function
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
+  | TSema(t)   -> semantic_brackets (t2m t)
   | TValu(v)   -> v2m v
   | TGrou(t)   -> (str "(") @ (t2m t) @ (str ")")
   | TAppl(t,u) -> (t2m t) @ (str " ") @ (t2m u)
@@ -102,6 +120,7 @@ and     s2m : stac -> Maths.math list = function
   | SEmpt      -> str "ε"
   | SVari(a)   -> vari2m a
   | SMeta(s)   -> vari2m s
+  | SSema(s)   -> semantic_brackets (s2m s)
   | SPush(v,s) -> bin 2 (Maths.glyphs ".") (v2m v, s2m s)
   | SFram(t,s) -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
   | SGrou(s)   -> (str "(") @ (s2m s) @ (str ")")

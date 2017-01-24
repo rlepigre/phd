@@ -807,7 +807,6 @@ remains to show that $\p("v∗π₀")∉\dbot$. As we have
 let _ =
   let fst s1 s2 = [ <$\p(s1)$>; <$↠$>; <$\p(s2)$> ] in
   let line s = [ []; <$↠$>; <$\p(s)$> ] in
-  let last s = [ []; <$↠$>; s ] in
   array [`East ; `East ; `West]
   [ fst  "v∗[λxδ(x,v)][[π₀]t₀]ε"
          "λxδ(x,v)∗v·[[π₀]t₀]ε"

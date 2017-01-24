@@ -22,6 +22,7 @@ type valu =
   | VSubs of valu * subs               (* vσ     *)
   | VASub of subs * vari               (* ρ(x)   *)
   | VWitn of vari * form * term * form
+  | VSema of valu                      (* ⟦v⟧    *)
 and  term =
   | TVari of vari                      (* a, b   *)
   | TMeta of vari                      (* t, u   *)
@@ -37,6 +38,7 @@ and  term =
   | TFixp of term * valu               (* Y(t,v) *)
   | TCase of valu * patt fset          (* [v | C₁[x₁] → t₁ | C₂[x₂] → t₂] *)
   | TSubt of term * subs               (* tσ     *)
+  | TSema of term                      (* ⟦t⟧    *)
 and  stac =
   | SEmpt                              (* ε      *)
   | SVari of vari                      (* α, β   *)
@@ -47,6 +49,7 @@ and  stac =
   | SSubs of stac * subs               (* sσ     *)
   | SASub of subs * vari               (* ρ(α)   *)
   | SWitn of vari * form * term * form
+  | SSema of stac                      (* ⟦π⟧    *)
 and  proc =
   | PMeta of vari                      (* p, q   *)
   | PProc of term * stac               (* t ∗ π  *)

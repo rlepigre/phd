@@ -7,7 +7,9 @@ let with_cache : (string -> maths) -> string -> maths =
   let cache = Hashtbl.create 101 in
   let with_cache f s =
     try Hashtbl.find cache s with Not_found ->
+      (* Printf.printf "Parsing %S\n%!" s; *)
       let res = f s in
+      (* Printf.printf "Done.\n%!"; *)
       Hashtbl.add cache s res; res
   in with_cache
 

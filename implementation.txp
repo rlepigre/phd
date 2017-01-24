@@ -1,6 +1,11 @@
-=> The system in practice \label("implem")
+=> Implementation and examples \label("implem")
 
-=> Syntax-directed typing rules
+=> Syntax-directed unification
+
+... (* TODO *)
+
+=<
+=> Equivalence decision procedure
 
 ... (* TODO *)
 
@@ -10,7 +15,12 @@
 ... (* TODO *)
 
 =<
-=> Equivalence decision procedure
+=> Inductive and coinductive types
+
+... (* TODO *)
+
+=<
+=> Fixpoint and recursion
 
 ... (* TODO *)
 
@@ -21,11 +31,6 @@
 
 =<
 => Examples of proofs
-
-... (* TODO *)
-
-=<
-=> Module system
 
 ... (* TODO *)
 

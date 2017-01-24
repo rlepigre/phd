@@ -379,210 +379,90 @@ Blah bla bla.
 =<
 => Semantics of subtyping
 
-We have values, terms, stacks, processes and types extended with sets of
-terms.
+We will now adapt our model to work with our new typing and subtyping
+rules. The main problem that we need to solve is the interpretation of
+raw terms, values and stacks. In particular, we need a way to interpret
+our choice operators for values and for stacks. In \cite("Lepigre2017"),
+choice operators for values are interpreted using neutral terms (i.e.
+members of the smallest candidate). Here we cannot use the same trick
+as there is no guarantee for the interpretation of a type to contain
+a value. We will thus introduce a special symbol $\daimon$ that will be
+used to denote an undefined witness in terms, values and stacks.
 
+\begin{def}
+We extend the syntax of values and the syntax of stacks with the symbol
+$\daimon$ denoting an "undefined" object. Given a value, term, starck or
+process $ψ$, we will write $\daimon ∈ ψ$ if $ψ$ contains $\daimon$, and
+$\daimon ∉ ψ$ otherwise.
+\end{def}
+\begin{lem}
+Let $p ∈ Λ×Π$ be a process such that $\daimon ∉ p$. If there is $q ∈ Λ×Π$
+such that $p ↠ q$ then $\daimon ∉ q$.
+\begin{proof}
+Most of the reduction rules of $({↠})$ only build a new process by moving
+around pieces of syntax appearing in $p$. As a consequence, every such
+rule cannot make $\daimon$ appear. All the remaining rules are related to
+binders, and obviously if $t$, $v$ and $π$ do not contain $\daimon$, then
+neither $\f("t[x≔v]")$ nor $\f("t[α≔π]")$ do.
+\end{proof}
+\end{lem}
+
+In the semantics, raw values, raw terms and raw stacks will be interpreted
+using values, terms and stacks with the same structure. The underlying
+choice operators will thus be replaced by elements of the corresponding
+syntactic category.
+\begin{def}
+Given a raw value $v ∈ Λ_ι^{+}$ (resp. raw term $t ∈ Λ^{+}$, raw stack
+$π ∈ Π^+$), we denote $⟦v⟧ ∈ Λ_ι$ (resp. $⟦t⟧ ∈ Λ$, $⟦π⟧ ∈ Π$) its
+semantical interpretation. It is defined inductively as follows.
 \begin{center}
+\linesBefore(4)
 \diagram(
-let _ = array [`East ; `East ; `West] [
-  [<$v,w$>; <$::=$>; <$x \| {λx t} \| {ε_{x∈A}(t∉B)} \| \id(wbox)$>];
-  [<$t,u$>; <$::=$>; <$v \| {(t) u} \| {μα t} \| p$>];
-  [<$π,ρ$>; <$::=$>; <$α \| {v⋅π} \| {[t]π} \| {ε_{α∈¬Α}(t∉A)} \| \id(bbox)$>];
-  [<$p,s$>; <$::=$>; <$t ∗ π$>];
-  [<$A,B$>; <$::=$>; <$X \| {A ⇒ B} \| {∀X A} \| {ε_X(t∉A)} \| Φ$>];
-])
+let contents =
+  let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
+  let spec syn s  n = [<$ \syn(s) $> ; <$ = $> ; n] in
+  [ line v "⟦x⟧"                  "x"
+  ; line v "⟦λx t⟧"               "λx ⟦t⟧"
+  ; line v "⟦C[v]⟧"               "C[⟦v⟧]"
+  ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
+  ; spec v "⟦εx∈A(t∉B)⟧"          <$ v∈⟦A⟧ \st \t("t[x≔v]")∉⟦B⟧^{⊥⊥} $>
+  ; spec v "⟦εx∈A(t∉B)⟧"          <$ ⊥ \hspace(0.4) otherwise $>
+  ; line t "⟦a⟧"                  "a"
+  ; line t "⟦t u⟧"                "⟦t⟧ ⟦u⟧"
+  ; line t "⟦μα t⟧"               "μα ⟦t⟧"
+  ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧"
+  ; line t "⟦v.lk⟧"               "⟦v⟧.lk"
+  ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
+  ; line t "⟦Y(t,v)⟧"             "Y(⟦t⟧,⟦v⟧)"
+  ; line t "⟦U(v)⟧"               "U(⟦v⟧)"
+  ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
+  ; line s "⟦ε⟧"                  "ε"
+  ; line s "⟦α⟧"                  "α"
+  ; line s "⟦v·π⟧"                "⟦v⟧·⟦π⟧"
+  ; line s "⟦[t]π⟧"               "[⟦t⟧]⟦π⟧"
+  ; spec s "⟦εα∈A(t∉A)⟧"          <$ π∈⟦A⟧^⊥ \st \t("t[α≔π]")∉⟦B⟧^{⊥⊥} $>
+  ; spec s "⟦εα∈A(t∉A)⟧"          <$ ⊥ \hspace(0.4) otherwise $> ]
+let _ = array [`East; `Main; `West] contents
+          ~horizontal_padding:(fun n -> 1.0)
+)
 \end{center}
 
-The types are interpreted using sets of values containing $\id(wbox)$ and
-closed under $({≡})$. The set of every such type interpretation is denoted
-$⟦\cal{F}⟧$ and is defined as follows.
-$$⟦\cal{F}⟧ = \{Φ ⊆ Λ_{val} \| \id(wbox) ∈ Φ \land ∀{v∈Φ}, v≡w ⇒ w∈Φ\}$$
-Values, terms, stacks, processes are interpreted as values, terms, stacks,
-processes with no choice operators but with the special value $\id(wbox)$
-and the special stack $\id(bbox)$.
-\begin{center}
-\diagram(
-let _ = array [`East ; `East ; `West] [
-  [<$⟦Φ⟧$>; <$=$>; <$Φ$>];
-  [<$⟦A ⇒ B⟧$>; <$=$>; <$\{λx t \| ∀{v∈⟦A⟧},{t[x := v] ∈ ⟦B⟧^{\bot\bot}}\}
-    ∪ \{\id(wbox)\}$>];
-  [<$⟦∀X A⟧$>; <$=$>; <$\biginter_{Φ∈⟦\cal{F}⟧}{⟦A[X := Φ]⟧}$>];
-  [<$⟦ε_X(t∉A)⟧$>; <$=$>; <$Φ∈⟦\cal{F}⟧ \mt(<<such that>>) ⟦t⟧∈⟦A[X := Φ]⟧
-     \mt(<<or>>) \{\id(wbox)\}$>];
-])
-\end{center}
-\begin{center}
-\diagram(
-let _ = array [`East ; `East ; `West] [
-  [<$⟦(t) u⟧$>; <$=$>; <$(⟦t⟧) ⟦u⟧$>];
-  [<$⟦μα t⟧$>; <$=$>; <$μα⟦t⟧_α$>];
-  [<$⟦λx t⟧$>; <$=$>; <$λx ⟦t⟧_x$>];
-  [<$⟦ε_{x∈A}(t∉B)⟧$>; <$=$>; <$v∈⟦A⟧ \mt(<<such that>>)
-     t[x := v]∈⟦a⟧^{\bot\bot} \mt(<<or>>) \id(wbox)$>];
-  [<$⟦\id(wbox)⟧$>; <$=$>; <$\id(wbox)$>];
-])
-\end{center}
-\begin{center}
-\diagram(
-let _ = array [`East ; `East ; `West] [
-  [<$⟦t ∗ π⟧$>; <$=$>; <$⟦t⟧ ∗ ⟦π⟧$>];
-  [<$⟦v⋅π⟧$>; <$=$>; <$⟦v⟧⋅⟦π⟧$>];
-  [<$⟦[t]π⟧$>; <$=$>; <$[⟦t⟧]⟦π⟧$>];
-  [<$⟦ε_{α∈¬A}(t∉A)⟧$>; <$=$>; <$π∈⟦A⟧^\bot \mt(<<such that>>)
-     t[α := π]∈⟦a⟧^{\bot\bot} \mt(<<or>>) \id(bbox)$>];
-  [<$⟦\id(bbox)⟧$>; <$=$>; <$\id(bbox)$>];
-])
-\end{center}
-
-We have two forms of judgements:
-\begin{itemize}
-\item $t : A$ meaning that the term $t$ has type $A$,
-\item $v : A ⊆ B$ meaning that if the value $v$ has type $A$ then it also
-      has type $B$.
-\end{itemize}
-We define $A ⊆ B$ as $ε_{x∈A}(x∉B) : A ⊆ B$.
-
-$$
-\axiomRN{ε}{ε_{x \in A}(t ∉ B) : A}
-\hspace(3.0)
-\unaryRN{{→}_i}{t[x := ε_{x ∈ A}(t ∉ B)] : B}{λx t : A ⇒ B}
-\hspace(3.0)
-\binaryRN{{→}_e}{t : A ⇒ B}{u : A}{(t) u : B}
-$$
-$$
-\unaryRN{μ}{t[α := ε_{α ∈ ¬A}(t ∉ A)] : A}{μα t : A}
-\hspace(3.0)
-\unaryRN{∗}{t : A}{t ∗ ε_{α ∈ ¬A}(t ∉ A) : B}
-$$
-$$
-\axiomRN{=}{v : A ⊆ A}
-\hspace(3.0)
-\unaryRN{∀_l}{v : A[X := C] ⊆ B}{v : ∀X A ⊆ B}
-\hspace(3.0)
-\unaryRN{∀_r}{v : A ⊆ B[X := ε_X(v ∉ B)]}{v : A ⊆ ∀X B}
-$$
-$$
-\binaryRN{→}{A₂ ⊆ A₁}{B₁ ⊆ B₂}{v : {A₁ ⇒ B₁} ⊆ {A₂ ⇒ B₂}}
-\hspace(3.0)
-\binaryRN{⊆}{t : A}{A ⊆ B}{t : B}
-\hspace(3.0)
-\ternaryRN{⊆_{≡}}{t : A}{v : A ⊆ B}{t ≡ v}{t : B}
-$$
+\end{def}
 
 \begin{thm}
-Let $A$ and $B$ be closed types, $v$ be a closed value, and $t$ be a closed
-term.
+Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
+$t ∈ Λ^{+}$ be a raw term. If $ρ_{id} ⊩ Ξ$ then we have:
 \begin{itemize}
-\item If $t : A$ then we have $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$.
-\item If $v : A ⊆ B$ and $⟦v⟧ ∈ ⟦A⟧$ then we have $⟦v⟧ ∈ ⟦B⟧$.
+\item if $Ξ ⊢ t : A$ is valid then we have $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$,
+\item if $Ξ ⊢ t ∈ A ⊆ B$ is valid and if $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$ then
+      $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$.
 \end{itemize}
 \begin{proof}
-We do a proof by induction on the structure of the proof of $t : A$ and $v :
-A ⊆ B$ respectively. We consider the last rules used in the proof.
-
-\begin{noindent}
-\linesBefore(2)
-($ε$) We need to show $⟦ε_{x \in A}(t ∉ B)⟧ ∈ ⟦A⟧^{\bot\bot}$. By definition,
-we know $⟦ε_{x \in A}(t ∉ B)⟧ ∈ ⟦A⟧$ since $\wbox ∈ ⟦A⟧$. Hence we can
-conclude since $⟦A⟧ ⊆ ⟦A⟧^{\bot\bot}$
-
-\linesBefore(2)
-($→_i$) We need to show $⟦λx t⟧ ∈ ⟦A ⇒ B⟧^{\bot\bot}$. Since we have $⟦A ⇒ B⟧
-⊆ ⟦A ⇒ B⟧^{\bot\bot}$ it is enough to show $⟦λx t⟧ ∈ ⟦A ⇒ B⟧$. If there is
-$v ∈ ⟦A⟧$ such that $⟦t[x := v]⟧ ∉ ⟦B⟧^{\bot\bot}$ then we can decide that
-$⟦ε_{x∈A}(t∉B)⟧ = v$. This contradicts the induction hypothesis that states
-that $⟦t[x := ε_{x∈A}(t∉B)]⟧ = ⟦t[x := v]⟧ ∈ ⟦B⟧^{\bot\bot}$. Hence, it must
-be that we have $⟦t[x := v]⟧ ∈ ⟦B⟧^{\bot\bot}$ for all $v ∈ ⟦A⟧$. This exactly
-means $⟦λx t⟧ ∈ ⟦A ⇒ B⟧$.
-
-\linesBefore(2)
-($→_e$) We need to show $⟦(t) u⟧ ∈ ⟦B⟧^{\bot\bot}$. We take $π ∈ ⟦B⟧^\bot$
-and show ${⟦(t) u⟧ ∗ π} ∈ \dbot$. By reduction, it is enough to show
-that ${⟦u⟧ ∗ {[⟦t⟧] π}} ∈ \dbot$. By induction hypothesis we know that
-$⟦u⟧ ∈ ⟦A⟧^{\bot\bot}$, hence it is enough to show that $[⟦t⟧] π ∈ ⟦A⟧^\bot$.
-We take $v ∈ ⟦A⟧$ and show that ${v ∗ {[⟦t⟧] π}} ∈ \dbot$. By reduction, it
-is enough to show that ${⟦t⟧ ∗ {v · π}} ∈ \dbot$. By induction hypothesis,
-we know that $⟦t⟧ ∈ ⟦A ⇒ B⟧^{\bot\bot}$, hence it only remains to show that
-${v · π} ∈ ⟦A ⇒ B⟧^\bot$. We will now pick a value in $w ∈ ⟦A ⇒ B⟧$ and show
-that ${w ∗ {v · π}} ∈ \dbot$. If $w = \wbox$, then this is immediate.
-Otherwise there is $x$ and $t$ such that $w = λx t$ and for all $v₀ ∈ ⟦A⟧$,
-$t[x := v₀] ∈ ⟦B⟧^{\bot\bot}$. In this case we need to show that ${λx t ∗
-{v · π}} ∈ \dbot$, which amounts to showing that ${t[x := v] ∗ π} ∈ \dbot$ by
-reduction. Since $v ∈ ⟦A⟧$ we know that $t[x := v] ∈ ⟦B⟧^{\bot\bot}$. We
-can hence conclude since $π ∈ ⟦B⟧^\bot$.
-
-\linesBefore(2)
-($μ$) We need to show $⟦μα t⟧ ∈ ⟦A⟧^{\bot\bot}$ so we take $π ∈ ⟦A⟧^\bot$
-and show ${⟦μα t⟧ ∗ π} ∈ \dbot$. By reduction, it is enough to show that
-${⟦t[α := π]⟧ ∗ π} ∈ \dbot$. If there is a stack $ρ ∈ ⟦A⟧^\bot$ such that
-$⟦t[α := ρ]⟧ ∉ ⟦A⟧^{\bot\bot}$ then we can decide that $⟦ε_{α∈¬A}(t∉A)⟧ = ρ$.
-In this case, the induction hypothesis gives us $⟦t[α := ρ]⟧ ∈
-⟦A⟧^{\bot\bot}$, which is a contradiction. As a consequence, we know that
-for all $ρ ∈ ⟦A⟧^\bot$ we have $⟦t[α := ρ]⟧ ∈ ⟦A⟧^{\bot\bot}$. This is true
-in particular for $π$, hence we know that $⟦t[α := π]⟧ ∈ ⟦A⟧^{\bot\bot}$ from
-which we can conclude that ${⟦t[α := π]⟧ ∗ π} ∈ \dbot$.
-
-\linesBefore(2)
-($∗$) We need to show that $⟦t ∗ ε_{α ∈ ¬A}(t ∉ A)⟧ ∈ ⟦B⟧^{\bot\bot}$ so we
-take $π ∈ ⟦B⟧^\bot$ and show ${⟦t ∗ ε_{α ∈ ¬A}(t ∉ A)⟧ ∗ π} ∈ \dbot$. By
-reduction, it is enough to show that ${⟦t⟧ ∗ ⟦ε_{α ∈ ¬A}(t ∉ A)⟧} ∈ \dbot$.
-By induction hypothesis, we know that $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$ so we only
-have to show that $⟦ε_{α ∈ ¬A}(t ∉ A)⟧ ∈ ⟦A⟧^\bot$. This is true by
-definition.
-
-\linesBefore(2)
-($=$) The proof is immediate since $⟦v⟧ ∈ ⟦A⟧$ trivially imply $⟦v⟧ ∈ ⟦A⟧$.
-
-\linesBefore(2)
-($∀_l$) We suppose that $⟦v⟧ ∈ ⟦∀X A⟧$, and show that $⟦v⟧ ∈ ⟦B⟧$. By
-induction hypothesis, it is enough to show that $⟦v⟧ ∈ ⟦A[X := C]⟧$. We
-can conclude as $⟦∀X A⟧ ⊆ ⟦A[X := C]⟧$ by definition.
-
-\linesBefore(2)
-($∀_r$) We suppose that $⟦v⟧ ∈ ⟦A⟧$, and show that $⟦v⟧ ∈ ⟦∀X B⟧$. Using
-the induction hypothesis, we obtain that $⟦v⟧ ∈ ⟦B[X := ε_X(v ∉ B)]⟧$. If
-there is $Φ ∈ ⟦\cal{F}⟧$ such that $⟦v⟧ ∉ ⟦B[X := Φ]⟧$ then we can decide
-that $⟦ε_X(v ∉ B)⟧ = Φ$. In this case, the induction hypothesis tells us
-that $⟦v⟧ ∈ ⟦B[X := Φ]⟧$ since $v ∈ ⟦A⟧$. As we have a contradiction, it
-must be that for all $Φ ∈ ⟦\cal{F}⟧$ we have $⟦v⟧ ∈ ⟦B[X := Φ]⟧$. As a
-consequence we obtain $⟦v⟧ ∈ \biginter_{Φ∈⟦\cal{F}⟧}{⟦B[X := Φ]⟧} = ⟦∀X B⟧$.
-
-\linesBefore(2)
-($→$) We suppose that $⟦v⟧ ∈ ⟦A₁ → B₁⟧$, and show that $⟦v⟧ ∈ ⟦A₂ ⇒ B₂⟧$. If
-$⟦v⟧ = \wbox$ then it is trivial, otherwise there is $x$ and $t$ such that
-$⟦v⟧ = λx t$. Let us take $w ∈ ⟦A₂⟧$ and show that $t[x := v] ∈ ⟦B₂⟧$. If
-there is a value $v ∈ ⟦A₂⟧$ such that $v ∉ ⟦A₁⟧$ then we can suppose that
-$⟦ε_{x∈A₂}(x∉A₁)⟧ = v$. In this case, the induction hypothesis tells us that
-for all $v₀ ∈ ⟦A₂⟧$, we have $v₀ ∈ ⟦A₁⟧$. In particular, this implies that
-$v ∈ ⟦A₁⟧$, which is contradictory. As a consequence, $v₀ ∈ ⟦A₂⟧$ we have
-$v₀ ∈ ⟦A₁⟧$. This is true for $w$, and hence we get $w ∈ ⟦A₁⟧$, which implies
-$t[x := w] ∈ ⟦B₁⟧^{\bot\bot}$ by definition of $⟦A₁ ⇒ B₁⟧$. It remains to
-show that $⟦B₁⟧^{\bot\bot} ⊆ ⟦B₂⟧^{\bot\bot}$, for which it is enough to
-show that $⟦B₁⟧ ⊆ ⟦B₂⟧$. If there is a value $v ∈ ⟦B₁⟧$ such that $v ∉ ⟦B₂⟧$
-then we can suppose that $⟦ε_{x∈B₁}(x∉B₂)⟧ = v$. In this case, the
-induction hypothesis tells us that for all $v₀ ∈ ⟦B₁⟧$, we have $v₀ ∈ ⟦B₂⟧$.
-In particular, this implies that $v ∈ ⟦B₂⟧$, which is contradictory. As a
-consequence, there cannot be any $v₀ ∈ ⟦B₁⟧$ such that $v ∉ ⟦B₂⟧$. This
-exactly means that $⟦B₁⟧ ⊆ ⟦B₂⟧$.
-
-\linesBefore(2)
-($⊆$) We need to show that $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$. By induction hypothesis
-$⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$, hence we will show $⟦A⟧^{\bot\bot} ⊆ ⟦B⟧^{\bot\bot}$.
-By definition, it is enough to show that $⟦A⟧ ⊆ ⟦B⟧$. If
-there is a value $v ∈ ⟦A⟧$ such that $v ∉ ⟦B⟧^{\bot\bot}$ then it must be
-that $v ∉ ⟦B⟧$. The induction hypothesis then tells us that $v ∈ ⟦B⟧$ since
-$v ∈ ⟦A⟧$, hence we have a contradiction. As a consequence, it must be that
-for all $v ∈ ⟦A⟧$ we have $v ∈ ⟦B⟧^{\bot\bot}$ and hence $v ∈ ⟦B⟧$. This
-exactly mean that $⟦A⟧ ⊆ ⟦B⟧$.
-
-\linesBefore(2)
-($⊆_{≡}$) We need to show that $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$. By hypothesis we know
-that $t ≡ v$, hence we can show $⟦v⟧ ∈ ⟦B⟧^{\bot\bot}$ which is equivalent
-to showing $⟦v⟧ ∈ ⟦B⟧$. By induction hypothesis we know that $⟦t⟧ ∈
-⟦A⟧^{\bot\bot}$, from which we can deduce $⟦v⟧ ∈ ⟦A⟧^{\bot\bot}$ since
-$t ≡ v$ by hypothesis. As a consequence we have $⟦v⟧ ∈ ⟦A⟧$ from which we
-can obtain $⟦v⟧ ∈ ⟦B⟧$ using the induction hypothesis.
-\end{noindent}
+We do a proof by induction on the structure of the proof of $Ξ ⊢ t : A$ and
+$Ξ ⊢ t ∈ A ⊆ B$ respectively. We consider the last rules used in the proof.
+\begin{itemize}
+\item In the case of ...
+\end{itemize}
 \end{proof}
 \end{thm}
 
