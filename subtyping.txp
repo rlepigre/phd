@@ -416,18 +416,27 @@ Given a raw value $v ∈ Λ_ι^{+}$ (resp. raw term $t ∈ Λ^{+}$, raw stack
 $π ∈ Π^+$), we denote $⟦v⟧ ∈ Λ_ι$ (resp. $⟦t⟧ ∈ Λ$, $⟦π⟧ ∈ Π$) its
 semantical interpretation. It is defined inductively as follows.
 \begin{center}
-\linesBefore(4)
 \diagram(
-let contents =
+let contents_values =
   let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
   let spec syn s  n = [<$ \syn(s) $> ; <$ = $> ; n] in
+  two_cols
   [ line v "⟦x⟧"                  "x"
   ; line v "⟦λx t⟧"               "λx ⟦t⟧"
   ; line v "⟦C[v]⟧"               "C[⟦v⟧]"
   ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
   ; spec v "⟦εx∈A(t∉B)⟧"          <$ v∈⟦A⟧ \st \t("t[x≔v]")∉⟦B⟧^{⊥⊥} $>
-  ; spec v "⟦εx∈A(t∉B)⟧"          <$ ⊥ \hspace(0.4) otherwise $>
-  ; line t "⟦a⟧"                  "a"
+  ; spec v "⟦εx∈A(t∉B)⟧"          <$ ⊥ \hspace(0.4) otherwise $> ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents_values
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\begin{center}
+\diagram(
+let contents_terms =
+  let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
+  two_cols
+  [ line t "⟦a⟧"                  "a"
   ; line t "⟦t u⟧"                "⟦t⟧ ⟦u⟧"
   ; line t "⟦μα t⟧"               "μα ⟦t⟧"
   ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧"
@@ -435,31 +444,58 @@ let contents =
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦Y(t,v)⟧"             "Y(⟦t⟧,⟦v⟧)"
   ; line t "⟦U(v)⟧"               "U(⟦v⟧)"
-  ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
-  ; line s "⟦ε⟧"                  "ε"
+  ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)" ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents_terms
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+)
+\end{center}
+\begin{center}
+\linesBefore(5)
+\diagram(
+let contents_stacks =
+  let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
+  let spec syn s  n = [<$ \syn(s) $> ; <$ = $> ; n] in
+  two_cols
+  [ line s "⟦ε⟧"                  "ε"
   ; line s "⟦α⟧"                  "α"
   ; line s "⟦v·π⟧"                "⟦v⟧·⟦π⟧"
   ; line s "⟦[t]π⟧"               "[⟦t⟧]⟦π⟧"
   ; spec s "⟦εα∈A(t∉A)⟧"          <$ π∈⟦A⟧^⊥ \st \t("t[α≔π]")∉⟦B⟧^{⊥⊥} $>
   ; spec s "⟦εα∈A(t∉A)⟧"          <$ ⊥ \hspace(0.4) otherwise $> ]
-let _ = array [`East; `Main; `West] contents
-          ~horizontal_padding:(fun n -> 1.0)
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents_stacks
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
 )
 \end{center}
-
 \end{def}
+It is important to note that raw values, raw terms and raw stacks cannot
+appear into types. Indeed, the semantics of our types is still defined
+exactly as in \chapter("typeSystem"). In particular, value witnesses,
+stack witnesses and $\daimon$ never appear in types.
+
+\begin{def}
+We will write:
+\begin{itemize}
+  \item $t ⊩ A$ if either $\daimon ∈ \t("⟦t⟧")$ or $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$,
+  \item $π ⊩ A$ if either $\daimon ∈ \s("⟦π⟧")$ or $\s("⟦π⟧") ∈ ⟦A⟧^{⊥}$ and
+  \item $t ⊩ A ⊆ B$ if either $t ⊩ A$ implies $t ⊩ B$, or in other words if
+        we have $\daimon ∈ \t("⟦t⟧")$ or if $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ implies
+        $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$.
+\end{itemize}
+\end{def}
+
 
 \begin{thm}
 Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
 $t ∈ Λ^{+}$ be a raw term. If $ρ_{id} ⊩ Ξ$ then we have:
 \begin{itemize}
-\item if $Ξ ⊢ t : A$ is valid then we have $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$,
-\item if $Ξ ⊢ t ∈ A ⊆ B$ is valid and if $⟦t⟧ ∈ ⟦A⟧^{\bot\bot}$ then
-      $⟦t⟧ ∈ ⟦B⟧^{\bot\bot}$.
+\item if $Ξ ⊢ t : A$ is valid then we have $t ⊩ A$,
+\item if $Ξ ⊢ π : A^⊥$ is valid then we have $π ⊩ A$ and
+\item if $Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
 \end{itemize}
 \begin{proof}
-We do a proof by induction on the structure of the proof of $Ξ ⊢ t : A$ and
-$Ξ ⊢ t ∈ A ⊆ B$ respectively. We consider the last rules used in the proof.
+We do a proof by induction on the structure of the proof of $Ξ ⊢ t : A$,
+the proof of $Ξ ⊢ π : A^⊥$ and the proof of $Ξ ⊢ t ∈ A ⊆ B$ respectively.
+We consider the last rules used in the proof.
 \begin{itemize}
 \item In the case of ...
 \end{itemize}
