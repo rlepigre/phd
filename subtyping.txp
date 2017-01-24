@@ -337,16 +337,16 @@ and $Π^{+}$ respectively.
 \end{def}
 
 Before giving the new typing and subtyping rules of our system,
-we need to consider two (and in fact three) new forms of
-judgments.
+we need to consider three (and in fact three) new forms of judgments.
 \begin{def}
 A //general typing judgment// is a triple of an equational context
 $Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
-$Ξ ⊢ t : A$. A //pointed subtyping judgment// is a quadruple of an
-equational context $Ξ$, a raw term $t∈Λ^{+}$ and two formulas
+$Ξ ⊢ t : A$. A //general stack judgment// is a triple of an equational
+context $Ξ$, a raw stack $π∈Π^+$ and a formula $A ∈ \cal{F}$ that is
+denoted $Ξ ⊢ π : ¬A$. A //pointed subtyping judgment// is a quadruple
+of an equational context $Ξ$, a raw term $t∈Λ^{+}$ and two formulas
 $A$, $B ∈ \cal{F}$ that is denoted $Ξ ⊢ t ∈ A ⊂ B$. We will use the
-notation $Ξ ⊢ A ⊂ B$ when the term $t$ is of the form
-$\v("εx∈A(x∉B)")$.
+notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v("εx∈A(x∉B)")$.
 \end{def}
 \begin{def}
 A general typing judgment or a pointed subtyping judgment is said to
@@ -386,23 +386,23 @@ our choice operators for values and for stacks. In \cite("Lepigre2017"),
 choice operators for values are interpreted using neutral terms (i.e.
 members of the smallest candidate). Here we cannot use the same trick
 as there is no guarantee for the interpretation of a type to contain
-a value. We will thus introduce a special symbol $\daimon$ that will be
+a value. We will thus introduce a special symbol $✠$ that will be
 used to denote an undefined witness in terms, values and stacks.
 
 \begin{def}
 We extend the syntax of values and the syntax of stacks with the symbol
-$\daimon$ denoting an "undefined" object. Given a value, term, starck or
-process $ψ$, we will write $\daimon ∈ ψ$ if $ψ$ contains $\daimon$, and
-$\daimon ∉ ψ$ otherwise.
+$✠$ denoting an "undefined" object. Given a value, term, starck or
+process $ψ$, we will write $✠ ∈ ψ$ if $ψ$ contains $✠$, and
+$✠ ∉ ψ$ otherwise.
 \end{def}
 \begin{lem}
-Let $p ∈ Λ×Π$ be a process such that $\daimon ∉ p$. If there is $q ∈ Λ×Π$
-such that $p ↠ q$ then $\daimon ∉ q$.
+Let $p ∈ Λ×Π$ be a process such that $✠ ∉ p$. If there is $q ∈ Λ×Π$
+such that $p ↠ q$ then $✠ ∉ q$.
 \begin{proof}
 Most of the reduction rules of $({↠})$ only build a new process by moving
 around pieces of syntax appearing in $p$. As a consequence, every such
-rule cannot make $\daimon$ appear. All the remaining rules are related to
-binders, and obviously if $t$, $v$ and $π$ do not contain $\daimon$, then
+rule cannot make $✠$ appear. All the remaining rules are related to
+binders, and obviously if $t$, $v$ and $π$ do not contain $✠$, then
 neither $\f("t[x≔v]")$ nor $\f("t[α≔π]")$ do.
 \end{proof}
 \end{lem}
@@ -470,15 +470,15 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents_stacks
 It is important to note that raw values, raw terms and raw stacks cannot
 appear into types. Indeed, the semantics of our types is still defined
 exactly as in \chapter("typeSystem"). In particular, value witnesses,
-stack witnesses and $\daimon$ never appear in types.
+stack witnesses and $✠$ never appear in types.
 
 \begin{def}
 We will write:
 \begin{itemize}
-  \item $t ⊩ A$ if either $\daimon ∈ \t("⟦t⟧")$ or $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$,
-  \item $π ⊩ A$ if either $\daimon ∈ \s("⟦π⟧")$ or $\s("⟦π⟧") ∈ ⟦A⟧^{⊥}$ and
+  \item $t ⊩ A$ if either $✠ ∈ \t("⟦t⟧")$ or $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$,
+  \item $π ⊩ A$ if either $✠ ∈ \s("⟦π⟧")$ or $\s("⟦π⟧") ∈ ⟦A⟧^{⊥}$ and
   \item $t ⊩ A ⊆ B$ if either $t ⊩ A$ implies $t ⊩ B$, or in other words if
-        we have $\daimon ∈ \t("⟦t⟧")$ or if $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ implies
+        we have $✠ ∈ \t("⟦t⟧")$ or if $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ implies
         $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$.
 \end{itemize}
 \end{def}
@@ -489,15 +489,95 @@ Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
 $t ∈ Λ^{+}$ be a raw term. If $ρ_{id} ⊩ Ξ$ then we have:
 \begin{itemize}
 \item if $Ξ ⊢ t : A$ is valid then we have $t ⊩ A$,
-\item if $Ξ ⊢ π : A^⊥$ is valid then we have $π ⊩ A$ and
+\item if $Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$ and
 \item if $Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
 \end{itemize}
 \begin{proof}
 We do a proof by induction on the structure of the proof of $Ξ ⊢ t : A$,
-the proof of $Ξ ⊢ π : A^⊥$ and the proof of $Ξ ⊢ t ∈ A ⊆ B$ respectively.
+the proof of $Ξ ⊢ π : ¬A$ and the proof of $Ξ ⊢ t ∈ A ⊆ B$ respectively.
 We consider the last rules used in the proof.
 \begin{itemize}
-\item In the case of ...
+\item In the case of the ($⇒_i$) rule, we need to show that $\t("λx t")⊩C$.
+  Using the first induction hypothesis, we see that it is enough to show
+  $\t("λx t") ⊩ \f("A ⇒ B")$. Let us now suppose $✠ ∉ \t("λx t")$, as
+  otherwise we can conclude immediatly. In particular $✠ ∉ t$, or in other
+  words $\t("⟦t⟧") = t$. By the second induction hypothesis, we have
+  $\t("t[x≔εx∈A(t∉B)]") ⊩ B$. If $\t("⟦εx∈A(t∉B)⟧") = ✠$ then by definition
+  $\t("⟦t[x≔v]⟧") = \t("t[x≔v]") ∈ ⟦B⟧^{⊥⊥}$ for all $v ∈ ⟦A⟧$. This
+  exactly means that $\v("⟦λx t⟧") = \v("λx t") ∈ ⟦\f("A⇒B")⟧$. It remains
+  to consider the case where $\t("⟦εx∈A(t∉B)⟧")$ is equal to some value
+  $v ∈ ⟦A⟧$ such that $\t("⟦t[x≔v]⟧") ∉ ⟦B⟧^{⊥⊥}$. As we know that
+  $✠ ∉ \t("⟦t[x≔v]⟧")$, the second induction hypothesis gives us a
+  contradiction as it implies  $\t("⟦t[x≔εx∈A(t∉B)]⟧") = \t("⟦t[x≔v]⟧") ∈
+  ⟦B⟧^{⊥⊥}$.
+\item In the case of the ($⇒_e$) rule, we need to show that $\t("t u") ⊩
+  B$. We can suppose that $✠ ∉ \t("⟦t u⟧")$ as otherwise we can conclude
+  immediatly. In particular, this means that $\t("⟦t⟧") = t$ and that
+  $\t("⟦u⟧") = u$, and thus we obtain $⟦t⟧ ∈ ⟦\f("A ⇒ B")⟧^{⊥⊥}$ and
+  $⟦u⟧ ∈ ⟦A⟧^{⊥⊥}$ using our two induction hypotheses. We need to show
+  that $\t("⟦t u⟧") = \t("⟦t⟧ ⟦u⟧") ∈ ⟦B⟧^{⊥⊥}$ so we take $π ∈ ⟦B⟧^⊥$
+  and we show that $\p("⟦t⟧ ⟦u⟧ ∗ π") ∈ \dbot$. Since $\dbot$ is
+  $({↠})$-saturated, it is enough to show that $\p("⟦u⟧ ∗ [⟦t⟧]π") ∈
+  \dbot$. Now, as $⟦u⟧ ∈ ⟦A⟧^{⊥⊥}$ it is enough to show that
+  $\s("[⟦t⟧]π") ∈ ⟦A⟧^⊥$. We thus take $v ∈ ⟦a⟧$ and show that we
+  have $\p("v ∗ [⟦t⟧]π") ∈ \dbot$. Again, since $\dbot$ is
+  $({↠})$-saturated it is enough to show that $\p("⟦t⟧ ∗ v·π") ∈ \dbot$.
+  As $⟦t⟧ ∈ ⟦\f("A ⇒ B")⟧^{⊥⊥}$ we only have to show that $\s("v·π") ∈
+  ⟦\f("A⇒B")⟧^{⊥⊥}$ so we take $\v("λx f") ∈ ⟦\f("A⇒B")⟧$ and show that
+  $\p("λx f ∗ v·π") ∈ \dbot$. It is enough to show that
+  $\p("f[x≔v] ∗ π") ∈ \dbot$, and this is true since $π ∈ ⟦B⟧^⊥$ and
+  $\t("f[x≔v]") ∈ ⟦B⟧^{⊥⊥}$ by definition of $⟦\f("A⇒B")⟧$.
+\item In the case of the ($Ax$) rule, we need to show that
+  $\t("εx∈A(t∉B)") ⊩ C$. According to the induction hypothesis, it is
+  enough to show that $\t("εx∈A(t∉B)") ⊩ A$. Let us reason by case on
+  the definition of $\t("⟦εx∈A(t∉B)⟧")$. If it is $✠$ the the proof is
+  immediate. Otherwise, we know that it is equal to some value $v ∈ ⟦A⟧$.
+  We can thus conclude since $⟦A⟧ ⊆ ⟦A⟧^{⊥⊥}$ according to
+  \lemRef("orthosimple").
+\item In the case of the ($⇒_{e,{∈}}$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($μ$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($[\wc]$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($Ax^⊥$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($\wc·\wc$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($[\wc]\wc$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($×_e$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($×_i$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($+_e$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($+_i$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($Ax_{⊂}$) rule, the proof is immediate. Indeed,
+  it is always true that $t ⊩ A$ implies $t ⊩ A$.
+\item In the case of the ($⇒$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($+$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($×$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∀_l$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∀_r$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∃_r$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∃_l$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($\restriction_l$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($\restriction_r$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∈_l$) rule,
+  \todo(None) (* TODO *)
+\item In the case of the ($∈_r$) rule,
+  \todo(None) (* TODO *)
 \end{itemize}
 \end{proof}
 \end{thm}
