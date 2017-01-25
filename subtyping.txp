@@ -16,137 +16,140 @@
 \Include{Macros}
 
 \Caml(
-let r11 =
-  <<$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊂ C}
-    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>>
+let r_arrow_i =
+  <$\binaryRN{⇒_i}{Ξ ⊢ \t("λx t") ∈ \f("A ⇒ B") ⊂ C}
+    {Ξ ⊢ \t("t[x ≔ εx∈A(t∉B)]") : \f("B")}{Ξ ⊢ \t("λx t") : C}$>
 
-let r12 =
-  <<$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
-    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>>
+let r_arrow_e =
+  <$\binaryRN{⇒_e}{Ξ ⊢ \t("t") : \f("A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("t u") : \f("B")}$>
 
-let r21 =
-  <<$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>>
+let r_ax =
+  <$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>
 
-let r22 =
-  <<$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t("t") : \f("u∈A ⇒ B")}
-    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ ∃v, v ≡ u}{Ξ ⊢ \t("t u") : \f("B")}$>>
+let r_arrow_ee =
+  <$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t("t") : \f("u∈A ⇒ B")}
+    {Ξ ⊢ \t("u") : \f("A")}{Ξ ⊢ v ≡ u}{Ξ ⊢ \t("t u") : \f("B")}$>
 
-let r21' =
-  <<$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>>
+let r_mu =
+  <$\unaryRN{μ}{Ξ ⊢ \t("t[α ≔ εα∈A(t∉A)]") : A}{Ξ ⊢ \t("μα t") : \f("A")}$>
 
-let r22' =
-  <<$\binaryRN{[\wc]}{Ξ ⊢ u : A}{Ξ ⊢ π : ¬A}{Ξ ⊢ \t("[π]u") : \f("B")}$>>
+let r_name =
+  <$\binaryRN{[\wc]}{Ξ ⊢ u : A}{Ξ ⊢ π : ¬A}{Ξ ⊢ \t("[π]u") : \f("B")}$>
 
-let r23' =
-  <<$\unaryRN{Ax^⊥}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \s("εα∈A(t∉A)") : ¬B}$>>
+let r_ax_bot =
+  <$\unaryRN{Ax^⊥}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \s("εα∈A(t∉A)") : ¬B}$>
 
-let r2a =
-  <<$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f("A⇒B") ⊂ C}
-    {Ξ ⊢ \s("v·π") : ¬C}$>>
+let r_push =
+  <$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f("A⇒B") ⊂ C}
+    {Ξ ⊢ \s("v·π") : ¬C}$>
 
-let r2b =
-  <<$\binaryRN{[\wc]\wc}{Ξ ⊢ t : \f("A⇒B")}{Ξ ⊢ π : ¬B}
-    {Ξ ⊢ \s("[t]π") : ¬A}$>>
+let r_fram =
+  <$\binaryRN{[\wc]\wc}{Ξ ⊢ t : \f("A⇒B")}{Ξ ⊢ π : ¬B}
+    {Ξ ⊢ \s("[t]π") : ¬A}$>
 
-let r31 =
-  <<$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
+let r_sum_i =
+  <$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
+    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊂ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>
+
+let r_sum_e =
+  <$\binaryRN{+_e}{Ξ ⊢ \t("v") : \f("[(Ci : Ai) i∈I]")}
     {(Ξ, \t("v") ≡ \t("Ci[εxi∈Ai(ti∉C)]") ⊢
       \t("ti[xi ≔ εxi∈Ai(ti∉C)]") : \f("C"))_{i∈I}}
-    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>>
+    {Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : \f("C")}$>
 
-let r32 =
-  <<$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>>
+let r_prod_i =
+  <$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊂ C}
+    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>
 
-let r33 =
-  <<$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t("t") : A ⊂ A}$>>
+let r_prod_e =
+  <$\unaryRN{×_e}{Ξ ⊢ \t("v") : \f("{l : A}")} {Ξ ⊢ \t("v.l") : A}$>
 
-let r41 =
-  <<$\binaryRN{+_i}{Ξ ⊢ \t("v") : \f("A")}
-    {Ξ ⊢ \t("C[v]") ∈ \f("[C : A]") ⊂ \f("B")}{Ξ ⊢ \t("C[v]") : B}$>>
+let r_ax_sub =
+  <$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t("t") : A ⊂ A}$>
 
-let r42 =
-  <<$\binaryRN{×_i}{Ξ ⊢ \t("{(li = vi) i∈I}") ∈ \f("{(li : Ai) i∈I}") ⊂ C}
-    {(Ξ ⊢ \t("vi") : \f("Ai"))_{i∈I}}{Ξ ⊢ \t("{(li = vi) i∈I}") : C}$>>
-
-let r51 =
-  <<$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
+let r_arrow =
+  <$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
     {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊂ \f("B₂")}
-    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>
 
-let r61 =
-  <<$\binaryRN{+}{I₁ ⊂ I₂}
+let r_sum =
+  <$\binaryRN{+}{I₁ ⊂ I₂}
     {(Ξ ⊢ \t("(λx [x | Ci[xi] → xi]) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₁}}
-    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊂ \f("[(Ci : Bi) i∈I₂]")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("[(Ci : Ai) i∈I₁]") ⊂ \f("[(Ci : Bi) i∈I₂]")}$>
 
-let r62 =
-  <<$\binaryRN{×}{I₂ ⊂ I₁}
+let r_prod =
+  <$\binaryRN{×}{I₂ ⊂ I₁}
     {(Ξ ⊢ \t("(λx x.li) t") ∈ \f("Ai") ⊂ \f("Bi"))_{i∈I₂}}
-    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊂ \f("{(li : Bi) i∈I₂}")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("{(li : Ai) i∈I₁}") ⊂ \f("{(li : Bi) i∈I₂}")}$>
 
-let r71 =
-  <<$\unaryRN{∀_l}
+let r_forall_l =
+  <$\unaryRN{∀_l}
     {Ξ ⊢ \t("t") ∈ \f("A[χ≔C]") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊂ \f("B")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("∀χ^s A") ⊂ \f("B")}$>
 
-let r72 =
-  <<$\binaryRN{∀_r}
+let r_forall_r =
+  <$\binaryRN{∀_r}
     {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ ≔ εχ∈s(t∉B)]")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∀χ^s B")}$>>
+    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∀χ^s B")}$>
 
-let r81 =
-  <<$\unaryRN{∃_r}
+let r_exists_r =
+  <$\unaryRN{∃_r}
     {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B[χ≔C]")}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∃χ^s B")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("∃χ^s B")}$>
 
-let r82 =
-  <<$\binaryRN{∃_l}
+let r_exists_l =
+  <$\binaryRN{∃_l}
     {Ξ ⊢ \t("t") ∈ \f("A[χ ≔ εχ∈s(t∈A)]") ⊂ \f("B")}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊂ \f("B")}$>>
+    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("∃χ^s A") ⊂ \f("B")}$>
 
-let r91 =
-  <<$\unaryRN{\restriction_l}
+let r_rest_l =
+  <$\unaryRN{\restriction_l}
     {Ξ, u₁ ≡ u₂ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊂ \f("B")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A ∧ u₁ ≡ u₂") ⊂ \f("B")}$>
 
-let r92 =
-  <<$\binaryRN{\restriction_r}
+let r_rest_r =
+  <$\binaryRN{\restriction_r}
     {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
     {Ξ ⊢ u₁ ≡ u₂}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B ∧ u₁ ≡ u₂")}$>>
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B ∧ u₁ ≡ u₂")}$>
 
-let rA1 =
-  <<$\unaryRN{∈_l}
+let r_memb_l =
+  <$\binaryRN{∈_l}
     {Ξ, t ≡ u ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
-    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊂ \f("B")}$>>
+    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("u ∈ A") ⊂ \f("B")}$>
 
-let rA2 =
-  <<$\ternaryRN{∈_r}
+let r_memb_r =
+  <$\ternaryRN{∈_r}
     {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("B")}
     {Ξ ⊢ t ≡ u}
-    {Ξ ⊢ ∃v, v ≡ t}
-    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("u ∈ B")}$>>
+    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ \t("t") ∈ \f("A") ⊂ \f("u ∈ B")}$>
 
 let rs env =
   let env = resize_env 3.2 env in
   let rs =
-    [ [ r11 ; r12 ]
-    ; [ r21 ; r22 ]
-    ; [ r21'; r22'; r23']
-    ; [ r2a ; r2b ]
-    ; [ r32 ; r42 ]
-    ; [ r31 ]
-    ; [ r41 ; r33 ]
-    ; [ r51 ]
-    ; [ r61 ; r62 ]
+    [ [ r_arrow_i ; r_arrow_e ]
+    ; [ r_ax ; r_arrow_ee ]
+    ; [ r_mu ; r_name ; r_ax_bot ]
+    ; [ r_push ; r_fram ]
+    ; [ r_prod_e ; r_prod_i ]
+    ; [ r_sum_e ]
+    ; [ r_sum_i ; r_ax_sub ]
+    ; [ r_arrow ]
+    ; [ r_sum ; r_prod ]
     (* quantifiers. *)
-    ; [ r71 ; r72 ]
-    ; [ r81 ; r82 ]
+    ; [ r_forall_l ; r_forall_r ]
+    ; [ r_exists_r ; r_exists_l ]
     (* restriction and membership. *)
-    ; [ r91 ; r92 ]
-    ; [ rA1 ; rA2 ] ]
-  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+    ; [ r_rest_l ; r_rest_r ]
+    ; [ r_memb_l ; r_memb_r ] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
 let subrules () =
   figure_here ~name:"subrules"
@@ -368,11 +371,11 @@ lemma.
 
 \begin{lem}
 If a typing judgment $Ξ ⊢ \t("t u") : \f("B")$ has a typing proof starting
-with the ($⇒_e$) rule, and if the judgment $Ξ ⊢ ∃v, v≡u$ is provable, then
+with the ($⇒_e$) rule, and if the judgment $Ξ ⊢ v≡u$ is provable, then
 $Ξ ⊢ \t("t u") : \f("B")$ also has a typing proof starting with the
 ($⇒_{e,{∈}}$) rule.
 \begin{proof}
-Blah bla bla.
+\todo(Some "Hopeless ?") (* TODO *)
 \end{proof}
 \end{lem}
 
@@ -483,7 +486,21 @@ We will write:
 \end{itemize}
 \end{def}
 
-
+\begin{lem}\label("subtypingincl")
+Let $A$, $B ∈ \cal{F}$ be two formulas such that $\t("εx∈A(x∉B)") ⊩ A ⊂ B$
+then $⟦A⟧ ⊆ ⟦B⟧$.
+\begin{proof}
+We reason by case on the definition of $\t("⟦εx∈A(x∉B)⟧")$. If it is equal
+to $✠$, then for all $v∈⟦A⟧$ we have $v∈⟦B⟧^{⊥⊥}$ by definition. Thanks to
+\thmRef("main"), $v∈⟦B⟧^{⊥⊥}$ implies $v ∈ ⟦B⟧$. As a consequence, we
+obtain that for all $v ∈ ⟦A⟧$ we have $v ∈ ⟦B⟧$, which exactly means that
+$⟦A⟧ ⊆ ⟦B⟧$. Now, if $\t("⟦εx∈A(x∉B)⟧") = v$ such that $v ∈ ⟦A⟧$ and
+$v ∉ ⟦B⟧^{⊥⊥}$ then our hypothesis tells us that $v ∈ ⟦A⟧^{⊥⊥}$ implies
+$v ∈ ⟦B⟧^{⊥⊥}$. Since $v ∈ ⟦A⟧$ we know that $v ∈ ⟦A⟧^{⊥⊥}$ by
+\lemRef("orthosimple"), and thus we obtain $v ∈ ⟦B⟧^{⊥⊥}$. This is a
+contradiction, and thus we necessarily have $\t("⟦εx∈A(x∉B)⟧") = ✠$.
+\end{proof}
+\end{lem}
 \begin{thm}
 Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
 $t ∈ Λ^{+}$ be a raw term. If $ρ_{id} ⊩ Ξ$ then we have:
@@ -510,6 +527,9 @@ We consider the last rules used in the proof.
   $✠ ∉ \t("⟦t[x≔v]⟧")$, the second induction hypothesis gives us a
   contradiction as it implies  $\t("⟦t[x≔εx∈A(t∉B)]⟧") = \t("⟦t[x≔v]⟧") ∈
   ⟦B⟧^{⊥⊥}$.
+
+  $$ \id(r_arrow_i) $$
+
 \item In the case of the ($⇒_e$) rule, we need to show that $\t("t u") ⊩
   B$. We can suppose that $✠ ∉ \t("⟦t u⟧")$ as otherwise we can conclude
   immediatly. In particular, this means that $\t("⟦t⟧") = t$ and that
@@ -527,6 +547,9 @@ We consider the last rules used in the proof.
   $\p("λx f ∗ v·π") ∈ \dbot$. It is enough to show that
   $\p("f[x≔v] ∗ π") ∈ \dbot$, and this is true since $π ∈ ⟦B⟧^⊥$ and
   $\t("f[x≔v]") ∈ ⟦B⟧^{⊥⊥}$ by definition of $⟦\f("A⇒B")⟧$.
+
+  $$ \id(r_arrow_e) $$
+
 \item In the case of the ($Ax$) rule, we need to show that
   $\t("εx∈A(t∉B)") ⊩ C$. According to the induction hypothesis, it is
   enough to show that $\t("εx∈A(t∉B)") ⊩ A$. Let us reason by case on
@@ -534,50 +557,199 @@ We consider the last rules used in the proof.
   immediate. Otherwise, we know that it is equal to some value $v ∈ ⟦A⟧$.
   We can thus conclude since $⟦A⟧ ⊆ ⟦A⟧^{⊥⊥}$ according to
   \lemRef("orthosimple").
+
+  $$ \id(r_ax) $$
+
 \item In the case of the ($⇒_{e,{∈}}$) rule,
   \todo(None) (* TODO *)
-\item In the case of the ($μ$) rule,
+
+  $$ \id(r_arrow_ee) $$
+
+\item In the case of the ($μ$) rule, we need to show that $\t("μαt") ⊩ A$.
+  We can assume that $✠ ∉ \t("⟦μαt⟧")$ as otherwise it is immediate. In
+  particular, this means that $✠ ∉ \t("⟦t⟧")$. We have to show that
+  $\t("⟦μαt⟧") = \t("μα⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ so we take a stack $π ∈ ⟦A⟧^⊥$
+  and show $\p("μα⟦t⟧ ∗ π") ∈ \dbot$. As $\dbot$ is $({↠})$-saturated, it
+  is enougth to show $\p("⟦t⟧[α≔π] ∗ π") ∈ \dbot$, which rewrites as
+  $\p("⟦t[α≔π]⟧ ∗ π") ∈ \dbot$. Let us now consider the induction
+  hypothesis, which states that $\t("t[α ≔ εα∈A(t∉A)]") ⊩ A$. We will
+  reason by case on the definition of $\t("⟦εα∈A(t∉A)⟧")$ so we first
+  suppose that it is equal to $✠$. This means that for every stack
+  $ξ ∈ ⟦A⟧^⊥$ we have $\t("⟦t[α≔π]⟧") ∈ ⟦A⟧^{⊥⊥}$ (it cannot be that
+  $✠ ∈ \t("⟦t[α≔π]⟧")$ since $✠ ∉ \t("⟦t⟧")$). In particular, this is
+  true for $ξ = π$ so we can conclude. Let us now suppose that
+  $\t("⟦εα∈A(t∉A)⟧") = π$ with $π ∈ ⟦A⟧^⊥$ such that $\t("⟦t[α≔π]⟧") ∉
+  ⟦A⟧^{⊥⊥}$ (we cannot have $✠ ∈ \t("⟦t[α≔π]⟧")$ as $✠ ∉ \t("⟦t⟧")$).
+  This is a contradiction since the induction hypothesis gives
+  $\t("⟦t[α ≔ εα∈A(t∉A)]⟧") = \t("⟦t[α≔π]⟧") ∉ ⟦A⟧^{⊥⊥}$ as
+  $✠ ∉ \t("⟦t[α≔π]⟧")$.
+
+  $$ \id(r_arrow_ee) $$
+
+\item In the case of the ($[\wc]$) rule, we need to show that $\t("[π]u")
+  ⊩ B$. We can assume that $✠ ∉ \t("⟦[π]u⟧")$ as otherwise it is immediate.
+  As a consequence, we have $✠ ∉ \s("⟦π⟧")$ and $✠ ∉ \t("⟦u⟧")$, and thus
+  the induction hypotheses give $\t("⟦u⟧") ∈ ⟦A⟧^{⊥⊥}$ and $\s("⟦π⟧") ∈
+  ⟦A⟧$. We need to show $\t("⟦[π]u⟧") = \t("[⟦π⟧]⟦u⟧") ∈ ⟦B⟧^{⊥⊥}$ so we
+  take $ξ ∈ ⟦B⟧^⊥$ and show that we have $\p("[⟦π⟧]⟦u⟧ ∗ ξ") ∈ \dbot$.
+  As $\dbot$ is $({↠})$-saturated, it is enougth to show $\p("⟦u⟧ ∗ ⟦π⟧")
+  ∈ \dbot$. This is immediate since we have $\t("⟦u⟧") ∈ ⟦A⟧^{⊥⊥}$ and
+  $\s("⟦π⟧") ∈ ⟦A⟧$.
+
+  $$ \id(r_name) $$
+
+\item In the case of the ($Ax^⊥$) rule, we need to show that
+  $\s("εα∈A(t∉A)") ⊩ B$. We can assume that $\s("⟦εα∈A(t∉A)⟧") ≠ ✠$
+  as otherwise this is immediate. As a consequence, we know that
+  $\s("⟦εα∈A(t∉A)⟧") = π$ such that $π ∈ ⟦A⟧^⊥$. As we need to show
+  that $π ∈ ⟦B⟧^⊥$, it is enough to prove that $⟦A⟧^⊥ ⊆ ⟦B⟧^⊥$. According
+  to \lemRef("orthoinclstack"), it is even enough to show that we have
+  $⟦B⟧ ⊆ ⟦A⟧$. By induction hypothesis, we know that $\t("εx∈B(x∉A)")⊩B⊂A$
+  and thus we can conclude using \lemRef("subtypingincl").
+
+  $$ \id(r_ax_bot) $$
+
+\item In the case of the ($\wc·\wc$) rule, we need to show that
+  $\s("v·π") ⊩ C$. We can assume that $✠ ∉ \s("⟦v·π⟧")$ as otherwise
+  this is immediate. As a consequence, $✠ ∉ \v("⟦v⟧")$ and $✠ ∉
+  \s("⟦π⟧")$, and thus $\v("⟦v⟧") ∈ ⟦A⟧^{⊥⊥}$ and $\s("⟦π⟧") ∈ ⟦B⟧^⊥$
+  by the first two induction hypotheses. We need to show that we have
+  $\s("⟦v·π⟧") ∈ ⟦C⟧^⊥$. Using the third induction hypothesis
+  together with \lemRef("subtypingincl"), it is enough to show that
+  $\s("⟦v·π⟧") ∈ ⟦\f("A⇒B")⟧^⊥$. We thus take a value $\v("λx t") ∈
+  ⟦\f("A⇒B")⟧$ and we show that $\p("λx t ∗ ⟦v⟧·⟦π⟧") ∈ \dbot$. As
+  $\dbot$ is $({↠})$-saturated, it is enougth to show 
+  $\p("t[x≔⟦v⟧] ∗ ⟦π⟧") ∈ \dbot$. Since $\s("⟦π⟧") ∈ ⟦B⟧^⊥$, we
+  need to show that $\t("t[x≔⟦v⟧]") ∈ ⟦B⟧^{⊥⊥}$ but this follows
+  from the definition of $⟦\f("A⇒B")⟧$.
+
+  $$ \id(r_push) $$
+
+\item In the case of the ($[\wc]\wc$) rule, we need to show that
+  $\s("[t]π") ⊩ A$. We can assume that $✠ ∉ \s("⟦[t]π⟧")$ as
+  otherwise this is immediate. As a consequence, $✠ ∉ \t("⟦t⟧")$
+  and $✠ ∉ \s("⟦π⟧")$, and thus $\t("⟦t⟧") ∈ ⟦\f("A⇒B")⟧^{⊥⊥}$
+  and $\s("⟦π⟧") ∈ ⟦B⟧^⊥$ by the first two induction hypotheses.
+  We need to show that we have $\s("⟦[t]π⟧") ∈ ⟦A⟧^\bot$ so we
+  take a value $v ∈ ⟦A⟧$ and we show that $\p("v ∗ [⟦t⟧]⟦π⟧") ∈
+  \dbot$. As $\dbot$ is $({↠})$-saturated, it is enougth to show 
+  $\p("⟦t⟧ ∗ v·⟦π⟧") ∈ \dbot$. As we know that we have $\t("⟦t⟧")
+  ∈ ⟦\f("A⇒B")⟧^{⊥⊥}$ it remains to show that the stack $\s("v·⟦π⟧")$
+  is in $⟦\f("A⇒B")⟧^⊥$. We can then finish the proof like in the
+  previous case.
+
+  $$ \id(r_fram) $$
+
+\item In the case of the ($×_e$) rule, we need to show that
+  $\t("v.l") ⊩ A$. We can assume that $✠ ∉ \t("⟦v.l⟧")$ as
+  otherwise this is immediate. As a consequence, we know that
+  $✠ ∉ \v("⟦v⟧")$ and the induction hypothesis gives us
+  $\v("⟦v⟧") ∈ ⟦\f("{l:A}")⟧^{⊥⊥}$. Moreover, \thmRef("main")
+  tells us that $\v("⟦v⟧") ∈ ⟦\f("{l:A}")⟧$, which means that
+  $\v("⟦v⟧") = \v("{l = w}")$ for some value $w∈⟦A⟧$. We need
+  to show that $\t("⟦v.l⟧") ∈ ⟦A⟧^{⊥⊥}$ so we take $π ∈ ⟦A⟧^⊥$
+  and we show that we have
+  $\p("⟦v⟧.l ∗ π") = \p("{l = w}.l ∗ π") ∈ \dbot$.
   \todo(None) (* TODO *)
-\item In the case of the ($[\wc]$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($Ax^⊥$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($\wc·\wc$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($[\wc]\wc$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($×_e$) rule,
-  \todo(None) (* TODO *)
+
+  $$ \id(r_prod_e) $$
+
 \item In the case of the ($×_i$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_prod_i) $$
+
 \item In the case of the ($+_e$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_sum_e) $$
+
 \item In the case of the ($+_i$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_sum_i) $$
+
 \item In the case of the ($Ax_{⊂}$) rule, the proof is immediate. Indeed,
   it is always true that $t ⊩ A$ implies $t ⊩ A$.
+
+  $$ \id(r_ax_sub) $$
+
 \item In the case of the ($⇒$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_arrow) $$
+
 \item In the case of the ($+$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_sum) $$
+
 \item In the case of the ($×$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_prod) $$
+
 \item In the case of the ($∀_l$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_forall_l) $$
+
 \item In the case of the ($∀_r$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_forall_r) $$
+
 \item In the case of the ($∃_r$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_exists_r) $$
+
 \item In the case of the ($∃_l$) rule,
   \todo(None) (* TODO *)
-\item In the case of the ($\restriction_l$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($\restriction_r$) rule,
-  \todo(None) (* TODO *)
-\item In the case of the ($∈_l$) rule,
-  \todo(None) (* TODO *)
+
+  $$ \id(r_exists_l) $$
+
+\item In the case of the ($\restriction_l$) rule, we need to show that
+  $t ⊩ \f("A∧u₁≡u₂") ⊂ B$. We can assume $✠ ∉ ⟦t⟧$ as otherwise it is
+  immediate. We thus assume that $\t("⟦t⟧") ∈ ⟦\f("A∧u₁≡u₂")⟧^{⊥⊥}$ and
+  show that we have $\t("⟦t⟧") ∈ ⟦B⟧^{⊥⊥}$. We can assume $u₁ ≡ u₂$ as
+  otherwise we would have $⟦\f("A∧u₁≡u₂")⟧^{⊥⊥} = ∅^{⊥⊥} = ∅$, which
+  contradicts $\t("⟦t⟧") ∈ ⟦\f("A∧u₁≡u₂")⟧^{⊥⊥}$. As a consequence, we
+  know that $⟦\f("A∧u₁≡u₂")⟧ = ⟦A⟧$ and thus $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$.
+  We can thus apply the induction hypothesis to conclude (using the
+  fact that the $u₁ ≡ u₂$).
+
+  $$ \id(r_rest_l) $$
+
+\item In the case of the ($\restriction_r$) rule, we need to show that
+  $t ⊩ A ⊂ \f("B∧u₁≡u₂")$. We can assume $✠ ∉ ⟦t⟧$ as otherwise it is
+  immediate. We thus assume that $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ and show that
+  we have $\t("⟦t⟧") ∈ ⟦\f("B∧u₁≡u₂")⟧^{⊥⊥}$. Using the induction
+  hypothesis, we know that $\t("⟦t⟧") ∈ ⟦B⟧^{⊥⊥}$. To conclude the
+  proof, we will show that $⟦\f("B∧u₁≡u₂")⟧ = ⟦B⟧$. This immediatly
+  follows from the second hypothesis, which gives us $u₁ ≡ u₂$ since
+  the equivalences of $Ξ$ were assumed to be valid.
+
+  $$ \id(r_rest_r) $$
+
+\item In the case of the ($∈_l$) rule, we need to show that $t ⊩
+  \f("u∈A") ⊂ B$. We can assume that $✠ ∉ \t("⟦t⟧")$ as otherwise
+  it is immediate. We thus assume that $\t("⟦t⟧") ∈ ⟦\f("u∈A")⟧^{⊥⊥}$
+  and show that $\t("⟦t⟧") ∈ ⟦B⟧^{⊥⊥}$. By hypothesis, we have
+  $\t("⟦v⟧") ≡ \t("⟦t⟧")$ and as our pole is $({≡})$-extensional, we
+  know that we have $\t("⟦v⟧") ∈ ⟦\f("u∈A")⟧^{⊥⊥}$ and it is enough
+  to show that $\t("⟦v⟧") ∈ ⟦B⟧^{⊥⊥}$. Using \thmRef("main"), we know
+  that we have $\t("⟦v⟧") ∈ ⟦\f("u∈A")⟧$, which gives us $\t("⟦v⟧") ≡
+  \t("⟦u⟧")$ and $\t("⟦v⟧") ∈ ⟦A⟧$. We can thus apply the induction
+  hypothesis to obtain $\t("⟦v⟧") ∈ ⟦B⟧$ using again the fact that
+  the pole is $({≡})$-extensional and \thmRef("main").
+
+  $$ \id(r_memb_l) $$
+
 \item In the case of the ($∈_r$) rule,
   \todo(None) (* TODO *)
+
+  $$ \id(r_memb_r) $$
 \end{itemize}
 \end{proof}
 \end{thm}
