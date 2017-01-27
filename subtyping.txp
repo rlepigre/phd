@@ -68,9 +68,13 @@ let r_prod_e =
 let r_ax_sub =
   <$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t("t") : A ⊂ A}$>
 
+let r_ax_gen =
+  <$\unaryRN{Gen}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \t("t") : A ⊂ B}$>
+
 let r_arrow =
-  <$\binaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x ∉ B₂)") ∈ \f("A₂") ⊂ \f("A₁")}
-    {Ξ ⊢ \t("t εx∈A₂(t x ∉ B₂)") ∈ \f("B₁") ⊂ \f("B₂")}
+  <$\ternaryRN{⇒}{Ξ ⊢ \t("εx∈A₂(t x∉b₂)") ∈ \f("A₂") ⊂ \f("A₁")}
+    {Ξ ⊢ \t("t εx∈A₂(t x∉b₂)") ∈ \f("B₁") ⊂ \f("B₂")}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t("t") ∈ \f("A₁ ⇒ B₁") ⊂ \f("A₂ ⇒ B₂")}$>
 
 let r_sum =
@@ -138,7 +142,7 @@ let rs env =
     ; [ r_push ; r_fram ]
     ; [ r_prod_e ; r_prod_i ]
     ; [ r_sum_e ]
-    ; [ r_sum_i ; r_ax_sub ]
+    ; [ r_sum_i ; r_ax_sub ; r_ax_gen ]
     ; [ r_arrow ]
     ; [ r_sum ; r_prod ]
     (* quantifiers. *)
@@ -487,8 +491,8 @@ We will write:
 \end{def}
 
 \begin{lem}\label("subtypingincl")
-Let $A$, $B ∈ \cal{F}$ be two formulas such that $\t("εx∈A(x∉B)") ⊩ A ⊂ B$
-then $⟦A⟧ ⊆ ⟦B⟧$.
+Let $A$, $B ∈ \cal{F}$ be two formulas such that $\t("εx∈A(x∉B)") ⊩ A ⊂ B$.
+In this case we have $⟦A⟧ ⊆ ⟦B⟧$.
 \begin{proof}
 We reason by case on the definition of $\t("⟦εx∈A(x∉B)⟧")$. If it is equal
 to $✠$, then for all $v∈⟦A⟧$ we have $v∈⟦B⟧^{⊥⊥}$ by definition. Thanks to
@@ -560,8 +564,30 @@ We consider the last rules used in the proof.
 
   $$ \id(r_ax) $$
 
-\item In the case of the ($⇒_{e,{∈}}$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($⇒_{e,{∈}}$) rule, we need to show that
+  $\t("t u") ⊩ B$. We can suppose that $✠ ∉ \t("⟦t u⟧")$ as otherwise
+  we can conclude immediatly. In particular, this means that
+  $\t("⟦t⟧") = t$ and that $\t("⟦u⟧") = u$, and thus
+  $⟦t⟧ ∈ ⟦\f("u∈A ⇒ B")⟧^{⊥⊥}$ and $⟦u⟧ ∈ ⟦A⟧^{⊥⊥}$ by our
+  induction hypotheses. We need to show that we have $\t("⟦t u⟧") =
+  \t("⟦t⟧ ⟦u⟧") ∈ ⟦B⟧^{⊥⊥}$ so we take $π ∈ ⟦B⟧^⊥$ and we show that
+  $\p("⟦t⟧ ⟦u⟧ ∗ π") ∈ \dbot$. Since $\dbot$ is $({↠})$-saturated, it
+  is enough to show that $\p("⟦u⟧ ∗ [⟦t⟧]π") ∈ \dbot$. Now, as our
+  pole is $({≡})$-extensional and we know that $\t("⟦u⟧") ≡ \t("⟦v⟧")$
+  for a value $v$, it is enough to show $\p("⟦v⟧ ∗ [⟦t⟧]π") ∈ \dbot$.
+  Again, since $\dbot$ is $({↠})$-saturated, it is enough to show that
+  $\p("⟦t⟧ ∗ ⟦v⟧·π") ∈ \dbot$. Since we know that
+  $⟦t⟧ ∈ ⟦\f("u∈A ⇒ B")⟧^{⊥⊥}$ we only have to show that
+  $\s("⟦v⟧·π") ∈ ⟦\f("u∈A ⇒ B")⟧^⊥$. We thus take a value
+  $\t("λxf") ∈ ⟦\f("u∈A ⇒ B")⟧$ and show that
+  $\p("λx f ∗ ⟦v⟧·π") ∈ \dbot$. We can again take a reduction step and
+  show that $\p("f[x≔⟦v⟧] ∗ π") ∈ \dbot$, for which it is enough to
+  show that $\t("f[x≔⟦v⟧]") ∈ ⟦B⟧$. To be able to conclude using the
+  definition of $⟦\f("u∈A ⇒ B")⟧$, we need to show that $\t("⟦v⟧") ∈
+  ⟦\f("u∈A")⟧$. As we know that $\t("⟦u⟧") ≡ \t("⟦v⟧")$ it only remains
+  to show that $\t("⟦v⟧") ∈ ⟦A⟧$. This follows from $⟦u⟧ ∈ ⟦A⟧^{⊥⊥}$
+  and \thmRef("main") as we know that $⟦A⟧^{⊥⊥}$ must be closed under
+  $({≡})$.
 
   $$ \id(r_arrow_ee) $$
 
@@ -584,7 +610,7 @@ We consider the last rules used in the proof.
   $\t("⟦t[α ≔ εα∈A(t∉A)]⟧") = \t("⟦t[α≔π]⟧") ∉ ⟦A⟧^{⊥⊥}$ as
   $✠ ∉ \t("⟦t[α≔π]⟧")$.
 
-  $$ \id(r_arrow_ee) $$
+  $$ \id(r_mu) $$
 
 \item In the case of the ($[\wc]$) rule, we need to show that $\t("[π]u")
   ⊩ B$. We can assume that $✠ ∉ \t("⟦[π]u⟧")$ as otherwise it is immediate.
@@ -666,8 +692,15 @@ We consider the last rules used in the proof.
 
   $$ \id(r_sum_e) $$
 
-\item In the case of the ($+_i$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($+_i$) rule, we need to show $\t("C[v]") ⊩ B$.
+  We can assume that $✠ ∉ \t("⟦C[v]⟧")$ as otherwise the proof is
+  immediate. As a consequence, we know that $✠ ∉ \t("⟦v⟧")$ and thus
+  the first induction hypothesis (combined with \thmRef("main")) gives
+  us $\t("⟦v⟧") ∈ ⟦A⟧$. We need to show that $\t("⟦C[v]⟧") ∈ ⟦B⟧^{⊥⊥}$.
+  Using the second induction hypothesis, it is enough to show that
+  $\t("⟦C[v]⟧") = \t("C[⟦v⟧]") ∈ ⟦[C:A]⟧^{⊥⊥}$, which amounts to showing
+  that $\t("C[⟦v⟧]") ∈ ⟦[C:A]⟧$ according to \thmRef("main"). This is
+  immediate by definition since we have $\t("⟦v⟧") ∈ ⟦A⟧$.
 
   $$ \id(r_sum_i) $$
 
@@ -676,8 +709,37 @@ We consider the last rules used in the proof.
 
   $$ \id(r_ax_sub) $$
 
-\item In the case of the ($⇒$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($Gen$) rule, we need to show that $t ⊩ A ⊂ B$.
+  We can assume that $✠ ∉ \t("⟦t⟧")$ as otherwise the proof is immediate.
+  Using the induction hypothesis with \lemRef("subtypingincl") we obtain
+  $⟦A⟧ ⊆ ⟦B⟧$, and we conclude using \lemRef("orthoincl").
+
+  $$ \id(r_ax_gen) $$
+
+\item In the case of the ($⇒$) rule, we need to show that $t ⊩ \f("A₁⇒B₁")
+  ⊂ \f("A₂⇒B₂")$. We may suppose $✠ ∉ ⟦t⟧$ as otherwise it is immediate.
+  We thus assume $\t("⟦t⟧") ∈ ⟦\f("A₁⇒B₁")⟧^{⊥⊥}$ and show that we have
+  $\t("⟦t⟧") ∈ ⟦\f("A₂⇒B₂")⟧^{⊥⊥}$. Now, as the pole is $({≡})$-extensional
+  and $\t("⟦v⟧") ≡ \t("⟦t⟧")$ for some value $v$, we know that
+  $\t("⟦v⟧") ∈ ⟦\f("A₁⇒B₁")⟧^{⊥⊥}$ and we only have to show that
+  $\t("⟦v⟧") ∈ ⟦\v("A₂⇒B₂")⟧^{⊥⊥}$. With \thmRef("main") we even have
+  $\t("⟦v⟧") ∈ ⟦\f("A₁⇒B₁")⟧$ and we can show $\t("⟦v⟧") ∈ ⟦\v("A₂⇒B₂")⟧$.
+  We can now assume that $\t("⟦v⟧") = \t("λx f")$ as otherwise this would
+  contradict the fact that $\t("⟦v⟧") ∈ ⟦\f("A₁⇒B₁")⟧$. Let us now suppose
+  that we have $\t("⟦εx∈A₂(t x∉B₂)⟧") = ✠$, and thus for all $w∈⟦\f("A₂")⟧$
+  we have $\t("⟦t⟧ w") ∈ ⟦\f("B₂")⟧^{⊥⊥}$. As we have $\t("⟦v⟧")≡\t("⟦t⟧")$
+  and $\t("⟦v⟧") = \t("λx f")$ we can use \thmRef("fullextterm") and the fact
+  that $⟦\f("B₂")⟧^{⊥⊥}$ is closed under $({≡})$ to deduce that
+  $\t("(λx f) w") ∈ ⟦\f("B₂")⟧^{⊥⊥}$. We can then use \thmRef("cbvbeta") to
+  obtain $\t("f[x≔w]") ∈ ⟦\f("B₂")⟧^{⊥⊥}$ for the same reason. This exactly
+  means that $\t("⟦v⟧") = \t("λx f") ∈ ⟦\f("A₂⇒B₂")⟧$. Finally, let us
+  suppose that $\t("⟦εx∈A₂(t x∉B₂)⟧") = w$ for some value $w ∈ ⟦\f("A₂")⟧$
+  such that $\t("⟦t⟧ w") ∉ ⟦\f("B₂")⟧^{⊥⊥}$. Using the first induction
+  hypothesis, we learn that $w ∈ ⟦\f("A₁")⟧$ and thus we obtain that
+  $\t("f[x≔w]") ∈ ⟦\f("B₁")⟧^{⊥⊥}$ by definition of $⟦\f("A₁⇒B₁")⟧$. Now,
+  using again \thmRef("cbvbeta") and \thmRef("fullextterm") with the
+  equivalence we have, we know that $\t("f[x≔w]") ≡ \t("⟦t⟧ w")$ and thus
+  we can use the second induction hypothesis to conclude.
 
   $$ \id(r_arrow) $$
 
@@ -698,7 +760,7 @@ We consider the last rules used in the proof.
   hypothesis, it is enough to show that we have $\t("⟦t⟧") ∈
   ⟦\f("A[χ≔C]")⟧^{⊥⊥}$. We will thus show that $⟦\f("∀χ^s A")⟧^{⊥⊥} ⊆
   ⟦\f("A[χ≔C]")⟧^{⊥⊥}$, for which it is enough to show $⟦\f("∀χ^s A")⟧
-  ⊆ ⟦\f("A[χ≔C]")⟧^{⊥⊥}$ according to \lemRef("orthoincl"). This is
+  ⊆ ⟦\f("A[χ≔C]")⟧$ according to \lemRef("orthoincl"). This is
   immediate by definition of $⟦\f("∀χ^s A")⟧$.
 
   $$ \id(r_forall_l) $$
@@ -721,14 +783,15 @@ We consider the last rules used in the proof.
   must be that for every formula $Φ ∈ ⟦s⟧$ we have
   $\t("⟦t⟧") ∈ ⟦\f("B[χ≔Φ]")⟧^{⊥⊥}$, or equivalently
   $\t("⟦v⟧") ∈ ⟦\f("B[χ≔Φ]")⟧$ using the $({≡})$-extensionality of the
-  pole and \thmRef("main"). This immediatly implies that we have
+  pole and \thmRef("main"). This immediately implies that we have
   $\t("⟦v⟧") ∈ ⟦\v("∀χ^s B")⟧$.
 
   $$ \id(r_forall_r) $$
 
-\item In the case of the ($∃_r$) rule, we need to show that $t ⊩
-  \f("A") ⊂ \f("∃χ^s B")$. We can assume $✠ ∉ ⟦t⟧$ as otherwise it is
-  immediate. We thus suppose that $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ and show that
+\item In the case of the ($∃_r$) rule, the proof is similar as for the
+  ($∀_l$) rule. We need to show that $t ⊩ \f("A") ⊂ \f("∃χ^s B")$. We
+  can assume $✠ ∉ ⟦t⟧$ as otherwise it is immediate. We thus suppose
+  that $\t("⟦t⟧") ∈ ⟦A⟧^{⊥⊥}$ and show that
   $\t("⟦t⟧") ∈ ⟦\f("∃χ^s B")⟧^{⊥⊥}$. By induction hypothesis, we know
   that $\t("⟦t⟧") ∈ ⟦\f("B[χ≔C]")⟧^{⊥⊥}$. We will thus show that
   $⟦\f("B[χ≔C]")⟧^{⊥⊥} ⊆ ⟦\f("∃χ^s B")⟧^{⊥⊥}$, for which it is enough
@@ -738,9 +801,25 @@ We consider the last rules used in the proof.
 
   $$ \id(r_exists_r) $$
 
-\item In the case of the ($∃_l$) rule,
-  \todo(None) (* TODO *)
-
+\item In the case of the ($∃_l$) rule, the proof is similar as for the
+  ($∀_r$) rule. We need to show that $t ⊩ \f("∃χ^s A") ⊂ \f("B")$. We
+  can assume $✠ ∉ ⟦t⟧$ as otherwise it is immediate. We thus suppose
+  that $\t("⟦t⟧") ∈ ⟦\f("∃χ^s A")⟧^{⊥⊥}$ and show that $\t("⟦t⟧") ∈
+  ⟦B⟧^{⊥⊥}$. To be able to use the induction hypothesis, we need to
+  show that $\t("⟦t⟧") ∈ ⟦\f("A[χ ≔ εχ∈s(t∈A)]")⟧^{⊥⊥}$. Now, as the
+  pole is $({≡})$-extensional and $\t("⟦v⟧") ≡ \t("⟦t⟧")$ for some
+  value $v$, we know that $\t("⟦v⟧") ∈ ⟦\v("∃χ^s A")⟧^{⊥⊥}$ and we
+  only need to show that $\t("⟦v⟧") ∈ ⟦\f("A[χ ≔ εχ∈s(t∈A)]")⟧^{⊥⊥}$.
+  With \thmRef("main") we even have $\t("⟦v⟧") ∈ ⟦\v("∃χ^s A")⟧$ and
+  we can show $\t("⟦v⟧") ∈ ⟦\f("A[χ ≔ εχ∈s(t∈A)]")⟧$. Now, if there
+  is $Φ ∈ ⟦s⟧$ such that $\t("⟦t⟧") ∈ ⟦\f("A[χ≔Φ]")⟧^{⊥⊥}$ then we can
+  decide to take $⟦\f("A[χ ≔ εχ∈s(t∈A)]")⟧ = ⟦\f("A[χ≔Φ]")⟧$.
+  In particular, this gives us $\t("⟦v⟧") ∈ ⟦\f("A[χ≔Φ]")⟧$ using the
+  $({≡})$-extensionality of the pole and \thmRef("main").
+  Finally, if for all $Φ ∈ ⟦s⟧$ we have $\t("⟦t⟧") ∉ ⟦\f("A[χ≔Φ]")⟧^{⊥⊥}$
+  and thus $\t("⟦v⟧") ∉ ⟦\f("A[χ≔Φ]")⟧$ then we get a contradiction as
+  this means that $\t("⟦v⟧") ∉ ⟦\f("∃χ^s A")⟧$.
+ 
   $$ \id(r_exists_l) $$
 
 \item In the case of the ($\restriction_l$) rule, we need to show that

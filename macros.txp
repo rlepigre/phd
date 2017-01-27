@@ -527,8 +527,9 @@ let dr rs env =
                       let (w2, h2) = size_box e2 in
                       let (w3, h3) = size_box e3 in
                       let d1 = 0.0 in
-                      let d2 = (wall -. w2) /. 2.0 in
                       let d3 = wall -. w3 in
+                      (* let d2 = (wall -. w2) /. 2.0 in *)
+                      let d2 = w1 +. (d3 -. (w1 +. w2)) /. 2.0 in
                       let all =
                         List.map (trs d1) e1 @ List.map (trs d2) e2 @
                         List.map (trs d3) e3
