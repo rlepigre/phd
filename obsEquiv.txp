@@ -322,7 +322,7 @@ Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
 can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("equivcase")
 Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of indices such that for
 all $i ∈ I$ we have $x_i ∈ \cal{V}_ι$ and $\t("ti") ∈ Λ$. If $k ∈ I$ then
 $\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡ \t("tk[xk≔v]")$.

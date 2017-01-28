@@ -59,7 +59,7 @@ let r_fram =
 
 let r_sum_i =
   <$\binaryRN{+_i}{Ξ ⊢ \t{v} : \f{A}}
-    {Ξ ⊢ \t{C[v]} ∈ \f{[C : A]} ⊂ \f{B}}{Ξ ⊢ \t{C[v]} : B}$>
+    {Ξ ⊢ \t{Ck[v]} ∈ \f{[Ck : A]} ⊂ \f{B}}{Ξ ⊢ \t{Ck[v]} : B}$>
 
 let r_sum_e =
   <$\binaryRN{+_e}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
@@ -87,13 +87,15 @@ let r_arrow =
     {Ξ ⊢ \t{t} ∈ \f{A₁ ⇒ B₁} ⊂ \f{A₂ ⇒ B₂}}$>
 
 let r_sum =
-  <$\binaryRN{+}{I₁ ⊂ I₂}
+  <$\ternaryRN{+}{I₁ ⊂ I₂}
     {(Ξ ⊢ \t{(λx [x | Ci[xi] → xi]) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₁}}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{[(Ci : Ai) i∈I₁]} ⊂ \f{[(Ci : Bi) i∈I₂]}}$>
 
 let r_prod =
-  <$\binaryRN{×}{I₂ ⊂ I₁}
+  <$\ternaryRN{×}{I₂ ⊂ I₁}
     {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}}$>
 
 let r_forall_l =
@@ -115,7 +117,7 @@ let r_exists_r =
 let r_exists_l =
   <$\binaryRN{∃_l}
     {Ξ ⊢ \t{t} ∈ \f{A[χ ≔ εχ∈s(t∈A)]} ⊂ \f{B}}
-    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{∃χ^s A} ⊂ \f{B}}$>
 
 let r_rest_l =
@@ -132,18 +134,18 @@ let r_rest_r =
 let r_memb_l =
   <$\binaryRN{∈_l}
     {Ξ, t ≡ u ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
-    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{u ∈ A} ⊂ \f{B}}$>
 
 let r_memb_r =
   <$\ternaryRN{∈_r}
     {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
     {Ξ ⊢ t ≡ u}
-    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{u ∈ B}}$>
 
 let rs env =
-  let env = resize_env 3.2 env in
+  let env = resize_env 3.1 env in
   let rs =
     [ [ r_arrow_i ; r_arrow_e ]
     ; [ r_ax ; r_arrow_ee ]
@@ -153,7 +155,8 @@ let rs env =
     ; [ r_sum_e ]
     ; [ r_sum_i ; r_ax_sub ; r_ax_gen ]
     ; [ r_arrow ]
-    ; [ r_sum ; r_prod ]
+    ; [ r_sum ]
+    ; [ r_prod ]
     (* quantifiers. *)
     ; [ r_forall_l ; r_forall_r ]
     ; [ r_exists_r ; r_exists_l ]
@@ -689,24 +692,52 @@ We consider the last rules used in the proof.
 
   $$ \id(r_prod_e) $$
 
-\item In the case of the ($×_i$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($×_i$) rule, we need to show $\t{{(li = vi) i∈I}}
+  ⊩ C$. We can assume that we have $✠ ∉ \t{⟦{(li = vi) i∈I}⟧}$ as otherwise
+  the proof is immediate. In particular, this means that for all $i∈I$ we
+  have $✠ ∉ \t{⟦vi⟧}$ and thus we learn $\t{⟦vi⟧} ∈ \vs{Ai}$ using
+  \thmRef("main") with the induction hypotheses. We need to show that
+  $\t{{(li = ⟦vi⟧) i∈I}} ∈ \ts{C}$, but according to the first induction
+  hypothesis (combined with \thmRef("main")) it is enough to show that
+  $\t{{(li = ⟦vi⟧) i∈I}} ∈ \vs{{(li : Ai) i∈I}}$. This follows by definition
+  as we know that $\t{⟦vi⟧} ∈ \vs{Ai}$ for all $i∈I$.
 
   $$ \id(r_prod_i) $$
 
-\item In the case of the ($+_e$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($+_e$) rule, we need to show
+  $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ \f{C}$. We can assume that we have
+  $✠ ∉ \t{⟦[v | (Ci[xi] → ti) i∈I]⟧}$ as otherwise this is immediate.
+  In particular, this means that $✠ ∉ \t{⟦v⟧}$ and that $✠ ∉ \t{⟦ti⟧}$
+  for all $i∈I$. We need to show that we have
+  $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$ so we take a stack
+  $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈
+  \dbot$. Using the first induction hypothesis (together with
+  \thmRef("main")) we learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$.
+  By definition, this means that there is $k∈I$ and $w ∈ \vs{Ai}$
+  such that $\t{⟦v⟧} = \t{Ck[w]}$. As a consequence, we can use
+  \thmRef("equivcase") and the fact that $\dbot$ is $({≡})$-extensional
+  to learn that $\p{⟦tk⟧[xk≔w] ∗ π} ∈ \dbot$. It is thus enough to
+  show that $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. Now if $\t{⟦εxk∈Ak(tk∉C)⟧} = ✠$
+  then for all $\v{vk} ∈ \vs{Ak}$ we have $\t{⟦tk⟧[xk≔vk]} ∈ \ts{C}$.
+  In particular, this is true for $\v{vk} = w$ and thus we can conclude
+  that $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. It remains to consider the case where
+  there is $\v{vk}∈\vs{Ak}$ such that $\t{⟦tk⟧[xk≔vk]} ∉ \ts{C}$. If $w$
+  is not such a value then we can conclude since this means that we have
+  $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. However, if $\t{⟦tk⟧[xk≔w]} ∉ \ts{C}$ then
+  we can decide that $\t{⟦εxk∈Ak(tk∉C)⟧} = \v{w}$. In this case, as
+  $\v{⟦v⟧} ≡ \v{⟦Ck[w]⟧} = \v{Ck[w]}$, the induction hypothesis gives us
+  $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$, which is a contradiction.
 
   $$ \id(r_sum_e) $$
 
-\item In the case of the ($+_i$) rule, we need to show $\t{C[v]} ⊩ B$.
-  We can assume that $✠ ∉ \t{⟦C[v]⟧}$ as otherwise the proof is
-  immediate. As a consequence, we know that $✠ ∉ \t{⟦v⟧}$ and thus
+\item In the case of the ($+_i$) rule, we need to show $\t{Ck[v]} ⊩ B$.
+  We can assume that we have $✠ ∉ \t{⟦Ck[v]⟧}$ as otherwise the proof
+  is immediate. As a consequence, we know that $✠ ∉ \t{⟦v⟧}$ and thus
   the first induction hypothesis (combined with \thmRef("main")) gives
-  us $\t{⟦v⟧} ∈ ⟦A⟧$. We need to show that $\t{⟦C[v]⟧} ∈ \ts{B}$.
+  us $\t{⟦v⟧} ∈ ⟦A⟧$. We need to show that $\t{⟦Ck[v]⟧} ∈ \ts{B}$.
   Using the second induction hypothesis, it is enough to show that
-  $\t{⟦C[v]⟧} = \t{C[⟦v⟧]} ∈ \ts{[C:A]}$, which amounts to showing
-  that $\t{C[⟦v⟧]} ∈ ⟦[C:A]⟧$ according to \thmRef("main"). This is
+  $\t{⟦Ck[v]⟧} = \t{Ck[⟦v⟧]} ∈ \ts{[Ck:A]}$, which amounts to showing
+  that $\t{Ck[⟦v⟧]} ∈ ⟦[Ck:A]⟧$ according to \thmRef("main"). This is
   immediate by definition since we have $\t{⟦v⟧} ∈ ⟦A⟧$.
 
   $$ \id(r_sum_i) $$
