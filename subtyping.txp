@@ -781,13 +781,41 @@ We consider the last rules used in the proof.
 
   $$ \id(r_arrow) $$
 
-\item In the case of the ($+$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($+$) rule, we need to show
+  $t ⊩ \f{[(Ci : Ai) i∈I₁]} ⊂ \f{[(Ci : Bi) i∈I₂]}$. We may assume
+  $✠ ∉ \t{⟦t⟧}$ as otherwise it is immediate. As in the case of the
+  ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
+  $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I₁]}$ and show that $\t{⟦v⟧} ∈
+  \vs{[(Ci : Bi) i∈I₂]}$. By definition, we know that $\t{⟦v⟧} =
+  \t{Ck[w]}$ for some $k∈I₁$ and $\v{w} ∈ \vs{Ak}$. As a consequence,
+  we only need to show that $\v{w} ∈ \vs{Bk}$. Let us now consider
+  the term $\t{⟦(λx[x|Ck[xk]→xk]) t⟧} = \t{(λx[x|Ck[xk]→xk]) ⟦t⟧}$.
+  As we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{Ck[w]}$, we know
+  $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{(λx[x|Ck[xk]→xk]) Ck[w]}$.
+  Using \thmRef("cbvbeta") and \thmRef("equivcase") we even obtain
+  $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{w}$. We can hence conclude using
+  the induction hypothesis, the $({≡})$-extensionality of the pole
+  and \thmRef("main").
 
   $$ \id(r_sum) $$
 
-\item In the case of the ($×$) rule,
-  \todo(None) (* TODO *)
+\item In the case of the ($×$) rule, we need to show
+  $t ⊩ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}$. We may assume
+  $✠ ∉ \t{⟦t⟧}$ as otherwise it is immediate. As in the case of the
+  ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
+  $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈
+  \vs{{(li : Bi) i∈I₂}}$. By definition, $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$
+  with $I₁ ⊆ I$ and $\v{vi} ∈ \vs{Ai}$ for all index $i∈I₁$. As a
+  consequence, we only need to show that $\v{vi} ∈ \vs{Bi}$ for all
+  $i∈I₂$. Let us take $k∈I₂$ and show that $\v{vk} ∈ \vs{Bk}$. We
+  now going to consider the term
+  $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
+  we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
+  $\t{(λx x.lk) ⟦t⟧} = \t{(λx x.lk) {(li=vi) i∈I}}$. Using
+  \thmRef("cbvbeta") and \thmRef("equivreco") we obtain
+  $\t{(λx x.lk) ⟦t⟧} = \t{vk}$. We can hence conclude using
+  the induction hypothesis, the $({≡})$-extensionality of the pole
+  and \thmRef("main").
 
   $$ \id(r_prod) $$
 

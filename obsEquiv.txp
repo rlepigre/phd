@@ -314,7 +314,7 @@ the unfolding of the fixpoint combinator and the elimination of the special
 term $\t("U({})")$. Indeed, the corresponding reduction rules do not
 involve an interaction with the stack. In particular, they leave the stack
 unchanged.
-\begin{thm}
+\begin{thm}\label("equivreco")
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i ∈ I$.
 If $k ∈ I$ then $\t("{(li = vi) i∈I}.lk") ≡ \t("vk")$.
 \begin{proof}
