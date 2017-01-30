@@ -488,11 +488,46 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents_stacks
 \end{def}
 It is important to note that raw values, raw terms and raw stacks cannot
 appear into types. Indeed, the semantics of our types is still defined
-exactly as in \chapter("typeSystem"). In particular, value witnesses,
-stack witnesses and $✠$ will never appear in types.
+as in \chapter("typeSystem"). In particular, value witnesses, stack
+witnesses and $✠$ will never appear in types.
 
-(* TODO type witnesses. *)
-(* TODO modification of the semantics of product types. *)
+We will however need to account for witnesses of the form $\f{εχ∈s(t∈A)}$
+and $\f{εχ∈s(t∉A)}$ in their semantical interpretation. Intuitively, these
+witnesses will be understood as formulas of the corresponding sort
+satisfying the denoted property.
+\begin{def}
+We extend the definition of the interpretation of types (\defRef("typesem"))
+with the following.
+\begin{center}
+\linesBefore(2)
+$\vs{εχ∈s(t∈A)} = Φ ∈ ⟦s⟧$ such that $✠ ∉ \t{⟦t⟧} ⇒ \t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$
+if possible
+
+\linesBefore(2)
+$\vs{εχ∈s(t∉A)} = Φ ∈ ⟦s⟧$ such that $✠ ∉ \t{⟦t⟧} ⇒ \t{⟦t⟧} ∉ \ts{A[χ≔Φ]}$
+if possible
+\end{center}
+\end{def}
+
+Our current semantics does not allow all the base subtyping relations that
+we could desire. Indeed, it is easy to see that we have 
+$\vs{[(Ci : Ai) i∈I₁]} ⊆ \vs{[(Ci : Ai) i∈I₂]}$ whenever $I₁ ⊆ I₂$, but
+the corresponding relation on product types is not satisfied. Intuitively,
+the records of the set $\vs{{(li:Ai) i∈I}}$ must be exactly of the form
+$\v{{(li = vi) i∈I}}$, hence they cannot contain additional fields. This
+leads us to modify \defRef("typesem") again in the following way.
+\begin{def}
+We change the interpretation of product types as follows.
+\begin{center}
+\linesBefore(2)
+$\vs{{(li:Ai) i∈I}} = \{\v{{(li = vi) i∈K}} \| {K = I∪J}
+                    ∧ {∀i∈I, \v{vi} ∈ \vs{Ai}}
+                    ∧ {∀i∈J, \v{vi} ∈ Λ_ι^{∗}}\}$
+\end{center}
+\end{def}
+By allowing records of a given type to contain more fields that necessary,
+we immediatly enable the relation $\vs{{(li : Ai) i∈I₁}} ⊆
+\vs{{(li : Ai) i∈I₂}}$ whenever $I₂ ⊆ I₁$.
 
 \begin{def}
 We will write:

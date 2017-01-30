@@ -786,7 +786,7 @@ $Σ₂ = ∅$.
 We can now give the interpretation of our type constructors in our model.
 In particular, the elements of the model such as values, terms or stacks
 will be interpreted as themselves.
-\begin{def}
+\begin{def}\label("typesem")
 To every closed type $A ∈ \cal{F}$ we associate a set $⟦A⟧$ called its
 //interpretation//. It is defined inductively on the structure of $A$ as
 follows.
