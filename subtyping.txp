@@ -489,16 +489,18 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents_stacks
 It is important to note that raw values, raw terms and raw stacks cannot
 appear into types. Indeed, the semantics of our types is still defined
 exactly as in \chapter("typeSystem"). In particular, value witnesses,
-stack witnesses and $✠$ never appear in types.
+stack witnesses and $✠$ will never appear in types.
+
+(* TODO type witnesses. *)
+(* TODO modification of the semantics of product types. *)
 
 \begin{def}
 We will write:
 \begin{itemize}
-  \item $t ⊩ A$ if either $✠ ∈ \t{⟦t⟧}$ or $\t{⟦t⟧} ∈ \ts{A}$,
-  \item $π ⊩ A$ if either $✠ ∈ \s{⟦π⟧}$ or $\s{⟦π⟧} ∈ \ss{A}$ and
-  \item $t ⊩ A ⊆ B$ if either $t ⊩ A$ implies $t ⊩ B$, or in other words if
-        we have $✠ ∈ \t{⟦t⟧}$ or if $\t{⟦t⟧} ∈ \ts{A}$ implies
-        $\t{⟦t⟧} ∈ \ts{A}$.
+  \item $t ⊩ A$ if $✠ ∉ \t{⟦t⟧}$ implies $\t{⟦t⟧} ∈ \ts{A}$,
+  \item $π ⊩ A$ if $✠ ∉ \s{⟦π⟧}$ implies $\s{⟦π⟧} ∈ \ss{A}$ and
+  \item $t ⊩ A ⊆ B$ if $t ⊩ A$ implies $t ⊩ B$, or in other words if
+        $✠ ∉ \t{⟦t⟧}$ and $\t{⟦t⟧} ∈ \ts{A}$ imply $\t{⟦t⟧} ∈ \ts{A}$.
 \end{itemize}
 \end{def}
 
