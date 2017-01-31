@@ -6,6 +6,11 @@ open Lang
 )
 \Include{Macros}
 
+\Configure_math_macro{\v}{ syntax = string; }
+\Configure_math_macro{\t}{ syntax = string; }
+\Configure_math_macro{\s}{ syntax = string; }
+\Configure_math_macro{\p}{ syntax = string; }
+
 => Observational equivalence of programs \label("obsEquiv")
 
 In this chapter, we introduce an equivalence relation over
@@ -54,7 +59,7 @@ substitutions.
 \begin{def}
 The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is defined as follows.
 $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
-     {{\p("tρ∗π")} {⇓}_{≻}} ⇔ {{\p("uρ∗π")} {⇓}_{≻}}\} $$
+     {{\p{tρ∗π}} {⇓}_{≻}} ⇔ {{\p{uρ∗π}} {⇓}_{≻}}\} $$
 \end{def}
 \begin{lem}
 $({≡}_{≻})$ is an equivalence relation.
@@ -69,11 +74,11 @@ substitutions preserve equivalence. This property is summarised in the
 following theorem.
 \begin{thm}\label("substequiv")
 Let $t$, $u ∈ Λ$ be two terms and $ρ ∈ \cal{S}$ be a substitution. If we
-have $\t("t") ≡_{≻} \t("u")$ then $\t("tρ") ≡_{≻} \t("uρ")$.
+have $\t{t} ≡_{≻} \t{u}$ then $\t{tρ} ≡_{≻} \t{uρ}$.
 \begin{proof}
-Let us take $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove ${{\p("(tρ)ρ₀ ∗ π₀")}
-{⇓}_{≻}} ⇔ {{\p("(uρ)ρ₀ ∗ π₀")} {⇓}_{≻}}$, which can be rewritten as
-${{\p("t(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{≻}} ⇔ {{\p("u(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{≻}}$.
+Let us take $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove ${{\p{(tρ)ρ₀ ∗ π₀}}
+{⇓}_{≻}} ⇔ {{\p{(uρ)ρ₀ ∗ π₀}} {⇓}_{≻}}$, which can be rewritten as
+${{\p{t(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{≻}} ⇔ {{\p{u(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{≻}}$.
 We can thus conclude using the definition of $t ≡_{≻} u$ with the
 substitution $ρ ∘ ρ₀$ and the stack $π₀$.
 \end{proof}
@@ -86,95 +91,95 @@ expressed in the following two theorems.
 \begin{thm}\label("base_extval")
 Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
 $x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
-$\t("t[x≔v₁]") ≡_{≻} \t("t[x≔v₂]")$.
+$\t{t[x≔v₁]} ≡_{≻} \t{t[x≔v₂]}$.
 \begin{proof}
 We are going to prove the contrapositive so we suppose
-$\t("t[x≔v₁]") \nequiv_{≻} \t("t[x≔v₂]")$ and we show $v₁ \nequiv_{≻} v₂$.
+$\t{t[x≔v₁]} \nequiv_{≻} \t{t[x≔v₂]}$ and we show $v₁ \nequiv_{≻} v₂$.
 By definition, there is a stack $π$ and a substitution $ρ$ such that we
-have ${\p("(t[x≔v₁])ρ ∗ π")} {⇓}_{≻}$ and ${\p("(t[x≔v₂])ρ ∗ π")} {⇑}_{≻}$
+have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$
 (up to symmetry). As $x$ is bound we can rename it so that
-$\t("(t[x≔v₁])ρ") = \t("tρ[x≔v₁ρ]")$ and
-$\t("(t[x≔v₂])ρ") = \t("tρ[x≔v₂ρ]")$. To finish the proof, we need to find
-a stack $π₀$ and a substitution $ρ₀$ such that ${\p("v₁ρ₀ ∗ π₀")} {⇓}_{≻}$
-and ${\p("v₂ρ₀ ∗ π₀")} {⇑}_{≻}$ (up to symmetry). We can take
-$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ since by definition we have
-${\p("v₁ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₁ρ] ∗ π")} {⇓}_{≻}$ and
-${\p("v₂ρ ∗ [λx tρ]π")} ≻^2 {\p("tρ[x≔v₂ρ] ∗ π")} {⇑}_{≻}$.
+$\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
+$\t{(t[x≔v₂])ρ} = \t{tρ[x≔v₂ρ]}$. To finish the proof, we need to find
+a stack $π₀$ and a substitution $ρ₀$ such that ${\p{v₁ρ₀ ∗ π₀}} {⇓}_{≻}$
+and ${\p{v₂ρ₀ ∗ π₀}} {⇑}_{≻}$ (up to symmetry). We can take
+$π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ since by definition we have
+${\p{v₁ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₁ρ] ∗ π}} {⇓}_{≻}$ and
+${\p{v₂ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 \begin{lem}\label("sexttermaux")
 Let $p ∈ Λ×Π$ be a process, $a ∈ \cal{V}_τ$ be a term variable and $t$ be
-a term such that ${\p("p[a≔t]")} {⇓}_{≻}$. Either there is a value
-$v ∈ Λ_ι$ such that $p ≻^{∗} \p("v ∗ ε")$ or there is a stack $π ∈ Π$
-such that $p ≻^{∗} \p("a ∗ π")$.
+a term such that ${\p{p[a≔t]}} {⇓}_{≻}$. Either there is a value
+$v ∈ Λ_ι$ such that $p ≻^{∗} \p{v ∗ ε}$ or there is a stack $π ∈ Π$
+such that $p ≻^{∗} \p{a ∗ π}$.
 \begin{proof}
 There must be a blocked process $q$ such that $p ≻^{∗} q$. If it were not
-the case $p$ would be non-terminating, and hence $\p("p[a≔t]")$ would also
+the case $p$ would be non-terminating, and hence $\p{p[a≔t]}$ would also
 be non-terminating according to \lemRef("redstable"). This would hence
-contradict the hypothesis that ${\p("p[a≔t]")} {⇓}_{≻}$. Since
-$\p("p") ≻^{∗} \p("q")$ we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$ by
-\thmRef("redcompatall") and hence ${\p("q[a≔t]")} {⇓}_{≻}$. We can then
+contradict the hypothesis that ${\p{p[a≔t]}} {⇓}_{≻}$. Since
+$\p{p} ≻^{∗} \p{q}$ we obtain $\p{p[a≔t]} ≻^{∗} \p{q[a≔t]}$ by
+\thmRef("redcompatall") and hence ${\p{q[a≔t]}} {⇓}_{≻}$. We can then
 proceed by case analysis according to \lemRef("possibilities") as $q$ is
-blocked. If $q$ is not of the form $\p("v ∗ ε")$ nor of the form
-$\p("a ∗ π")$ then $\p("q[a≔t]")$ is a blocked process that is not final.
-Consequently, we obtain a contradiction with ${\p("q[a≔t]")} {⇓}_{≻}$.
+blocked. If $q$ is not of the form $\p{v ∗ ε}$ nor of the form
+$\p{a ∗ π}$ then $\p{q[a≔t]}$ is a blocked process that is not final.
+Consequently, we obtain a contradiction with ${\p{q[a≔t]}} {⇓}_{≻}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("base_extterm")
 Let $u₁ ∈ Λ$, $u₂ ∈ Λ$ and $t ∈ Λ$ be three terms and $a ∈ \cal{V}_τ$ be a
-term variable. If $u₁ ≡_{≻} u₂$ then $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+term variable. If $u₁ ≡_{≻} u₂$ then $\t{t[a≔u₁]} ≡_{≻} \t{t[a≔u₂]}$.
 \begin{proof}
-Let us suppose $u₁ ≡_{≻} u₂$ and show $\t("t[a≔u₁]") ≡_{≻} \t("t[a≔u₂]")$.
+Let us suppose $u₁ ≡_{≻} u₂$ and show $\t{t[a≔u₁]} ≡_{≻} \t{t[a≔u₂]}$.
 We take a stack $π$, a substitution $ρ$ and we show
-${{\p("(t[a≔u₁])ρ ∗ π")} {⇓}_{≻}} ⇔ {{\p("(t[a≔u₂])ρ ∗ π")} {⇓}_{≻}}$. As we
-are free to rename $a$ we may assume $\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
-$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a ∉ FV(π)$. Consequently our goal
-is now ${{\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}} ⇔ {{\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}}$.
-By symmetry we can suppose that ${\p("tρ[a≔u₁ρ] ∗ π")} {⇓}_{≻}$ and show
-${\p("tρ[a≔u₂ρ] ∗ π")} {⇓}_{≻}$. Let us now consider the reduction of the
-process $\p("tρ ∗ π")$. According to \lemRef("sexttermaux") there are two
+${{\p{(t[a≔u₁])ρ ∗ π}} {⇓}_{≻}} ⇔ {{\p{(t[a≔u₂])ρ ∗ π}} {⇓}_{≻}}$. As we
+are free to rename $a$ we may assume $\t{(t[a≔u₁])ρ} = \t{tρ[a≔u₁ρ]}$,
+$\t{(t[a≔u₂])ρ} = \t{tρ[a≔u₂ρ]}$ and $a ∉ FV(π)$. Consequently our goal
+is now ${{\p{tρ[a≔u₁ρ] ∗ π}} {⇓}_{≻}} ⇔ {{\p{tρ[a≔u₂ρ] ∗ π}} {⇓}_{≻}}$.
+By symmetry we can suppose that ${\p{tρ[a≔u₁ρ] ∗ π}} {⇓}_{≻}$ and show
+${\p{tρ[a≔u₂ρ] ∗ π}} {⇓}_{≻}$. Let us now consider the reduction of the
+process $\p{tρ ∗ π}$. According to \lemRef("sexttermaux") there are two
 possibilities.
 \begin{itemize}
-\item If $\p("tρ ∗ π") ≻^{∗} \p("v ∗ ε")$ for some value $v ∈ Λ_ι$ then
-  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(v ∗ ε)[a≔u₂]")$ by \thmRef("redcompatall").
-  This rewrites to $\p("tρ[a≔u₂] ∗ π") ≻^{∗} \p("v[a≔u₂] ∗ ε")$ as
-  $a ∉ FV(π)$, and hence we obtain ${\p("tρ[a≔u₂] ∗ π")} {⇓}_{≻}$.
-\item If $\p("tρ ∗ π") ≻^{∗} \p("a ∗ π₀")$ for some stack $π₀ ∈ Π$ then
-  $\p("(tρ ∗ π)[a≔u₁]") ≻^{∗} \p("(a ∗ π₀)[a≔u₁]")$ and
-  $\p("(tρ ∗ π)[a≔u₂]") ≻^{∗} \p("(a ∗ π₀)[a≔u₂]")$ by
+\item If $\p{tρ ∗ π} ≻^{∗} \p{v ∗ ε}$ for some value $v ∈ Λ_ι$ then
+  $\p{(tρ ∗ π)[a≔u₂]} ≻^{∗} \p{(v ∗ ε)[a≔u₂]}$ by \thmRef("redcompatall").
+  This rewrites to $\p{tρ[a≔u₂] ∗ π} ≻^{∗} \p{v[a≔u₂] ∗ ε}$ as
+  $a ∉ FV(π)$, and hence we obtain ${\p{tρ[a≔u₂] ∗ π}} {⇓}_{≻}$.
+\item If $\p{tρ ∗ π} ≻^{∗} \p{a ∗ π₀}$ for some stack $π₀ ∈ Π$ then
+  $\p{(tρ ∗ π)[a≔u₁]} ≻^{∗} \p{(a ∗ π₀)[a≔u₁]}$ and
+  $\p{(tρ ∗ π)[a≔u₂]} ≻^{∗} \p{(a ∗ π₀)[a≔u₂]}$ by
   \thmRef("redcompatall"). As a consequence, we assume
-  ${\p("(a ∗ π₀)[a≔u₁]")} {⇓}_{≻}$ and show
-  ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$. We are going to build a sequence of
+  ${\p{(a ∗ π₀)[a≔u₁]}} {⇓}_{≻}$ and show
+  ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$. We are going to build a sequence of
   stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
-  $\p("(a ∗ πi)[a≔u₁]") ≻^{+} \p("(a ∗ πi+1)[a≔u₁]")$ for all $i<n$. Note
+  $\p{(a ∗ πi)[a≔u₁]} ≻^{+} \p{(a ∗ πi+1)[a≔u₁]}$ for all $i<n$. Note
   that the sequence has to be finite since otherwise there would be an
-  infinite sequence of reductions from $\p("(a ∗ π₀)[a≔u₁]")$. To define
-  $π_{i+1}$ we consider the process $\p("u₁ ∗ πi")$. We have
-  $\p("(a ∗ π₀)[a≔u₁]") ≻^{∗} \p("(a ∗ πi)[a≔u₁]") = \p("(u₁ ∗ πi)[a≔u₁]")$
-  by transitivity and hence ${\p("(u₁ ∗ πi)[a≔u₁]")} {⇓}_{≻}$. According to
+  infinite sequence of reductions from $\p{(a ∗ π₀)[a≔u₁]}$. To define
+  $π_{i+1}$ we consider the process $\p{u₁ ∗ πi}$. We have
+  $\p{(a ∗ π₀)[a≔u₁]} ≻^{∗} \p{(a ∗ πi)[a≔u₁]} = \p{(u₁ ∗ πi)[a≔u₁]}$
+  by transitivity and hence ${\p{(u₁ ∗ πi)[a≔u₁]}} {⇓}_{≻}$. According to
   \lemRef("sexttermaux") there are two possibilities for the reduction of
-  $\p("u₁ ∗ πi")$. Either $\p("u₁ ∗ πi") ≻^{∗} \p("v ∗ ε")$ for some value
+  $\p{u₁ ∗ πi}$. Either $\p{u₁ ∗ πi} ≻^{∗} \p{v ∗ ε}$ for some value
   $v$ and the sequence ends with $n = i$, or
-  $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ ξ")$ for some stack $ξ$ and we define
+  $\p{u₁ ∗ πi} ≻^{∗} \p{a ∗ ξ}$ for some stack $ξ$ and we define
   $π_{i+1} = ξ$.
   
-  To end the proof, we will now show ${\p("(a ∗ πi)[a≔u₂]")} {⇓}_{≻}$ for all
-  $i ≤ n$. For $i = 0$ this will give us ${\p("(a ∗ π₀)[a≔u₂]")} {⇓}_{≻}$
+  To end the proof, we will now show ${\p{(a ∗ πi)[a≔u₂]}} {⇓}_{≻}$ for all
+  $i ≤ n$. For $i = 0$ this will give us ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$
   which is the expected result. For $i = n$ we know that
-  $\p("u₁ ∗ πn") ≻^{∗} {\p("v ∗ ε")} {⇓}_{≻}$, and hence
-  ${\p("u₂ ∗ πn")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
-  that ${\p("(a ∗ πn)[a≔u₂]")} = {\p("(u₂ ∗ πn)[a≔u₂]")} {⇓}_{≻}$ by
+  $\p{u₁ ∗ πn} ≻^{∗} {\p{v ∗ ε}} {⇓}_{≻}$, and hence
+  ${\p{u₂ ∗ πn}} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$. As a consequence, we obtain
+  that ${\p{(a ∗ πn)[a≔u₂]}} = {\p{(u₂ ∗ πn)[a≔u₂]}} {⇓}_{≻}$ by
   \lemRef("redstable"). Let us now suppose that we have
-  ${\p("(a ∗ πi+1)[a≔u₂]")} = {\p("u₂ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$ for some
+  ${\p{(a ∗ πi+1)[a≔u₂]}} = {\p{u₂ ∗ πi+1[a≔u₂]}} {⇓}_{≻}$ for some
   $i<n$ and show that
-  ${\p("(a ∗ πi)[a≔u₂]")} = {\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$. Since we know
-  $u₁ ≡_{≻} u₂$ we can deduce that ${\p("u₁ ∗ πi+1[a≔u₂]")} {⇓}_{≻}$.
-  Moreover, since $\p("u₁ ∗ πi") ≻^{∗} \p("a ∗ πi+1")$ we may use
+  ${\p{(a ∗ πi)[a≔u₂]}} = {\p{u₂ ∗ πi[a≔u₂]}} {⇓}_{≻}$. Since we know
+  $u₁ ≡_{≻} u₂$ we can deduce that ${\p{u₁ ∗ πi+1[a≔u₂]}} {⇓}_{≻}$.
+  Moreover, since $\p{u₁ ∗ πi} ≻^{∗} \p{a ∗ πi+1}$ we may use
   \thmRef("redcompatall") to obtain
-  $\p("u₁ ∗ πi[a≔u₂]") = \p("(u₁ ∗ πi)[a≔u₂]") ≻^{∗} \p("(a ∗ πi+1)[a≔u₂]")
-  = \p("u₂ ∗ πi+1[a≔u₂]")$. As a consequence, we have
-  ${\p("u₁ ∗ πi[a≔u₂]")} {⇓}_{≻}$ from which we obtain
-  ${\p("u₂ ∗ πi[a≔u₂]")} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
+  $\p{u₁ ∗ πi[a≔u₂]} = \p{(u₁ ∗ πi)[a≔u₂]} ≻^{∗} \p{(a ∗ πi+1)[a≔u₂]}
+  = \p{u₂ ∗ πi+1[a≔u₂]}$. As a consequence, we have
+  ${\p{u₁ ∗ πi[a≔u₂]}} {⇓}_{≻}$ from which we obtain
+  ${\p{u₂ ∗ πi[a≔u₂]}} {⇓}_{≻}$ since $u₁ ≡_{≻} u₂$.
 \end{itemize}
 (* NOTE ajouter un diagramme pour la preuve. *)
 \end{proof}
@@ -193,11 +198,11 @@ An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be a congruence if
 it satisfies the following conditions.
 \begin{itemize}
 \item Given $t$, $u∈Λ$, if $t ≡ u$ then for all $ρ∈\cal{S}$ we have
-      $\t("tρ") ≡ \t("uρ")$.
+      $\t{tρ} ≡ \t{uρ}$.
 \item Given $v₁$, $v₂∈Λ_ι$, $t∈Λ$ and $x∈\cal{V}_ι$, if $v₁ ≡ v₂$ then
-      $\t("t[x≔v₁]") ≡ \t("t[x≔v₂]")$.
+      $\t{t[x≔v₁]} ≡ \t{t[x≔v₂]}$.
 \item Given $u₁$, $u₂$, $t∈Λ$ and $a∈\cal{V}_τ$, if $u₁ ≡ u₂$ then
-      $\t("t[a≔u₁]") ≡ \t("t[a≔u₂]")$.
+      $\t{t[a≔u₁]} ≡ \t{t[a≔u₂]}$.
 \end{itemize}
 \end{def}
 \begin{thm}
@@ -224,53 +229,53 @@ conditions.
 \item For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$
       (i.e. $({≡}) ⊆ ({≡}_{≻})$).
 \item Given $t$, $u∈Λ$, if for every stack $π∈Π$ there is a process
-      $p ∈ Λ×Π$ such that both $\p("t∗π") ≻^{∗} p$ and $\p("u∗π") ≻^{∗} p$,
+      $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
       then $t ≡ u$.
 \item Given $t₁$, $t₂∈Λ$ with $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$, if there is $u∈Λ$
       such that for all $v∈Λ_ι$ and $π∈Π$ we have
-      $\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
-      $\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$,
-      and if $\t("t₁[x≔v₁]") ≡ \t("t₂[x≔v₂]")$ for some $v₁$, $v₂∈Λ_ι$,
+      $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+      $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$,
+      and if $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some $v₁$, $v₂∈Λ_ι$,
       then we have $v₁ ≡ v₂$.
 \end{itemize}
 \end{def}
 Note that the second and third conditions require the equivalence to
 include the $({≻})$ reduction relation in some sense. Of course, this
-is only and intuition as the equivalence relation ranges over terms
+is only an intuition as the equivalence relation ranges over terms
 while the reduction relation ranges over processes.
 \begin{thm}
 The relation $({≡}_{≻})$ is compatible.
 \begin{proof}
 The first condition is immediate. To prove the second condition let us
-suppose that for all $π∈Π$ we have a $p∈Λ×Π$ such that $\p("t∗π") ≻^{∗} p$
-and $\p("u∗π") ≻^{∗} p$. Let us take $π₀ ∈ Π$, $ρ₀ ∈ \cal{S}$ and show
-that we have ${{\p("tρ₀∗π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{≻}}$. As
+suppose that for all $π∈Π$ we have a $p∈Λ×Π$ such that $\p{t∗π} ≻^{∗} p$
+and $\p{u∗π} ≻^{∗} p$. Let us take $π₀ ∈ Π$, $ρ₀ ∈ \cal{S}$ and show
+that we have ${{\p{tρ₀∗π₀}} {⇓}_{≻}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{≻}}$. As
 we are free to rename the variables of $t$ and $u$ that are bound
-$\t("tρ₀")$ and $\t("uρ₀")$, we may assume that $\s("π₀ρ₀") = π₀$.
-By hypothesis, there is $p₀ ∈ Λ×Π$ such that $\p("t∗π₀") ≻^{∗} p₀$
-and $\p("u∗π₀") ≻^{∗} p₀$. We can thus apply \lemRef("redcompatall")
-to obtain $\p("(t∗π₀)ρ₀") = \p("tρ₀∗π₀") ≻^{∗} p₀ρ₀$ and
-$\p("(u∗π₀)ρ₀") = \p("uρ₀∗π₀") ≻^{∗} p₀ρ₀$. As a consequence, we
-indeed have ${{\p("tρ₀∗π₀")} {⇓}_{≻}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{≻}}$.
+$\t{tρ₀}$ and $\t{uρ₀}$, we may assume that $\s{π₀ρ₀} = π₀$.
+By hypothesis, there is $p₀ ∈ Λ×Π$ such that $\p{t∗π₀} ≻^{∗} p₀$
+and $\p{u∗π₀} ≻^{∗} p₀$. We can thus apply \lemRef("redcompatall")
+to obtain $\p{(t∗π₀)ρ₀} = \p{tρ₀∗π₀} ≻^{∗} p₀ρ₀$ and
+$\p{(u∗π₀)ρ₀} = \p{uρ₀∗π₀} ≻^{∗} p₀ρ₀$. As a consequence, we
+indeed have ${{\p{tρ₀∗π₀}} {⇓}_{≻}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{≻}}$.
 
 Let us now prove the third condition. We take $t₁$, $t₂∈Λ$ and we suppose
-that we have $u∈Λ$ such that $\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
-$\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ for all $v∈Λ_ι$ and $π∈Π$. Let us
+that we have $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$. Let us
 take $v₁$, $v₂∈Λ_ι$ such that $v₁ \nequiv_{≻} v₂$ and show that
-$\t("t₁[x≔v₁]") \nequiv_{≻} \t("t₂[x≔v₂]")$. By definition we know
-that there is $π∈Π$ and $ρ∈\cal{S}$ such that ${\p("v₁ρ∗π")} {⇓}_{≻}$
-and ${\p("v₂ρ∗π")} {⇑}_{≻}$ (up to symmetry). We need to find $π₀∈Π$ and
-$ρ₀∈\cal{S}$ such that ${\p("(t₁[x≔v₁])ρ₀∗π₀")} {⇓}_{≻}$ and
-${\p("(t₂[x≔v₂])ρ₀∗π₀")} {⇑}_{≻}$. We will now show that $π₀ = \s("[u]π")$
+$\t{t₁[x≔v₁]} \nequiv_{≻} \t{t₂[x≔v₂]}$. By definition we know
+that there is $π∈Π$ and $ρ∈\cal{S}$ such that ${\p{v₁ρ∗π}} {⇓}_{≻}$
+and ${\p{v₂ρ∗π}} {⇑}_{≻}$ (up to symmetry). We need to find $π₀∈Π$ and
+$ρ₀∈\cal{S}$ such that ${\p{(t₁[x≔v₁])ρ₀∗π₀}} {⇓}_{≻}$ and
+${\p{(t₂[x≔v₂])ρ₀∗π₀}} {⇑}_{≻}$. We will now show that $π₀ = \s{[u]π}$
 and $ρ₀ = ρ$ are suitable. By hypothesis, we know that
-$\p("t₁[x≔v₁]∗[u]π") ≻^{∗} \p("v₁∗π")$ and that
-$\p("t₂[x≔v₂]∗[u]π") ≻^{∗} \p("v₂∗π")$. We then obtain
-$\p("(t₁[x≔v₁])ρ∗[u]π") = \p("(t₁[x≔v₁]∗[u]π)ρ") ≻^{∗}
-\p("(v₁∗π)ρ") = {\p("v₁ρ∗π")} {⇓}_{≻}$ and $\p("(t₂[x≔v₂])ρ∗[u]π") =
-\p("(t₂[x≔v₂]∗[u]π)ρ") ≻^{∗} \p("(v₂∗π)ρ") = {\p("v₂ρ∗π")} {⇑}_{≻}$
-using \lemRef("redcompatall"). Note that we may assume $\t("uρ") = u$ and
-$\s("πρ") = π$ as we are free to rename the variables bound by $ρ$ in
-$\t("(t₁[x≔v₁])ρ")$ and $\t("(t₂[x≔v₂])ρ")$.
+$\p{t₁[x≔v₁]∗[u]π} ≻^{∗} \p{v₁∗π}$ and that
+$\p{t₂[x≔v₂]∗[u]π} ≻^{∗} \p{v₂∗π}$. We then obtain
+$\p{(t₁[x≔v₁])ρ∗[u]π} = \p{(t₁[x≔v₁]∗[u]π)ρ} ≻^{∗}
+\p{(v₁∗π)ρ} = {\p{v₁ρ∗π}} {⇓}_{≻}$ and $\p{(t₂[x≔v₂])ρ∗[u]π} =
+\p{(t₂[x≔v₂]∗[u]π)ρ} ≻^{∗} \p{(v₂∗π)ρ} = {\p{v₂ρ∗π}} {⇑}_{≻}$
+using \lemRef("redcompatall"). Note that we may assume $\t{uρ} = u$ and
+$\s{πρ} = π$ as we are free to rename the variables bound by $ρ$ in
+$\t{(t₁[x≔v₁])ρ}$ and $\t{(t₂[x≔v₂])ρ}$.
 \end{proof}
 \end{thm}
 
@@ -278,9 +283,9 @@ From now on and until the end of the current chapter we will consider
 properties of compatible equivalences in general. In particular, we
 will use the symbol $({≡})$ to denote an arbitrary compatible
 equivalence. Moreover, We will always assume that $({≡})$ is a
-congruence. Although this property be seldom required in this chapter,
-it will be absolutely necessary to use the equivalence relation in the
-definition of our semantics.
+congruence. Although this property is rarely required in this chapter,
+it will be absolutely necessary for using an equivalence relation in
+the definition of our semantics.
 
 =<
 
@@ -294,56 +299,76 @@ primitive equivalences using the second property of compatible
 equivalences, that is recalled bellow as a lemma. 
 \begin{lem}\label("redequiv")
 Let $t$, $u ∈ Λ$ be two terms. If for all stack $π∈Π$ there is a
-process $p ∈ Λ×Π$ such that $\p("t ∗ π") ≻^{∗} p$ and
-$\p("u ∗ π") ≻^{∗} p$ then $t ≡ u$.
+process $p ∈ Λ×Π$ such that $\p{t ∗ π} ≻^{∗} p$ and
+$\p{u ∗ π} ≻^{∗} p$ then $t ≡ u$.
 \begin{proof}
 By definition of a compatible equivalence.
 \end{proof}
 \end{lem}
 \begin{lem}\label("redtosame")
-Let $t$, $u∈Λ$ be two terms. If we have $\p("t∗π") ≻^{∗} \p("u∗π")$ for
+Let $t$, $u∈Λ$ be two terms. If we have $\p{t∗π} ≻^{∗} \p{u∗π}$ for
 every stack $π∈Π$ then $t ≡_{≻} u$.
 \begin{proof}
-Direct consequence of \lemRef("redequiv") using $p = \p("u∗π")$.
+Direct consequence of \lemRef("redequiv") using $p = \p{u∗π}$.
 \end{proof}
 \end{lem}
 
+(* FIXME FIXME FIXME work in progress from here FIXME FIXME FIXME *)
 Based on the reduction rules of our abstract machine, we can derive four
 immediate equivalences corresponding to record projection, case analysis,
 the unfolding of the fixpoint combinator and the elimination of the special
-term $\t("U({})")$. Indeed, the corresponding reduction rules do not
+term $\t{U({})}$. Indeed, the corresponding reduction rules do not
 involve an interaction with the stack. In particular, they leave the stack
 unchanged.
+(*
+\begin{thm}
+...
+\begin{proof}
+...
+\end{proof}
+\end{thm}
+*)
+
+
 \begin{thm}\label("equivreco")
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i ∈ I$.
-If $k ∈ I$ then $\t("{(li = vi) i∈I}.lk") ≡ \t("vk")$.
+If $k ∈ I$ then $\t{{(li = vi) i∈I}.lk} ≡ \t{vk}$.
 \begin{proof}
-Since $\p("{(li = vi) i∈I}.lk ∗ π") ≻ \p("vk ∗ π")$ for all $π$ we
+Since $\p{{(li = vi) i∈I}.lk ∗ π} ≻ \p{vk ∗ π}$ for all $π$ we
 can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}\label("equivcase")
 Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of indices such that for
-all $i ∈ I$ we have $x_i ∈ \cal{V}_ι$ and $\t("ti") ∈ Λ$. If $k ∈ I$ then
-$\t("[Ck[v]|(Ci[xi] → ti) i∈I]") ≡ \t("tk[xk≔v]")$.
+all $i ∈ I$ we have $x_i ∈ \cal{V}_ι$ and $\t{ti} ∈ Λ$. If $k ∈ I$ then
+$\t{[Ck[v]|(Ci[xi] → ti) i∈I]} ≡ \t{tk[xk≔v]}$.
 \begin{proof}
-Since $\p("[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π") ≻ \p("tk[xk≔vk] ∗ π")$ for
+Since $\p{[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π} ≻ \p{tk[xk≔vk] ∗ π}$ for
 every stack $π$ we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
 For every $t ∈ Λ$ and $v ∈ Λ_ι$ we have
-$\t("Y(t,v)") ≡ \t("t (λx Y(t,x)) v")$.
+$\t{Y(t,v)} ≡ \t{t (λx Y(t,x)) v}$.
 \begin{proof}
-Since $\p("Y(t,v) ∗ π") ≻ \p("t (λx Y(t,x)) v ∗ π")$ for every stack $π$
+Since $\p{Y(t,v) ∗ π} ≻ \p{t (λx Y(t,x)) v ∗ π}$ for every stack $π$
 we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
-We have $\t("U({})") ≡ \t("{}")$.
+Let $u ∈ Λ$ be a term and $I$ be a finite set of indices such that
+$v_i ∈ Λ_ι$ for all $i ∈ I$. We have $\t{R({(li=vi)i∈I},u)} ≡ \t{u}$.
 \begin{proof}
-Since $\p("U({}) ∗ π") ≻ \p("{} ∗ π")$ for every stack $π$ we can use
-\lemRef("redtosame").
+Since $\p{R({(li=vi)i∈I},u) ∗ π} ≻ \p{u ∗ π}$ for every stack $π$ we
+can use \lemRef("redtosame").
+\end{proof}
+\end{thm}
+\begin{thm}
+Let $t$, $u ∈ Λ$ be two terms and $x ∈ \cal{V}_ι$ be a $λ$-variable. We
+have $\t{F(λx t,u)} ≡ \t{u}$.
+\begin{proof}
+Since $\p{F(λx t,u) ∗ π} ≻ \p{u ∗ π}$ for every stack $π$ we
+can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 
@@ -354,14 +379,14 @@ $λ$-abstraction is applied to a value. This corresponds exactly to a
 call-by-value $β$-reduction step.
 \begin{thm}\label("cbvbeta")
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
-$\t("(λx t) v") ≡ \t("t[x≔v]")$.
+$\t{(λx t) v} ≡ \t{t[x≔v]}$.
 \begin{proof}
-Since $\p("(λxt) v∗π") ≻ \p("v∗[λxt]π") ≻ \p("λxt∗v·π") ≻ \p("t[x≔v]∗π")$
+Since $\p{(λxt) v∗π} ≻ \p{v∗[λxt]π} ≻ \p{λxt∗v·π} ≻ \p{t[x≔v]∗π}$
 for all $π$ we can apply \lemRef("redtosame") to conclude.
 \end{proof}
 \end{thm}
 
-The reduction rule for processes of the form $\p("μα t ∗ π")$ is inherently
+The reduction rule for processes of the form $\p{μα t ∗ π}$ is inherently
 non-local. Indeed, the bound $μ$-variable can be substituted anywhere in $t$
 and any reduction rule may apply afterwards (depending on the form of $t$
 and $π$). However, we can still derive equivalences corresponding
@@ -370,24 +395,24 @@ particular, we can obtain two equivalences corresponding to call-by-value
 //structural reductions//.
 \begin{thm}
 For every $t$, $u ∈ Λ$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$ and
-$β ∉ FV(u)$ we have $\t("t (μα u)") ≡ \t("μβ t u[α≔[t]β]")$.
+$β ∉ FV(u)$ we have $\t{t (μα u)} ≡ \t{μβ t u[α≔[t]β]}$.
 \begin{proof}
 Since for every stack $π$ we have
-$\p("t (μα u) ∗ π") ≻ \p("μα u ∗ [t]π") ≻ \p("u[α≔[t]π] ∗ [t]π")$
+$\p{t (μα u) ∗ π} ≻ \p{μα u ∗ [t]π} ≻ \p{u[α≔[t]π] ∗ [t]π}$
 and
-$\p("μβ t u[α≔[t]β] ∗ π") ≻ \p("t u[α≔[t]π] ∗ π") ≻ \p("u[α≔[t]π] ∗ [t]π")$
+$\p{μβ t u[α≔[t]β] ∗ π} ≻ \p{t u[α≔[t]π] ∗ π} ≻ \p{u[α≔[t]π] ∗ [t]π}$
 we can conclude using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 \begin{thm}
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$
-and $β ∉ FV(v)$ we have $\t("(μα t) v") ≡ \t("μβ t[α≔v·β] v")$.
+and $β ∉ FV(v)$ we have $\t{(μα t) v} ≡ \t{μβ t[α≔v·β] v}$.
 \begin{proof}
 Since we have
-$\p("(μαt) v∗π") ≻ \p("v∗[μαt]π") ≻ \p("μαt∗v·π") ≻ \p("t[α≔v·π]∗v·π")$
+$\p{(μαt) v∗π} ≻ \p{v∗[μαt]π} ≻ \p{μαt∗v·π} ≻ \p{t[α≔v·π]∗v·π}$
 and
-$\p("μβ t[α≔v·β] v ∗ π") ≻ \p("t[α≔v·π] v ∗ π") ≻ \p("v ∗ [t[α≔v·π]]π") ≻
-  \p("t[α≔v·π]∗v·π")$
+$\p{μβ t[α≔v·β] v ∗ π} ≻ \p{t[α≔v·π] v ∗ π} ≻ \p{v ∗ [t[α≔v·π]]π} ≻
+  \p{t[α≔v·π]∗v·π}$
 for all stack $π$, we can conclude using \lemRef("redequiv").
 \end{proof}
 \end{thm}
@@ -398,10 +423,10 @@ only $μ$-variables can be used in named terms in the original version of
 the \lmcalc.
 \begin{thm}
 For every $ξ∈Π$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
-$\t("[ξ]μβ t") ≡ \t("[ξ]t[β≔ξ]")$.
+$\t{[ξ]μβ t} ≡ \t{[ξ]t[β≔ξ]}$.
 \begin{proof}
-As $\p("[ξ]μβ t ∗ π") ≻ \p("μβ t ∗ ξ") ≻ \p("t[β≔ξ] ∗ ξ")$ and
-$\p("[ξ]t[β≔ξ] ∗ π") ≻ \p("t[β≔ξ] ∗ ξ")$ we can conclude using
+As $\p{[ξ]μβ t ∗ π} ≻ \p{μβ t ∗ ξ} ≻ \p{t[β≔ξ] ∗ ξ}$ and
+$\p{[ξ]t[β≔ξ] ∗ π} ≻ \p{t[β≔ξ] ∗ ξ}$ we can conclude using
 \lemRef("redequiv").
 \end{proof}
 \end{thm}
@@ -414,20 +439,20 @@ hence allow us to discard unnecessary subterms as early as possible, when
 attempting to prove an equivalence.
 \begin{thm}
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $ξ ∈ Π$ we have
-$\t("([ξ]t) v") ≡ \t("[ξ]t")$.
+$\t{([ξ]t) v} ≡ \t{[ξ]t}$.
 \begin{proof}
 Since for every stack $π$ we have
-$\p("([ξ]t) v ∗ π") ≻ \p("v ∗ [[ξ]t]π") ≻ \p("[ξ]t ∗ v·π") ≻ \p("t∗ξ")$
-and $\p("[ξ]t ∗ π") ≻ \p("t∗ξ")$
+$\p{([ξ]t) v ∗ π} ≻ \p{v ∗ [[ξ]t]π} ≻ \p{[ξ]t ∗ v·π} ≻ \p{t∗ξ}$
+and $\p{[ξ]t ∗ π} ≻ \p{t∗ξ}$
 we can conclude using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 \begin{thm}
 For every $t$, $u ∈ Λ$ and $ξ ∈ Π$ we have
-$\t("t ([ξ]u)") ≡ \t("[ξ]u")$.
+$\t{t ([ξ]u)} ≡ \t{[ξ]u}$.
 \begin{proof}
-Since we have $\p("t ([ξ]u) ∗ π") ≻ \p("[ξ]u ∗ [t]π") ≻ \p("u∗ξ")$
-and $\p("[ξ]u ∗ π") ≻ \p("u∗ξ")$ for every stack $π$, we can conclude
+Since we have $\p{t ([ξ]u) ∗ π} ≻ \p{[ξ]u ∗ [t]π} ≻ \p{u∗ξ}$
+and $\p{[ξ]u ∗ π} ≻ \p{u∗ξ}$ for every stack $π$, we can conclude
 using \lemRef("redequiv").
 \end{proof}
 \end{thm}
@@ -439,21 +464,21 @@ stack only once. Similarly, using two named terms in a row is the
 same as using only the later one.
 \begin{thm}
 For every $α$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
-$\t("μαμβ t") ≡ \t("μβ t[α≔β]")$.
+$\t{μαμβ t} ≡ \t{μβ t[α≔β]}$.
 \begin{proof}
-We have $\p("μαμβ t ∗ π") ≻ \p("μβ t[α≔π] ∗ π") ≻ \p("(t[α≔π])[β≔π] ∗ π")$
-and we also have $\p("μβ t[α≔β] ∗ π") ≻ \p("(t[α≔β])[β≔π] ∗ π")$. To be able
+We have $\p{μαμβ t ∗ π} ≻ \p{μβ t[α≔π] ∗ π} ≻ \p{(t[α≔π])[β≔π] ∗ π}$
+and we also have $\p{μβ t[α≔β] ∗ π} ≻ \p{(t[α≔β])[β≔π] ∗ π}$. To be able
 to conclude using \lemRef("redequiv") we need to show that
-$\t("(t[α≔π])[β≔π]") = \t("(t[α≔β])[β≔π]")$. This is immediate as we may
+$\t{(t[α≔π])[β≔π]} = \t{(t[α≔β])[β≔π]}$. This is immediate as we may
 assume $α ∉ FV_σ(π)$ and $β ∉ FV_σ(π)$ up to renaming.
 \end{proof}
 \end{thm}
 \begin{thm}
 For every $ξ₁$, $ξ₂ ∈ Π$ and $t ∈ Λ$ we have
-$\t("[ξ₁][ξ₂]t") ≡ \t("[ξ₂]t")$.
+$\t{[ξ₁][ξ₂]t} ≡ \t{[ξ₂]t}$.
 \begin{proof}
-As we have $\p("[ξ₁][ξ₂]t ∗ π") ≻ \p("[ξ₂]t ∗ ξ₁") ≻ \p("t ∗ ξ₂")$ and
-$\p("[ξ₂]t ∗ π") ≻ \p("t ∗ ξ₂")$ for all $π$ we can use \lemRef("redequiv").
+As we have $\p{[ξ₁][ξ₂]t ∗ π} ≻ \p{[ξ₂]t ∗ ξ₁} ≻ \p{t ∗ ξ₂}$ and
+$\p{[ξ₂]t ∗ π} ≻ \p{t ∗ ξ₂}$ for all $π$ we can use \lemRef("redequiv").
 \end{proof}
 \end{thm}
 
@@ -464,22 +489,22 @@ Similarly, it is not useful to restore a stack right after it has been
 saved.
 \begin{thm}
 For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ such that $α ∉ FV_σ(t)$ we have
-$\t("μα t") ≡ t$.
+$\t{μα t} ≡ t$.
 \begin{proof}
-As we have $\p("μα t ∗ π") ≻ \p("t[α≔π] ∗ π") = \p("t ∗ π")$ we can use
+As we have $\p{μα t ∗ π} ≻ \p{t[α≔π] ∗ π} = \p{t ∗ π}$ we can use
 \lemRef("redtosame").
 \end{proof}
 \end{thm}
 \begin{thm}
-For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ we have $\t("μα[α]t") ≡ \t("μαt")$.
+For every $α ∈ \cal{V}_σ$ and $t ∈ Λ$ we have $\t{μα[α]t} ≡ \t{μαt}$.
 \begin{proof}
-As $\p("μα [α]t ∗ π") ≻ \p("[π]t[α≔π] ∗ π") = \p("t[α≔π] ∗ π")$ and
-$\p("μα t ∗ π") ≻ \p("t[α≔π] ∗ π")$ for all $π$ we can use
+As $\p{μα [α]t ∗ π} ≻ \p{[π]t[α≔π] ∗ π} = \p{t[α≔π] ∗ π}$ and
+$\p{μα t ∗ π} ≻ \p{t[α≔π] ∗ π}$ for all $π$ we can use
 \lemRef("redequiv").
 \end{proof}
 \end{thm}
 Note that we can compose the previous two theorems to obtain
-$\t("μα [α]t") ≡ t$ in the case where $α ∉ FV_σ(t)$. This can
+$\t{μα [α]t} ≡ t$ in the case where $α ∉ FV_σ(t)$. This can
 be seen as a form of $η$-equivalence for $μ$-abstraction, as
 remarked by Michel Parigot in \cite("Parigot1992").
 
@@ -511,8 +536,8 @@ respectively denoted $t \nequiv_{≻} u$ and $t \nequiv u$.
 \end{def}
 \begin{lem}\label("equivcounterex")
 Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ and a
-substitution $ρ∈\cal{S}$ such that ${\p("tρ ∗ π")} {⇓}_{≻}p$ and
-${\p("uρ ∗ π")} {⇑}_{≻}p$ then $t \nequiv u$.
+substitution $ρ∈\cal{S}$ such that ${\p{tρ ∗ π}} {⇓}_{≻}p$ and
+${\p{uρ ∗ π}} {⇑}_{≻}p$ then $t \nequiv u$.
 \begin{proof}
 By definition of $({≡})$, we have $t \nequiv_{≻} u$. We can thus
 conclude that $t \nequiv u$ using (the contrapositive of)
@@ -521,7 +546,7 @@ conclude that $t \nequiv u$ using (the contrapositive of)
 \end{lem}
 \begin{lem}\label("stackcounterex")
 Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ such that we have
-${\p("t ∗ π")} {⇓}_{≻}$ and ${\p("u ∗ π")} {⇑}_{≻}$ then $t \nequiv u$.
+${\p{t ∗ π}} {⇓}_{≻}$ and ${\p{u ∗ π}} {⇑}_{≻}$ then $t \nequiv u$.
 \begin{proof}
 Immediate consequence of \lemRef("equivcounterex") using $π$ and
 $ρ = ρ_{id}$.
@@ -534,29 +559,29 @@ constructors are never equivalent. In both case, it is not difficult to
 find a stack distinguishing the two values.
 \begin{thm}\label("consnequiv")
 Let $m$, $n ∈ \bbN$ be two natural numbers and $v$, $w ∈ Λ_ι$ be two values.
-If we have $m ≠ n$ then $\v("Cm[v]") \nequiv \v("Cn[w]")$.
+If we have $m ≠ n$ then $\v{Cm[v]} \nequiv \v{Cn[w]}$.
 \begin{proof}
-We can apply \lemRef("stackcounterex") with $π = \s("[λy[y|Cm[z]→{}]]ε")$.
-Indeed, ${\p("Cm[v] ∗ π")} {⇓}_{≻}$ since $\p("Cm[v] ∗ π") ≻
-\p("λy[y|Cm[z]→{}] ∗ Cm[v]·ε") ≻ \p("[Cm[v]|Cm[z]→{}] ∗ ε") ≻ \p("{} ∗ ε")$.
-Moreover, we have ${\p("Cn[w] ∗ π")} {⇑}_{≻}$ as $\p("Cn[v] ∗ π") ≻
-\p("λy[y|Cm[z]→{}] ∗ Cn[w]·ε") ≻ \p("[Cn[w]|Cm[z]→{}] ∗ ε")$ and
-$\p("[Cn[w]|Cm[z]→{}] ∗ ε")$ is stuck since $m ≠ n$.
+We can apply \lemRef("stackcounterex") with $π = \s{[λy[y|Cm[z]→{}]]ε}$.
+Indeed, ${\p{Cm[v] ∗ π}} {⇓}_{≻}$ since $\p{Cm[v] ∗ π} ≻
+\p{λy[y|Cm[z]→{}] ∗ Cm[v]·ε} ≻ \p{[Cm[v]|Cm[z]→{}] ∗ ε} ≻ \p{{} ∗ ε}$.
+Moreover, we have ${\p{Cn[w] ∗ π}} {⇑}_{≻}$ as $\p{Cn[v] ∗ π} ≻
+\p{λy[y|Cm[z]→{}] ∗ Cn[w]·ε} ≻ \p{[Cn[w]|Cm[z]→{}] ∗ ε}$ and
+$\p{[Cn[w]|Cm[z]→{}] ∗ ε}$ is stuck since $m ≠ n$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("reconequiv")
 Let $I₁$, $I₂$ be two sets of indices such that for all $i∈I₁$ we have
 $v_i ∈ Λ_ι$ and for all $i∈I₂$ we have $w_i ∈ Λ_ι$. If $I₁ ≠ I₂$ then
-$\v("{(li = vi) i∈I₁}") \nequiv \v("{(li = wi) i∈I₂}")$.
+$\v{{(li = vi) i∈I₁}} \nequiv \v{{(li = wi) i∈I₂}}$.
 \begin{proof}
 Since $I₁ ≠ I₂$ there must be $k$ such that $k∈I₁$ and $k∉I₂$ (up to
 symmetry). We can hence apply \lemRef("stackcounterex") with the stack
-$π = \s("[λx x.lk]ε")$. Indeed, ${\p("{(li = vi) i∈I₁} ∗ π")} {⇓}_{≻}$
-since $\p("{(li = vi) i∈I₁} ∗ π") ≻ \p("λx x.lk ∗ {(li = vi) i∈I₁} · ε") ≻
-\p("{(li = vi) i∈I₁}.lk ∗ ε") ≻ \p("vk ∗ ε")$. Moreover, we have
-$\p("{(li = wi) i∈I₂} ∗ π") ≻ \p("λx x.lk ∗ {(li = wi) i∈I₂} · ε") ≻
-\p("{(li = wi) i∈I₂}.lk ∗ ε")$, and as $k ∉ I₂$ we know that
-$\p("{(li = wi) i∈I₂}.lk ∗ ε")$ is stuck.
+$π = \s{[λx x.lk]ε}$. Indeed, ${\p{{(li = vi) i∈I₁} ∗ π}} {⇓}_{≻}$
+since $\p{{(li = vi) i∈I₁} ∗ π} ≻ \p{λx x.lk ∗ {(li = vi) i∈I₁} · ε} ≻
+\p{{(li = vi) i∈I₁}.lk ∗ ε} ≻ \p{vk ∗ ε}$. Moreover, we have
+$\p{{(li = wi) i∈I₂} ∗ π} ≻ \p{λx x.lk ∗ {(li = wi) i∈I₂} · ε} ≻
+\p{{(li = wi) i∈I₂}.lk ∗ ε}$, and as $k ∉ I₂$ we know that
+$\p{{(li = wi) i∈I₂}.lk ∗ ε}$ is stuck.
 \end{proof}
 \end{thm}
 
@@ -566,50 +591,50 @@ argument can also be used to distinguish $λ$-abstractions from variants.
 \begin{thm}\label("consneqrec")
 Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value and $I$ be a
 finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
-$\t("Cm[v]") \nequiv \t("{(li = vi) i∈I}")$.
+$\t{Cm[v]} \nequiv \t{{(li = vi) i∈I}}$.
 \begin{proof}
 We can apply \lemRef("stackcounterex") using the stack
-$π = \s("[λy [y|Cm[z]→{}]]ε")$. Indeed, we have ${\p("Cm[v] ∗ π")} {⇓}_{≻}$
+$π = \s{[λy [y|Cm[z]→{}]]ε}$. Indeed, we have ${\p{Cm[v] ∗ π}} {⇓}_{≻}$
 like in the proof of \thmRef("consnequiv"). Moreover, we have
-${\p("{(li = vi) i∈I} ∗ π")} {⇑}_{≻}$ since
-$\p("{(li = vi) i∈I} ∗ π") ≻ \p("λy [y|Cm[z]→{}] ∗ {(li = vi) i∈I} · ε") ≻
-\p("[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε")$ and we know that the process
-$\p("[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε")$ is stuck.
+${\p{{(li = vi) i∈I} ∗ π}} {⇑}_{≻}$ since
+$\p{{(li = vi) i∈I} ∗ π} ≻ \p{λy [y|Cm[z]→{}] ∗ {(li = vi) i∈I} · ε} ≻
+\p{[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε}$ and we know that the process
+$\p{[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε}$ is stuck.
 \end{proof}
 \end{thm}
 \begin{thm}\label("nequivlamcons")
 Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value, $x ∈ \cal{V}_ι$
 be a $λ$-variable and $t ∈ Λ$ be a term. We have
-$\t("Cm[v]") \nequiv \t("λx t")$.
+$\t{Cm[v]} \nequiv \t{λx t}$.
 \begin{proof}
 As for \thmRef("consneqrec") we can apply \lemRef("stackcounterex") using
-$π = \s("[λy [y|Cm[z]→{}]]ε")$. Indeed, ${\p("λxt∗π")} {⇑}_{≻}$ since we have
-$\p("λx t ∗ π") ≻ \p("λy [y|Cm[z]→z] ∗ λx t·ε") ≻ \p("[λx t|Cm[z]→z] ∗ ε")$
-and the process $\p("[λx t|Cm[z]→z] ∗ ε")$ is stuck
+$π = \s{[λy [y|Cm[z]→{}]]ε}$. Indeed, ${\p{λxt∗π}} {⇑}_{≻}$ since we have
+$\p{λx t ∗ π} ≻ \p{λy [y|Cm[z]→z] ∗ λx t·ε} ≻ \p{[λx t|Cm[z]→z] ∗ ε}$
+and the process $\p{[λx t|Cm[z]→z] ∗ ε}$ is stuck
 \end{proof}
 \end{thm}
 
 Although it is possible to show that a record is not equivalent to a
 $λ$-abstraction, one should be careful in the case of an empty record
 and a $λ$-abstraction diverging on every value (i.e. for every $v ∈ Λ_ι$
-and $π ∈ Π$, ${\p("(λxt) v ∗ π")} {⇓}_{≻}$). In this case, we need to
-use the $\t("U(v)")$ term constructor, which has been introduced for
+and $π ∈ Π$, ${\p{(λxt) v ∗ π}} {⇓}_{≻}$). In this case, we need to
+use the $\t{U(v)}$ term constructor, which has been introduced for
 exactly this purpose.
 \begin{thm}\label("nequivlamreco")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $I$ be a
 finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
-$\t("λx t") \nequiv \t("{(li = vi) i∈I}")$.
+$\t{λx t} \nequiv \t{{(li = vi) i∈I}}$.
 \begin{proof}
 If $I ≠ ∅$ then we have $k ∈ I$ so we can use \lemRef("stackcounterex")
-with the stack $π = \s("[λy y.lk]ε")$. Indeed, we have
-${\p("{(li = vi) i∈I} ∗ π")} {⇓}_{≻}$ as
-$\p("{(li = vi) i∈I} ∗ π") ≻^{∗} \p("vk ∗ ε")$ and we have
-${\p("λx t ∗ π")} {⇑}_{≻}$ as $\p("λx t ∗ π") ≻^{∗} \p("(λxt).lk ∗ ε")$
-and $\p("(λxt).lk ∗ ε")$ is stuck. Similarly, if $I = ∅$ then we can use
-\lemRef("stackcounterex") with the stack $π = \s("[λy U(y)]ε")$. Indeed,
-${\p("{} ∗ π")} {⇓}_{≻}$ as $\p("{} ∗ π") ≻^{∗} \p("{} ∗ ε")$ and
-${\p("{} ∗ π")} {⇑}_{≻}$ as $\p("λxt ∗ π") ≻^{∗} \p("U(λxt) ∗ ε")$ and
-$\p("U(λxt) ∗ ε")$ is stuck.
+with the stack $π = \s{[λy y.lk]ε}$. Indeed, we have
+${\p{{(li = vi) i∈I} ∗ π}} {⇓}_{≻}$ as
+$\p{{(li = vi) i∈I} ∗ π} ≻^{∗} \p{vk ∗ ε}$ and we have
+${\p{λx t ∗ π}} {⇑}_{≻}$ as $\p{λx t ∗ π} ≻^{∗} \p{(λxt).lk ∗ ε}$
+and $\p{(λxt).lk ∗ ε}$ is stuck. Similarly, if $I = ∅$ then we can use
+\lemRef("stackcounterex") with the stack $π = \s{[λy U(y)]ε}$. Indeed,
+${\p{{} ∗ π}} {⇓}_{≻}$ as $\p{{} ∗ π} ≻^{∗} \p{{} ∗ ε}$ and
+${\p{{} ∗ π}} {⇑}_{≻}$ as $\p{λxt ∗ π} ≻^{∗} \p{U(λxt) ∗ ε}$ and
+$\p{U(λxt) ∗ ε}$ is stuck.
 \end{proof}
 \end{thm}
 
@@ -623,9 +648,9 @@ lemma.
 \begin{lem}\label("compatprop3")
 Let $t₁$, $t₂∈Λ$ be terms with $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$. If there
 is $u∈Λ$ such that for all $v∈Λ_ι$ and $π∈Π$ we have
-$\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
-$\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$, and if
-$\t("t₁[x≔v₁]") ≡ \t("t₂[x≔v₂]")$ for some $v₁$, $v₂∈Λ_ι$,
+$\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$, and if
+$\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some $v₁$, $v₂∈Λ_ι$,
 then we have $v₁ ≡ v₂$.
 \begin{proof}
 By definition of a compatible equivalence.
@@ -633,30 +658,30 @@ By definition of a compatible equivalence.
 \end{lem}
 \begin{thm}\label("aux_cons")
 Let $m ∈ \bbN$ be a natural number and $v₁$, $v₂ ∈ Λ_ι$ be two values.
-If $v₁ \nequiv v₂$ then $\v("Cm[v₁]") \nequiv \v("Cm[v₂]")$.
+If $v₁ \nequiv v₂$ then $\v{Cm[v₁]} \nequiv \v{Cm[v₂]}$.
 \begin{proof}
-Let us take $u = \t("λy[y|Cm[z]→z]")$ and $t₁ = t₂ = \t("Cm[x]")$. For
-all $v∈Λ_ι$ and $π∈Π$ we have $\p("Cm[v]∗[u]π") ≻ \p("u∗Cm[v]·π") ≻
-\p("[Cm[v]|Cm[z]→z]∗π") ≻ \p("v∗π")$. As a consequence we can apply
+Let us take $u = \t{λy[y|Cm[z]→z]}$ and $t₁ = t₂ = \t{Cm[x]}$. For
+all $v∈Λ_ι$ and $π∈Π$ we have $\p{Cm[v]∗[u]π} ≻ \p{u∗Cm[v]·π} ≻
+\p{[Cm[v]|Cm[z]→z]∗π} ≻ \p{v∗π}$. As a consequence we can apply
 \lemRef("compatprop3") with $v₁$ and $v₂$ to obtain that
-$\t("Cm[v₁]") ≡ \t("Cm[v₂]")$ implies $v₁ ≡ v₂$. We can thus conclude
+$\t{Cm[v₁]} ≡ \t{Cm[v₂]}$ implies $v₁ ≡ v₂$. We can thus conclude
 as this is the contrapositive of what we want to show.
 \end{proof}
 \end{thm}
 \begin{thm}\label("aux_reco")
 Let $I$ be a finite set of indices such that for all $i∈I$ we have
 $v_i$, $w_i ∈ Λ_ι$. If there is $k ∈ I$ such that
-$\v("vk") \nequiv \v("wk")$ then
-$\v("{(li = vi) i∈I}") \nequiv \v("{(li = wi) i∈I}")$.
+$\v{vk} \nequiv \v{wk}$ then
+$\v{{(li = vi) i∈I}} \nequiv \v{{(li = wi) i∈I}}$.
 \begin{proof}
 We will show the contrapositive, so we suppose
-$\v("{(li = vi) i∈I}") ≡ \v("{(li = wi) i∈I}")$. We then take $k∈I$ and
-prove that $\v("vk") ≡ \v("wk")$. Let us define the term $t₁$ to be
-the record $\t("{(li = vi) i∈I}")$ in which the value $\v("vk")$ has
+$\v{{(li = vi) i∈I}} ≡ \v{{(li = wi) i∈I}}$. We then take $k∈I$ and
+prove that $\v{vk} ≡ \v{wk}$. Let us define the term $t₁$ to be
+the record $\t{{(li = vi) i∈I}}$ in which the value $\v{vk}$ has
 been replaced by the variable $x$. Similarly, we define $t₂$ to be
-the record $\t("{(li = wi) i∈I}")$ in which the value $\v("wk")$ has
+the record $\t{{(li = wi) i∈I}}$ in which the value $\v{wk}$ has
 been replaced by $x$. We can then conclude with \lemRef("compatprop3")
-using $t₁$, $t₂$ and $u = \t("λy y.lk")$.
+using $t₁$, $t₂$ and $u = \t{λy y.lk}$.
 \end{proof}
 \end{thm}
 
@@ -678,25 +703,25 @@ If $v = x$ then we immediately have $v ≡ x$ by reflexivity. It remains
 to show that $x \nequiv v$ for every value $v ≠ x$. In fact, thanks to
 \lemRef("equivcounterex_aux"), it is enough to show $x \nequiv_{≻} v$.
 Moreover, according to \lemRef("substequiv") it is sufficient to
-exhibit a substitution $ρ$ such that $\t("xρ") \nequiv_{≻} \t("vρ")$.
+exhibit a substitution $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
 \begin{itemize}
 \item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
       then we consider the substitution $ρ = \subs("[x≔Cm[{}]][y≔Cn[{}]]")$
       where $m$, $n ∈ \bbN$ are two distinct natural numbers. We have
-      $\t("xρ") = \t("Cm[{}]") \nequiv_{≻} \t("Cn[{}]") = \t("yρ")$
+      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{Cn[{}]} = \t{yρ}$
       according to \thmRef("consnequiv").
 \item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
-      $v = \v("λy t")$ then we consider $ρ=\subs("[x≔{}]")$. We have
-      $\t("xρ") = \t("{}") \nequiv_{≻} \t("λy tρ")$ according to
+      $v = \v{λy t}$ then we consider $ρ=\subs("[x≔{}]")$. We have
+      $\t{xρ} = \t{{}} \nequiv_{≻} \t{λy tρ}$ according to
       \thmRef("nequivlamreco").
 \item If there is a natural number $m ∈ \bbN$ and a value $w ∈ Λ_ι$ such
-      that $v = \v("Cm[w]")$ then we consider $ρ=\subs("[x≔{}]")$. We have
-      $\t("xρ") = \t("{}") \nequiv_{≻} \t("Cm[vρ]")$ according to
+      that $v = \v{Cm[w]}$ then we consider $ρ=\subs("[x≔{}]")$. We have
+      $\t{xρ} = \t{{}} \nequiv_{≻} \t{Cm[vρ]}$ according to
       \thmRef("consneqrec").
 \item If there is a set of indices $I$ such that $v_i ∈ Λ_ι$ for all $i∈I$
-      and $v = \v("{(li = vi) i∈I}")$ then we consider the substitution
+      and $v = \v{{(li = vi) i∈I}}$ then we consider the substitution
       $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We have
-      $\t("xρ") = \t("Cm[{}]") \nequiv_{≻} \t("{(li = viρ) i∈I}")$
+      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{{(li = viρ) i∈I}}$
       according to \thmRef("consneqrec").
 \end{itemize}
 \end{proof}
@@ -707,51 +732,51 @@ those that are equivalent to a given record. In both case, the equivalent
 values have the same structure and equivalent subvalues.
 \begin{thm}\label("canoncons")
 Let $m ∈ \bbN$ be a natural number and $v$, $w₀ ∈ Λ_ι$ be values. The
-equivalence $\v("Cm[v]") ≡ w₀$ holds if and only if $w₀ = \v("Cm[w]")$
+equivalence $\v{Cm[v]} ≡ w₀$ holds if and only if $w₀ = \v{Cm[w]}$
 for some $w ∈ Λ_ι$ such that $w ≡ v$.
 \begin{proof}
-Let us first assume $w₀ = \v("Cm[w]")$ for some $w ∈ Λ_ι$ such that
+Let us first assume $w₀ = \v{Cm[w]}$ for some $w ∈ Λ_ι$ such that
 $w ≡ v$. Provided that $({≡})$ is a congruence, we can use its
-extentionality property with the term $t = \v("Cm[x]")$ to obtain
-$\v("Cm[v]") ≡ w₀ = \v("Cm[w]")$.
+extensionality property with the term $t = \v{Cm[x]}$ to obtain
+$\v{Cm[v]} ≡ w₀ = \v{Cm[w]}$.
 
-Let us now suppose that $\v("Cm[v]") ≡ \v("w₀")$ and show that
-$\v("w₀")$ is of the form $\v("Cm[w]")$ for some $w ∈ Λ_ι$ such that
+Let us now suppose that $\v{Cm[v]} ≡ \v{w₀}$ and show that
+$\v{w₀}$ is of the form $\v{Cm[w]}$ for some $w ∈ Λ_ι$ such that
 $w ≡ v$. We reason by case on the possible forms of the value
-$\v("w₀")$. Using \thmRef("varequiv"), \thmRef("nequivlamcons"),
+$\v{w₀}$. Using \thmRef("varequiv"), \thmRef("nequivlamcons"),
 \thmRef("consneqrec") and \thmRef("consnequiv") we obtain
-$\v("w₀") = \v("Cm[w]")$ for some $\v("w") ∈ Λ_ι$. Now, if $w \nequiv v$
-then we immediatly obtain that $\v("Cm[v]") \nequiv \v("Cm[w]")$ using
+$\v{w₀} = \v{Cm[w]}$ for some $\v{w} ∈ Λ_ι$. Now, if $w \nequiv v$
+then we immediatly obtain that $\v{Cm[v]} \nequiv \v{Cm[w]}$ using
 \thmRef("aux_cons"). As a consequence, it must be that $v ≡ w$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("canonrecord")
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$,
-and let $w ∈ Λ_ι$ be a value. The equivalence $\v("{(li = vi) i∈I}") ≡ w$
-holds if and only if $w = \v("{(li = wi) i∈I}")$ for some values
-$\v("wi") ∈ Λ_ι$ such that $\v("wi") ≡ \v("vi")$ for all $i∈I$.
+and let $w ∈ Λ_ι$ be a value. The equivalence $\v{{(li = vi) i∈I}} ≡ w$
+holds if and only if $w = \v{{(li = wi) i∈I}}$ for some values
+$\v{wi} ∈ Λ_ι$ such that $\v{wi} ≡ \v{vi}$ for all $i∈I$.
 \begin{proof}
-Let us first assume that $w = \v("{(li = wi) i∈I}")$ with
-$\v("vi") ≡ \v("wi")$ for all $i∈I$ and show
-$\v("{(li = vi) i∈I}") ≡ \v("{(li = wi) i∈I}")$. Up to renaming,
+Let us first assume that $w = \v{{(li = wi) i∈I}}$ with
+$\v{vi} ≡ \v{wi}$ for all $i∈I$ and show
+$\v{{(li = vi) i∈I}} ≡ \v{{(li = wi) i∈I}}$. Up to renaming,
 we may assume $I = \{i ∈ \bbN \| 1 ≤ i ≤ n\}$ with $n = |I|$. For all
-$0 ≤ k ≤ n$ we define $R_k = \v("{(li = ri) i∈I}")$ where $r_i = w_i$
-if $i < k$ and $r_i = v_i$ otherwise. We have $R₀ = \v("{(li = vi) i∈I}")$
-and $R_n = \v("{(li = wi) i∈I}")$, so we need to show that $R₀ ≡ R_n$.
+$0 ≤ k ≤ n$ we define $R_k = \v{{(li = ri) i∈I}}$ where $r_i = w_i$
+if $i < k$ and $r_i = v_i$ otherwise. We have $R₀ = \v{{(li = vi) i∈I}}$
+and $R_n = \v{{(li = wi) i∈I}}$, so we need to show that $R₀ ≡ R_n$.
 We are going to prove that $R₀ ≡ R_k$ for all $0 ≤ k ≤ n$ by induction
 on $k$. When $k = 0$ this is immediate by reflexivity. Let us now suppose
 that $R₀ ≡ R_k$ for some $0 ≤ k < n$ and show that $R₀ ≡ R_{k+1}$. By
 transitivity, it is enough to show $R_k ≡ R_{k+1}$ which follows from the
-extentionality of $({≡})$ since we assumed $\v("vk") ≡ \v("wk")$ (and
+extensionality of $({≡})$ since we assumed $\v{vk} ≡ \v{wk}$ (and
 $({≡})$ is a congruence).
 
-Let us now suppose $\v("{(li = vi) i∈I}") ≡ w$ and show that $w$ is
-of the form $\v("{(li = wi) i∈I}")$ with $\v("wi") ≡ \v("vi")$ for all
+Let us now suppose $\v{{(li = vi) i∈I}} ≡ w$ and show that $w$ is
+of the form $\v{{(li = wi) i∈I}}$ with $\v{wi} ≡ \v{vi}$ for all
 $i∈I$. Using \thmRef("varequiv"), \thmRef("nequivlamreco"),
 \thmRef("consneqrec") and \thmRef("reconequiv") we obtain
-$\v("w") = \v("{(li=wi) i∈I}")$ with $w_i ∈ Λ_ι$ for all $i∈I$.
-Now, if $v_k \nequiv w_k$ for some $k ∈ I$ then we immediatly obtain
-that $\v("{(li = vi) i∈I}") \nequiv \v("{(li = wi) i∈I}")$ using
+$\v{w} = \v{{(li=wi) i∈I}}$ with $w_i ∈ Λ_ι$ for all $i∈I$.
+Now, if $v_k \nequiv w_k$ for some $k ∈ I$ then we immediately obtain
+that $\v{{(li = vi) i∈I}} \nequiv \v{{(li = wi) i∈I}}$ using
 \thmRef("aux_reco"). As a consequence, it must be that $v_k ≡ w_k$
 for all $k ∈ I$.
 \end{proof}
@@ -759,19 +784,19 @@ for all $k ∈ I$.
 
 \begin{thm}\label("canonlambda")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
-be a value. If the equivalence $\t("λx t") ≡ v$ holds, then there
-are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t("λy u")$ and
-$t ≡ \t("u[y≔x]")$.
+be a value. If the equivalence $\t{λx t} ≡ v$ holds, then there
+are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t{λy u}$ and
+$t ≡ \t{u[y≔x]}$.
 \begin{proof}
-We reason by case on the possible forms of $\v("v")$. Using
+We reason by case on the possible forms of $\v{v}$. Using
 \thmRef("varequiv"), \thmRef("nequivlamreco") and \thmRef("nequivlamcons")
-we obtain that $\v("v")$ cannot be a $λ$-variable, a record or a variant.
-Consequently, we know that $v = \v("λy u")$ for some $y ∈ \cal{V}_ι$ and
-$u ∈ Λ$. It only remains to show that we have $\t("t") ≡ \t("u[y≔x]")$.
-As we supposed that $\v("λx t") ≡ v = \v("λy u")$ we can use the
-extentionality of $({≡})$ to obtain $\t("(λx t) x") ≡ \t("(λy u) x")$.
+we obtain that $\v{v}$ cannot be a $λ$-variable, a record or a variant.
+Consequently, we know that $v = \v{λy u}$ for some $y ∈ \cal{V}_ι$ and
+$u ∈ Λ$. It only remains to show that we have $\t{t} ≡ \t{u[y≔x]}$.
+As we supposed that $\v{λx t} ≡ v = \v{λy u}$ we can use the
+extensionality of $({≡})$ to obtain $\t{(λx t) x} ≡ \t{(λy u) x}$.
 Now, if we apply \thmRef("cbvbeta") on both side of this equivalence we
-finally obtain $\t("t") ≡ \t("u[y≔x]")$ by transitivity.
+finally obtain $\t{t} ≡ \t{u[y≔x]}$ by transitivity.
 \end{proof}
 \end{thm}
 
