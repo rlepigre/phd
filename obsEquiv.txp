@@ -313,76 +313,66 @@ Direct consequence of \lemRef("redequiv") using $p = \p{u∗π}$.
 \end{proof}
 \end{lem}
 
-(* FIXME FIXME FIXME work in progress from here FIXME FIXME FIXME *)
-Based on the reduction rules of our abstract machine, we can derive four
-immediate equivalences corresponding to record projection, case analysis,
-the unfolding of the fixpoint combinator and the elimination of the special
-term $\t{U({})}$. Indeed, the corresponding reduction rules do not
-involve an interaction with the stack. In particular, they leave the stack
+Based on the reduction rules of our abstract machine, we can derive seven
+immediate equivalences. They corresponding to record projection, case
+analysis, the unfolding of the fixpoint combinator, the elimination of
+special terms of the form $\t{R(v,u)}$ and $\t{F(v,u)}$, and the erasure
+of a projection or a case analysis by the special value $\v{□}$.
+(* *)
+The corresponding reduction rules do not involve an interaction with the
+stack. In particular, they do not "observe" the stack and they leave it
 unchanged.
-(*
-\begin{thm}
-...
+\begin{thm}\label("equivtrivial")
+Let $I ⊆_{fin} \bbN$ be a finite set of indices such that $\v{vi} ∈ Λ_ι$,
+$\v{xi} ∈ \cal{V}_ι$ and $\t{ti} ∈ Λ$ for all $i ∈ I$. Let $\v{v} ∈ Λ_ι$
+be a value, $\v{x} ∈ \cal{V}_ι$ be a $λ$-variable and $\t{t}$, $\t{u} ∈ Λ$
+be terms. The following equivalences hold.
+\Caml(
+  let _ =
+    let eq t1 t2 =
+      <<$\t(t1) ≡ \t(t2)$>>
+    in
+    let eq_cond t1 t2 cond =
+      <<$\t(t1) ≡ \t(t2)$ \id([tT " if "]) $\id(cond)$>>
+    in
+    let eq1 = eq_cond "{(li = vi) i∈I}.lk"        "vk"       <$k ∈ I$> in
+    let eq2 = eq_cond "[Ck[v]|(Ci[xi] → ti) i∈I]" "tk[xk≔v]" <$k ∈ I$> in
+    let eq3 = eq "Y(t,v)"             "t (λx Y(t,x)) v" in
+    let eq4 = eq "R({(li=vi)i∈I},u)"   "u" in
+    let eq5 = eq "F(λx t,u)"           "u" in
+    let eq6 = eq "□.lk"                "□" in
+    let eq7 = eq "[□|(Ci[xi]→ti) i∈I]" "□" in
+    tabular_layout 0.8 2.0
+    [ [eq1; eq3]
+    ; [eq2; eq4]
+    ; [eq5; eq6; eq7] ]
+)
 \begin{proof}
-...
-\end{proof}
-\end{thm}
-*)
-
-
-\begin{thm}\label("equivreco")
-Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i ∈ I$.
-If $k ∈ I$ then $\t{{(li = vi) i∈I}.lk} ≡ \t{vk}$.
-\begin{proof}
-Since $\p{{(li = vi) i∈I}.lk ∗ π} ≻ \p{vk ∗ π}$ for all $π$ we
-can use \lemRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}\label("equivcase")
-Let $v ∈ Λ_ι$ be a value and $I$ be a finite set of indices such that for
-all $i ∈ I$ we have $x_i ∈ \cal{V}_ι$ and $\t{ti} ∈ Λ$. If $k ∈ I$ then
-$\t{[Ck[v]|(Ci[xi] → ti) i∈I]} ≡ \t{tk[xk≔v]}$.
-\begin{proof}
-Since $\p{[Ck[v]|(Ci[xi] → ti) i∈I] ∗ π} ≻ \p{tk[xk≔vk] ∗ π}$ for
-every stack $π$ we can use \lemRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}
-For every $t ∈ Λ$ and $v ∈ Λ_ι$ we have
-$\t{Y(t,v)} ≡ \t{t (λx Y(t,x)) v}$.
-\begin{proof}
-Since $\p{Y(t,v) ∗ π} ≻ \p{t (λx Y(t,x)) v ∗ π}$ for every stack $π$
-we can use \lemRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $u ∈ Λ$ be a term and $I$ be a finite set of indices such that
-$v_i ∈ Λ_ι$ for all $i ∈ I$. We have $\t{R({(li=vi)i∈I},u)} ≡ \t{u}$.
-\begin{proof}
-Since $\p{R({(li=vi)i∈I},u) ∗ π} ≻ \p{u ∗ π}$ for every stack $π$ we
-can use \lemRef("redtosame").
-\end{proof}
-\end{thm}
-\begin{thm}
-Let $t$, $u ∈ Λ$ be two terms and $x ∈ \cal{V}_ι$ be a $λ$-variable. We
-have $\t{F(λx t,u)} ≡ \t{u}$.
-\begin{proof}
-Since $\p{F(λx t,u) ∗ π} ≻ \p{u ∗ π}$ for every stack $π$ we
-can use \lemRef("redtosame").
+For every equivalence $\t{t₁} ≡ \t{t₁}$ that we need to prove, the
+definition of $({≻})$ gives us $\p{t₁∗π} ≻ \p{t₂∗π}$ for every stack
+$π∈Π$. As a consequence, we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 
-To go a little bit further, we can look at the first three rules of
-\defRef("reduction"), which are used to handle $β$-reduction. In
-particular, these rules can be composed immediately when a
-$λ$-abstraction is applied to a value. This corresponds exactly to a
-call-by-value $β$-reduction step.
+To go a little bit further, we can look at the first three rules of $({≻})$,
+which are used to handle $β$-reduction (see \defRef("reduction")). In
+particular, these rules can be composed immediately when a $λ$-abstraction
+is applied to a value. This corresponds exactly to a call-by-value
+$β$-reduction step. Similar reasoning can be used to obtain another
+equivalence involving the value $\v{□}$.
 \begin{thm}\label("cbvbeta")
 For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
 $\t{(λx t) v} ≡ \t{t[x≔v]}$.
 \begin{proof}
-Since $\p{(λxt) v∗π} ≻ \p{v∗[λxt]π} ≻ \p{λxt∗v·π} ≻ \p{t[x≔v]∗π}$
-for all $π$ we can apply \lemRef("redtosame") to conclude.
+As for all $π∈Π$ we have $\p{(λxt) v∗π} ≻ \p{v∗[λxt]π} ≻ \p{λxt∗v·π} ≻
+\p{t[x≔v]∗π}$, we can conclude immediately using \lemRef("redtosame").
+\end{proof}
+\end{thm}
+\begin{thm}
+For every value $v ∈ Λ_ι$ we have $\t{□ v} ≡ \t{□}$.
+\begin{proof}
+For all $π∈Π$ we have $\p{□ v∗π} ≻ \p{v∗[□]π} ≻ \p{□∗v·π} ≻ \p{□∗π}$, we
+can thus conclude again using \lemRef("redtosame").
 \end{proof}
 \end{thm}
 
@@ -587,7 +577,8 @@ $\p{{(li = wi) i∈I₂}.lk ∗ ε}$ is stuck.
 
 Similarly, we can show that a record and a variant can never be equivalent.
 Indeed, pattern-matching on a record will lead to a stuck state. The same
-argument can also be used to distinguish $λ$-abstractions from variants.
+argument can also be used to distinguish $λ$-abstractions and the value
+$\v{□}$ from variants.
 \begin{thm}\label("consneqrec")
 Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value and $I$ be a
 finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
@@ -613,28 +604,55 @@ $\p{λx t ∗ π} ≻ \p{λy [y|Cm[z]→z] ∗ λx t·ε} ≻ \p{[λx t|Cm[z]→
 and the process $\p{[λx t|Cm[z]→z] ∗ ε}$ is stuck
 \end{proof}
 \end{thm}
-
-Although it is possible to show that a record is not equivalent to a
-$λ$-abstraction, one should be careful in the case of an empty record
-and a $λ$-abstraction diverging on every value (i.e. for every $v ∈ Λ_ι$
-and $π ∈ Π$, ${\p{(λxt) v ∗ π}} {⇓}_{≻}$). In this case, we need to
-use the $\t{U(v)}$ term constructor, which has been introduced for
-exactly this purpose.
-\begin{thm}\label("nequivlamreco")
-Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $I$ be a
-finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
-$\t{λx t} \nequiv \t{{(li = vi) i∈I}}$.
+\begin{thm}\label("nequiboxcons")
+Let $m ∈ \bbN$ be a natural number and $v ∈ Λ_ι$ be a value. We have
+$\t{Cm[v]} \nequiv \t{□}$.
 \begin{proof}
-If $I ≠ ∅$ then we have $k ∈ I$ so we can use \lemRef("stackcounterex")
-with the stack $π = \s{[λy y.lk]ε}$. Indeed, we have
-${\p{{(li = vi) i∈I} ∗ π}} {⇓}_{≻}$ as
-$\p{{(li = vi) i∈I} ∗ π} ≻^{∗} \p{vk ∗ ε}$ and we have
-${\p{λx t ∗ π}} {⇑}_{≻}$ as $\p{λx t ∗ π} ≻^{∗} \p{(λxt).lk ∗ ε}$
-and $\p{(λxt).lk ∗ ε}$ is stuck. Similarly, if $I = ∅$ then we can use
-\lemRef("stackcounterex") with the stack $π = \s{[λy U(y)]ε}$. Indeed,
-${\p{{} ∗ π}} {⇓}_{≻}$ as $\p{{} ∗ π} ≻^{∗} \p{{} ∗ ε}$ and
-${\p{{} ∗ π}} {⇑}_{≻}$ as $\p{λxt ∗ π} ≻^{∗} \p{U(λxt) ∗ ε}$ and
-$\p{U(λxt) ∗ ε}$ is stuck.
+We can apply \lemRef("stackcounterex") using $π = \s{[λx [x|Cm[z]→{} {}]]ε}$.
+Indeed, ${\p{Cm[v]∗π}} {⇑}_{≻}$ since $\p{Cm[v] ∗ π} ≻^{∗} \p{{}∗{}·ε}$
+which is stuck, and ${\p{□∗π}} {⇓}_{≻}$ as $\p{□ ∗ π} ≻^{∗} \p{□∗ε}$.
+\end{proof}
+\end{thm}
+
+We will now show that a record $\v{{(li=vi)i∈I}}$ cannot be equivalent to
+a $λ$-abstraction $\v{λx t}$. The most natural approach consists in using
+record projection to obtain a stuck state on the $λ$-abstraction. In other
+words, we can use a stack of the form $\s{[λy y.lk]ε}$ provided that $k∈I$.
+However, this technique does not work with the empty record $\v{{}}$ (i.e.
+when $I = ∅$). In this case, a possible solution is to use a stack of the
+form $\s{v·π}$ where $v$ is a value such that ${\p{t[x≔v]∗π}} {⇓}_{≻}$
+(obviously, $\p{{(li=vi)i∈I} ∗ v·π}$ is stuck). However, there is no
+guarantee that such a value $v$ exists. If there is none, then it seem to
+be impossible to distinguish $\v{{}}$ form $\v{λx t}$ without relying on
+a specific term constructor like $\t{R(v,u)}$ or $\t{F(v,u)}$. These terms
+were added to the calculus for this very purpose, and will also use them
+for distinguishing records or $λ$-abstractions with the special value
+$\v{□}$.
+\begin{thm}\label("nequivlamreco")
+Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and
+$I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$
+for all $i∈I$. We have $\t{λx t} \nequiv \t{{(li = vi) i∈I}}$.
+\begin{proof}
+We can apply \lemRef("stackcounterex") using $π = \s{[λy R(y,{})]ε}$.
+Indeed, we have ${\p{{(li = vi) i∈I} ∗ π}} {⇓}_{≻}$ as
+$\p{{(li = vi) i∈I} ∗ π} ≻ \p{λy R(y,{}) ∗ {(li = vi) i∈I} · ε} ≻
+\p{R({(li = vi) i∈I},{}) ∗ ε} ≻ \p{{} ∗ ε}$ and ${\p{λx t ∗ π}} {⇑}_{≻}$
+as $\p{λxt ∗ π} ≻ \p{λy R(y,{}) ∗ λx t·ε} ≻ \p{R(λxt,{}) ∗ ε}$ and
+$\p{R(λxt,{}) ∗ ε}$ is stuck.
+\end{proof}
+\end{thm}
+\begin{thm}
+Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term.
+We have $\t{λx t} \nequiv \t{□}$.
+\begin{proof}
+We proceed exactly as for \thmRef("nequivlamreco"), using the same stack.
+\end{proof}
+\end{thm}
+\begin{thm}
+Let $I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$
+for all $i∈I$. We have $\t{{(li = vi) i∈I}} \nequiv \t{□}$.
+\begin{proof}
+Similar to \thmRef("nequivlamreco") using the stack $π = \s{[λx R(x,{})]ε}$.
 \end{proof}
 \end{thm}
 
@@ -689,11 +707,12 @@ using $t₁$, $t₂$ and $u = \t{λy y.lk}$.
 
 => Canonical values
 
+(* FIXME FIXME FIXME work in progress from here FIXME FIXME FIXME *)
 The idea now is to characterise the equivalence classes of the
 different forms of values. The results presented here will be
 required in \chapter("typeSystem") to show that the semantics
 of our types is well-formed in some sense. We will first start
-by showing that a $λ$-variable is only equivalent to itself if
+by showing that a $λ$-variable is only equivalent to itself
 among all values.
 \begin{thm}\label("varequiv")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The

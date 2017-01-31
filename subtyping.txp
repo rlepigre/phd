@@ -752,7 +752,7 @@ We consider the last rules used in the proof.
   \thmRef("main")) we learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$.
   By definition, this means that there is $k∈I$ and $w ∈ \vs{Ai}$
   such that $\t{⟦v⟧} = \t{Ck[w]}$. As a consequence, we can use
-  \thmRef("equivcase") and the fact that $\dbot$ is $({≡})$-extensional
+  \thmRef("equivtrivial") and the fact that $\dbot$ is $({≡})$-extensional
   to learn that $\p{⟦tk⟧[xk≔w] ∗ π} ∈ \dbot$. It is thus enough to
   show that $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. Now if $\t{⟦εxk∈Ak(tk∉C)⟧} = ✠$
   then for all $\v{vk} ∈ \vs{Ak}$ we have $\t{⟦tk⟧[xk≔vk]} ∈ \ts{C}$.
@@ -829,7 +829,7 @@ We consider the last rules used in the proof.
   the term $\t{⟦(λx[x|Ck[xk]→xk]) t⟧} = \t{(λx[x|Ck[xk]→xk]) ⟦t⟧}$.
   As we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{Ck[w]}$, we know
   $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{(λx[x|Ck[xk]→xk]) Ck[w]}$.
-  Using \thmRef("cbvbeta") and \thmRef("equivcase") we even obtain
+  Using \thmRef("cbvbeta") and \thmRef("equivtrivial") we even obtain
   $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{w}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
   and \thmRef("main").
@@ -849,7 +849,7 @@ We consider the last rules used in the proof.
   $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
   we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
   $\t{(λx x.lk) ⟦t⟧} = \t{(λx x.lk) {(li=vi) i∈I}}$. Using
-  \thmRef("cbvbeta") and \thmRef("equivreco") we obtain
+  \thmRef("cbvbeta") and \thmRef("") we obtain
   $\t{(λx x.lk) ⟦t⟧} = \t{vk}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
   and \thmRef("main").
