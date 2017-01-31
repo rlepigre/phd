@@ -462,7 +462,8 @@ let contents_terms =
   ; line t "⟦v.lk⟧"               "⟦v⟧.lk"
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦Y(t,v)⟧"             "Y(⟦t⟧,⟦v⟧)"
-  ; line t "⟦U(v)⟧"               "U(⟦v⟧)"
+  ; line t "⟦R(v,t)⟧"             "R(⟦v⟧,⟦t⟧)"
+  ; line t "⟦F(v,t)⟧"             "F(⟦v⟧,⟦t⟧)"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)" ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents_terms
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)

@@ -905,11 +905,13 @@ and $b≠a$.
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line3 p1 p2 p3    = line [p1; p2; p3] in
+    let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
     tabular_layout 0.6 2.0
     [ line3 "x.lk ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I] ∗ π"
-    ; line3 "U(x) ∗ π"
+    ; line4 "R(x,u) ∗ π"
+            "F(x,u) ∗ π"
             "b ∗ π"
             "v ∗ α" ]
 )

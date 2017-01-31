@@ -100,9 +100,6 @@ and     t2m : term -> Maths.math list = function
   | TRest(s,t) -> (str "[") @ (s2m s) @ (str "]") @ (t2m t)
   | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
   | TProj(v,l) -> (v2m v) @ (str ".") @ (vari2m l)
-  | TUnit(v)   -> let n = Maths.node (Maths.glyphs "U") in
-                  let n = { n with subscript_right = v2m v } in
-                  [Maths.Ordinary n]
   | TIsRe(v,t) -> let n = Maths.node (Maths.glyphs "R") in
                   let subscript_right = (v2m v) @ (str ",") @ (t2m t) in
                   let n = { n with subscript_right} in

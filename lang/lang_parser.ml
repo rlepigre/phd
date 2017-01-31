@@ -95,7 +95,6 @@ and        term prio =
   | t:(term TAtom) s:subs                     when prio = TSubs -> TSubt(t,s)
   | c:(ctxt TAtom) '[' t:(term TAppl) ']'     when prio = TAtom -> TCtxt(c,t)
   | v:(valu VProj) '.' l:label                when prio = TAtom -> TProj(v,l)
-  | "U(" v:(valu VComp) ")"                   when prio = TAtom -> TUnit(v)
   | "R(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsRe(v,t)
   | "F(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsFn(v,t)
   | "δ(" v:(valu VComp) "," w:(valu VComp) ")" when prio = TAtom -> TDelt(v,w)

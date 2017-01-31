@@ -34,7 +34,6 @@ and  term =
   | TRest of stac * term               (* [π]t   *)
   | TCtxt of ctxt * term               (* E[t]   *)
   | TProj of valu * vari               (* v.l    *)
-  | TUnit of valu                      (* U(v)   *)
   | TIsRe of valu * term               (* R(v,t) *)
   | TIsFn of valu * term               (* F(v,t) *)
   | TDelt of valu * valu               (* δ(v,w) *)
