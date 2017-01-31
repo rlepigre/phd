@@ -68,6 +68,17 @@ let lemma      = lemRef
 let theorem    = thmRef
 let corollary  = corRef
 
+let rec build_list l =
+  let sp = [tT ", "] in
+  let nd = [tT " and "] in
+  match l with
+  | []          -> invalid_arg "Macros.slist"
+  | x::[]       -> x
+  | x::y::[]    -> x @ nd @ y
+  | x::y::z::ls -> x @ sp @ build_list (y::z::ls)
+
+let chapters l = (tT "Chapters ") :: build_list (List.map sectref l)
+
 let chapter l = (tT "Chapter ") :: sectref l
 let section l = (tT "Section ") :: sectref l
 

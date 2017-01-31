@@ -81,6 +81,7 @@ let parser valu prio =
   | s:subs '(' x:vvari ')'                    when prio = VSimp -> VASub(s,x)
   | "ε" x:vvari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
       when prio = VSimp -> VWitn(x,a,t,b)
+  | "□"                                       when prio = VSimp -> VWBox
 and field = l:label "=" v:(valu VComp)
 and        term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
@@ -95,10 +96,10 @@ and        term prio =
   | c:(ctxt TAtom) '[' t:(term TAppl) ']'     when prio = TAtom -> TCtxt(c,t)
   | v:(valu VProj) '.' l:label                when prio = TAtom -> TProj(v,l)
   | "U(" v:(valu VComp) ")"                   when prio = TAtom -> TUnit(v)
-  | "δ(" v:(valu VComp) "," w:(valu VComp) ")"
-                                              when prio = TAtom -> TDelt(v,w)
-  | "Y(" t:(term TAppl) "," v:(valu VComp) ")"
-                                              when prio = TAtom -> TFixp(t,v)
+  | "R(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsRe(v,t)
+  | "F(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsFn(v,t)
+  | "δ(" v:(valu VComp) "," w:(valu VComp) ")" when prio = TAtom -> TDelt(v,w)
+  | "Y(" t:(term TAppl) "," v:(valu VComp) ")" when prio = TAtom -> TFixp(t,v)
   | '[' v:(valu VComp) '|' ps:(fset patt "|") ']'
                                               when prio = TAtom -> TCase(v,ps)
   | t:(term TAtom)                            when prio = TSubs -> t

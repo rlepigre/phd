@@ -88,6 +88,7 @@ let rec v2m : valu -> Maths.math list = function
                   let subscript_right = bin' 2 "∈" (vari2m x, f2m a) in
                   let n = [Maths.Ordinary {n with subscript_right}] in
                   n @ (str "(") @ (bin' 2 "∉" (t2m t, f2m b)) @ (str ")")
+  | VWBox      -> asana "□" 1046 (* 1052 *) (* 1388 *)
 and     t2m : term -> Maths.math list = function
   | TVari(a)   -> vari2m a
   | TMeta(t)   -> vari2m t
@@ -101,6 +102,14 @@ and     t2m : term -> Maths.math list = function
   | TProj(v,l) -> (v2m v) @ (str ".") @ (vari2m l)
   | TUnit(v)   -> let n = Maths.node (Maths.glyphs "U") in
                   let n = { n with subscript_right = v2m v } in
+                  [Maths.Ordinary n]
+  | TIsRe(v,t) -> let n = Maths.node (Maths.glyphs "R") in
+                  let subscript_right = (v2m v) @ (str ",") @ (t2m t) in
+                  let n = { n with subscript_right} in
+                  [Maths.Ordinary n]
+  | TIsFn(v,t) -> let n = Maths.node (Maths.glyphs "F") in
+                  let subscript_right = (v2m v) @ (str ",") @ (t2m t) in
+                  let n = { n with subscript_right} in
                   [Maths.Ordinary n]
   | TDelt(v,w) -> let n = Maths.node (Maths.glyphs "δ") in
                   let subscript_right = (v2m v) @ (str ",") @ (v2m w) in

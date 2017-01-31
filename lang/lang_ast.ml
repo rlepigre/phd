@@ -23,6 +23,7 @@ type valu =
   | VASub of subs * vari               (* ρ(x)   *)
   | VWitn of vari * form * term * form
   | VSema of valu                      (* ⟦v⟧    *)
+  | VWBox                              (* □      *)
 and  term =
   | TVari of vari                      (* a, b   *)
   | TMeta of vari                      (* t, u   *)
@@ -33,7 +34,9 @@ and  term =
   | TRest of stac * term               (* [π]t   *)
   | TCtxt of ctxt * term               (* E[t]   *)
   | TProj of valu * vari               (* v.l    *)
-  | TUnit of valu                      (* U_v    *)
+  | TUnit of valu                      (* U(v)   *)
+  | TIsRe of valu * term               (* R(v,t) *)
+  | TIsFn of valu * term               (* F(v,t) *)
   | TDelt of valu * valu               (* δ(v,w) *)
   | TFixp of term * valu               (* Y(t,v) *)
   | TCase of valu * patt fset          (* [v | C₁[x₁] → t₁ | C₂[x₂] → t₂] *)

@@ -673,7 +673,7 @@ choose not to avoid repetitions so that this section remains completely
 self-contained.
 
 In this thesis, we consider a language that is expressed in terms of a
-//Krivine Abstract Machine// \cite("Krivine2007"). As our machine has the
+//Krivine Abstract Machine// \cite("Krivine2007"). Our machine has the
 specificity of being call-by-value, which requires a syntax formed with
 four entities: values, terms, stacks and processes. Note that the
 distinction between terms and values is specific to our call-by-value
@@ -698,12 +698,13 @@ corresponding sets are displayed on the left.
 let _ = large_bnfs
   [ ( << $(Λ_ι)$ >>
     , << $v, w$ >>
-    , << $\v("x") \| \v("λx t") \| \v("Ck[v]") \| \v("{(li = vi) i∈I}")$ >> )
+    , << $\v("x") \| \v("λx t") \| \v("Ck[v]") \|
+          \v("{(li = vi) i∈I}") \| \v("□")$ >> )
   ; ( << $(Λ)$ >>
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
          \| \t("v.lk") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
-         \| \t("U(v)") \| \t("δ(v,w)") $ >> )
+         \| \t("R(v,t)") \| \t("F(v,t)") \| \t("δ(v,w)") $ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
     , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >> )
@@ -732,14 +733,20 @@ $\t("{l₁ = v₁; l₂ = v₂;}")$ for a record or
 $\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ for a case analysis when
 $I = \{1, 2\}$.
 \end{rem}
-A term of the form $\t("Y(t,v)")$ denotes a fixpoint combinator, which
-roughly corresponds to OCaml's “##let rec##” construct. The terms of the
-form $\t("U(v)")$ of $\t("δ(v,w)")$ are only included for technical purposes
-and are not intended to be used for programming. The former will allow us to
-distinguish the empty record $\v("{}")$ from $λ$-abstractions in our
-definition of observational equivalence (see \chapter("obsEquiv")), and the
-latter will be used to obtain an essential property of our realizability
-model (see \chapter("semValRest")).
+Terms of the form $\t("Y(t,v)")$ denote a fixpoint, which can be used for
+general recursion. They roughly corresponds to OCaml's “##let rec##”
+construct.
+(* *)
+The value $\v("□")$ and terms of form $\t("R(v,t)")$, $\t("F(v,t)")$ or
+$\t("δ(v,w)")$ are only included for technical purposes. In particular,
+they are not intended to be used for programming. The value $\v("□")$
+will be used in the definition of our semantics in
+\chapters(["typeSystem"; "subtyping"]). Terms of the form $\t("R(v,t)")$
+and $\t("F(v,t)")$ will help us to distinguish records and $λ$-abstractions
+from other sorts of values in in our definition of observational
+equivalence in \chapter("obsEquiv"). Finally, terms of the form
+$\t("δ(v,w)")$ will be used to obtain an essential property of our
+realisability model in \chapter("semValRest") (\thmRef("main")).
 
 A stack can be either the empty stack $\s("ε")$, a stack variable $\s("α")$,
 a value pushed on top of a stack $\s("v·π")$, or a stack frame containing a
@@ -836,8 +843,11 @@ satisfying the following reduction rules.
       ; line' "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
       ; line' "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
       ; line  "Y(t,v) ∗ π"                      "t (λx Y(t,x)) v ∗ π"
-      ; line  "U({}) ∗ π"                       "{} ∗ π" ]
-
+      ; line  "R({(li = vi) i∈I}, u) ∗ π"       "u ∗ π"
+      ; line  "F(λx t, u) ∗ π"                  "u ∗ π"
+      ; line  "□ ∗ v·π"                         "□ ∗ π"
+      ; line  "[□ | (Ci[xi] → ti) i∈I] ∗ π"     "□ ∗ π"
+      ; line  "□.lk ∗ π"                        "□ ∗ π" ]
 )
 We will denote $({≻}^{+})$ its transitive closure, $({≻}^{∗})$ its
 reflexive-transitive closure and $({≻}^k)$ its $k$-fold application.
@@ -858,12 +868,22 @@ $\p("t ∗ ξ")$. In addition to the reduction rules for $β$-reduction and
 stack manipulation, we provide reduction rules for handling record
 projection, case analysis and recursion using a fixpoint operator.
 
-A last rule is also provided for reducing processes of the form
-$\p("U({}) ∗ π")$ to $\p("{} ∗ π")$. Note that for any value $v$ that is not
-$\v("{}")$, no reduction rule apply on the process $\p("U(v) ∗ π")$. We will
-use this fact in \chapter("obsEquiv") to show that the value $\v("{}")$ have
-a different observable computational behaviour to $λ$-abstractions in our
-abstract machine.
+Two rules are then provided for reducing processes of the form
+$\p("R(v,u) ∗ π")$ and $\p("F(v,u) ∗ π")$ to $\p("u ∗ π")$ when the
+value $v$ is a record or a $λ$-abstraction respectively. Note that if
+$v$ is not a record then no reduction rule apply on processes of the
+form $\p("R(v,u) ∗ π")$. Similarly, if $v$ is not a $λ$-abstraction
+then no reduction rule apply on processes of the form $\p("F(v,u) ∗ π")$.
+These facts will be used in \chapter("obsEquiv") to show that records,
+$λ$-abstractions and other forms of values have a different computational
+behaviour in our abstract machine.
+(* *)
+The last three rules are used to handle the special value
+$\v("□")$. Intuitively, $\v("□")$ may consume the surrounding part of its
+computational environment, when it consists of a value argument, a case
+analysis or a projection. This will be discussed further when defining
+the semantical interpretation of our type system in \chapter("typeSystem")
+and \chapter("subtyping").
 \begin{rem}
 Our reduction relation $({≻})$ does not provide any way of reducing
 processes of the form $\p("δ(v,w) ∗ π")$. We will give a reduction rule for
@@ -904,6 +924,11 @@ A process $p ∈ Λ×Π$ is said to be:
       $p_i ≻ p_{i+1}$.
 \end{itemize}
 \end{def}
+
+When a process becomes stuck, non-terminating or $δ$-like during its
+reduction, it will remain so forever. In particular, no substitution
+will ever be able to turn it into a process that might lead to a
+successful end of computation (i.e. reduce to a final process).
 \begin{lem}\label("redstable")
 Let $p ∈ Λ×Π$ be a process and $ρ ∈ \cal{S}$ be a substitution. If $p$ is
 final (resp. $δ$-like, stuck, non-terminating), then so is $\p("pρ")$.
@@ -929,18 +954,14 @@ as $\p("pi") ≻ \p("pi+1")$.
 \end{proof}
 \end{lem}
 
-(* FIXME parler de la preuve "Caml" / joindre les preuves des deux lemmes. *)
 \begin{lem}\label("remark")
 A process is stuck if and only if it is of one of the following forms,
-where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that
-$k ∉ I$ and $K ≠ ∅$.
+where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that $k ∉ K$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line2 p1 p2       = line [p1; p2] in
-    (*
     let line3 p1 p2 p3    = line [p1; p2; p3] in
-    *)
     let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
     tabular_layout 0.8 2.0
     [ line4 "Cn[v].lm ∗ π"
@@ -949,23 +970,35 @@ $k ∉ I$ and $K ≠ ∅$.
             "{(li = vi) i∈I} ∗ v·π"
     ; line2 "[λx t | (Ci[xi] → ti) i∈I] ∗ π"
             "[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π"
-    ; line2 "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π"
-            "{(li = vi) i∈I}.lk ∗ π"
-    ; line4 "U(λx t) ∗ π"
-            "U(Cn[v]) ∗ π"
-            "U({(li = vi) i∈K}) ∗ π"
-            "[x |] ∗ π" ]
+    ; line3 "[Ck[v] | (Ci[xi] → ti) i∈K] ∗ π"
+            "[x |] ∗ π"
+            "{(li = vi) i∈K}.lk ∗ π"
+    ; line3 "R(λx t,u) ∗ π"
+            "R(Cn[v],u) ∗ π"
+            "R(□,u) ∗ π"
+    ; line3 "F(Cn[v],u) ∗ π"
+            "F({(li = vi) i∈I},u) ∗ π"
+            "F(□,u) ∗ π" ]
 )
 \begin{proof}
-Using a simple case analysis we first rule out the nine forms of processes
-that immediately reduce using $({≻})$. As stuck processes are neither final
-nor $δ$-like, we can again rule out two forms of processes. We are now left
-with eighteen forms of processes, among which six are not stuck (see the
-proof of \lemRef("possibilities")). It is easy to see that the twelve
-remaining forms of processes are stuck. Indeed, given their structure no
-reduction rule will ever apply to them, even after a substitution.
+Using a simple case analysis we first rule out the thirteen forms of
+processes that immediately reduce using $({≻})$. As stuck processes are
+neither final nor $δ$-like, we can again rule out two forms of processes.
+We are now left with twenty-two forms of processes, among which seven
+are not stuck (see the proof of \lemRef("possibilities")). It is easy to
+see that the twelve remaining forms of processes are stuck. Indeed, given
+their structure no reduction rule will ever apply to them, even after a
+substitution.
 \end{proof}
 \end{lem}
+The proof of \lemRef("remark") has been (partially) checked using OCaml's
+exhaustivity checker for patterns. Indeed, the abstract syntax tree
+corresponding to our language can be encoded in a straightforward way
+into OCaml data types. It is then possible to use pattern matching to
+enumerate possible forms of processes in such a way that it is neither
+redundant nor incomplete (i.e. that the OCaml compiler does not complain
+with a warning). The OCaml source file used for this purpose is distributed
+with this document (see the file ##classification##.##ml##).
 
 \begin{lem}\label("possibilities")
 A blocked process $p ∈ Λ×Π$ is either stuck, final, $δ$-like, or of one of
@@ -974,20 +1007,23 @@ the following forms, where $I ≠ ∅$.
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line3 p1 p2 p3    = line [p1; p2; p3] in
-    tabular_layout 0.6 2.0
+    let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
+    tabular_layout 0.8 2.0
     [ line3 "x.lk ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I] ∗ π"
-    ; line3 "U(x) ∗ π"
+    ; line4 "R(x,u) ∗ π"
+            "F(x,u) ∗ π"
             "a ∗ π"
             "v ∗ α" ]
 )
 \begin{proof}
-As for \lemma("remark"), we can rule out the nine forms of processes that
-immediately reduce using $({≻})$, final processes and $δ$-like processes.
-After ruling out the twelve forms of stuck processes of \lemma("remark")
-we are left with six forms of processes. It remains to show that they are
-not stuck by finding substitution $ρ∈\cal{S}$ unlocking their reduction.
+As for \lemma("remark"), we can rule out the thirteen forms of processes
+that immediately reduce using $({≻})$, final processes and $δ$-like
+processes. After ruling out the fifteen forms of stuck processes of
+\lemma("remark") we are left with seven forms of processes. It remains
+to show that they are not stuck by finding a substitution $ρ∈\cal{S}$
+unlocking their reduction.
 (* *)
 For a process of the form $\p("x.lk ∗ π")$ we take
 $ρ = \subs("[x ≔ {lk = {}}]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
@@ -999,8 +1035,11 @@ For a process of the form $\p("[x | (Ci[xi] → ti) i∈I] ∗ π")$ with $I ≠
 we take $ρ = \subs("[x ≔ Ck[{}]]")$ such that $k ∈ I$ as we have
 $\p("[Ck[{}] | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("(tiρ)[xi ≔ {}] ∗ πρ")$.
 (* *)
-For a process of the form $\p("U(x) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
-as $\p("U({}) ∗ πρ") ≻ \p("{} ∗ πρ")$.
+For a process of the form $\p("R(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
+as $\p("R({},uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
+(* *)
+For a process of the form $\p("F(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ λy y]")$
+as $\p("R(λy y,uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
 (* *)
 For a process of the form $\p("a ∗ π")$ we can simply take
 $ρ = \subs("[a ≔ {lk = {}}.lk]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
