@@ -1322,17 +1322,18 @@ corresponding case.
   \begin{center}
     $ \id(r_eq_tt) $
   \end{center}
+  \linesAfter(1) (* FIXME hack *)
 \end{itemize}
 \end{proof}
 \end{thm}
 
-(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that a typed term normalises using a pole containing
 only processes reducing to a final state. Note that we need to fix the
 parameters of the system (i.e. the reduction relation and the equivalence
 relation).
+(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 \begin{thm}
 If we choose $({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$ then the typed
 terms of our language normalise. More formally, if the judgment
