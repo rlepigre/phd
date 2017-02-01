@@ -159,7 +159,7 @@ let r_sum_i =
 
 let r_sum_e =
   <$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{[(Ci : Ai) i∈I]}}
-   {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+   {[Σ, x_i:ι \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
    {Σ \sp Γ;Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : B}$>
 
 let r_eq_ti =
@@ -933,29 +933,39 @@ proof of each case.
     $ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∃χ A} : ο} $
   \end{center}
 
-(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
-\item In the case of the membership type, we need to show that
-      $\vs{tρ∈Aρ} ∈ ⟦ο⟧$. By induction hypothesis, we know
-      $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
-      $\vs{Aρ} ∈ ⟦ο⟧$. As a consequence, the set
-      $\{\v{v} ∈ \vs{A} \| \v{v} ≡ \t{t}\}$ is well-defined
-      and it is a subset of $\vs{Aρ}$. Moreover, it is closed under
-      the $({≡})$ relation so we have $\vs{tρ∈Aρ} ∈ ⟦ο⟧$.
-      $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f{t∈A} : ο} $$
-\item In the case of the restriction type, we need to show that
-      $\vs{Aρ∧tρ≡uρ} ∈ ⟦ο⟧$. By induction hypothesis, we know
-      $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
-      $\vs{uρ} = \t{uρ} ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
-      $t ≡ u$ is well-defined, so $\vs{Aρ∧tρ≡uρ}$ is either
-      equal to $\vs{Aρ}$, in which case we can conclude by
-      induction hypothesis, or to $∅$. In this second case we can
-      also conclude since $∅ ∈ ⟦ο⟧$.
-      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A∧t≡u} : ο} $$
+\item In the case of the membership type, we need to show $\vs{tρ∈Aρ} ∈ ⟦ο⟧$.
+  By induction hypothesis, we know $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
+  $\vs{Aρ} ∈ ⟦ο⟧$. As a consequence, the set $\vs{tρ∈Aρ} = \{\v{v} ∈ \vs{Aρ}
+  \| \v{v} ≡ \t{tρ}\} ∪ \{\v{□}\}$ is well-defined and we have $\vs{tρ∈Aρ} ⊆
+  Λ_ι^{∗}$. It remains to show that $\vs{tρ∈Aρ}$ is closed under $({≡})$ but
+  this follows immediately by construction and using \theorem("canonbox").
+
+  \begin{center}
+    $ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f{t∈A} : ο} $
+  \end{center}
+
+\item In the case of the restriction type, we need to show $\vs{Aρ∧tρ≡uρ} ∈
+  ⟦ο⟧$. Using the first induction hypothesis, we know that $\vs{Aρ} ∈ ⟦ο⟧$.
+  Now, using the second and third induction hypotheses we also know that
+  $\vs{tρ}=\t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and that $\vs{uρ}=\t{uρ} ∈ ⟦τ⟧ = Λ^{∗}$.
+  Consequently, the equivalence $t ≡ u$ is well-defined, and thus
+  $\vs{Aρ∧tρ≡uρ}$ is either equal to $\vs{Aρ}$ (which contains $\v{□}$
+  already), in which case we can conclude immediately, or to $\{\v{□}\}$.
+  In this second case we obtain $\{\v{□}\} ∈ ⟦ο⟧$ using \theorem("canonbox").
+
+  \begin{center}
+    $ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A∧t≡u} : ο} $
+  \end{center}
 \end{itemize}
 \end{proof}
 \end{thm}
 
-\begin{thm}\label("vexttyp")
+To conclude this section, we provide two lemmas that will allow us to
+show that the interpretation of a propositions is compatible with the
+equivalence relation $({≡})$. More precisely, we will show that
+substituting a value (resp. a term) with an equivalent value (resp.
+term) in a proposition does not change its semantical interpretation.
+\begin{lem}\label("vexttyp")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a
 $λ$-variable and $v₁$, $v₂ ∈ Λ_ι$ be values such that $Σ, x : ι ⊢ A : ο$,
 $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. If $ρ$ is a valuation over $Σ$ and if
@@ -992,16 +1002,16 @@ $\t{tρ[x≔v₁ρ]} ≡ \t{tρ[x≔v₂ρ]}$ and
 $\t{uρ[x≔v₁ρ]} ≡ \t{uρ[x≔v₂ρ]}$ using again the fact that $({≡})$
 is a congruence.
 \end{proof}
-\end{thm}
-\begin{thm}\label("texttyp")
+\end{lem}
+\begin{lem}\label("texttyp")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a
 term variable and $u₁$, $u₂ ∈ Λ_ι$ be terms such that $Σ, a : τ ⊢ A : ο$,
 $Σ ⊢ u₁ : τ$ and $Σ ⊢ u₂ : τ$. If $ρ$ is a valuation over $Σ$ and if
 $u₁ρ ≡ u₂ρ$ then $\vs{Aρ[a≔u₁ρ]} = \vs{Aρ[a≔u₂ρ]}$.
 \begin{proof}
-The proof is very similar to that of \thmRef("vexttyp").
+The proof is very similar to that of \lemma("vexttyp").
 \end{proof}
-\end{thm}
+\end{lem}
 
 =<
 => Adequacy
@@ -1022,9 +1032,13 @@ $ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
 \begin{thm}\label("adequacy")
 Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
 context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
-that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$. If $t$ is a term such that $Σ \sp Γ ; Ξ ⊢ t:A$ is
-derivable, then $\t{tρ} ∈ \ts{Aρ}$. Moreover, if $v$ is a value such
-that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
+that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
+\begin{itemize}
+\item If $t$ is a term such that $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then
+  $\t{tρ} ∈ \ts{Aρ}$.
+\item If $v$ is a value such that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable,
+  then $\v{vρ} ∈ \vs{Aρ}$.
+\end{itemize}
 \begin{proof}
 We proceed by induction on the derivation of the judgment
 $Σ \sp Γ ; Ξ ⊢_\tval v : A$ or $Σ \sp Γ ; Ξ ⊢ t : A$, and
@@ -1032,246 +1046,287 @@ we reason by case on the last used rule. Note that the
 deduction rules are recalled bellow the proof of the
 corresponding case.
 \begin{itemize}
+\item In the case of ($Ax$), we immediately have $\v{xρ} = \v{ρ(x)} ∈
+  \vs{Aρ}$ since $ρ ⊩ Γ, x:A$.
 
-\item In the case of ($Ax$), we immediately have
-      $\v{xρ} = \v{ρ(x)} ∈ \vs{Aρ}$ since $ρ ⊩ Γ, x:A$.
+  \begin{center}
+    $ \id(r_ax) $
+  \end{center}
 
-      $$ \id(r_ax) $$
+\item If the last used rule is ($↑$) then we need to show $\v{vρ} ∈ \ts{Aρ}$.
+  By induction hypothesis we know $\v{vρ} ∈ \vs{Aρ}$, hence we can conclude
+  using \lemma("orthosimple").
 
-\item If the last used rule is ($↑$) then we need to show
-      $\v{vρ} ∈ \ts{Aρ}$. By induction hypothesis we know
-      $\v{vρ} ∈ \vs{Aρ}$, hence we can conclude using
-      \lemRef("orthosimple").
+  \begin{center}
+    $ \id(r_up) $
+  \end{center}
 
-      $$ \id(r_up) $$
+\item If the last used rule is ($⇒_i$) then we need to show that $\t{(λx t)ρ}
+  ∈ \vs{(A ⇒ B)ρ}$. As we are free to rename $x$, we can assume that
+  $\t{(λx t)ρ} = \t{λx tρ}$ and thus our goal rewrites as $\t{λx tρ} ∈
+  \vs{Aρ ⇒ Bρ}$. By definition, we need to take a value $v ∈ \vs{Aρ}$ and
+  show that we have $\t{(tρ)[x ≔ v]} ∈ \ts{Bρ}$. We can conclude by induction
+  hypothesis using the valuation $\subs("ρ[x ≔ v]")$.
 
-\item If the last used rule is ($⇒_i$) then we need to show that
-      $\t{(λx t)ρ} ∈ \vs{(A ⇒ B)ρ}$. As we are free to rename
-      $x$, we can assume that $\t{(λx t)ρ} = \t{λx tρ}$ and
-      thus our goal rewrites as $\t{λx tρ} ∈ \vs{(A ⇒ B)ρ}$.
-      By definition, we need to take a value $v ∈ \vs{Aρ}$ and
-      show that we have $\t{(tρ)[x ≔ v]} ∈ \ts{Bρ}$. We can
-      conclude by induction hypothesis using the valuation
-      $\subs("ρ[x ≔ v]")$.
+  \begin{center}
+    $ \id(r_arrow_i) $
+  \end{center}
 
-      $$ \id(r_arrow_i) $$
+\item If the last used rule is ($⇒_e$) then we need to show $\t{(t u)ρ} =
+  \t{tρ uρ} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$ and show $\p{tρ uρ ∗ π}
+  ∈ \dbot$. Since $\p{tρ uρ ∗ π} ≻ \p{uρ ∗ [tρ]π}$ and $\dbot$ is saturated,
+  it is enough to show $\p{uρ ∗ [tρ]π} ∈ \dbot$. As $\t{uρ} ∈ \ts{Aρ}$ by
+  induction hypothesis, it only remains to show $\s{[tρ]π} ∈ \ss{Aρ}$. Let
+  us take $\v{v} ∈ \vs{Aρ}$ and show that $\p{v ∗ [tρ]π} ∈ \dbot$. Since
+  $\p{v ∗ [tρ]π} ≻ \p{tρ ∗ v·π}$ and $\dbot$ is saturated, it is enough to
+  show $\p{tρ ∗ v·π} ∈  \dbot$. By induction hypothesis $\t{tρ} ∈
+  \ts{Aρ⇒Bρ}$, hence it only remains to show that we have $\s{v·π} ∈
+  \ss{Aρ ⇒ Bρ}$. Let us now take a value $\v{w} ∈ \vs{Aρ⇒Bρ}$ and show
+  $\p{w ∗ v·π} ∈ \dbot$. If $w = \v{□}$ then we have $\p{□ ∗ v·π} ≻
+  \p{□ ∗ π}$ and it is enough to show $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is
+  saturated. Since $π ∈ \ss{Bρ}$ we only have to show that $\v{□} ∈ \vs{Bρ}$
+  which is immediate since $\vs{Bρ} ∈ ⟦ο⟧$. If $w = \v{λx f}$ then we have
+  $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and as $\dbot$ is saturated, it is
+  enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$. Since $\s{π} ∈ \ss{Bρ}$ it
+  only remains to show $\t{f[x ≔ v]} ∈ \ts{Bρ}$, but this is true by
+  definition of $\vs{Aρ ⇒ Bρ}$ since $\v{v} ∈ \vs{Aρ}$.
 
-\item If the last used rule is ($⇒_e$) then we need to show
-      $\t{(t u)ρ} = \t{tρ uρ} ∈ \ts{Bρ}$. Let us take
-      $π ∈ \ss{Bρ}$ and show $\p{tρ uρ ∗ π} ∈ \dbot$. Since
-      $\p{tρ uρ ∗ π} ≻ \p{uρ ∗ [tρ]π}$ and $\dbot$ is saturated, is is
-      enough to show $\p{uρ ∗ [tρ]π} ∈ \dbot$. As $\t{uρ} ∈ \ts{Aρ}$
-      by induction hypothesis, it only remains to show
-      $\s{[tρ]π} ∈ \ss{Aρ}$. Let us take $\v{v} ∈ \vs{Aρ}$
-      and show that $\p{v ∗ [tρ]π} ∈ \dbot$. Since
-      $\p{v ∗ [tρ]π} ≻ \p{tρ ∗ v·π}$ and $\dbot$ is saturated, it is
-      enough to show $\p{tρ ∗ v·π} ∈  \dbot$. By induction hypothesis
-      $\t{tρ} ∈ \ts{Aρ ⇒ Bρ}$, hence it only remains
-      to show that we have $\s{v·π} ∈ \ss{Aρ ⇒ Bρ}$. Let us now take
-      $\v{λx f} ∈ \vs{Aρ ⇒ Bρ}$ and show $\p{λx f ∗ v·π} ∈ \dbot$.
-      As $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and $\dbot$ is saturated,
-      it is enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$. Since
-      $\s{π} ∈ \ss{Bρ}$ it only remains to show
-      $\t{f[x ≔ v]} ∈ \ts{Bρ}$. This is true by definition of
-      $\vs{Aρ ⇒ Bρ}$ since we have $\v{v} ∈ \vs{Aρ}$.
+  \begin{center}
+    $ \id(r_arrow_e) $
+  \end{center}
 
-      $$ \id(r_arrow_e) $$
+\item If the last used rule is ($μ$) then we need to show that $\t{(μα t)ρ}
+  ∈ \ts{Aρ}$. As we are free to rename $α$, we can assume that $\t{(μα t)ρ}
+  = \t{μα tρ}$ and thus our goal rewrites as $\t{μα tρ} ∈ \ts{Aρ}$. Let us
+  now take a stack $π ∈ \ss{Aρ}$ and show $\p{μα tρ ∗ π} ∈ \dbot$. Since
+  $\p{μα tρ ∗ π} ≻ \p{tρ[α ≔ π] ∗ π}$ and $\dbot$ is saturated, it is enough
+  to show that we have $\p{tρ[α ≔ π] ∗ π} ∈ \dbot$. We can then conclude by
+  induction hypothesis with the valuation $\subs("ρ[α ≔ π]")$.
 
-\item If the last used rule is ($μ$) then we need to show that
-      $\t{(μα t)ρ} ∈ \ts{Aρ}$. As we are free to rename $α$, we
-      can assume that $\t{(μα t)ρ} = \t{μα tρ}$ and thus our goal
-      rewrites as $\t{μα tρ} ∈ \ts{Aρ}$. Let us now take a stack
-      $π ∈ \ss{Aρ}$ and show $\p{μα tρ ∗ π} ∈ \dbot$. Since
-      $\p{μα tρ ∗ π} ≻ \p{tρ[α ≔ π] ∗ π}$ and $\dbot$ is saturated, it
-      is enough to show that we have $\p{tρ[α ≔ π] ∗ π} ∈ \dbot$. We can
-      then conclude by induction hypothesis with the valuation
-      $\subs("ρ[α ≔ π]")$.
+  \begin{center}
+    $ \id(r_mu) $
+  \end{center}
 
-      $$ \id(r_mu) $$
+\item If the last used rule is ($[\wc]$) then we need to show $\t{([α]t)ρ}
+  = \t{[ρ(α)]tρ} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$ and show
+  $\p{[ρ(α)]tρ ∗ π} ∈ \dbot$. Since $\p{[ρ(α)]tρ ∗ π} ≻ \p{tρ ∗ ρ(α)}$ and
+  $\dbot$ is saturated, it is enough to show $\p{tρ ∗ ρ(α)} ∈ \dbot$. By
+  induction hypothesis, we know that $\t{tρ} ∈ \ts{Aρ}$, hence we only need
+  to show that $\s{ρ(α)}∈\ss{Aρ}$. This is immediate as we have $ρ ⊩ Δ,α:A$.
 
-\item If the last used rule is ($[\wc]$) then we need to show
-      $\t{([α]t)ρ} = \t{[ρ(α)]tρ} ∈ \ts{Bρ}$. Let us take
-      $π ∈ \ss{Bρ}$ and show $\p{[ρ(α)]tρ ∗ π} ∈ \dbot$. Since
-      $\p{[ρ(α)]tρ ∗ π} ≻ \p{tρ ∗ ρ(α)}$ and $\dbot$ is saturated, it
-      is enough to show $\p{tρ ∗ ρ(α)} ∈ \dbot$. By induction hypothesis,
-      we know that $\t{tρ} ∈ \ts{Aρ}$, hence we only need to show that
-      $\s{ρ(α)} ∈ \ss{Aρ}$. This is true since we know that $ρ ⊩ Δ, α:A$.
+  \begin{center}
+    $ \id(r_name) $
+  \end{center}
 
-      $$ \id(r_name) $$
+\item If the last used rule is ($∀_i$) then we need to show $\v{vρ} ∈
+  \vs{(∀χ^s A)ρ}$. As we are free to rename $χ$, this amounts to showing
+  $\v{vρ} ∈ \vs{∀χ^s Aρ} = \bigcap_{\f{B}∈⟦s⟧} \vs{Aρ[χ ≔ B]}$. Hence it is
+  enough to take $\f{B} ∈ ⟦s⟧$ and show $\v{vρ} ∈ \vs{Aρ[χ ≔ B]}$. Note that
+  $\v{vρ} = \v{vρ[χ ≔ B]}$ as $\f{χ}$ cannot appear in $\v{v}$ as otherwise
+  the conclusion judgment would not be well-formed. We can thus conclude by
+  induction hypothesis using the valuation $\subs("ρ[χ ≔ B]")$.
 
-\item If the last used rule is ($∀_i$) then we need to show
-      $\v{vρ} ∈ \vs{(∀χ^s A)ρ}$. As we are free to rename $χ$, this
-      amounts to showing $\v{vρ} ∈ \vs{∀χ^s Aρ} = \bigcap_{\f{B}∈⟦s⟧}
-      \vs{Aρ[χ ≔ B]}$. Hence it is enough to take $\f{B} ∈ ⟦s⟧$ and show
-      $\v{vρ} ∈ \vs{Aρ[χ ≔ B]}$. Note that $\v{vρ} = \v{vρ[χ ≔ B]}$
-      as $\f{χ}$ cannot appear in $\v{v}$ as otherwise the conclusion
-      judgment would not be well-formed. We conclude by induction hypothesis
-      using the valuation $\subs("ρ[χ ≔ B]")$.
-
-      $$ \id(r_forall_i) $$
+  \begin{center}
+    $ \id(r_forall_i) $
+  \end{center}
 
 \item If the last used rule is ($∀_e$) then we need to show
-      $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$. By induction hypothesis we have
-      $\t{tρ} ∈ \ts{(∀χ^s A)ρ}$, and as a consequence we need to show
-      that $\ts{(∀χ^s A)ρ} ⊆ \ts{(A[χ ≔ B])ρ}$. According to
-      \lemRef("orthoincl"), it is enough to show
-      $\vs{(∀χ^s A)ρ} ⊆ \vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]}$. As we
-      are free to rename $χ$, our goal rewrites as
-      $\vs{∀χ^s Aρ} ⊆ \vs{Aρ[χ ≔ Bρ]}$.
-      Since $\vs{∀χ^s Aρ} = \bigcap_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
-      $\f{Bρ} ∈ ⟦s⟧$ we can conclude the proof.
+  $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$. By induction hypothesis we have
+  $\t{tρ} ∈ \ts{(∀χ^s A)ρ}$, and as a consequence we need to show that
+  $\ts{(∀χ^s A)ρ} ⊆ \ts{(A[χ ≔ B])ρ}$. According to \lemRef("orthoincl"),
+  it is enough to show
+  $\vs{(∀χ^s A)ρ} ⊆ \vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]}$. As we are free to
+  rename $χ$, our goal rewrites as $\vs{∀χ^s Aρ} ⊆ \vs{Aρ[χ ≔ Bρ]}$. Since
+  $\vs{∀χ^s Aρ} = \bigcap_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and $\f{Bρ} ∈ ⟦s⟧$ we
+  can conclude the proof.
 
-      $$ \id(r_forall_e) $$
+  \begin{center}
+    $ \id(r_forall_e) $
+  \end{center}
 
 \item If the last used rule is ($∃_i$) then we need to show
-      $\t{tρ} ∈ \ts{(∃χ^s A)ρ}$. By induction hypothesis we have
-      $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$, and as a consequence we need to show
-      that $\ts{(A[χ ≔ B])ρ} ⊆ \ts{(∃χ^s A)ρ}$. According to
-      \lemRef("orthoincl"), it is enough to show
-      $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∃χ^s A)ρ}$.
-      As we are free to rename $χ$, our goal rewrites as
-      $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$.
-      Since $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
-      $\f{Bρ} ∈ ⟦s⟧$ we can conclude the proof.
+  $\t{tρ} ∈ \ts{(∃χ^s A)ρ}$. By induction hypothesis we have
+  $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$, and as a consequence we need to show
+  that $\ts{(A[χ ≔ B])ρ} ⊆ \ts{(∃χ^s A)ρ}$. According to
+  \lemRef("orthoincl"), it is enough to show
+  $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∃χ^s A)ρ}$.
+  As we are free to rename $χ$, our goal rewrites as
+  $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$.
+  Since $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
+  $\f{Bρ} ∈ ⟦s⟧$ we can conclude the proof.
 
-      $$ \id(r_exists_i) $$
+  \begin{center}
+    $ \id(r_exists_i) $
+  \end{center}
 
 \item If the last used rule is ($∃_e$) then we need to show
-      $\t{tρ} ∈ \ts{Cρ}$. To apply the induction hypothesis,
-      we need to check that $\v{ρ(x)} ∈ \vs{(A[χ ≔ B])ρ}$ provided
-      $\v{ρ(x)} ∈ \vs{(∃χ^s A)ρ}$. In other words, we need to show
-      $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∀χ^s A)ρ}$. As
-      we are free to rename $χ$, our goal rewrites as
-      $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$. The inclusion follows since
-      $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
-      $\f{Bρ} ∈ ⟦s⟧$.
+  $\t{tρ} ∈ \ts{Cρ}$. To apply the induction hypothesis,
+  we need to check that $\v{ρ(x)} ∈ \vs{(A[χ ≔ B])ρ}$ provided
+  $\v{ρ(x)} ∈ \vs{(∃χ^s A)ρ}$. In other words, we need to show
+  $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∀χ^s A)ρ}$. As
+  we are free to rename $χ$, our goal rewrites as
+  $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$. The inclusion follows since
+  $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
+  $\f{Bρ} ∈ ⟦s⟧$.
 
-      $$ \id(r_exists_e) $$
+  \begin{center}
+    $ \id(r_exists_e) $
+  \end{center}
 
-\item If the last used rule is ($∈_e$) then we need to show
-      $\t{uρ} ∈ \ts{Cρ}$. To apply the induction hypothesis,
-      we need to check that $\v{ρ(x)} ∈ \vs{Aρ}$ and that
-      $\v{ρ(x)} ≡ \t{tρ}$, provided that we have
-      $\v{xρ} ∈ \vs{(t∈A)ρ}$. By definition
-      $\vs{(t∈A)ρ} = \vs{tρ∈Aρ} = \{v∈\vs{Aρ} \st v ≡ \t{tρ}\}$
-      so we indeed have $\v{ρ(x)} ∈ \vs{Aρ}$ and
-      $\v{ρ(x)} ≡ \t{tρ}$.
+\item If the last used rule is ($∈_e$) then we need to show $\t{uρ} ∈
+  \ts{Cρ}$. To apply the induction hypothesis, we need to check that
+  $\v{ρ(x)} ∈ \vs{Aρ}$ and that $\v{ρ(x)} ≡ \t{tρ}$, provided that we have
+  $\v{xρ} ∈ \vs{(t∈A)ρ}$. By definition $\vs{(t∈A)ρ} = \vs{tρ∈Aρ} =
+  \{v∈\vs{Aρ} \st v ≡ \t{tρ}\}$ so we indeed have $\v{ρ(x)} ∈ \vs{Aρ}$ and
+  $\v{ρ(x)} ≡ \t{tρ}$.
 
-      $$ \id(r_memb_e) $$
+  \begin{center}
+    $ \id(r_memb_e) $
+  \end{center}
 
 \item In the case of ($∈_i$) we need to show that
-      $\v{vρ} ∈ \vs{(v ∈ A)ρ} = \{w ∈ \vs{Aρ} \| w ≡ vρ\}$. By
-      induction hypothesis we have $\v{vρ} ∈ \vs{Aρ}$ so we only
-      need to show that $\t{vρ} ≡ \t{vρ}$, which follows from
-      the reflexivity of $({≡})$.
+  $\v{vρ} ∈ \vs{(v ∈ A)ρ} = \{w ∈ \vs{Aρ} \| w ≡ vρ\}$. By
+  induction hypothesis we have $\v{vρ} ∈ \vs{Aρ}$ so we only
+  need to show that $\t{vρ} ≡ \t{vρ}$, which follows from
+  the reflexivity of $({≡})$.
 
-      $$ \id(r_memb_i) $$
+  \begin{center}
+    $ \id(r_memb_i) $
+  \end{center}
 
 \item If the last used rule is ($↾_i$) then we need to show
-      $\t{tρ} ∈ \ts{(A ∧ u₁≡u₂)ρ}$. Using the right premise
-      we know that $\t{u₁ρ} ≡ \t{u₂ρ}$, and hence
-      $\vs{Aρ ∧ u₁ρ ≡ u₂ρ} = \vs{Aρ}$ by definition. Consequently
-      we have $\ts{Aρ ∧ u₁ρ ≡ u₂ρ} = \ts{Aρ}$ by
-      \lemRef("orthoincl"), and hence we can conclude since
-      $\t{tρ} ∈ \ts{Aρ}$ by induction hypothesis.
+  $\t{tρ} ∈ \ts{(A ∧ u₁≡u₂)ρ}$. Using the right premise
+  we know that $\t{u₁ρ} ≡ \t{u₂ρ}$, and hence
+  $\vs{Aρ ∧ u₁ρ ≡ u₂ρ} = \vs{Aρ}$ by definition. Consequently
+  we have $\ts{Aρ ∧ u₁ρ ≡ u₂ρ} = \ts{Aρ}$ by
+  \lemRef("orthoincl"), and hence we can conclude since
+  $\t{tρ} ∈ \ts{Aρ}$ by induction hypothesis.
 
-      $$ \id(r_rest_i) $$
+  \begin{center}
+    $ \id(r_rest_i) $
+  \end{center}
 
 \item If the last used rule is ($↾_e$) then we need to show
-      $\t{tρ} ∈ \ts{Cρ}$. To be able to apply the induction hypothesis,
-      we only have to show $ρ(x) ∈ \vs{Aρ}$ and $u₁ρ ≡ u₂ρ$ under the
-      assumption that $ρ(x) ∈ \vs{Aρ ∧ u₁ρ ≡ u₂ρ} ≠ ∅$. This immediately
-      follows from the definition of $\vs{Aρ ∧ u₁ρ ≡ u₂ρ}$ since it
-      contains $ρ(x)$.
+  $\t{tρ} ∈ \ts{Cρ}$. To be able to apply the induction hypothesis,
+  we only have to show $ρ(x) ∈ \vs{Aρ}$ and $u₁ρ ≡ u₂ρ$ under the
+  assumption that $ρ(x) ∈ \vs{Aρ ∧ u₁ρ ≡ u₂ρ} ≠ ∅$. This immediately
+  follows from the definition of $\vs{Aρ ∧ u₁ρ ≡ u₂ρ}$ since it
+  contains $ρ(x)$.
 
-      $$ \id(r_rest_e) $$
+  \begin{center}
+    $ \id(r_rest_e) $
+  \end{center}
 
 \item If the last used rule is ($×_i$) then we need to show
-      $\v{{(li = vi) i∈I}ρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. By definition it
-      is enough to show that $\v{viρ} ∈ \vs{Aiρ}$ for all index $i$ in
-      $I$. This exactly corresponds to the induction hypotheses.
+  $\v{{(li = vi) i∈I}ρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. By definition it
+  is enough to show that $\v{viρ} ∈ \vs{Aiρ}$ for all index $i$ in
+  $I$. This exactly corresponds to the induction hypotheses.
 
-      $$ \id(r_prod_i) $$
+  \begin{center}
+    $ \id(r_prod_i) $
+  \end{center}
 
 \item If the last used rule is ($×_e$) then we need to show that
-      $\t{(v.lk)ρ} ∈ \ts{Akρ}$. By induction hypothesis we know that
-      $\v{vρ} ∈ \vs{{(li : Ai) i∈I}ρ}$, hence by definition
-      $\v{vρ} = \v{{(li = vi) i∈I}}$ and for all index $i$ in $I$ we
-      have $\v{vi} ∈ \vs{Aiρ}$. Let us now take $π ∈ \ss{Akρ}$ and
-      show that $\p{{(li = vi) i∈I}.lk ∗ π} ∈ \dbot$. As $k$ is in $I$, we
-      have $\p{{(li = viρ) i∈I}.lk ∗ π} ≻ \p{vkρ ∗ π}$, hence it is enough
-      to show $\p{vkρ ∗ π} ∈ \dbot$ as $\dbot$ is saturated. Since
-      $π ∈ \ss{Akρ}$, we only have to show $\v{vkρ} ∈ \ts{Akρ}$. We can
-      hence conclude using \lemRef("orthosimple") as $\v{vkρ} ∈ \vs{Akρ}$.
+  $\t{(v.lk)ρ} = \t{vρ.lk} ∈ \ts{Akρ}$. Let us take $π ∈ \ss{Akρ}$ and
+  show that $\p{vρ.lk ∗ π} ∈ \dbot$. By induction hypothesis we know that
+  $\v{vρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. If $\v{vρ} = \v{□}$ then we have
+  $\p{□.lk ∗ π} ≻ \p{□ ∗ π}$ and thus it is enough to show $\v{□} ∈
+  \vs{Akρ}$ as $\dbot$ is saturated and $π ∈ \ss{Akρ}$. This is immediate
+  since $\vs{Akρ} ∈ ⟦ο⟧$. If $\v{vρ} = \v{{(li = vi) i∈I}}$ then we have
+  $\p{{(li = viρ) i∈I}.lk ∗ π} ≻ \p{vkρ ∗ π}$ and it is enough to show
+  $\p{vkρ ∗ π} ∈ \dbot$ as $\dbot$ is saturated. Since $π ∈ \ss{Akρ}$ we
+  only have to show that $\v{vkρ} ∈ \ts{Akρ}$. We can hence conclude using
+  \lemma("orthosimple") as we have $\v{vkρ} ∈ \vs{Akρ}$ by definition.
 
-      $$ \id(r_prod_e) $$
+  \begin{center}
+    $ \id(r_prod_e) $
+  \end{center}
 
 \item If the last used rule is ($+_i$) then we need to show
-      $\t{(Ck[v])ρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$. By definition,
-      it is enough to show that $\v{vρ} ∈ \vs{Akρ}$ since
-      $\t{(Ck[v])ρ} = \v{Ck[vρ]}$ and $k ∈ I$. This is
-      exactly the induction hypothesis.
+  $\t{(Ck[v])ρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$. By definition,
+  it is enough to show that $\v{vρ} ∈ \vs{Akρ}$ since
+  $\t{(Ck[v])ρ} = \v{Ck[vρ]}$ and $k ∈ I$. This is
+  exactly the induction hypothesis.
 
-      $$ \id(r_sum_i) $$
+  \begin{center}
+    $ \id(r_sum_i) $
+  \end{center}
 
 \item If the last used rule is ($+_e$) then we need to show
-      $\t{[v | (Ci[xi] → ti) i∈I]ρ} ∈ \ts{Bρ}$. By induction hypothesis
-      $\v{vρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$, hence by definition
-      $\v{vρ} = \v{Ck[w]}$ for some index $k$ in $I$ and
-      $w ∈ \vs{Akρ}$. Let us now take a stack $π ∈ \ss{Bρ}$ and show
-      that we have $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ∈ \dbot$. As
-      $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{tkρ[xk≔w] ∗ π}$ and
-      $\dbot$ is saturated, it is enough to show
-      $\p{tkρ[xk≔w] ∗ π} ∈ \dbot$. Let us now consider the valuation
-      $\subs("ρ[xk≔w]")$. Up to renaming, we can assume that $\v{xk}$ does
-      not appear free in $\f{B}$, hence $\f{Bρ} = \f{Bρ[xi≔w]}$.
-      Consequently we have $π ∈ \ss{Bρ[xk≔w]}$, hence it is enough to
-      show that $\t{tkρ[xk≔w]} ∈ \ts{Bρ[xk≔w]}$. We can conclude by
-      induction hypothesis using the valuation $\subs("ρ[xk≔w]")$ since
-      $\v{vρ[xk≔w]} ≡ \v{Ck[w]}$.
-
-      $$ \id(r_sum_e) $$
+  $\t{[v | (Ci[xi] → ti) i∈I]ρ} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$ and
+  show that $\p{vρ.lk ∗ π} ∈ \dbot$. By induction hypothesis, we know that
+  $\v{vρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$. If $\v{vρ} = \v{□}$ then we have
+  $\p{[□ | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{□ ∗ π}$ and thus it is enough to
+  show that $\v{□} ∈ \vs{Bρ}$ as $\dbot$ is saturated and $π ∈ \ss{Bρ}$.
+  This is immediate since $\vs{Bρ} ∈ ⟦ο⟧$. If $\v{vρ} = \v{Ck[w]}$ for
+  some $k∈I$ then, by definition, we have
+  $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{tkρ[xk≔w] ∗ π}$
+  and thus it is enough to show that $\p{tkρ[xk≔w] ∗ π} ∈ \dbot$ as
+  $\dbot$ is saturated. Since $π ∈ \ss{Bρ}$ we only have to show that
+  $\t{tkρ[xk≔w]} ∈ \ts{Bρ}$. Note that neither $\f{B}$, $\f{Ak}$ nor $\v{v}$
+  may contain the variable $\v{xk}$ as otherwise some judgment would not
+  be well-formed. As a consequence, we have $\vs{Bρ[xk≔w]} = \vs{Bρ}$,
+  $\vs{Akρ[xk≔w]} = \vs{Akρ}$ and $\v{vρ[xk≔w]} = \v{vρ}$. To be able to
+  conclude using the induction hypothesis, we need to show that the
+  valuation $\subs("ρ[xk≔w]")$ realises $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As we
+  know that $ρ$ realises $Γ, Ξ$, we only have to show that 
+  $\v{ρ(xk)} ∈ \vs{Akρ[xk≔w]} = \vs{Akρ}$, which is true by induction
+  hypothesis, and that $\v{vρ[xk≔w]} = \v{vρ} ≡ \t{Ck[w]} = \t{Ck[ρ(xk)]}$,
+  which is true by hypothesis.
+ 
+  \begin{center}
+    $ \id(r_sum_e) $
+  \end{center}
 
 \item If the last used rule is ($≡_{ι,ι}$) then we need to show
-      $\t{(v[x≔w₂])ρ} ∈ \vs{(A[x≔w₂])ρ}$. As we are free to rename
-      $x$ we may assume that it does not appear in $dom(ρ)$, and our
-      goal rewrites as $\t{vρ[x≔w₂ρ]} ∈ \vs{Aρ[x≔w₂ρ]}$. According
-      to our second premise we have $\t{w₁ρ} ≡ \t{w₂ρ}$ and
-      thus we get $\vs{Aρ[x≔w₂ρ]} = \vs{Aρ[x≔w₁ρ]}$ using
-      \thmRef("vexttyp") and $\t{vρ[x≔w₂ρ]} = \t{vρ[x≔w₁ρ]}$ using
-      the fact that $({≡})$ is a congruence. Now, since
-      $\vs{Aρ[x≔w₁ρ]}$ is closed under $({≡})$ we only have to show
-      $\t{vρ[x≔w₁ρ]} ∈ \vs{Aρ[x≔w₁ρ]}$.
-      To be able to conclude using the induction hypothesis, we need to
-      show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
-      need to show that for every type $B$ appearing in $Γ$ we have
-      $\vs{(B[x≔w₁])ρ} = \vs{(B[x≔w₂])ρ}$. As we are again free to
-      rename $x$ we may rewrite our goal as
-      $\vs{Bρ[x≔w₁ρ]} = \vs{Bρ[x≔w₂ρ]}$. We can then conclude the
-      proof using \thmRef("vexttyp") one more time.
+  $\t{(v[x≔w₂])ρ} ∈ \vs{(A[x≔w₂])ρ}$. As we are free to rename
+  $x$ we may assume that it does not appear in $dom(ρ)$, and our
+  goal rewrites as $\t{vρ[x≔w₂ρ]} ∈ \vs{Aρ[x≔w₂ρ]}$. According
+  to our second premise we have $\t{w₁ρ} ≡ \t{w₂ρ}$ and
+  thus we get $\vs{Aρ[x≔w₂ρ]} = \vs{Aρ[x≔w₁ρ]}$ using
+  \lemma("vexttyp") and $\t{vρ[x≔w₂ρ]} ≡ \t{vρ[x≔w₁ρ]}$ using
+  the fact that $({≡})$ is a congruence. Now, since we know that
+  $\vs{Aρ[x≔w₁ρ]}$ is closed under $({≡})$, it only remains to
+  show that we have $\t{vρ[x≔w₁ρ]} ∈ \vs{Aρ[x≔w₁ρ]}$. To be able
+  to conclude by induction hypothesis, we need to
+  show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
+  need to show that for every type $B$ appearing in $Γ$ we have
+  $\vs{(B[x≔w₁])ρ} = \vs{(B[x≔w₂])ρ}$. As we are again free to
+  rename $x$, this rewrites as $\vs{Bρ[x≔w₁ρ]} = \vs{Bρ[x≔w₂ρ]}$.
+  We can then conclude the proof using \lemma("vexttyp") once more.
 
-      $$ \id(r_eq_ii) $$
+  \begin{center}
+    $ \id(r_eq_ii) $
+  \end{center}
 
-\item If the last used rule is ($≡_{τ,ι}$) the proof is similar to the
-      previous case, using the fact that $Φ₁ = Φ₂$ implies
-      $Φ₁^{⊥⊥} = Φ₂^{⊥⊥}$.
+\item If the last used rule is ($≡_{τ,ι}$) then the proof is similar to the
+  previous case, using the fact that $Φ₁ = Φ₂$ implies $Φ₁^{⊥⊥} = Φ₂^{⊥⊥}$
+  (i.e. \lemma("orthoincl")).
 
-      $$ \id(r_eq_ti) $$
+  \begin{center}
+    $ \id(r_eq_ti) $
+  \end{center}
 
-\item If the last used rule is ($≡_{ι,τ}$) the proof is similar to the
-      proof for ($≡_{ι,ι}$).
+\item If the last used rule is ($≡_{ι,τ}$) then the proof is the same as
+  for the ($≡_{ι,ι}$) case, using \lemma("texttyp") instead of
+  \lemma("vexttyp").
 
-      $$ \id(r_eq_it) $$
+  \begin{center}
+    $ \id(r_eq_it) $
+  \end{center}
 
-\item If the last used rule is ($≡_{τ,τ}$) the proof is similar to the
-      ($≡_{τ,ι}$).
+\item If the last used rule is ($≡_{τ,τ}$) then the proof is the same as
+  for the ($≡_{τ,ι}$) case, using again \lemma("texttyp") instead of
+  \lemma("vexttyp").
 
-      $$ \id(r_eq_tt) $$
-
+  \begin{center}
+    $ \id(r_eq_tt) $
+  \end{center}
 \end{itemize}
 \end{proof}
 \end{thm}
 
+(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that a typed term normalises using a pole containing
@@ -1429,39 +1484,46 @@ of the typing judgments. For all the rules of \figRef("typerules") but
 new cases are displayed bellow.
 \begin{itemize}
 \item If the last used rule is ($[\wc]$) then we need to show
-      $\t{([π]t)ρ} = \t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take
-      $ξ ∈ \ss{Bρ}$ and show $\p{[πρ]tρ ∗ π} ∈ \dbot$. Since
-      $\p{[πρ]tρ ∗ π} ≻ \p{tρ ∗ πρ}$ and $\dbot$ is saturated, it
-      is enough to show $\p{tρ ∗ πρ} ∈ \dbot$. This is immediate
-      since, by induction hypothesis, we have $\t{tρ} ∈ \ts{Aρ}$
-      and $\s{πρ} ∈ \ss{Aρ}$.
+  $\t{([π]t)ρ} = \t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take
+  $ξ ∈ \ss{Bρ}$ and show $\p{[πρ]tρ ∗ π} ∈ \dbot$. Since
+  $\p{[πρ]tρ ∗ π} ≻ \p{tρ ∗ πρ}$ and $\dbot$ is saturated, it
+  is enough to show $\p{tρ ∗ πρ} ∈ \dbot$. This is immediate
+  since, by induction hypothesis, we have $\t{tρ} ∈ \ts{Aρ}$
+  and $\s{πρ} ∈ \ss{Aρ}$.
 
-      $$ \id(r_name') $$
+  \begin{center}
+    $ \id(r_name') $
+  \end{center}
 
 \item If the last used rule is ($Ax^⊥$) then we immediately have
-      $\s{αρ} = \s{ρ(α)} ∈ \ss{Aρ}$ since we know that
-      $ρ ⊩ Γ, α:A^⊥$.
+  $\s{αρ} = \s{ρ(α)} ∈ \ss{Aρ}$ since we know that $ρ ⊩ Γ, α:A^⊥$.
 
-      $$ \id(r_ax') $$
+  \begin{center}
+    $ \id(r_ax') $
+  \end{center}
 
 \item If the last used rule is ($\wc·\wc$) then we need to show
-      $\s{vρ·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from \lemRef("push")
-      since we have $vρ ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by
-      induction hypothesis.
+  $\s{vρ·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from \lemRef("push")
+  since we have $vρ ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by
+  induction hypothesis.
 
-      $$ \id(r_push) $$
+  \begin{center}
+    $ \id(r_push) $
+  \end{center}
 
 \item If the last used rule is ($[\wc]\wc$) then we need to show
-      $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and
-      show $\p{v ∗ [tρ]πρ} ∈ \dbot$. Since we know that
-      $\p{v ∗ [tρ]πρ} ≻ \p{tρ ∗ v·πρ}$ and $\dbot$ is saturated,
-      it is enough to show $\p{tρ ∗ v·πρ} ∈ \dbot$. By induction
-      hypothesis, we have $\t{tρ} ∈ \ts{Aρ⇒Bρ}$ so it is enough
-      to show $\s{v·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from
-      \lemRef("push") since $v ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$
-      by induction hypothesis.
+  $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and
+  show $\p{v ∗ [tρ]πρ} ∈ \dbot$. Since we know that
+  $\p{v ∗ [tρ]πρ} ≻ \p{tρ ∗ v·πρ}$ and $\dbot$ is saturated,
+  it is enough to show $\p{tρ ∗ v·πρ} ∈ \dbot$. By induction
+  hypothesis, we have $\t{tρ} ∈ \ts{Aρ⇒Bρ}$ so it is enough
+  to show $\s{v·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from
+  \lemRef("push") since $v ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$
+  by induction hypothesis.
 
-      $$ \id(r_fram) $$
+  \begin{center}
+    $ \id(r_fram) $
+  \end{center}
 \end{itemize}
 \end{proof}
 \end{thm}
