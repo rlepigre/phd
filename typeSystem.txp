@@ -11,6 +11,193 @@
 )
 \Include{Macros}
 
+\Configure_math_macro{\v}{ syntax = string; }
+\Configure_math_macro{\t}{ syntax = string; }
+\Configure_math_macro{\s}{ syntax = string; }
+\Configure_math_macro{\p}{ syntax = string; }
+\Configure_math_macro{\f}{ syntax = string; }
+\Configure_math_macro{\vs}{ syntax = string; }
+\Configure_math_macro{\ss}{ syntax = string; }
+\Configure_math_macro{\ts}{ syntax = string; }
+
+\Caml(
+(* Figure for sorting rules. *)
+let r11 =
+  << $\unaryR{Σ, x : ι ⊢ \t{t} : τ}{Σ ⊢ \v{λx t} : ι}$ >>
+let r12 =
+  << $\unaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \v{C[v]} : ι}$ >>
+let r13 =
+  << $\unaryR{\{Σ ⊢ \v{vi} : ι\}_{i∈I}}{Σ ⊢ \v{{(li = vi) i∈I}} : ι}$ >>
+let r14 =
+  << $\axiomR{Σ ⊢ \v{□} : ι}$ >>
+let r21 =
+  << $\unaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{v} : τ}$ >>
+let r22 =
+  << $\binaryR{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{u} : τ}{Σ ⊢ \t{t u} : τ}$ >>
+let r23 =
+  << $\unaryR{Σ, α : σ ⊢ \t{t} : τ}{Σ ⊢ \t{μα t} : τ}$ >>
+let r31 =
+  << $\binaryR{Σ ⊢ \s{π} : σ}{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{[π]t} : τ}$ >>
+let r32 =
+  << $\unaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{v.l} : τ}$ >>
+let r33 =
+  << $\binaryR{Σ ⊢ v : ι}{\{Σ, x_i : ι ⊢ \t{ti} : τ\}_{i∈I}}{
+       Σ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : τ}$ >>
+let r41 =
+  << $\binaryR{Σ ⊢ \t{t} : τ}{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{Y(t,v)} : τ}$ >>
+let r42 =
+  << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{R(v,t)} : τ}$ >>
+let r43 =
+  << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{F(v,t)} : τ}$ >>
+let r44 =
+  << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \v{w} : ι}{Σ ⊢ \t{δ(v,w)} : τ}$ >>
+let r51 =
+  << $\axiomR{Σ ⊢ \s{ε} : σ}$ >>
+let r52 =
+  << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \s{π} : σ}{Σ ⊢ \s{v · π} : σ}$ >>
+let r53 =
+  << $\binaryR{Σ ⊢ \t{t} : τ}{Σ ⊢ \s{π} : σ}{Σ ⊢ \s{[t] π} : σ}$ >>
+let r61 =
+  << $\axiomR{Σ, χ : s ⊢ χ : s}$ >>
+let r62 =
+  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f{(χ^s ↦ A)} : s → r}$ >>
+let r63 =
+  << $\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f{A(B)} : r}$ >>
+let r71 =
+  << $\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f{A ⇒ B} : ο}$ >>
+let r72 =
+  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li : Ai) i∈I}} : ο}$ >>
+let r73 =
+  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{[(Ci : Ai) i∈I]} : ο}$ >>
+let r81 =
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∀χ^s A} : ο}$ >>
+let r82 =
+  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∃χ^s A} : ο}$ >>
+let r83 =
+  << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f{t∈A} : ο}$ >>
+let r91 =
+  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A ∧ t≡u} : ο}$ >>
+
+let rs env =
+  (* let env = resize_env 3.4 env in *)
+  let rs =
+    [ [ r11 ; r12 ; r13 ] ; [ r14 ; r21 ; r22 ] ; [ r23 ; r31 ; r32 ]
+    ; [ r33 ; r41 ; r42 ] ; [ r43 ; r44 ; r51 ] ; [ r52 ; r53 ; r61 ]
+    ; [ r62 ; r63 ; r71 ] ; [ r72 ; r73 ; r81 ] ; [ r82 ; r91 ; r83 ] ]
+  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let sortrules () =
+  figure_here ~name:"sortrules" ~caption:[tT "Sorting rules."] (dr rs)
+
+(* Figure for typing rules. *)
+let r_ax =
+  <$\axiomRN{Ax}{Σ, x:ι \sp Γ, x:A; Ξ ⊢_\tval \t{x} : A}$>
+
+let r_up =
+  <$\unaryRN{↑}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{v} : A}$>
+
+let r_arrow_i =
+  <$\unaryRN{⇒_i}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t{t} : B}
+   {Σ \sp Γ;Ξ ⊢_\tval \v{λx t} : A ⇒ B}$>
+
+let r_arrow_e =
+  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t{t} : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t{u} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{t u} : B}$>
+
+let r_mu =
+  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{μα t} : A}$>
+
+let r_name =
+  <$\unaryRN{[\wc]}{Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t{t} : A}
+   {Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t{[α]t} : B}$>
+
+let r_forall_i =
+  <$\unaryRN{∀_i}{Σ, χ:s \sp Γ;Ξ ⊢_\tval \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{∀χ^s A}}$>
+
+let r_forall_e =
+  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ ≔ B]}}$>
+
+let r_exists_i =
+  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ≔B]}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∃χ^s A}}$>
+
+let r_exists_e =
+  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f{A[χ≔B]};Ξ ⊢ \t{t} : \f{C}}
+   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
+
+let r_memb_i =
+  <$\unaryRN{∈_i}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{v∈A}}$>
+
+let r_memb_e =
+  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t{u} : C}
+   {Σ, x:ι \sp Γ,x:\f{t∈A};Ξ ⊢ \t{u} : C}$>
+
+let r_rest_i =
+  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A ∧ u₁≡u₂}}$>
+
+let r_rest_e =
+  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t{u₁}≡\t{u₂} ⊢ \t{t} : C}
+   {Σ, x:ι \sp Γ,x:\f{A ∧ u₁≡u₂};Ξ ⊢ \t{t} : C}$>
+
+let r_prod_i =
+  <$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢_\tval \v{vi} : \f{Ai}]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢_\tval \v{{(li = vi) i∈I}} : \f{{(li : Ai) i∈I}}}$>
+
+let r_prod_e =
+  <$\binaryRN{×_e}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{{(li : Ai) i∈I}}}
+   {k∈I}{Σ \sp Γ;Ξ ⊢ \t{v.lk} : A_k}$>
+
+let r_sum_i =
+  <$\binaryRN{+_i}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{Ak}}{k∈I}
+   {Σ \sp Γ;Ξ ⊢_\tval \v{Ck[v]} : \f{[(Ci : Ai) i∈I]}}$>
+
+let r_sum_e =
+  <$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : \f{[(Ci : Ai) i∈I]}}
+   {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : B}$>
+
+let r_eq_ti =
+  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t{t[x≔w₁]} : \f{A[x≔w₁]}}
+   {Ξ ⊢ \v{w₁} ≡ \v{w₂}}
+   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t{t[x≔w₂]} : \f{A[x≔w₂]}}$>
+
+let r_eq_ii =
+  <$\binaryRN{≡_{ι,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢_\tval \v{v[x≔w₁]} : \f{A[x≔w₁]}}
+   {Ξ ⊢ \v{w₁} ≡ \v{w₂}}
+   {Σ \sp Γ[x≔w₂];Ξ ⊢_\tval \v{v[x≔w₂]} : \f{A[x≔w₂]}}$>
+
+let r_eq_tt =
+  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}
+   {Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
+
+let r_eq_it =
+  <$\binaryRN{≡_{ι,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢_\tval \v{v[a≔u₁]} : \f{A[a≔u₁]}}
+   {Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ[a≔u₂];Ξ ⊢_\tval \v{v[a≔u₂]} : \f{A[a≔u₂]}}$>
+
+let rs env =
+  let env = resize_env 3.2 env in
+  let rs =
+    [ [r_ax;r_arrow_i] ; [r_up;r_arrow_e] ; [r_mu;r_name]
+    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
+    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
+    ; [r_eq_ii] ; [r_eq_ti] ; [r_eq_it] ; [r_eq_tt] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs ->
+    draw_boxes env (boxify_scoped env cs))) rs
+
+let typrules () =
+  figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
+)
+
 => Types and realisability semantics \label("typeSystem")
 
 In this chapter, we present a new type system which distinguishing feature
@@ -25,42 +212,44 @@ our typing rules.
 One of the main goals of this thesis is to build a type system that can be
 used to reason about programs. To achieve this goal, we need to be able to
 specify program behaviours using types. We hence introduce equality types
-of the form $\f("t ≡ u")$, where $t$ and $u$ are (possibly untyped) terms.
+of the form $\f{t ≡ u}$, where $t$ and $u$ are (possibly untyped) terms.
 Note that here, the equivalence symbol is part of the syntax and does not
 refer to a specific equivalence relation.
 (* *)
 An equivalence relation $({≡})$ will however be used for the semantical
-interpretation of equality types. We will require that it is extentional
+interpretation of equality types. We will require that it is extensional
 and compatible with $({≡}_{≻})$, but it will remain otherwise unspecified.
 In other words, it will be considered as a parameter of our type system
 and semantics.
 
-Intuitively, an equality type $\f("t≡u")$ will be interpreted as $⊤$
+Intuitively, an equality type $\f{t≡u}$ will be interpreted as $⊤$
 (i.e. logical truth or the biggest type) if the equivalence $t ≡ u$ holds,
 and as $⊥$ (i.e. logical absurdity or the empty type) otherwise. For
-example, the type $\f("(λx x) λx x ≡ λx x")$ will be inhabited as we have
-$\t("(λx x) λx x") ≡ \t("λx x")$ according to \thmRef("cbvbeta"), but the
-type $\f("λx x ≡ {}")$ will be empty as $\t("λx x") \nequiv \t("{}")$
+example, the type $\f{(λx x) λx x ≡ λx x}$ will be inhabited as we have
+$\t{(λx x) λx x} ≡ \t{λx x}$ according to \thmRef("cbvbeta"). However,
+the type $\f{λx x ≡ {}}$ will be empty as $\t{λx x} \nequiv \t{{}}$
 according to \thmRef("nequivlamreco"). Of course, a compatible equivalence
-is likely to be undecidable. Indeed, such equivalences are similar to
-$({≡}_{≻})$, which is itself undecidable.
+relation is likely to be undecidable. Indeed, such equivalence relations
+are similar to $({≡}_{≻})$, which is itself undecidable.
 \begin{thm}
 Given $t$, $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
 $t \nequiv_{≻} u$.
 \begin{proof}
-We are going to encode the halting problem $H_t$ using equivalence. In our
-system, $H_t$ can be stated as ${\p("t ∗ ε")} {⇓}_{≻}$. Let us
-consider a term $Ω ∈ Λ$ such that ${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$.
-We will now show that $H_t$ is equivalent to
-${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. Let us suppose $H_t$ and show
-${\t("[ε]t") \nequiv_{≻} \t("Ω")}$. We need to find a stack $π ∈ Π$ such
-that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ and ${\p("Ω ∗ π")} {⇑}_{≻}$. This is in fact
-true for all $π$ as ${\p("Ω ∗ π")} {⇑}_{≻}$ by hypothesis and
-${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")} {⇓}_{≻}$ since we supposed $H_t$. We now
-suppose ${\t("[ε]t") \nequiv_{≻} \t("Ω")}$ and show $H_t$. By definition,
-there must be a stack $π ∈ Π$ such that ${\p("[ε]t ∗ π")} {⇓}_{≻}$ since
-${\p("Ω ∗ π")} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
-${\p("[ε]t ∗ π")} ≻ {\p("t ∗ ε")}$ we obtain $H_t$.
+We are going to encode the halting problem $H_t$ using equivalence. In
+our system, $H_t$ can be stated as ${\p{t ∗ ε}} {⇓}_{≻}$ for any closed
+term $\t{t} ∈ Λ^{∗}$. Let us consider a closed term $Ω ∈ Λ^{∗}$ such
+that ${\p{Ω∗π}} {⇑}_{≻}$ for all $π ∈ Π$. For example, we can take
+$Ω = \t{(λx x x) λx x x}$ as $\p{Ω∗π}$ is non-terminating for all $π∈Π$
+since $\p{Ω∗π} ≻^3 \p{Ω∗π}$. We will now show that $H_t$
+is equivalent to ${\t{[ε]t} \nequiv_{≻} \t{Ω}}$. Let us suppose $H_t$ and
+show ${\t{[ε]t} \nequiv_{≻} \t{Ω}}$. We need to find a stack $π ∈ Π$ such
+that ${\p{[ε]t ∗ π}} {⇓}_{≻}$ and ${\p{Ω ∗ π}} {⇑}_{≻}$. This is in fact
+true for all $π$ as ${\p{Ω ∗ π}} {⇑}_{≻}$ by hypothesis and
+${\p{[ε]t ∗ π}} ≻ {\p{t ∗ ε}} {⇓}_{≻}$ since we supposed $H_t$. We now
+suppose ${\t{[ε]t} \nequiv_{≻} \t{Ω}}$ and show $H_t$. By definition,
+there must be a stack $\s{π₀} ∈ Π$ such that ${\p{[ε]t ∗ π₀}} {⇓}_{≻}$
+since ${\p{Ω ∗ π}} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
+${\p{[ε]t ∗ π₀}} ≻ {\p{t ∗ ε}}$ we obtain $H_t$.
 \end{proof}
 \end{thm}
 As a consequence, we cannot hope to decide, in general, whether an
@@ -86,18 +275,18 @@ hypotheses and equivalences need to be proved eventually. As mentioned
 previously, we rely on a partial decision procedure that is supposed
 correct, but remains otherwise unspecified. The implementation of such a
 decision procedure is discussed in \chapter("implem"). Although we cannot
-hope for completeness, we will argue that our implementation is good a
-good enough approximation in practice.
+hope for completeness, we will argue that our implementation is a good
+enough approximation in practice.
 \begin{def}
 Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
 //realises// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
-$\t("tρ") ≡ \t("uρ")$.
+$\t{tρ} ≡ \t{uρ}$.
 \end{def}
 \begin{def}
 Let $Ξ$ be an equational context and $t ∈ Λ$ and $u ∈ Λ$ be two terms. We
 write $Ξ ⊢ t ≡ u$ if our (yet unspecified) decision procedure is able to
 show that for every substitution $ρ$ such that $ρ ⊩ Ξ$ we have
-$\t("tρ") ≡ \t("uρ")$.
+$\t{tρ} ≡ \t{uρ}$.
 \end{def}
 
 =<
@@ -105,16 +294,16 @@ $\t("tρ") ≡ \t("uρ")$.
 
 Although equality types can be used to derive simple equational properties,
 their use is rather limited without a form of quantification. Indeed, they
-only allow the derivation of static equivalences like $\t("(λx x) {}") ≡
-\t("{}")$, but they cannot be used to show more general properties like
-"$\t("(λx x) v") ≡ \t("v")$ for every value $v$".
+only allow the derivation of static equivalences like $\t{(λx x) {}} ≡
+\t{{}}$, but they cannot be used to show more general properties like
+"$\t{(λx x) v} ≡ \t{v}$ for every value $v$".
 (* *)
 Terms can contain free variables of several sorts: $λ$-variables (i.e. value
 variables), term variables and $μ$-variables (i.e. stack variables). As open
 terms may appear in types, and in particular in equality types, it is natural
 to allow universal and existential quantification over all three sorts of
 variables. This will enables the specification of properties such as
-$\f("∀y (λx x) y ≡ y")$ or $\f("∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]")$ inside the
+$\f{∀y (λx x) y ≡ y}$ or $\f{∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]}$ inside the
 system.
 \begin{rem}
 The forms of quantification described here range over all (closed) value,
@@ -133,28 +322,28 @@ not correspond to matched constructors. This would not happen when
 quantifying over value of the appropriate sum type only.
 
 To achieve typed quantification we introduce a membership type constructor
-$\f("t ∈ A")$ where $t$ is a term and $A$ is a type. The elements of
-$\f("t∈A")$ are those of $A$ that are equivalent to $t$. In particular,
-$\f("t ∈ A")$ is empty if $t$ does not have type $A$. Intuitively,
-$\f("t∈A")$ can be read as the proposition "$t$ has type $A$", but we will
+$\f{t ∈ A}$ where $t$ is a term and $A$ is a type. The elements of
+$\f{t∈A}$ are those of $A$ that are equivalent to $t$. In particular,
+$\f{t ∈ A}$ is empty if $t$ does not have type $A$. Intuitively,
+$\f{t∈A}$ can be read as the proposition "$t$ has type $A$", but we will
 see later that a more appropriate interpretation would be
 "$t$ realises $A$". Using membership, we can use the well-known relativised
 quantification scheme to obtain a dependent function type.
-$$ \f("Π_(x∈A) B") ≔ \f("∀x (x∈A ⇒ B)") $$
+$$ \f{Π_(x∈A) B} ≔ \f{∀x (x∈A ⇒ B)} $$
 The dependent function type exactly correspond to typed quantification as
 its elements can only be applied to values of type $A$. Other values are
 simply filtered out.
 (* *)
 Note that we can define a dependent pair type using existential
 quantification as follows.
-$$ \f("Σ_(x∈A) B") ≔ \f("∃x {l₁ : x∈A ; l₂ : B}") $$
+$$ \f{Σ_(x∈A) B} ≔ \f{∃x {l₁ : x∈A ; l₂ : B}} $$
 (* *)
 We can also define the same kind of type constructors by quantifying over
 term variables in the exact same way.
 $$
-  \f("Π_(a∈A) B") ≔ \f("∀a (a∈A ⇒ B)")
+  \f{Π_(a∈A) B} ≔ \f{∀a (a∈A ⇒ B)}
   \hspace(4.0)
-  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁ : a∈A ; l₂ : B}")
+  \f{Σ_(a∈A) B} ≔ \f{∃a {l₁ : a∈A ; l₂ : B}}
 $$
 \begin{rem}
 Nothing prevents the variable that is quantified over to appear in $A$.
@@ -174,7 +363,7 @@ and in the semantics thanks to a higher-order formulation.
 
 The higher-order features of the system allow us to define (and quantify
 over) types with parameters of any sort. For example, we can define a type
-parametrised by another type or a term. This leads to a system in which
+parametrised by another type and a term. This leads to a system in which
 it is syntactically correct to use a (not fully applied) parametric type,
 or even a term, as a proposition. This does not make sense, and hence we
 must make sure that this does not happen. The usual approach to tackle this
@@ -217,12 +406,12 @@ $Λ$ and $Π$ using the following ||bnf|| grammar.
 let _ = large_bnfs
   [ ( << $(\cal{F})$ >>
     , << $A, B$ >>
-    , << $v \| t \| π \| \f("χ^s") \| \f("(χ^s ↦ A)") \| \f("A(B)") \|
-          \f("A⇒B") \| \f("t∈A") \| \f("A∧t≡u") \| \f("{(li : Ai) i∈I}")$ >> )
+    , << $v \| t \| π \| \f{χ^s} \| \f{(χ^s ↦ A)} \| \f{A(B)} \|
+          \f{A⇒B} \| \f{t∈A} \| \f{A∧t≡u} \| \f{{(li : Ai) i∈I}}$ >> )
   ; ( []
     , []
-    , << $\id([]) \| \f("[(Ci : Ai) i∈I]") \| \f("∀χ^s A") \|
-         \f("∃χ^s A")$ >> ) ]
+    , << $\id([]) \| \f{[(Ci : Ai) i∈I]} \| \f{∀χ^s A} \|
+         \f{∃χ^s A}$ >> ) ]
 
 )
 \end{center}
@@ -257,70 +446,6 @@ $s$ denoted $Σ ⊢ A : s$. We say that the sorting judgment $Σ ⊢ A : s$ is
 valid if and only if it can be derived using the deduction rules of
 \figRef("sortrules").
 \end{def}
-\Caml(
-let r11 =
-  << $\unaryR{Σ, x : ι ⊢ \t("t") : τ}{Σ ⊢ \v("λx t") : ι}$ >>
-let r12 =
-  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("C[v]") : ι}$ >>
-let r13 =
-  << $\unaryR{\{Σ ⊢ \v("vi") : ι\}_{i∈I}}{Σ ⊢ \v("{(li = vi) i∈I}") : ι}$ >>
-let r21 =
-  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v") : τ}$ >>
-let r22 =
-  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("u") : τ}{Σ ⊢ \t("t u") : τ}$ >>
-let r23 =
-  << $\unaryR{Σ, α : σ ⊢ \t("t") : τ}{Σ ⊢ \t("μα t") : τ}$ >>
-let r31 =
-  << $\binaryR{Σ ⊢ \s("π") : σ}{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("[π]t") : τ}$ >>
-let r32 =
-  << $\unaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("v.l") : τ}$ >>
-let r33 =
-  << $\binaryR{Σ ⊢ v : ι}{\{Σ, x_i : ι ⊢ \t("ti") : τ\}_{i∈I}}{
-       Σ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : τ}$ >>
-let r41 =
-  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("Y(t,v)") : τ}$ >>
-let r42 =
-  << $\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \t("t") : τ}{Σ ⊢ \t("R(v,t)") : τ}$ >>
-let r43 =
-  << $\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \v("w") : ι}{Σ ⊢ \t("δ(v,w)") : τ}$ >>
-let r51 =
-  << $\axiomR{Σ ⊢ \s("ε") : σ}$ >>
-let r52 =
-  << $\binaryR{Σ ⊢ \v("v") : ι}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("v · π") : σ}$ >>
-let r53 =
-  << $\binaryR{Σ ⊢ \t("t") : τ}{Σ ⊢ \s("π") : σ}{Σ ⊢ \s("[t] π") : σ}$ >>
-let r61 =
-  << $\axiomR{Σ, χ : s ⊢ χ : s}$ >>
-let r62 =
-  << $\unaryR{Σ, χ : s ⊢ A : r}{Σ ⊢ \f("(χ^s ↦ A)") : s → r}$ >>
-let r63 =
-  << $\binaryR{Σ ⊢ A : s → r}{Σ ⊢ B : s}{Σ ⊢ \f("A(B)") : r}$ >>
-let r71 =
-  << $\binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο}$ >>
-let r72 =
-  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο}$ >>
-let r73 =
-  << $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο}$ >>
-let r81 =
-  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ^s A") : ο}$ >>
-let r82 =
-  << $\unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ^s A") : ο}$ >>
-let r83 =
-  << $\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$ >>
-let r91 =
-  << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A ∧ t≡u") : ο}$ >>
-
-let rs env =
-  (* let env = resize_env 3.4 env in *)
-  let rs =
-    [ [ r11 ; r12 ; r13 ] ; [ r21 ; r22 ; r23 ] ; [ r31 ; r32 ; r33 ]
-    ; [ r41 ; r42 ; r43 ] ; [ r51 ; r52 ; r53 ] ; [ r61 ; r62 ; r63 ]
-    ; [ r71 ; r72 ; r73 ] ; [ r81 ; r82 ; r83 ] ; [ r91 ] ]
-  in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
-
-let sortrules () =
-  figure_here ~name:"sortrules" ~caption:[tT "Sorting rules."] (dr rs)
-)
 
 The main role of the sorting rules is to keep track of the sort of the free
 variables. The rules on the first five lines of \figRef("sortrules") simply
@@ -328,43 +453,44 @@ traverse the structure of values, terms and stacks to save the sort of the
 free variables in the context. Note that the first rule on the sixth line is
 also used for value, term and stack variables.
 
-As an example $\f("λx x ⇒ {}")$ is not well-formed as the type at the left
+As an example $\f{λx x ⇒ {}}$ is not well-formed as the type at the left
 of the arrow does not have sort $ο$ (it has sort $ι$ or $τ$). However,
-$\f("(X ↦ [C₀:{} | C₁ : X])([C₂:{} | C₃:{}])")$ is a well-formed type of
+$\f{(X ↦ [C₀:{} | C₁ : X])([C₂:{} | C₃:{}])}$ is a well-formed type of
 sort $ο$, as shown by the following proof tree.
 $$
   \proofTree{
-    \binary{⊢ \f("(X ↦ [C₀ : {} | C₁ : X])([C₂ : {} | C₃ : {}])") : ο}{
-      \unary{⊢ \f("(X ↦ [C₀ : {} | C₁ : X])") : ο → ο}{
-        \binary{X : ο ⊢ \f("[C₀ : {} | C₁ : X]") : ο}{
-          \axiom{X : ο ⊢ \f("{}") : ο}
+    \binary{⊢ \f{(X ↦ [C₀ : {} | C₁ : X])([C₂ : {} | C₃ : {}])} : ο}{
+      \unary{⊢ \f{(X ↦ [C₀ : {} | C₁ : X])} : ο → ο}{
+        \binary{X : ο ⊢ \f{[C₀ : {} | C₁ : X]} : ο}{
+          \axiom{X : ο ⊢ \f{{}} : ο}
         }{
-          \axiom{X : ο ⊢ \f("X") : ο}
+          \axiom{X : ο ⊢ \f{X} : ο}
         }
       }
     }{
-      \binary{⊢ \f("([C₂ : {} | C₃ : {}])") : ο}{
-        \axiom{⊢ \f("{}") : ο}
+      \binary{⊢ \f{([C₂ : {} | C₃ : {}])} : ο}{
+        \axiom{⊢ \f{{}} : ο}
       }{
-        \axiom{⊢ \f("{}") : ο}
+        \axiom{⊢ \f{{}} : ο}
       }
     }
   }
 $$
 
+\Caml(let _ = sortrules ())\linesAfter(1)
+
 As types contain the $λ$-calculus, we need to consider their reduction and
 normalisation. First we define the notion of $β$-reduction in a type.
-\Caml(let _ = sortrules ())\linesAfter(2)
 \begin{def}
-We call a redex a type of the form $\f("(χ^s ↦ A)(B)")$, and we say that a
-type is in normal form if it does not contain any redex. The reduction
+We call a //redex// a type of the form $\f{(χ^s ↦ A)(B)}$, and we say that
+a type is in normal form if it does not contain any redex. The reduction
 relation over types is the smallest relation $({\inj}) ⊆ \cal{F} × \cal{F}$
 such that:
 \begin{itemize}
-\item for every redex $\f("(χ^s ↦ A)(B)")$ we have
-      $\f("(χ^s ↦ A)(B)") \inj \f("A[χ≔B]")$ and
-\item $({\inj})$ is contextually closed. Reduction hence considers all the
-      redexes in a type, and not only the surface ones.
+\item for every redex $\f{(χ^s ↦ A)(B)}$ we have
+      $\f{(χ^s ↦ A)(B)} \inj \f{A[χ≔B]}$ and
+\item $({\inj})$ is contextually closed (i.e. reduction considers all the
+      redexes in a type).
 \end{itemize}
 We denote $({\inj}^{∗})$ its reflexive and transitive closure.
 \end{def}
@@ -377,7 +503,7 @@ $A \inj^{∗} B$ and the sorting judgment $Σ ⊢ B : s$ is valid.
 \begin{proof}
 Our language of types can be seen as an instance of the simply typed
 $λ$-calculus extended with countably many constants. For instance, a
-type of the form $\f("∀χ^s A")$ can be encoded using a constant ${∀}$
+type of the form $\f{∀χ^s A}$ can be encoded using a constant ${∀}$
 of sort $(s→ο)→ο$. Note that an infinite number of constants is
 required to encode product types, sum types, records and pattern
 matchings as they can be indexed by any finite subset of $\bbN$. As a
@@ -474,115 +600,6 @@ will be involved in the derivation of the typing rule for the elimination
 of the dependent function type in \section("encodedep"), the latter will
 also need value restriction.
 
-\Caml(
-let r_ax =
-  <$\axiomRN{Ax}{Σ, x:ι \sp Γ, x:A; Ξ ⊢_\tval \t("x") : A}$>
-
-let r_up =
-  <$\unaryRN{↑}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
-   {Σ \sp Γ;Ξ ⊢ \t("v") : A}$>
-
-let r_arrow_i =
-  <$\unaryRN{⇒_i}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
-   {Σ \sp Γ;Ξ ⊢_\tval \v("λx t") : A ⇒ B}$>
-
-let r_arrow_e =
-  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t("t") : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t("u") : A}
-   {Σ \sp Γ;Ξ ⊢ \t("t u") : B}$>
-
-let r_mu =
-  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t("t") : A}
-   {Σ \sp Γ;Ξ ⊢ \t("μα t") : A}$>
-
-let r_name =
-  <$\unaryRN{[\wc]}{Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("t") : A}
-   {Σ, α:σ \sp Γ,α:A;Ξ ⊢ \t("[α]t") : B}$>
-
-let r_forall_i =
-  <$\unaryRN{∀_i}{Σ, χ:s \sp Γ;Ξ ⊢_\tval \v("v") : A}
-   {Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("∀χ^s A")}$>
-
-let r_forall_e =
-  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]")}$>
-
-let r_exists_i =
-  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]")}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∃χ^s A")}$>
-
-let r_exists_e =
-  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C")}
-   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C")}$>
-
-let r_memb_i =
-  <$\unaryRN{∈_i}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
-   {Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("v∈A")}$>
-
-let r_memb_e =
-  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t("u") : C}
-   {Σ, x:ι \sp Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C}$>
-
-let r_rest_i =
-  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A ∧ u₁≡u₂")}$>
-
-let r_rest_e =
-  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C}
-   {Σ, x:ι \sp Γ,x:\f("A ∧ u₁≡u₂");Ξ ⊢ \t("t") : C}$>
-
-let r_prod_i =
-  <$\unaryRN{×_i}{[Σ \sp Γ;Ξ ⊢_\tval \v("vi") : \f("Ai")]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢_\tval \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")}$>
-
-let r_prod_e =
-  <$\binaryRN{×_e}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("{(li : Ai) i∈I}")}
-   {k∈I}{Σ \sp Γ;Ξ ⊢ \t("v.lk") : A_k}$>
-
-let r_sum_i =
-  <$\binaryRN{+_i}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("Ak")}{k∈I}
-   {Σ \sp Γ;Ξ ⊢_\tval \v("Ck[v]") : \f("[(Ci : Ai) i∈I]")}$>
-
-let r_sum_e =
-  <$\binaryRN{+_e}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : \f("[(Ci : Ai) i∈I]")}
-   {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B}$>
-
-let r_eq_ti =
-  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
-   {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
-   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t("t[x≔w₂]") : \f("A[x≔w₂]")}$>
-
-let r_eq_ii =
-  <$\binaryRN{≡_{ι,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢_\tval \v("v[x≔w₁]") : \f("A[x≔w₁]")}
-   {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
-   {Σ \sp Γ[x≔w₂];Ξ ⊢_\tval \v("v[x≔w₂]") : \f("A[x≔w₂]")}$>
-
-let r_eq_tt =
-  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
-   {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>
-
-let r_eq_it =
-  <$\binaryRN{≡_{ι,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢_\tval \v("v[a≔u₁]") : \f("A[a≔u₁]")}
-   {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ[a≔u₂];Ξ ⊢_\tval \v("v[a≔u₂]") : \f("A[a≔u₂]")}$>
-
-let rs env =
-  let env = resize_env 3.2 env in
-  let rs =
-    [ [r_ax;r_arrow_i] ; [r_up;r_arrow_e] ; [r_mu;r_name]
-    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
-    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
-    ; [r_eq_ii] ; [r_eq_ti] ; [r_eq_it] ; [r_eq_tt] ]
-  in
-  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
-  List.map (List.map (fun cs ->
-    draw_boxes env (boxify_scoped env cs))) rs
-
-let typrules () =
-  figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
-)
-
 =<
 => Call-by-value realisability semantics
 
@@ -626,11 +643,11 @@ definitions. Recall that $Λ_ι^{∗}$, $Λ^{∗}$ and $Π^{∗}$ denote the set
 of closed values, closed terms and closed stacks respectively.
 \begin{def}\label("orthodef1")
 For every set $Φ ⊆ Λ_ι^{∗}$ we define a set $Φ^⊥ ⊆ Π^{∗}$ as follows.
-$$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p("v ∗ π") ∈ \dbot\} $$
+$$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p{v ∗ π} ∈ \dbot\} $$
 \end{def}
 \begin{def}\label("orthodef2")
 For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows.
-$$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p("t ∗ π") ∈ \dbot\} $$
+$$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p{t ∗ π} ∈ \dbot\} $$
 \end{def}
 \Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{rem}
@@ -647,7 +664,7 @@ when proving the soundness of our type system.
 If $Φ ⊆ Λ_ι^{∗}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
 \begin{proof}
 We take $v ∈ Φ$ and show $v ∈ Φ^{⊥⊥}$. By definition we need to
-show $\p("v∗π") ∈ \dbot$ for all stack $π ∈ Φ^⊥$. This is immediate
+show $\p{v∗π} ∈ \dbot$ for all stack $π ∈ Φ^⊥$. This is immediate
 by definition of $Φ^⊥$.
 \end{proof}
 \end{lem}
@@ -656,7 +673,7 @@ Let $Φ$, $Ψ ⊆ Λ_ι^{∗}$ be sets of closed values. If $Φ ⊆ Ψ$ then
 $Ψ^⊥ ⊆ Φ^⊥$.
 \begin{proof}
 Let us suppose that $Φ ⊆ Ψ$, take $π ∈ Ψ^⊥$ and show that $π ∈ Φ^⊥$.
-By definition, we know that for all $v ∈ Ψ$ we have $\p("v ∗ π") ∈ \dbot$.
+By definition, we know that for all $v ∈ Ψ$ we have $\p{v ∗ π} ∈ \dbot$.
 Since $Φ ⊆ Ψ$, this is also true for all $v ∈ Φ$, and hence $π ∈ Φ^⊥$.
 \end{proof}
 \end{lem}
@@ -666,7 +683,7 @@ $Φ^{⊥⊥} ⊆ Ψ^{⊥⊥}$.
 \begin{proof}
 Let us suppose that $Ψ^⊥ ⊆ Φ^⊥$, take $t ∈ Φ^{⊥⊥}$ and show that
 $t ∈ Ψ^{⊥⊥}$. By definition, we know that for all $π ∈ Φ^⊥$ we have
-$\p("t ∗ π") ∈ \dbot$. Since $Ψ^⊥ ⊆ Φ^⊥$, this is also true for all
+$\p{t ∗ π} ∈ \dbot$. Since $Ψ^⊥ ⊆ Φ^⊥$, this is also true for all
 $π ∈ Ψ^⊥$, and hence $t ∈ Ψ^{⊥⊥}$.
 \end{proof}
 \end{lem}
@@ -685,7 +702,7 @@ face every stacks. If it were the case, such a term could be used as a
 proof of $⊥$.
 \begin{def}
 A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
-$t ∈ Λ$ there is a stack $π$ such that $\p("t ∗ π") ∉ \dbot$.
+$t ∈ Λ$ there is a stack $π$ such that $\p{t ∗ π} ∉ \dbot$.
 \end{def}
 
 In this thesis, another property will be required of our poles. As we
@@ -696,8 +713,8 @@ them uniformly.
 \begin{def}
 Given an equivalence relation $R ⊆ Λ×Λ$, a pole $\dbot ⊆ Λ×Π$ is said to
 be $R$-extensional if for every closed terms $t$, $u ∈ Λ^{∗}$ such that
-$t R u$, and for every stack $π ∈ Π$, we have $\p("t∗π") ∈ \dbot$ if and
-only if $\p("u∗π") ∈ \dbot$.
+$t R u$, and for every stack $π ∈ Π$, we have $\p{t∗π} ∈ \dbot$ if and
+only if $\p{u∗π} ∈ \dbot$.
 \end{def}
 From now on, and until the end of this chapter, we will only consider
 poles that are both $≡$-extensional and $R$-saturated for some reduction
@@ -709,8 +726,8 @@ Let $Φ ⊆ Λ_ι^{∗}$ be a set of closed values and $t$, $u ∈ Λ^{∗}$ be 
 closed terms. With an $≡$-extensional pole, if $t ∈ Φ^{⊥⊥}$ and $t ≡ u$
 then $u ∈ Φ^{⊥⊥}$.
 \begin{proof}
-By definition we need to take $π ∈ Φ^⊥$ and show that $\p("u∗π") ∈ \dbot$.
-Since $t ∈ Φ^{⊥⊥}$ we have $\p("t∗π") ∈ \dbot$ and hence we can conclude
+By definition we need to take $π ∈ Φ^⊥$ and show that $\p{u∗π} ∈ \dbot$.
+Since $t ∈ Φ^{⊥⊥}$ we have $\p{t∗π} ∈ \dbot$ and hence we can conclude
 using the $≡$-extensionality of our pole since we have $t ≡ u$.
 \end{proof}
 \end{thm}
@@ -752,13 +769,13 @@ $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
 Given a sorting context $Σ$, we call a //valuation// over $Σ$ a finite
 map $ρ$ such that for all $χ∈dom(Σ)$ we have $ρ(χ) ∈ ⟦Σ(χ)⟧$. If
 $A∈\cal{F}$ is a type and $s∈\cal{S}$ is a sort such that $Σ ⊢ A: s$
-then we denote $\f("Aρ")$ the type formed by applying $ρ$ to $A$.
+then we denote $\f{Aρ}$ the type formed by applying $ρ$ to $A$.
 \end{def}
 \begin{lem}\label("typevalaux")
 Let $Σ₁$ and $Σ₂$ be two sorting contexts such that $dom(Σ₁) ∩ dom(Σ₂) = ∅$.
 Let $A∈\cal{F}$ be a type and $s∈\cal{S}$ be a sort such that $Σ₁,Σ₂ ⊢ A:s$.
 If $ρ$ is a valuation over $Σ₁$ such that $dom(ρ) ∩ dom(Σ₂) = ∅$ then
-$Σ₂ ⊢ \f("Aρ") : s$.
+$Σ₂ ⊢ \f{Aρ} : s$.
 \begin{proof}
 Simple induction on the derivation of $Σ₁, Σ₂ ⊢ A : s$ by replacing the
 variables of $Σ₁$ by their value in $ρ$. During the induction $Σ₂$ will
@@ -776,7 +793,7 @@ $$ \unaryR{ρ(χ) ∈ ⟦s⟧}{Σ₂ ⊢ ρ(χ) : s} $$
 \begin{lem}\label("typeval")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort such that we have $Σ ⊢ A : s$. If $ρ$ is a valuation over $Σ$ then
-$⊢ \f("Aρ") : s$.
+$⊢ \f{Aρ} : s$.
 \begin{proof}
 Direct consequence of \lemRef("typevalaux") by taking $Σ₁ = Σ$ and
 $Σ₂ = ∅$.
@@ -796,31 +813,31 @@ let _ =
   let line s m = [ vs s; <$=$>; m ] in
   array [`East ; `East ; `West]
   [ line "Φ"               <$ Φ $>
-  ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs("A[χ≔Φ]") $>
+  ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs{A[χ≔Φ]} $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
-  ; line "A ⇒ B"           <$ \{\v("λx t") \| ∀v∈\vs("A"),
-                                 \t("t[x≔v]") ∈ \ts("B")\} $>
-  ; line "t ∈ A"           <$ \{\v("v") ∈ \vs("A") \|
-                                 \v("v") ≡ \t("t")\} $>
-  ; line "A ∧ t ≡ u"       <$ \{\v("v") ∈ \vs("A") \|
-                                 \t("t") ≡ \t("u")\} $>
-  ; line "{(li : Ai) i∈I}" <$ \{\v("{(li = vi) i∈I}") \| ∀i∈I,
-                                 \v("vi")∈\vs("Ai")\} $>
-  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v("Ci[v]") \| v∈\vs("Ai")\} $>
-  ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $>
-  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs("A[χ≔Φ]") $> ]
+  ; line "A ⇒ B"           <$ \{\v{λx t} \| ∀v∈\vs{A},
+                                 \t{t[x≔v]} ∈ \ts{B}\} $>
+  ; line "t ∈ A"           <$ \{\v{v} ∈ \vs{A} \|
+                                 \v{v} ≡ \t{t}\} $>
+  ; line "A ∧ t ≡ u"       <$ \{\v{v} ∈ \vs{A} \|
+                                 \t{t} ≡ \t{u}\} $>
+  ; line "{(li : Ai) i∈I}" <$ \{\v{{(li = vi) i∈I}} \| ∀i∈I,
+                                 \v{vi}∈\vs{Ai}\} $>
+  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v{Ci[v]} \| v∈\vs{Ai}\} $>
+  ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $>
+  ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $> ]
 )
 \end{center}
 \end{def}
 \begin{rem}
-We have $\vs("A ∧ t ≡ u") = \vs("A")$ if $t ≡ u$ and
-$\vs("A ∧ t ≡ u") = ∅$ otherwise. We also have $\vs("t∈A") = ∅$ if there
-is no $v ∈ \vs("A")$ such that $v ≡ t$.
+We have $\vs{A ∧ t ≡ u} = \vs{A}$ if $t ≡ u$ and
+$\vs{A ∧ t ≡ u} = ∅$ otherwise. We also have $\vs{t∈A} = ∅$ if there
+is no $v ∈ \vs{A}$ such that $v ≡ t$.
 \end{rem}
 \begin{thm}\label("sortsem")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort. If we have a derivation of $Σ ⊢ A : s$ and if $ρ$ is a valuation
-over $Σ$ then $\vs("Aρ") ∈ ⟦s⟧$.
+over $Σ$ then $\vs{Aρ} ∈ ⟦s⟧$.
 \begin{proof}
 The proof is done by induction on the derivation of $Σ ⊢ A : s$. We reason
 by case on the last rules used in the deduction tree. In the case of the
@@ -832,78 +849,78 @@ are treated bellow. Note that We recall the corresponding rules after the
 proof of each case.
 \begin{itemize}
 (* FIXME from here. *)
-\item In the case of the arrow type, we need to show $\vs("(A⇒B)ρ") ∈ ⟦ο⟧$.
-      By induction hypothesis, we know $\vs("Aρ") ∈ ⟦ο⟧$ and
-      $\vs("Bρ") ∈ ⟦ο⟧$, which give us $\vs("Aρ") ⊆ Λ_ι^{∗}$ and
-      $\ts("Bρ") ∈ Λ^{∗}$. Consequently, $\vs("Aρ⇒Bρ")$ is well-defined and
-      $\vs("Aρ⇒Bρ") ⊆ Λ_ι^{∗}$. It remains to show that $\vs("Aρ⇒Bρ")$ is
-      closed under $({≡})$. Let us take $\v("λx t") ∈ \vs("Aρ ⇒ Bρ")$
-      and a value $w ∈ Λ_ι^{∗}$ such that $\v("λx t") ≡ \v("w")$.
-      According to \thmRef("canonlambda") we have $w = \v("λx u")$ for some
+\item In the case of the arrow type, we need to show $\vs{(A⇒B)ρ} ∈ ⟦ο⟧$.
+      By induction hypothesis, we know $\vs{Aρ} ∈ ⟦ο⟧$ and
+      $\vs{Bρ} ∈ ⟦ο⟧$, which give us $\vs{Aρ} ⊆ Λ_ι^{∗}$ and
+      $\ts{Bρ} ∈ Λ^{∗}$. Consequently, $\vs{Aρ⇒Bρ}$ is well-defined and
+      $\vs{Aρ⇒Bρ} ⊆ Λ_ι^{∗}$. It remains to show that $\vs{Aρ⇒Bρ}$ is
+      closed under $({≡})$. Let us take $\v{λx t} ∈ \vs{Aρ ⇒ Bρ}$
+      and a value $w ∈ Λ_ι^{∗}$ such that $\v{λx t} ≡ \v{w}$.
+      According to \thmRef("canonlambda") we have $w = \v{λx u}$ for some
       $u ∈ Λ$ (up to renaming of $x$) and $t ≡ u$. To prove
-      $\v("λx u") ∈ \vs("Aρ⇒Bρ")$ we take $v ∈ \vs("Aρ")$ and show that
-      $\t("u[x≔v]") ∈ \ts("Bρ")$. As $\v("λxt") ∈ \vs("Aρ⇒Bρ")$ we know that
-      $\t("t[x≔v]") ∈ \ts("Bρ")$ by definition. We can hence conclude using
+      $\v{λx u} ∈ \vs{Aρ⇒Bρ}$ we take $v ∈ \vs{Aρ}$ and show that
+      $\t{u[x≔v]} ∈ \ts{Bρ}$. As $\v{λxt} ∈ \vs{Aρ⇒Bρ}$ we know that
+      $\t{t[x≔v]} ∈ \ts{Bρ}$ by definition. We can hence conclude using
       \thmRef("poleext") as $({≡})$ is congruence.
-      $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f("A ⇒ B") : ο} $$
+      $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f{A ⇒ B} : ο} $$
 \item In the case of the product type, we need to show
-      $\vs("{(li : Ai) i∈I}ρ") ∈ ⟦ο⟧$. By induction hypothesis, we know that
-      $\vs("Aiρ") ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
-      $\vs("Aiρ") ⊆ Λ_ι^{∗}$ for all $i ∈ I$, which immediately gives us
-      $\vs("{(li : Ai) i∈I}ρ") ⊆ Λ_ι^{∗}$. It remains to show that
-      $\vs("{(li : Ai) i∈I}ρ")$ is closed under $({≡})$. This is a direct
-      consequence of \thmRef("canonrecord") as $\vs("Aiρ")$ is closed under
+      $\vs{{(li : Ai) i∈I}ρ} ∈ ⟦ο⟧$. By induction hypothesis, we know that
+      $\vs{Aiρ} ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
+      $\vs{Aiρ} ⊆ Λ_ι^{∗}$ for all $i ∈ I$, which immediately gives us
+      $\vs{{(li : Ai) i∈I}ρ} ⊆ Λ_ι^{∗}$. It remains to show that
+      $\vs{{(li : Ai) i∈I}ρ}$ is closed under $({≡})$. This is a direct
+      consequence of \thmRef("canonrecord") as $\vs{Aiρ}$ is closed under
       $({≡})$ for all $i ∈ I$.
-      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("{(li : Ai) i∈I}") : ο} $$
+      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li : Ai) i∈I}} : ο} $$
 \item In the case of the sum type, we need to show
-      $\vs("[(Ci : Ai) i∈I]ρ") ∈ ⟦ο⟧$. By induction hypothesis we know
-      $\vs("Aiρ") ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
-      $\vs("Aiρ") ⊆ Λ_ι^{∗}$ for all $i ∈ I$, and hence
-      $\vs("{(li : Ai) i∈I}ρ") ⊆ Λ_ι^{∗}$ as
-      $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\} ⊆ Λ_ι^{∗}$ for all $i ∈ I$.
-      Let us now show that $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\}$ is closed
+      $\vs{[(Ci : Ai) i∈I]ρ} ∈ ⟦ο⟧$. By induction hypothesis we know
+      $\vs{Aiρ} ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
+      $\vs{Aiρ} ⊆ Λ_ι^{∗}$ for all $i ∈ I$, and hence
+      $\vs{{(li : Ai) i∈I}ρ} ⊆ Λ_ι^{∗}$ as
+      $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\} ⊆ Λ_ι^{∗}$ for all $i ∈ I$.
+      Let us now show that $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\}$ is closed
       under $({≡})$ for all $i ∈ I$. This is an immediate consequence
-      of \thmRef("canoncons") since $\vs("Aiρ")$ is closed under $({≡})$
+      of \thmRef("canoncons") since $\vs{Aiρ}$ is closed under $({≡})$
       for all $i ∈ I$. Now, according to \thmRef("consnequiv") we have
-      $\{\v("Ci[v]") \| v ∈ \vs("Aiρ")\} ∩ \{\v("Ck[v]") \| v ∈ \vs("Akρ")\}
+      $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\} ∩ \{\v{Ck[v]} \| v ∈ \vs{Akρ}\}
       = ∅$ for all $i$, $k ∈I$ such that $i ≠ k$. Consequently,
-      $\vs("[(Ci : Ai) i∈I]ρ")$ is closed under $({≡})$.
-      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f("[(Ci : Ai) i∈I]") : ο} $$
+      $\vs{[(Ci : Ai) i∈I]ρ}$ is closed under $({≡})$.
+      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{[(Ci : Ai) i∈I]} : ο} $$
 \item In the case of the universal type, we need to show that
-      $\vs("(∀χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
+      $\vs{(∀χ A)ρ} ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
       assume that $χ ∉ dom(ρ)$ and hence our goal rewrites
-      $\vs("∀χ Aρ") = \bigcap_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As an
+      $\vs{∀χ Aρ} = \bigcap_{Φ∈⟦s⟧} \vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. As an
       intersection of sets closed under $({≡})$ remains closed
       under this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
-      $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
+      $\vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. We can then conclude by induction
       hypothesis with the valuation $ρ[χ≔Φ]$.
-      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∀χ A") : ο} $$
+      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∀χ A} : ο} $$
 \item In the case of the existential type, we need to show that
-      $\vs("(∃χ A)ρ") ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
+      $\vs{(∃χ A)ρ} ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
       assume that $χ ∉ dom(ρ)$ and hence our goal can be rewritten as
-      $\vs("∃χ Aρ") = \bigcup_{Φ∈⟦s⟧} \vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. As a
+      $\vs{∃χ Aρ} = \bigcup_{Φ∈⟦s⟧} \vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. As a
       union of sets closed under $({≡})$ remains closed under
       this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
-      $\vs("Aρ[χ≔Φ]") ∈ ⟦ο⟧$. We can then conclude by induction
+      $\vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. We can then conclude by induction
       hypothesis with the valuation $ρ[χ≔Φ]$.
-      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f("∃χ A") : ο} $$
+      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∃χ A} : ο} $$
 \item In the case of the membership type, we need to show that
-      $\vs("tρ∈Aρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
-      $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
-      $\vs("Aρ") ∈ ⟦ο⟧$. As a consequence, the set
-      $\{\v("v") ∈ \vs("A") \| \v("v") ≡ \t("t")\}$ is well-defined
-      and it is a subset of $\vs("Aρ")$. Moreover, it is closed under
-      the $({≡})$ relation so we have $\vs("tρ∈Aρ") ∈ ⟦ο⟧$.
-      $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο} $$
+      $\vs{tρ∈Aρ} ∈ ⟦ο⟧$. By induction hypothesis, we know
+      $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
+      $\vs{Aρ} ∈ ⟦ο⟧$. As a consequence, the set
+      $\{\v{v} ∈ \vs{A} \| \v{v} ≡ \t{t}\}$ is well-defined
+      and it is a subset of $\vs{Aρ}$. Moreover, it is closed under
+      the $({≡})$ relation so we have $\vs{tρ∈Aρ} ∈ ⟦ο⟧$.
+      $$ \binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f{t∈A} : ο} $$
 \item In the case of the restriction type, we need to show that
-      $\vs("Aρ∧tρ≡uρ") ∈ ⟦ο⟧$. By induction hypothesis, we know
-      $\vs("tρ") = \t("tρ") ∈ ⟦τ⟧ = Λ^{∗}$ and
-      $\vs("uρ") = \t("uρ") ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
-      $t ≡ u$ is well-defined, so $\vs("Aρ∧tρ≡uρ")$ is either
-      equal to $\vs("Aρ")$, in which case we can conclude by
+      $\vs{Aρ∧tρ≡uρ} ∈ ⟦ο⟧$. By induction hypothesis, we know
+      $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
+      $\vs{uρ} = \t{uρ} ∈ ⟦τ⟧ = Λ^{∗}$. Hence the equivalence
+      $t ≡ u$ is well-defined, so $\vs{Aρ∧tρ≡uρ}$ is either
+      equal to $\vs{Aρ}$, in which case we can conclude by
       induction hypothesis, or to $∅$. In this second case we can
       also conclude since $∅ ∈ ⟦ο⟧$.
-      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A∧t≡u") : ο} $$
+      $$ \ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A∧t≡u} : ο} $$
 \end{itemize}
 \end{proof}
 \end{thm}
@@ -912,37 +929,37 @@ proof of each case.
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $x ∈ \cal{V}_ι$ be a
 $λ$-variable and $v₁$, $v₂ ∈ Λ_ι$ be values such that $Σ, x : ι ⊢ A : ο$,
 $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. If $ρ$ is a valuation over $Σ$ and if
-$v₁ρ ≡ v₂ρ$ then we have $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$.
+$v₁ρ ≡ v₂ρ$ then we have $\vs{Aρ[x≔v₁ρ]} = \vs{Aρ[x≔v₂ρ]}$.
 \begin{proof}
 According to \thmRef("sortsem"), we have $⟦v₁ρ⟧ = v₁ρ ∈ ⟦ι⟧$ and
 $⟦v₂ρ⟧ = v₂ρ ∈ ⟦ι⟧$ since we have $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. 
 As a consequence, $\subs("ρ[x≔v₁ρ]")$ and $\subs("ρ[x≔v₂ρ]")$ are
 both valuations over the sorting context $Σ, x : ι$, and thus we
-obtain $\vs("Aρ[x≔v₁ρ]") ∈ ⟦ο⟧$ and $\vs("Aρ[x≔v₂ρ]") ∈ ⟦ο⟧$ using
+obtain $\vs{Aρ[x≔v₁ρ]} ∈ ⟦ο⟧$ and $\vs{Aρ[x≔v₂ρ]} ∈ ⟦ο⟧$ using
 \thmRef("sortsem") once again. We will now show, by induction on
 the derivation of $Σ, x : ι ⊢ A : ο$, that
-$\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$. The only interesting cases
+$\vs{Aρ[x≔v₁ρ]} = \vs{Aρ[x≔v₂ρ]}$. The only interesting cases
 (that are not immediate by induction hypothesis) are membership and
 restriction. In the case of membership
-$$\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f("t∈A") : ο}$$
-we need to show that $\vs("(t∈A)ρ[x≔v₁ρ]") = \vs("(t∈A)ρ[x≔v₂ρ]")$.
+$$\binaryR{Σ ⊢ t : τ}{Σ ⊢ A : ο}{Σ ⊢ \f{t∈A} : ο}$$
+we need to show that $\vs{(t∈A)ρ[x≔v₁ρ]} = \vs{(t∈A)ρ[x≔v₂ρ]}$.
 By definition, we need to show
-$\{\v("v") ∈ \vs("Aρ[x≔v₁ρ]") \| \v("v") ≡ \t("tρ[x≔v₁ρ]")\} =
- \{\v("v") ∈ \vs("Aρ[x≔v₂ρ]") \| \v("v") ≡ \t("tρ[x≔v₂ρ]")\}$.
-As we know that $\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$ by
+$\{\v{v} ∈ \vs{Aρ[x≔v₁ρ]} \| \v{v} ≡ \t{tρ[x≔v₁ρ]}\} =
+ \{\v{v} ∈ \vs{Aρ[x≔v₂ρ]} \| \v{v} ≡ \t{tρ[x≔v₂ρ]}\}$.
+As we know that $\vs{Aρ[x≔v₁ρ]} = \vs{Aρ[x≔v₂ρ]}$ by
 induction hypothesis, we only need to show that
-$\t("tρ[x≔v₁ρ]") ≡ \t("tρ[x≔v₂ρ]")$. This follows from the fact that
+$\t{tρ[x≔v₁ρ]} ≡ \t{tρ[x≔v₂ρ]}$. This follows from the fact that
 $({≡})$ is a congruence since we have $v₁ρ ≡ v₂ρ$. In the case of
 restriction
-$$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f("A∧t≡u") : ο}$$
-we need to show that $\vs("(A∧t≡u)ρ[x≔v₁ρ]") = \vs("(A∧t≡u)ρ[x≔v₂ρ]")$.
+$$\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A∧t≡u} : ο}$$
+we need to show that $\vs{(A∧t≡u)ρ[x≔v₁ρ]} = \vs{(A∧t≡u)ρ[x≔v₂ρ]}$.
 By definition, we need to show that
-$\t("tρ[x≔v₁ρ]") ≡ \t("uρ[x≔v₁ρ]")$ if and only if
-$\t("tρ[x≔v₂ρ]") ≡ \t("uρ[x≔v₂ρ]")$ since
-$\vs("Aρ[x≔v₁ρ]") = \vs("Aρ[x≔v₂ρ]")$
+$\t{tρ[x≔v₁ρ]} ≡ \t{uρ[x≔v₁ρ]}$ if and only if
+$\t{tρ[x≔v₂ρ]} ≡ \t{uρ[x≔v₂ρ]}$ since
+$\vs{Aρ[x≔v₁ρ]} = \vs{Aρ[x≔v₂ρ]}$
 by induction hypothesis. We can then conclude since we have
-$\t("tρ[x≔v₁ρ]") ≡ \t("tρ[x≔v₂ρ]")$ and
-$\t("uρ[x≔v₁ρ]") ≡ \t("uρ[x≔v₂ρ]")$ using again the fact that $({≡})$
+$\t{tρ[x≔v₁ρ]} ≡ \t{tρ[x≔v₂ρ]}$ and
+$\t{uρ[x≔v₁ρ]} ≡ \t{uρ[x≔v₂ρ]}$ using again the fact that $({≡})$
 is a congruence.
 \end{proof}
 \end{thm}
@@ -950,7 +967,7 @@ is a congruence.
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type, $a ∈ \cal{V}_τ$ be a
 term variable and $u₁$, $u₂ ∈ Λ_ι$ be terms such that $Σ, a : τ ⊢ A : ο$,
 $Σ ⊢ u₁ : τ$ and $Σ ⊢ u₂ : τ$. If $ρ$ is a valuation over $Σ$ and if
-$u₁ρ ≡ u₂ρ$ then $\vs("Aρ[a≔u₁ρ]") = \vs("Aρ[a≔u₂ρ]")$.
+$u₁ρ ≡ u₂ρ$ then $\vs{Aρ[a≔u₁ρ]} = \vs{Aρ[a≔u₂ρ]}$.
 \begin{proof}
 The proof is very similar to that of \thmRef("vexttyp").
 \end{proof}
@@ -976,8 +993,8 @@ $ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
 Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
 context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
 that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$. If $t$ is a term such that $Σ \sp Γ ; Ξ ⊢ t:A$ is
-derivable, then $\t("tρ") ∈ \ts("Aρ")$. Moreover, if $v$ is a value such
-that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v("vρ") ∈ \vs("Aρ")$.
+derivable, then $\t{tρ} ∈ \ts{Aρ}$. Moreover, if $v$ is a value such
+that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
 \begin{proof}
 We proceed by induction on the derivation of the judgment
 $Σ \sp Γ ; Ξ ⊢_\tval v : A$ or $Σ \sp Γ ; Ξ ⊢ t : A$, and
@@ -987,220 +1004,220 @@ corresponding case.
 \begin{itemize}
 
 \item In the case of ($Ax$), we immediately have
-      $\v("xρ") = \v("ρ(x)") ∈ \vs("Aρ")$ since $ρ ⊩ Γ, x:A$.
+      $\v{xρ} = \v{ρ(x)} ∈ \vs{Aρ}$ since $ρ ⊩ Γ, x:A$.
 
       $$ \id(r_ax) $$
 
 \item If the last used rule is ($↑$) then we need to show
-      $\v("vρ") ∈ \ts("Aρ")$. By induction hypothesis we know
-      $\v("vρ") ∈ \vs("Aρ")$, hence we can conclude using
+      $\v{vρ} ∈ \ts{Aρ}$. By induction hypothesis we know
+      $\v{vρ} ∈ \vs{Aρ}$, hence we can conclude using
       \lemRef("orthosimple").
 
       $$ \id(r_up) $$
 
 \item If the last used rule is ($⇒_i$) then we need to show that
-      $\t("(λx t)ρ") ∈ \vs("(A ⇒ B)ρ")$. As we are free to rename
-      $x$, we can assume that $\t("(λx t)ρ") = \t("λx tρ")$ and
-      thus our goal rewrites as $\t("λx tρ") ∈ \vs("(A ⇒ B)ρ")$.
-      By definition, we need to take a value $v ∈ \vs("Aρ")$ and
-      show that we have $\t("(tρ)[x ≔ v]") ∈ \ts("Bρ")$. We can
+      $\t{(λx t)ρ} ∈ \vs{(A ⇒ B)ρ}$. As we are free to rename
+      $x$, we can assume that $\t{(λx t)ρ} = \t{λx tρ}$ and
+      thus our goal rewrites as $\t{λx tρ} ∈ \vs{(A ⇒ B)ρ}$.
+      By definition, we need to take a value $v ∈ \vs{Aρ}$ and
+      show that we have $\t{(tρ)[x ≔ v]} ∈ \ts{Bρ}$. We can
       conclude by induction hypothesis using the valuation
       $\subs("ρ[x ≔ v]")$.
 
       $$ \id(r_arrow_i) $$
 
 \item If the last used rule is ($⇒_e$) then we need to show
-      $\t("(t u)ρ") = \t("tρ uρ") ∈ \ts("Bρ")$. Let us take
-      $π ∈ \ss("Bρ")$ and show $\p("tρ uρ ∗ π") ∈ \dbot$. Since
-      $\p("tρ uρ ∗ π") ≻ \p("uρ ∗ [tρ]π")$ and $\dbot$ is saturated, is is
-      enough to show $\p("uρ ∗ [tρ]π") ∈ \dbot$. As $\t("uρ") ∈ \ts("Aρ")$
+      $\t{(t u)ρ} = \t{tρ uρ} ∈ \ts{Bρ}$. Let us take
+      $π ∈ \ss{Bρ}$ and show $\p{tρ uρ ∗ π} ∈ \dbot$. Since
+      $\p{tρ uρ ∗ π} ≻ \p{uρ ∗ [tρ]π}$ and $\dbot$ is saturated, is is
+      enough to show $\p{uρ ∗ [tρ]π} ∈ \dbot$. As $\t{uρ} ∈ \ts{Aρ}$
       by induction hypothesis, it only remains to show
-      $\s("[tρ]π") ∈ \ss("Aρ")$. Let us take $\v("v") ∈ \vs("Aρ")$
-      and show that $\p("v ∗ [tρ]π") ∈ \dbot$. Since
-      $\p("v ∗ [tρ]π") ≻ \p("tρ ∗ v·π")$ and $\dbot$ is saturated, it is
-      enough to show $\p("tρ ∗ v·π") ∈  \dbot$. By induction hypothesis
-      $\t("tρ") ∈ \ts("Aρ ⇒ Bρ")$, hence it only remains
-      to show that we have $\s("v·π") ∈ \ss("Aρ ⇒ Bρ")$. Let us now take
-      $\v("λx f") ∈ \vs("Aρ ⇒ Bρ")$ and show $\p("λx f ∗ v·π") ∈ \dbot$.
-      As $\p("λx f ∗ v·π") ≻ \p("f[x ≔ v] ∗ π")$ and $\dbot$ is saturated,
-      it is enough to show $\p("f[x ≔ v] ∗ π") ∈ \dbot$. Since
-      $\s("π") ∈ \ss("Bρ")$ it only remains to show
-      $\t("f[x ≔ v]") ∈ \ts("Bρ")$. This is true by definition of
-      $\vs("Aρ ⇒ Bρ")$ since we have $\v("v") ∈ \vs("Aρ")$.
+      $\s{[tρ]π} ∈ \ss{Aρ}$. Let us take $\v{v} ∈ \vs{Aρ}$
+      and show that $\p{v ∗ [tρ]π} ∈ \dbot$. Since
+      $\p{v ∗ [tρ]π} ≻ \p{tρ ∗ v·π}$ and $\dbot$ is saturated, it is
+      enough to show $\p{tρ ∗ v·π} ∈  \dbot$. By induction hypothesis
+      $\t{tρ} ∈ \ts{Aρ ⇒ Bρ}$, hence it only remains
+      to show that we have $\s{v·π} ∈ \ss{Aρ ⇒ Bρ}$. Let us now take
+      $\v{λx f} ∈ \vs{Aρ ⇒ Bρ}$ and show $\p{λx f ∗ v·π} ∈ \dbot$.
+      As $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and $\dbot$ is saturated,
+      it is enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$. Since
+      $\s{π} ∈ \ss{Bρ}$ it only remains to show
+      $\t{f[x ≔ v]} ∈ \ts{Bρ}$. This is true by definition of
+      $\vs{Aρ ⇒ Bρ}$ since we have $\v{v} ∈ \vs{Aρ}$.
 
       $$ \id(r_arrow_e) $$
 
 \item If the last used rule is ($μ$) then we need to show that
-      $\t("(μα t)ρ") ∈ \ts("Aρ")$. As we are free to rename $α$, we
-      can assume that $\t("(μα t)ρ") = \t("μα tρ")$ and thus our goal
-      rewrites as $\t("μα tρ") ∈ \ts("Aρ")$. Let us now take a stack
-      $π ∈ \ss("Aρ")$ and show $\p("μα tρ ∗ π") ∈ \dbot$. Since
-      $\p("μα tρ ∗ π") ≻ \p("tρ[α ≔ π] ∗ π")$ and $\dbot$ is saturated, it
-      is enough to show that we have $\p("tρ[α ≔ π] ∗ π") ∈ \dbot$. We can
+      $\t{(μα t)ρ} ∈ \ts{Aρ}$. As we are free to rename $α$, we
+      can assume that $\t{(μα t)ρ} = \t{μα tρ}$ and thus our goal
+      rewrites as $\t{μα tρ} ∈ \ts{Aρ}$. Let us now take a stack
+      $π ∈ \ss{Aρ}$ and show $\p{μα tρ ∗ π} ∈ \dbot$. Since
+      $\p{μα tρ ∗ π} ≻ \p{tρ[α ≔ π] ∗ π}$ and $\dbot$ is saturated, it
+      is enough to show that we have $\p{tρ[α ≔ π] ∗ π} ∈ \dbot$. We can
       then conclude by induction hypothesis with the valuation
       $\subs("ρ[α ≔ π]")$.
 
       $$ \id(r_mu) $$
 
 \item If the last used rule is ($[\wc]$) then we need to show
-      $\t("([α]t)ρ") = \t("[ρ(α)]tρ") ∈ \ts("Bρ")$. Let us take
-      $π ∈ \ss("Bρ")$ and show $\p("[ρ(α)]tρ ∗ π") ∈ \dbot$. Since
-      $\p("[ρ(α)]tρ ∗ π") ≻ \p("tρ ∗ ρ(α)")$ and $\dbot$ is saturated, it
-      is enough to show $\p("tρ ∗ ρ(α)") ∈ \dbot$. By induction hypothesis,
-      we know that $\t("tρ") ∈ \ts("Aρ")$, hence we only need to show that
-      $\s("ρ(α)") ∈ \ss("Aρ")$. This is true since we know that $ρ ⊩ Δ, α:A$.
+      $\t{([α]t)ρ} = \t{[ρ(α)]tρ} ∈ \ts{Bρ}$. Let us take
+      $π ∈ \ss{Bρ}$ and show $\p{[ρ(α)]tρ ∗ π} ∈ \dbot$. Since
+      $\p{[ρ(α)]tρ ∗ π} ≻ \p{tρ ∗ ρ(α)}$ and $\dbot$ is saturated, it
+      is enough to show $\p{tρ ∗ ρ(α)} ∈ \dbot$. By induction hypothesis,
+      we know that $\t{tρ} ∈ \ts{Aρ}$, hence we only need to show that
+      $\s{ρ(α)} ∈ \ss{Aρ}$. This is true since we know that $ρ ⊩ Δ, α:A$.
 
       $$ \id(r_name) $$
 
 \item If the last used rule is ($∀_i$) then we need to show
-      $\v("vρ") ∈ \vs("(∀χ^s A)ρ")$. As we are free to rename $χ$, this
-      amounts to showing $\v("vρ") ∈ \vs("∀χ^s Aρ") = \bigcap_{\f("B")∈⟦s⟧}
-      \vs("Aρ[χ ≔ B]")$. Hence it is enough to take $\f("B") ∈ ⟦s⟧$ and show
-      $\v("vρ") ∈ \vs("Aρ[χ ≔ B]")$. Note that $\v("vρ") = \v("vρ[χ ≔ B]")$
-      as $\f("χ")$ cannot appear in $\v("v")$ as otherwise the conclusion
+      $\v{vρ} ∈ \vs{(∀χ^s A)ρ}$. As we are free to rename $χ$, this
+      amounts to showing $\v{vρ} ∈ \vs{∀χ^s Aρ} = \bigcap_{\f{B}∈⟦s⟧}
+      \vs{Aρ[χ ≔ B]}$. Hence it is enough to take $\f{B} ∈ ⟦s⟧$ and show
+      $\v{vρ} ∈ \vs{Aρ[χ ≔ B]}$. Note that $\v{vρ} = \v{vρ[χ ≔ B]}$
+      as $\f{χ}$ cannot appear in $\v{v}$ as otherwise the conclusion
       judgment would not be well-formed. We conclude by induction hypothesis
       using the valuation $\subs("ρ[χ ≔ B]")$.
 
       $$ \id(r_forall_i) $$
 
 \item If the last used rule is ($∀_e$) then we need to show
-      $\t("tρ") ∈ \ts("(A[χ ≔ B])ρ")$. By induction hypothesis we have
-      $\t("tρ") ∈ \ts("(∀χ^s A)ρ")$, and as a consequence we need to show
-      that $\ts("(∀χ^s A)ρ") ⊆ \ts("(A[χ ≔ B])ρ")$. According to
+      $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$. By induction hypothesis we have
+      $\t{tρ} ∈ \ts{(∀χ^s A)ρ}$, and as a consequence we need to show
+      that $\ts{(∀χ^s A)ρ} ⊆ \ts{(A[χ ≔ B])ρ}$. According to
       \lemRef("orthoincl"), it is enough to show
-      $\vs("(∀χ^s A)ρ") ⊆ \vs("(A[χ ≔ B])ρ") = \vs("Aρ[χ ≔ Bρ]")$. As we
+      $\vs{(∀χ^s A)ρ} ⊆ \vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]}$. As we
       are free to rename $χ$, our goal rewrites as
-      $\vs("∀χ^s Aρ") ⊆ \vs("Aρ[χ ≔ Bρ]")$.
-      Since $\vs("∀χ^s Aρ") = \bigcap_{\f("Φ")∈⟦s⟧} \vs("Aρ[χ ≔ Φ]")$ and
-      $\f("Bρ") ∈ ⟦s⟧$ we can conclude the proof.
+      $\vs{∀χ^s Aρ} ⊆ \vs{Aρ[χ ≔ Bρ]}$.
+      Since $\vs{∀χ^s Aρ} = \bigcap_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
+      $\f{Bρ} ∈ ⟦s⟧$ we can conclude the proof.
 
       $$ \id(r_forall_e) $$
 
 \item If the last used rule is ($∃_i$) then we need to show
-      $\t("tρ") ∈ \ts("(∃χ^s A)ρ")$. By induction hypothesis we have
-      $\t("tρ") ∈ \ts("(A[χ ≔ B])ρ")$, and as a consequence we need to show
-      that $\ts("(A[χ ≔ B])ρ") ⊆ \ts("(∃χ^s A)ρ")$. According to
+      $\t{tρ} ∈ \ts{(∃χ^s A)ρ}$. By induction hypothesis we have
+      $\t{tρ} ∈ \ts{(A[χ ≔ B])ρ}$, and as a consequence we need to show
+      that $\ts{(A[χ ≔ B])ρ} ⊆ \ts{(∃χ^s A)ρ}$. According to
       \lemRef("orthoincl"), it is enough to show
-      $\vs("(A[χ ≔ B])ρ") = \vs("Aρ[χ ≔ Bρ]") ⊆ \vs("(∃χ^s A)ρ")$.
+      $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∃χ^s A)ρ}$.
       As we are free to rename $χ$, our goal rewrites as
-      $\vs("Aρ[χ ≔ Bρ]") ⊆ \vs("∃χ^s Aρ")$.
-      Since $\vs("∃χ^s Aρ") = \bigcup_{\f("Φ")∈⟦s⟧} \vs("Aρ[χ ≔ Φ]")$ and
-      $\f("Bρ") ∈ ⟦s⟧$ we can conclude the proof.
+      $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$.
+      Since $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
+      $\f{Bρ} ∈ ⟦s⟧$ we can conclude the proof.
 
       $$ \id(r_exists_i) $$
 
 \item If the last used rule is ($∃_e$) then we need to show
-      $\t("tρ") ∈ \ts("Cρ")$. To apply the induction hypothesis,
-      we need to check that $\v("ρ(x)") ∈ \vs("(A[χ ≔ B])ρ")$ provided
-      $\v("ρ(x)") ∈ \vs("(∃χ^s A)ρ")$. In other words, we need to show
-      $\vs("(A[χ ≔ B])ρ") = \vs("Aρ[χ ≔ Bρ]") ⊆ \vs("(∀χ^s A)ρ")$. As
+      $\t{tρ} ∈ \ts{Cρ}$. To apply the induction hypothesis,
+      we need to check that $\v{ρ(x)} ∈ \vs{(A[χ ≔ B])ρ}$ provided
+      $\v{ρ(x)} ∈ \vs{(∃χ^s A)ρ}$. In other words, we need to show
+      $\vs{(A[χ ≔ B])ρ} = \vs{Aρ[χ ≔ Bρ]} ⊆ \vs{(∀χ^s A)ρ}$. As
       we are free to rename $χ$, our goal rewrites as
-      $\vs("Aρ[χ ≔ Bρ]") ⊆ \vs("∃χ^s Aρ")$. The inclusion follows since
-      $\vs("∃χ^s Aρ") = \bigcup_{\f("Φ")∈⟦s⟧} \vs("Aρ[χ ≔ Φ]")$ and
-      $\f("Bρ") ∈ ⟦s⟧$.
+      $\vs{Aρ[χ ≔ Bρ]} ⊆ \vs{∃χ^s Aρ}$. The inclusion follows since
+      $\vs{∃χ^s Aρ} = \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and
+      $\f{Bρ} ∈ ⟦s⟧$.
 
       $$ \id(r_exists_e) $$
 
 \item If the last used rule is ($∈_e$) then we need to show
-      $\t("uρ") ∈ \ts("Cρ")$. To apply the induction hypothesis,
-      we need to check that $\v("ρ(x)") ∈ \vs("Aρ")$ and that
-      $\v("ρ(x)") ≡ \t("tρ")$, provided that we have
-      $\v("xρ") ∈ \vs("(t∈A)ρ")$. By definition
-      $\vs("(t∈A)ρ") = \vs("tρ∈Aρ") = \{v∈\vs("Aρ") \st v ≡ \t("tρ")\}$
-      so we indeed have $\v("ρ(x)") ∈ \vs("Aρ")$ and
-      $\v("ρ(x)") ≡ \t("tρ")$.
+      $\t{uρ} ∈ \ts{Cρ}$. To apply the induction hypothesis,
+      we need to check that $\v{ρ(x)} ∈ \vs{Aρ}$ and that
+      $\v{ρ(x)} ≡ \t{tρ}$, provided that we have
+      $\v{xρ} ∈ \vs{(t∈A)ρ}$. By definition
+      $\vs{(t∈A)ρ} = \vs{tρ∈Aρ} = \{v∈\vs{Aρ} \st v ≡ \t{tρ}\}$
+      so we indeed have $\v{ρ(x)} ∈ \vs{Aρ}$ and
+      $\v{ρ(x)} ≡ \t{tρ}$.
 
       $$ \id(r_memb_e) $$
 
 \item In the case of ($∈_i$) we need to show that
-      $\v("vρ") ∈ \vs("(v ∈ A)ρ") = \{w ∈ \vs("Aρ") \| w ≡ vρ\}$. By
-      induction hypothesis we have $\v("vρ") ∈ \vs("Aρ")$ so we only
-      need to show that $\t("vρ") ≡ \t("vρ")$, which follows from
+      $\v{vρ} ∈ \vs{(v ∈ A)ρ} = \{w ∈ \vs{Aρ} \| w ≡ vρ\}$. By
+      induction hypothesis we have $\v{vρ} ∈ \vs{Aρ}$ so we only
+      need to show that $\t{vρ} ≡ \t{vρ}$, which follows from
       the reflexivity of $({≡})$.
 
       $$ \id(r_memb_i) $$
 
 \item If the last used rule is ($↾_i$) then we need to show
-      $\t("tρ") ∈ \ts("(A ∧ u₁≡u₂)ρ")$. Using the right premise
-      we know that $\t("u₁ρ") ≡ \t("u₂ρ")$, and hence
-      $\vs("Aρ ∧ u₁ρ ≡ u₂ρ") = \vs("Aρ")$ by definition. Consequently
-      we have $\ts("Aρ ∧ u₁ρ ≡ u₂ρ") = \ts("Aρ")$ by
+      $\t{tρ} ∈ \ts{(A ∧ u₁≡u₂)ρ}$. Using the right premise
+      we know that $\t{u₁ρ} ≡ \t{u₂ρ}$, and hence
+      $\vs{Aρ ∧ u₁ρ ≡ u₂ρ} = \vs{Aρ}$ by definition. Consequently
+      we have $\ts{Aρ ∧ u₁ρ ≡ u₂ρ} = \ts{Aρ}$ by
       \lemRef("orthoincl"), and hence we can conclude since
-      $\t("tρ") ∈ \ts("Aρ")$ by induction hypothesis.
+      $\t{tρ} ∈ \ts{Aρ}$ by induction hypothesis.
 
       $$ \id(r_rest_i) $$
 
 \item If the last used rule is ($↾_e$) then we need to show
-      $\t("tρ") ∈ \ts("Cρ")$. To be able to apply the induction hypothesis,
-      we only have to show $ρ(x) ∈ \vs("Aρ")$ and $u₁ρ ≡ u₂ρ$ under the
-      assumption that $ρ(x) ∈ \vs("Aρ ∧ u₁ρ ≡ u₂ρ") ≠ ∅$. This immediately
-      follows from the definition of $\vs("Aρ ∧ u₁ρ ≡ u₂ρ")$ since it
+      $\t{tρ} ∈ \ts{Cρ}$. To be able to apply the induction hypothesis,
+      we only have to show $ρ(x) ∈ \vs{Aρ}$ and $u₁ρ ≡ u₂ρ$ under the
+      assumption that $ρ(x) ∈ \vs{Aρ ∧ u₁ρ ≡ u₂ρ} ≠ ∅$. This immediately
+      follows from the definition of $\vs{Aρ ∧ u₁ρ ≡ u₂ρ}$ since it
       contains $ρ(x)$.
 
       $$ \id(r_rest_e) $$
 
 \item If the last used rule is ($×_i$) then we need to show
-      $\v("{(li = vi) i∈I}ρ") ∈ \vs("{(li : Ai) i∈I}ρ")$. By definition it
-      is enough to show that $\v("viρ") ∈ \vs("Aiρ")$ for all index $i$ in
+      $\v{{(li = vi) i∈I}ρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. By definition it
+      is enough to show that $\v{viρ} ∈ \vs{Aiρ}$ for all index $i$ in
       $I$. This exactly corresponds to the induction hypotheses.
 
       $$ \id(r_prod_i) $$
 
 \item If the last used rule is ($×_e$) then we need to show that
-      $\t("(v.lk)ρ") ∈ \ts("Akρ")$. By induction hypothesis we know that
-      $\v("vρ") ∈ \vs("{(li : Ai) i∈I}ρ")$, hence by definition
-      $\v("vρ") = \v("{(li = vi) i∈I}")$ and for all index $i$ in $I$ we
-      have $\v("vi") ∈ \vs("Aiρ")$. Let us now take $π ∈ \ss("Akρ")$ and
-      show that $\p("{(li = vi) i∈I}.lk ∗ π") ∈ \dbot$. As $k$ is in $I$, we
-      have $\p("{(li = viρ) i∈I}.lk ∗ π") ≻ \p("vkρ ∗ π")$, hence it is enough
-      to show $\p("vkρ ∗ π") ∈ \dbot$ as $\dbot$ is saturated. Since
-      $π ∈ \ss("Akρ")$, we only have to show $\v("vkρ") ∈ \ts("Akρ")$. We can
-      hence conclude using \lemRef("orthosimple") as $\v("vkρ") ∈ \vs("Akρ")$.
+      $\t{(v.lk)ρ} ∈ \ts{Akρ}$. By induction hypothesis we know that
+      $\v{vρ} ∈ \vs{{(li : Ai) i∈I}ρ}$, hence by definition
+      $\v{vρ} = \v{{(li = vi) i∈I}}$ and for all index $i$ in $I$ we
+      have $\v{vi} ∈ \vs{Aiρ}$. Let us now take $π ∈ \ss{Akρ}$ and
+      show that $\p{{(li = vi) i∈I}.lk ∗ π} ∈ \dbot$. As $k$ is in $I$, we
+      have $\p{{(li = viρ) i∈I}.lk ∗ π} ≻ \p{vkρ ∗ π}$, hence it is enough
+      to show $\p{vkρ ∗ π} ∈ \dbot$ as $\dbot$ is saturated. Since
+      $π ∈ \ss{Akρ}$, we only have to show $\v{vkρ} ∈ \ts{Akρ}$. We can
+      hence conclude using \lemRef("orthosimple") as $\v{vkρ} ∈ \vs{Akρ}$.
 
       $$ \id(r_prod_e) $$
 
 \item If the last used rule is ($+_i$) then we need to show
-      $\t("(Ck[v])ρ") ∈ \vs("[(Ci : Ai) i∈I]ρ")$. By definition,
-      it is enough to show that $\v("vρ") ∈ \vs("Akρ")$ since
-      $\t("(Ck[v])ρ") = \v("Ck[vρ]")$ and $k ∈ I$. This is
+      $\t{(Ck[v])ρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$. By definition,
+      it is enough to show that $\v{vρ} ∈ \vs{Akρ}$ since
+      $\t{(Ck[v])ρ} = \v{Ck[vρ]}$ and $k ∈ I$. This is
       exactly the induction hypothesis.
 
       $$ \id(r_sum_i) $$
 
 \item If the last used rule is ($+_e$) then we need to show
-      $\t("[v | (Ci[xi] → ti) i∈I]ρ") ∈ \ts("Bρ")$. By induction hypothesis
-      $\v("vρ") ∈ \vs("[(Ci : Ai) i∈I]ρ")$, hence by definition
-      $\v("vρ") = \v("Ck[w]")$ for some index $k$ in $I$ and
-      $w ∈ \vs("Akρ")$. Let us now take a stack $π ∈ \ss("Bρ")$ and show
-      that we have $\p("[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π") ∈ \dbot$. As
-      $\p("[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("tkρ[xk≔w] ∗ π")$ and
+      $\t{[v | (Ci[xi] → ti) i∈I]ρ} ∈ \ts{Bρ}$. By induction hypothesis
+      $\v{vρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$, hence by definition
+      $\v{vρ} = \v{Ck[w]}$ for some index $k$ in $I$ and
+      $w ∈ \vs{Akρ}$. Let us now take a stack $π ∈ \ss{Bρ}$ and show
+      that we have $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ∈ \dbot$. As
+      $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{tkρ[xk≔w] ∗ π}$ and
       $\dbot$ is saturated, it is enough to show
-      $\p("tkρ[xk≔w] ∗ π") ∈ \dbot$. Let us now consider the valuation
-      $\subs("ρ[xk≔w]")$. Up to renaming, we can assume that $\v("xk")$ does
-      not appear free in $\f("B")$, hence $\f("Bρ") = \f("Bρ[xi≔w]")$.
-      Consequently we have $π ∈ \ss("Bρ[xk≔w]")$, hence it is enough to
-      show that $\t("tkρ[xk≔w]") ∈ \ts("Bρ[xk≔w]")$. We can conclude by
+      $\p{tkρ[xk≔w] ∗ π} ∈ \dbot$. Let us now consider the valuation
+      $\subs("ρ[xk≔w]")$. Up to renaming, we can assume that $\v{xk}$ does
+      not appear free in $\f{B}$, hence $\f{Bρ} = \f{Bρ[xi≔w]}$.
+      Consequently we have $π ∈ \ss{Bρ[xk≔w]}$, hence it is enough to
+      show that $\t{tkρ[xk≔w]} ∈ \ts{Bρ[xk≔w]}$. We can conclude by
       induction hypothesis using the valuation $\subs("ρ[xk≔w]")$ since
-      $\v("vρ[xk≔w]") ≡ \v("Ck[w]")$.
+      $\v{vρ[xk≔w]} ≡ \v{Ck[w]}$.
 
       $$ \id(r_sum_e) $$
 
 \item If the last used rule is ($≡_{ι,ι}$) then we need to show
-      $\t("(v[x≔w₂])ρ") ∈ \vs("(A[x≔w₂])ρ")$. As we are free to rename
+      $\t{(v[x≔w₂])ρ} ∈ \vs{(A[x≔w₂])ρ}$. As we are free to rename
       $x$ we may assume that it does not appear in $dom(ρ)$, and our
-      goal rewrites as $\t("vρ[x≔w₂ρ]") ∈ \vs("Aρ[x≔w₂ρ]")$. According
-      to our second premise we have $\t("w₁ρ") ≡ \t("w₂ρ")$ and
-      thus we get $\vs("Aρ[x≔w₂ρ]") = \vs("Aρ[x≔w₁ρ]")$ using
-      \thmRef("vexttyp") and $\t("vρ[x≔w₂ρ]") = \t("vρ[x≔w₁ρ]")$ using
+      goal rewrites as $\t{vρ[x≔w₂ρ]} ∈ \vs{Aρ[x≔w₂ρ]}$. According
+      to our second premise we have $\t{w₁ρ} ≡ \t{w₂ρ}$ and
+      thus we get $\vs{Aρ[x≔w₂ρ]} = \vs{Aρ[x≔w₁ρ]}$ using
+      \thmRef("vexttyp") and $\t{vρ[x≔w₂ρ]} = \t{vρ[x≔w₁ρ]}$ using
       the fact that $({≡})$ is a congruence. Now, since
-      $\vs("Aρ[x≔w₁ρ]")$ is closed under $({≡})$ we only have to show
-      $\t("vρ[x≔w₁ρ]") ∈ \vs("Aρ[x≔w₁ρ]")$.
+      $\vs{Aρ[x≔w₁ρ]}$ is closed under $({≡})$ we only have to show
+      $\t{vρ[x≔w₁ρ]} ∈ \vs{Aρ[x≔w₁ρ]}$.
       To be able to conclude using the induction hypothesis, we need to
       show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
       need to show that for every type $B$ appearing in $Γ$ we have
-      $\vs("(B[x≔w₁])ρ") = \vs("(B[x≔w₂])ρ")$. As we are again free to
+      $\vs{(B[x≔w₁])ρ} = \vs{(B[x≔w₂])ρ}$. As we are again free to
       rename $x$ we may rewrite our goal as
-      $\vs("Bρ[x≔w₁ρ]") = \vs("Bρ[x≔w₂ρ]")$. We can then conclude the
+      $\vs{Bρ[x≔w₁ρ]} = \vs{Bρ[x≔w₂ρ]}$. We can then conclude the
       proof using \thmRef("vexttyp") one more time.
 
       $$ \id(r_eq_ii) $$
@@ -1235,23 +1252,23 @@ relation).
 If we choose $({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$ then the typed
 terms of our language normalise. More formally, if the judgment
 $Σ \sp Γ; Ξ ⊢ t : A$ is derivable, and if $ρ$ is a substitution over $Σ$
-such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for every stack $π ∈ \ss("Aρ")$ there
-is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for every stack $π ∈ \ss{Aρ}$ there
+is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
 which is trivially saturated. We will first check that it is also
 $≡_{≻}$-extensional. Let us suppose that $t ≡_{≻} u$ and that
-$\p("t∗π") ∈ \dbot$. By definition of $\dbot$, there must be a value
-$v$ such that $\p("t∗π") ≻^{∗} \p("v∗ε")$, and thus we have
-${\p("t∗π")} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
-${\p("u∗π")} {⇓}_{≻}$, and thus there must be a value $w$ such that
-$\p("u∗π") ≻ \p("w∗ε")$. This exactly means that $\p("u∗π") ∈ \dbot$.
+$\p{t∗π} ∈ \dbot$. By definition of $\dbot$, there must be a value
+$v$ such that $\p{t∗π} ≻^{∗} \p{v∗ε}$, and thus we have
+${\p{t∗π}} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
+${\p{u∗π}} {⇓}_{≻}$, and thus there must be a value $w$ such that
+$\p{u∗π} ≻ \p{w∗ε}$. This exactly means that $\p{u∗π} ∈ \dbot$.
 
 We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
-$\t("tρ") ∈ \ts("Aρ")$. By definition, this means that $\p("tρ∗ξ") ∈ \dbot$
-for every stack $ξ ∈ \ss("Aρ")$, and in particular $\p("tρ ∗ π") ∈ \dbot$.
+$\t{tρ} ∈ \ts{Aρ}$. By definition, this means that $\p{tρ∗ξ} ∈ \dbot$
+for every stack $ξ ∈ \ss{Aρ}$, and in particular $\p{tρ ∗ π} ∈ \dbot$.
 We can hence conclude by definition of $\dbot$ as this exactly means that
-there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 \end{proof}
 \end{thm}
 
@@ -1263,26 +1280,26 @@ that $t$ reduces to a value of type $A$.
 \begin{thm}
 If the judgment $Σ \sp Γ; Ξ ⊢ t : A$ is derivable for a pure type $A$, and
 if $ρ$ is a substitution over $Σ$ such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for
-every stack $π ∈ \ss("Aρ")$ there is a value $v ∈ \vs("Aρ")$ such that
-$\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+every stack $π ∈ \ss{Aρ}$ there is a value $v ∈ \vs{Aρ}$ such that
+$\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈\vs("Aρ"), p ≻^{∗} \p("v∗ε")\}$
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈\vs{Aρ}, p ≻^{∗} \p{v∗ε}\}$
 which is trivially saturated.
 (*
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
+We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
 which is trivially saturated. We will first check that it is also
 $≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
-$\p("t∗π") ∈ \dbot$. By definition of $\dbot$, there must be a value
-$v$ such that $\p("t∗π") ≻^{∗} \p("v∗ε")$, and thus we have
-${\p("t∗π")} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
-${\p("u∗π")} {⇓}_{≻}$, and thus there must be a value $w$ such that
-$\p("u∗π") ≻ \p("w∗ε")$. This exactly means that $\p("u∗π") ∈ \dbot$.
+$\p{t∗π} ∈ \dbot$. By definition of $\dbot$, there must be a value
+$v$ such that $\p{t∗π} ≻^{∗} \p{v∗ε}$, and thus we have
+${\p{t∗π}} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
+${\p{u∗π}} {⇓}_{≻}$, and thus there must be a value $w$ such that
+$\p{u∗π} ≻ \p{w∗ε}$. This exactly means that $\p{u∗π} ∈ \dbot$.
 
 We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
-$\t("tρ") ∈ \ts("Aρ")$. By definition, this means that $\p("tρ∗ξ") ∈ \dbot$
-for every stack $ξ ∈ \ss("Aρ")$, and in particular $\p("tρ ∗ π") ∈ \dbot$.
+$\t{tρ} ∈ \ts{Aρ}$. By definition, this means that $\p{tρ∗ξ} ∈ \dbot$
+for every stack $ξ ∈ \ss{Aρ}$, and in particular $\p{tρ ∗ π} ∈ \dbot$.
 We can hence conclude by definition of $\dbot$ as this exactly means that
-there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε")$.
+there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 *)
 \end{proof}
 \end{thm}
@@ -1294,7 +1311,7 @@ there is a value $v ∈ Λ_ι$ such that $\p("tρ ∗ π") ≻^{∗} \p("v∗ε"
 
 In our system, the typing rule for the named terms of the \lmcalc is
 limited to stack variables. As a consequence, terms can only contain
-terms of the form $\t("[π]t")$ when $π$ is a stack variable.
+terms of the form $\t{[π]t}$ when $π$ is a stack variable.
 $$ \id(r_name) $$
 It is however possible to generalise this typing rule to accept more
 stacks, provided that they can be typed in some sense.
@@ -1308,22 +1325,22 @@ only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ π : σ$ and $Σ ⊢ A : ο$.
 
 \Caml(
 let r_name' =
-  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t("t") : A}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : A^⊥}
-   {Σ \sp Γ;Ξ ⊢ \t("[π]t") : B}$>
+  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : A^⊥}
+   {Σ \sp Γ;Ξ ⊢ \t{[π]t} : B}$>
 
 let r_ax' =
-  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s("α") : A^⊥}$>
+  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s{α} : A^⊥}$>
 
 let r_push =
-  <$\binaryRN{\wc·\wc}{Σ \sp Γ;Ξ ⊢_\tval \v("v") : A}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s("v·π") : \f("A⇒B")^⊥}$>
+  <$\binaryRN{\wc·\wc}{Σ \sp Γ;Ξ ⊢_\tval \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{v·π} : \f{A⇒B}^⊥}$>
 
 let r_fram =
-  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A⇒B")}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s("[t]π") : \f("A")^⊥}$>
+  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A⇒B}}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{[t]π} : \f{A}^⊥}$>
 )
 
 Using a stack judgment, the typing rule for named terms can replaced
@@ -1336,10 +1353,10 @@ $$ \id(r_ax') $$
 Using ($Ax^⊥$), the old ($[\wc]$) rule can be derived as follows.
 $$
 \proofTree{
-  \binaryN{[\wc]}{Σ, α:σ \sp Γ, α:A ; Ξ ⊢ \t("[α] t") : B}{
-    \hyp{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \t("t") : A}
+  \binaryN{[\wc]}{Σ, α:σ \sp Γ, α:A ; Ξ ⊢ \t{[α] t} : B}{
+    \hyp{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \t{t} : A}
   }{
-    \axiomN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \s("α") : A^⊥}
+    \axiomN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥ ; Ξ ⊢ \s{α} : A^⊥}
   }
 }
 $$
@@ -1348,7 +1365,7 @@ In addition to the ($Ax^⊥$) rule, we provide two rules for stacked
 formed by pushing a value on a stack, or stack frames. Note that it
 is also possible to give a typing rule for the empty stack. We will
 not use it here as it requires all the processes of the form
-$\p("v∗ε")$ to be in the pole.
+$\p{v∗ε}$ to be in the pole.
 $$ \id(r_push) $$
 $$ \id(r_fram) $$
 
@@ -1357,13 +1374,13 @@ value and term judgments. The new adequacy lemma will then involve the
 three forms of judgments.
 \begin{lem}\label("push")
 Let $A$, $B∈\cal{F}$ be two closed types such that $⊢ A : ο$ and $⊢ B : ο$.
-If $v ∈ \vs("A")$ and $π ∈ \ss("B")$ then $\s("v·π") ∈ \ss("A⇒B")$.
+If $v ∈ \vs{A}$ and $π ∈ \ss{B}$ then $\s{v·π} ∈ \ss{A⇒B}$.
 \begin{proof}
-Let us take $\v("λx t") ∈ \vs("A⇒B")$ and show $\p("λx t ∗ v·π") ∈ \dbot$.
-Since $\dbot$ is saturated and $\p("λx t ∗ v·π") ≻ \p("t[x≔v] ∗ π")$, it is
-enough to show $\p("t[x≔v] ∗ π") ∈ \dbot$. As $π ∈ \ss("B")$ we only need
-to show $\t("t[x≔v]") ∈ \ts("B")$. This follows from the definition of
-$\vs("A⇒B")$ since we have $v ∈ \vs("A")$.
+Let us take $\v{λx t} ∈ \vs{A⇒B}$ and show $\p{λx t ∗ v·π} ∈ \dbot$.
+Since $\dbot$ is saturated and $\p{λx t ∗ v·π} ≻ \p{t[x≔v] ∗ π}$, it is
+enough to show $\p{t[x≔v] ∗ π} ∈ \dbot$. As $π ∈ \ss{B}$ we only need
+to show $\t{t[x≔v]} ∈ \ts{B}$. This follows from the definition of
+$\vs{A⇒B}$ since we have $v ∈ \vs{A}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("stack_adequacy")
@@ -1371,9 +1388,9 @@ Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
 context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
 that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 \begin{itemize}
-\item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t("tρ") ∈ \ts("Aρ")$.
-\item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s("πρ") ∈ \ss("Aρ")$.
-\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v("vρ") ∈ \vs("Aρ")$.
+\item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t{tρ} ∈ \ts{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s{πρ} ∈ \ss{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
 \end{itemize}
 \begin{proof}
 As for \thmRef("adequacy"), the proof is done by induction of the derivation
@@ -1382,36 +1399,36 @@ of the typing judgments. For all the rules of \figRef("typerules") but
 new cases are displayed bellow.
 \begin{itemize}
 \item If the last used rule is ($[\wc]$) then we need to show
-      $\t("([π]t)ρ") = \t("[πρ]tρ") ∈ \ts("Bρ")$. Let us take
-      $ξ ∈ \ss("Bρ")$ and show $\p("[πρ]tρ ∗ π") ∈ \dbot$. Since
-      $\p("[πρ]tρ ∗ π") ≻ \p("tρ ∗ πρ")$ and $\dbot$ is saturated, it
-      is enough to show $\p("tρ ∗ πρ") ∈ \dbot$. This is immediate
-      since, by induction hypothesis, we have $\t("tρ") ∈ \ts("Aρ")$
-      and $\s("πρ") ∈ \ss("Aρ")$.
+      $\t{([π]t)ρ} = \t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take
+      $ξ ∈ \ss{Bρ}$ and show $\p{[πρ]tρ ∗ π} ∈ \dbot$. Since
+      $\p{[πρ]tρ ∗ π} ≻ \p{tρ ∗ πρ}$ and $\dbot$ is saturated, it
+      is enough to show $\p{tρ ∗ πρ} ∈ \dbot$. This is immediate
+      since, by induction hypothesis, we have $\t{tρ} ∈ \ts{Aρ}$
+      and $\s{πρ} ∈ \ss{Aρ}$.
 
       $$ \id(r_name') $$
 
 \item If the last used rule is ($Ax^⊥$) then we immediately have
-      $\s("αρ") = \s("ρ(α)") ∈ \ss("Aρ")$ since we know that
+      $\s{αρ} = \s{ρ(α)} ∈ \ss{Aρ}$ since we know that
       $ρ ⊩ Γ, α:A^⊥$.
 
       $$ \id(r_ax') $$
 
 \item If the last used rule is ($\wc·\wc$) then we need to show
-      $\s("vρ·πρ") ∈ \ss("Aρ⇒Bρ")$. This follows from \lemRef("push")
-      since we have $vρ ∈ \vs("Aρ")$ and $\s("πρ") ∈ \ss("Bρ")$ by
+      $\s{vρ·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from \lemRef("push")
+      since we have $vρ ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by
       induction hypothesis.
 
       $$ \id(r_push) $$
 
 \item If the last used rule is ($[\wc]\wc$) then we need to show
-      $\s("[tρ]πρ") ∈ \ss("Aρ")$. Let us take $v ∈ \vs("Aρ")$ and
-      show $\p("v ∗ [tρ]πρ") ∈ \dbot$. Since we know that
-      $\p("v ∗ [tρ]πρ") ≻ \p("tρ ∗ v·πρ")$ and $\dbot$ is saturated,
-      it is enough to show $\p("tρ ∗ v·πρ") ∈ \dbot$. By induction
-      hypothesis, we have $\t("tρ") ∈ \ts("Aρ⇒Bρ")$ so it is enough
-      to show $\s("v·πρ") ∈ \ss("Aρ⇒Bρ")$. This follows from
-      \lemRef("push") since $v ∈ \vs("Aρ")$ and $\s("πρ") ∈ \ss("Bρ")$
+      $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and
+      show $\p{v ∗ [tρ]πρ} ∈ \dbot$. Since we know that
+      $\p{v ∗ [tρ]πρ} ≻ \p{tρ ∗ v·πρ}$ and $\dbot$ is saturated,
+      it is enough to show $\p{tρ ∗ v·πρ} ∈ \dbot$. By induction
+      hypothesis, we have $\t{tρ} ∈ \ts{Aρ⇒Bρ}$ so it is enough
+      to show $\s{v·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from
+      \lemRef("push") since $v ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$
       by induction hypothesis.
 
       $$ \id(r_fram) $$

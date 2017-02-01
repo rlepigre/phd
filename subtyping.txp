@@ -22,7 +22,7 @@
 \Configure_math_macro{\f}{ syntax = string; }
 \Configure_math_macro{\vs}{ syntax = string; }
 \Configure_math_macro{\ss}{ syntax = string; }
-\Configure_math_macro{\ts}{ syntax = string;}
+\Configure_math_macro{\ts}{ syntax = string; }
 
 \Caml(
 let r_arrow_i =

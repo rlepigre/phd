@@ -77,7 +77,11 @@ let rec build_list l =
   | x::y::[]    -> x @ nd @ y
   | x::y::z::ls -> x @ sp @ build_list (y::z::ls)
 
-let chapters l = (tT "Chapters ") :: build_list (List.map sectref l)
+let chapters l =
+  (tT "Chapters ") :: build_list (List.map sectref l)
+
+let theorems l =
+  (tT "Theorems ") :: build_list (List.map (generalRef "Theorem") l)
 
 let chapter l = (tT "Chapter ") :: sectref l
 let section l = (tT "Section ") :: sectref l

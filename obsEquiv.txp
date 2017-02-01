@@ -641,14 +641,14 @@ as $\p{λxt ∗ π} ≻ \p{λy R(y,{}) ∗ λx t·ε} ≻ \p{R(λxt,{}) ∗ ε}$
 $\p{R(λxt,{}) ∗ ε}$ is stuck.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("nequivlambox")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term.
 We have $\t{λx t} \nequiv \t{□}$.
 \begin{proof}
 We proceed exactly as for \thmRef("nequivlamreco"), using the same stack.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("nequivrecobox")
 Let $I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$
 for all $i∈I$. We have $\t{{(li = vi) i∈I}} \nequiv \t{□}$.
 \begin{proof}
@@ -707,7 +707,6 @@ using $t₁$, $t₂$ and $u = \t{λy y.lk}$.
 
 => Canonical values
 
-(* FIXME FIXME FIXME work in progress from here FIXME FIXME FIXME *)
 The idea now is to characterise the equivalence classes of the
 different forms of values. The results presented here will be
 required in \chapter("typeSystem") to show that the semantics
@@ -742,7 +741,25 @@ exhibit a substitution $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
       $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We have
       $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{{(li = viρ) i∈I}}$
       according to \thmRef("consneqrec").
+\item If $v = \v{□}$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
+      We can then use \thmRef("nequivrecobox") to show that
+      $\t{xρ} = \t{{}} \nequiv_{≻} \t{□}$.
 \end{itemize}
+\end{proof}
+\end{thm}
+Similarly, it is possible to show that the special value $\v{v}$ is
+only equivalent to itself.
+\begin{thm}\label("canonbox")
+Let $v ∈ Λ_ι$ be a value. We have $\v{□} ≡ \v{v}$ if and only if
+$\v{v} = \v{□}$.
+\begin{proof}
+If $\v{v} = \v{□}$ then we immediately have $\v{□} ≡ \v{v}$ by
+reflexivity. It remains to show that $\v{□} \nequiv \v{v}$ for
+every value $\v{v} ≠ \v{□}$. According to \theorems(["nequiboxcons";
+"nequivlambox"; "nequivrecobox"]), $\v{v}$ cannot be a variant, a
+$λ$-abstraction nor a record. The only remaining possibility is for
+$\cal{V}$ to be a $λ$-variable. However \theorem("varequiv") tells
+us that a $λ$-variable can only be equivalent to itself.
 \end{proof}
 \end{thm}
 
@@ -762,11 +779,11 @@ $\v{Cm[v]} ≡ w₀ = \v{Cm[w]}$.
 Let us now suppose that $\v{Cm[v]} ≡ \v{w₀}$ and show that
 $\v{w₀}$ is of the form $\v{Cm[w]}$ for some $w ∈ Λ_ι$ such that
 $w ≡ v$. We reason by case on the possible forms of the value
-$\v{w₀}$. Using \thmRef("varequiv"), \thmRef("nequivlamcons"),
-\thmRef("consneqrec") and \thmRef("consnequiv") we obtain
-$\v{w₀} = \v{Cm[w]}$ for some $\v{w} ∈ Λ_ι$. Now, if $w \nequiv v$
-then we immediatly obtain that $\v{Cm[v]} \nequiv \v{Cm[w]}$ using
-\thmRef("aux_cons"). As a consequence, it must be that $v ≡ w$.
+$\v{w₀}$. Using \theorems(["varequiv"; "canonbox"; "nequivlamcons"
+; "consneqrec"; "consnequiv"]) we obtain $\v{w₀} = \v{Cm[w]}$ for
+some $\v{w} ∈ Λ_ι$. Now, if $w \nequiv v$ then we immediatly
+obtain that $\v{Cm[v]} \nequiv \v{Cm[w]}$ using \theorem("aux_cons").
+As a consequence, it must be that $v ≡ w$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("canonrecord")
@@ -791,16 +808,14 @@ $({≡})$ is a congruence).
 
 Let us now suppose $\v{{(li = vi) i∈I}} ≡ w$ and show that $w$ is
 of the form $\v{{(li = wi) i∈I}}$ with $\v{wi} ≡ \v{vi}$ for all
-$i∈I$. Using \thmRef("varequiv"), \thmRef("nequivlamreco"),
-\thmRef("consneqrec") and \thmRef("reconequiv") we obtain
-$\v{w} = \v{{(li=wi) i∈I}}$ with $w_i ∈ Λ_ι$ for all $i∈I$.
-Now, if $v_k \nequiv w_k$ for some $k ∈ I$ then we immediately obtain
-that $\v{{(li = vi) i∈I}} \nequiv \v{{(li = wi) i∈I}}$ using
-\thmRef("aux_reco"). As a consequence, it must be that $v_k ≡ w_k$
-for all $k ∈ I$.
+$i∈I$. Using \theorems(["varequiv"; "canonbox"; "nequivlamreco";
+"consneqrec"; "reconequiv"]) we obtain $\v{w} = \v{{(li=wi) i∈I}}$
+with $w_i ∈ Λ_ι$ for all $i∈I$. Now, if $v_k \nequiv w_k$ for some
+$k ∈ I$ then we immediately obtain that $\v{{(li = vi) i∈I}}
+\nequiv \v{{(li = wi) i∈I}}$ using \theorem("aux_reco"). As a
+consequence, it must be that $v_k ≡ w_k$ for all $k ∈ I$.
 \end{proof}
 \end{thm}
-
 \begin{thm}\label("canonlambda")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
 be a value. If the equivalence $\t{λx t} ≡ v$ holds, then there
@@ -808,14 +823,14 @@ are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t{λy u}$ and
 $t ≡ \t{u[y≔x]}$.
 \begin{proof}
 We reason by case on the possible forms of $\v{v}$. Using
-\thmRef("varequiv"), \thmRef("nequivlamreco") and \thmRef("nequivlamcons")
+\theorems(["varequiv"; "canonbox"; "nequivlamreco"; "nequivlamcons"])
 we obtain that $\v{v}$ cannot be a $λ$-variable, a record or a variant.
 Consequently, we know that $v = \v{λy u}$ for some $y ∈ \cal{V}_ι$ and
 $u ∈ Λ$. It only remains to show that we have $\t{t} ≡ \t{u[y≔x]}$.
 As we supposed that $\v{λx t} ≡ v = \v{λy u}$ we can use the
 extensionality of $({≡})$ to obtain $\t{(λx t) x} ≡ \t{(λy u) x}$.
-Now, if we apply \thmRef("cbvbeta") on both side of this equivalence we
-finally obtain $\t{t} ≡ \t{u[y≔x]}$ by transitivity.
+Now, if we apply \theorem("cbvbeta") on both side of this equivalence
+we finally obtain $\t{t} ≡ \t{u[y≔x]}$ by transitivity.
 \end{proof}
 \end{thm}
 
