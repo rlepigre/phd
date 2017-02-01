@@ -509,7 +509,7 @@ required to encode product types, sum types, records and pattern
 matchings as they can be indexed by any finite subset of $\bbN$. As a
 consequence, the theorem follows from well-known properties of the
 simply typed $λ$-calculus with the subtyping relation induced by the
-axiom $ι ≤ τ$ on base types (See, e.g., \mcite(["Mitchell1996"])).
+axiom $ι ≤ τ$ on base types (see, e.g., \mcite(["Mitchell1996"])).
 \end{proof}
 \end{thm}
 In the following sections, we will always consider well-formed types. As a
@@ -739,14 +739,26 @@ themselves.
 \begin{def}
 To every sort $s ∈ \cal{S}$ we associate a set $⟦s⟧$ defined as follows.
 \Caml(
-let _ = tabular_layout 0.6 2.0
+let _ = tabular_layout 0.8 2.0
   [ [ <<$⟦ι⟧ = Λ_ι^{∗}$>>
     ; <<$⟦τ⟧ = Λ^{∗}$>>
     ; <<$⟦σ⟧ = Π^{∗}$>> ]
-  ; [ <<$⟦ο⟧ = \cal{P}(Λ_ι^{∗} / {≡})$>>
+  ; [ <<$⟦ο⟧ = \{P ∈ \cal{P}(Λ_ι^{∗} / {≡}) \| \v{□} ∈ P\}$>>
     ; <<$⟦s→r⟧ = ⟦r⟧^⟦s⟧$>> ] ]
 )
 \end{def}
+Note that a type of sort $ο$ will be interpreted by a set of closed
+values containing the special value $\v{□}$. It is also required
+for this set to be closed under the equivalence relation $({≡})$.
+This means that for all $Φ ∈ ⟦ο⟧$ and for all closed values $v$,
+$ w ∈Λ_ι^{∗}$ such that $v ∈ Φ$ and $v ≡ w$ we also have $w ∈ Φ$.
+\begin{rem}
+The presence of the value $\v{□}$ in the interpretation of types
+of sort $ο$ is not important for the current chapter, nor for
+\chapter("semValRest"). It will however play a crutial role in
+\chapter("subtyping"), where the semantical interpretation of
+propositions will be required to be non-empty.
+\end{rem}
 
 The semantical interpretation of types usually relies on a substitution
 (or interpretation function) to interpret free variables. Here, we will
@@ -816,29 +828,31 @@ let _ =
   ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs{A[χ≔Φ]} $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
   ; line "A ⇒ B"           <$ \{\v{λx t} \| ∀v∈\vs{A},
-                                 \t{t[x≔v]} ∈ \ts{B}\} $>
+                                 \t{t[x≔v]} ∈ \ts{B}\} ∪ \{\v{□}\} $>
   ; line "t ∈ A"           <$ \{\v{v} ∈ \vs{A} \|
-                                 \v{v} ≡ \t{t}\} $>
+                                 \v{v} ≡ \t{t}\} ∪ \{\v{□}\} $>
   ; line "A ∧ t ≡ u"       <$ \{\v{v} ∈ \vs{A} \|
-                                 \t{t} ≡ \t{u}\} $>
+                                 \t{t} ≡ \t{u}\} ∪ \{\v{□}\} $>
   ; line "{(li : Ai) i∈I}" <$ \{\v{{(li = vi) i∈I}} \| ∀i∈I,
-                                 \v{vi}∈\vs{Ai}\} $>
-  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v{Ci[v]} \| v∈\vs{Ai}\} $>
+                                 \v{vi}∈\vs{Ai}\} ∪ \{\v{□}\} $>
+  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v{Ci[v]} \| v∈\vs{Ai}\}
+                                 ∪ \{\v{□}\} $>
   ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $>
   ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $> ]
 )
 \end{center}
 \end{def}
 \begin{rem}
-We have $\vs{A ∧ t ≡ u} = \vs{A}$ if $t ≡ u$ and
-$\vs{A ∧ t ≡ u} = ∅$ otherwise. We also have $\vs{t∈A} = ∅$ if there
-is no $v ∈ \vs{A}$ such that $v ≡ t$.
+We have $\vs{A ∧ t ≡ u} = \vs{A}$ if $t ≡ u$ and $\vs{A ∧ t≡u} = \{\v{□}\}$
+otherwise. We also have $\vs{t∈A} = \{\v{□}\}$ if there is no $v ∈ \vs{A}$
+such that $v ≡ t$.
 \end{rem}
 \begin{thm}\label("sortsem")
 Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort. If we have a derivation of $Σ ⊢ A : s$ and if $ρ$ is a valuation
 over $Σ$ then $\vs{Aρ} ∈ ⟦s⟧$.
 \begin{proof}
+(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 The proof is done by induction on the derivation of $Σ ⊢ A : s$. We reason
 by case on the last rules used in the deduction tree. In the case of the
 rule
