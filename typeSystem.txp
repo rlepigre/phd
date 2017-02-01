@@ -852,72 +852,88 @@ Let $Σ$ be a sorting context, $A∈\cal{F}$ be a type and $s∈\cal{S}$ be
 a sort. If we have a derivation of $Σ ⊢ A : s$ and if $ρ$ is a valuation
 over $Σ$ then $\vs{Aρ} ∈ ⟦s⟧$.
 \begin{proof}
-(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 The proof is done by induction on the derivation of $Σ ⊢ A : s$. We reason
 by case on the last rules used in the deduction tree. In the case of the
 rule
 $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
 the proof is trivial. For the first eighteen rules of \figRef("sortrules"),
 the proof is immediate using the induction hypothesis. The remaining cases
-are treated bellow. Note that We recall the corresponding rules after the
+are treated bellow. Note that we recall the corresponding rules after the
 proof of each case.
 \begin{itemize}
-(* FIXME from here. *)
 \item In the case of the arrow type, we need to show $\vs{(A⇒B)ρ} ∈ ⟦ο⟧$.
-      By induction hypothesis, we know $\vs{Aρ} ∈ ⟦ο⟧$ and
-      $\vs{Bρ} ∈ ⟦ο⟧$, which give us $\vs{Aρ} ⊆ Λ_ι^{∗}$ and
-      $\ts{Bρ} ∈ Λ^{∗}$. Consequently, $\vs{Aρ⇒Bρ}$ is well-defined and
-      $\vs{Aρ⇒Bρ} ⊆ Λ_ι^{∗}$. It remains to show that $\vs{Aρ⇒Bρ}$ is
-      closed under $({≡})$. Let us take $\v{λx t} ∈ \vs{Aρ ⇒ Bρ}$
-      and a value $w ∈ Λ_ι^{∗}$ such that $\v{λx t} ≡ \v{w}$.
-      According to \thmRef("canonlambda") we have $w = \v{λx u}$ for some
-      $u ∈ Λ$ (up to renaming of $x$) and $t ≡ u$. To prove
-      $\v{λx u} ∈ \vs{Aρ⇒Bρ}$ we take $v ∈ \vs{Aρ}$ and show that
-      $\t{u[x≔v]} ∈ \ts{Bρ}$. As $\v{λxt} ∈ \vs{Aρ⇒Bρ}$ we know that
-      $\t{t[x≔v]} ∈ \ts{Bρ}$ by definition. We can hence conclude using
-      \thmRef("poleext") as $({≡})$ is congruence.
-      $$ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f{A ⇒ B} : ο} $$
-\item In the case of the product type, we need to show
-      $\vs{{(li : Ai) i∈I}ρ} ∈ ⟦ο⟧$. By induction hypothesis, we know that
-      $\vs{Aiρ} ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
-      $\vs{Aiρ} ⊆ Λ_ι^{∗}$ for all $i ∈ I$, which immediately gives us
-      $\vs{{(li : Ai) i∈I}ρ} ⊆ Λ_ι^{∗}$. It remains to show that
-      $\vs{{(li : Ai) i∈I}ρ}$ is closed under $({≡})$. This is a direct
-      consequence of \thmRef("canonrecord") as $\vs{Aiρ}$ is closed under
-      $({≡})$ for all $i ∈ I$.
-      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li : Ai) i∈I}} : ο} $$
-\item In the case of the sum type, we need to show
-      $\vs{[(Ci : Ai) i∈I]ρ} ∈ ⟦ο⟧$. By induction hypothesis we know
-      $\vs{Aiρ} ∈ ⟦ο⟧$ for all $i ∈ I$. In particular,
-      $\vs{Aiρ} ⊆ Λ_ι^{∗}$ for all $i ∈ I$, and hence
-      $\vs{{(li : Ai) i∈I}ρ} ⊆ Λ_ι^{∗}$ as
-      $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\} ⊆ Λ_ι^{∗}$ for all $i ∈ I$.
-      Let us now show that $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\}$ is closed
-      under $({≡})$ for all $i ∈ I$. This is an immediate consequence
-      of \thmRef("canoncons") since $\vs{Aiρ}$ is closed under $({≡})$
-      for all $i ∈ I$. Now, according to \thmRef("consnequiv") we have
-      $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\} ∩ \{\v{Ck[v]} \| v ∈ \vs{Akρ}\}
-      = ∅$ for all $i$, $k ∈I$ such that $i ≠ k$. Consequently,
-      $\vs{[(Ci : Ai) i∈I]ρ}$ is closed under $({≡})$.
-      $$ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{[(Ci : Ai) i∈I]} : ο} $$
-\item In the case of the universal type, we need to show that
-      $\vs{(∀χ A)ρ} ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
-      assume that $χ ∉ dom(ρ)$ and hence our goal rewrites
-      $\vs{∀χ Aρ} = \bigcap_{Φ∈⟦s⟧} \vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. As an
-      intersection of sets closed under $({≡})$ remains closed
-      under this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
-      $\vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. We can then conclude by induction
-      hypothesis with the valuation $ρ[χ≔Φ]$.
-      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∀χ A} : ο} $$
-\item In the case of the existential type, we need to show that
-      $\vs{(∃χ A)ρ} ∈ ⟦ο⟧$. As we are free to rename $χ$ we may
-      assume that $χ ∉ dom(ρ)$ and hence our goal can be rewritten as
-      $\vs{∃χ Aρ} = \bigcup_{Φ∈⟦s⟧} \vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. As a
-      union of sets closed under $({≡})$ remains closed under
-      this relation, we take $Φ ∈ ⟦s⟧$ and show (* NOTE lemma ? *)
-      $\vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. We can then conclude by induction
-      hypothesis with the valuation $ρ[χ≔Φ]$.
-      $$ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∃χ A} : ο} $$
+  By induction hypothesis, we know $\vs{Aρ} ∈ ⟦ο⟧$ and $\vs{Bρ} ∈ ⟦ο⟧$,
+  which give us $\vs{Aρ} ⊆ Λ_ι^{∗}$ and $\ts{Bρ} ⊆ Λ^{∗}$. Consequently,
+  $\vs{Aρ⇒Bρ}$ is well-defined and $\vs{Aρ⇒Bρ} ⊆ Λ_ι^{∗}$. By definition,
+  we also have $\v{□} ∈ \vs{Aρ⇒Bρ}$ so it only remains to show that
+  $\vs{Aρ⇒Bρ}$ is closed under $({≡})$. According to \theorem("canonbox")
+  we know that the only value that is equal to $\v{□}$ is itself. As a
+  consequence, we only have to consider values that are equivalent to
+  a $λ$-abstraction of $\vs{Aρ⇒Bρ}$. Let us take $\v{λx t} ∈ \vs{Aρ⇒Bρ}$
+  and a value $w ∈ Λ_ι^{∗}$ such that $\v{λx t} ≡ \v{w}$. According to
+  \thmRef("canonlambda") we have $w = \v{λx u}$ for some $u ∈ Λ$ (up to
+  renaming of variable $x$) and $t ≡ u$. To prove $\v{λx u} ∈ \vs{Aρ⇒Bρ}$
+  we take $v ∈ \vs{Aρ}$ and show $\t{u[x≔v]} ∈ \ts{Bρ}$. Since $\v{λxt} ∈
+  \vs{Aρ⇒Bρ}$ we know that we have $\t{t[x≔v]} ∈ \ts{Bρ}$. We can thus
+  conclude with \thmRef("poleext") as $({≡})$ is congruence.
+
+  \linesBefore(1) (* FIXME hack *)
+  \begin{center}
+    $ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f{A ⇒ B} : ο} $
+  \end{center}
+
+\item In the case of the product type, we need to show that $Φ =
+  \vs{{(li:Ai)i∈I}ρ} ∈ ⟦ο⟧$. For all $i∈I$, the induction hypothesis tells
+  us that $\vs{Aiρ} ∈ ⟦ο⟧$, which implies $\vs{Aiρ} ⊆ Λ_ι^{∗}$. As a
+  consequence, we obtain $Φ ⊆ Λ_ι^{∗}$. We also know that $\v{□} ∈ Φ$ so
+  it only remains to show that $Φ$ is closed under $({≡})$. According to
+  \theorem("canonbox") we know that the only value that is equal to $\v{□}$
+  is itself. As a consequence, we only have to consider values that are
+  records. Let us take $\v{{(li=vi)i∈I}} ∈ Φ$ and a value $w ∈ Λ_ι^{∗}$ such
+  that $\v{{(li=vi)i∈I}} ≡ w$ and show that $w ∈ Φ$. According to
+  \thmRef("canonrecord"), $w$ must be of the form $\v{{(li=wi)i∈I}}$ with
+  $\v{vi} ≡ \v{wi}$ for all $i∈I$. We can thus conclude since we know that
+  $\vs{Aiρ}$ is closed under $({≡})$.
+
+  \begin{center}
+    $ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li : Ai) i∈I}} : ο} $
+  \end{center}
+
+\item In the case of the sum type, we can use the same reasoning as for
+  the product type to obtain that $Φ = \vs{[(Ci:Ai)i∈I]ρ} ⊆ Λ_ι^{∗}$. By
+  definition, we also have $\v{□} ∈ Φ$ so we only have to show that $Φ$
+  is closed under $({≡})$. As it is defined as a union, it is enough to
+  show that all of its components are themselves closed under $({≡})$.
+  In particular, it is the case for $\{\v{□}\}$ according to
+  \theorem("canonbox"). Let us now take $i∈I$ and show that
+  $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\}$ is closed under $({≡})$. This is an
+  immediate consequence of \thmRef("canoncons") since $\vs{Aiρ}$ is
+  closed under $({≡})$.
+
+  \begin{center}
+    $ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{[(Ci : Ai) i∈I]} : ο} $
+  \end{center}
+
+\item In the case of the universal type, we need to show that $\vs{(∀χ A)ρ}
+  ∈ ⟦ο⟧$. As we are free to rename $χ$ we may assume that $χ ∉ dom(ρ)$ and
+  hence our goal rewrites $\vs{∀χ Aρ} = \bigcap_{Φ∈⟦s⟧} \vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$.
+  By induction hypothesis, we know that for all $Φ ∈ ⟦s⟧$ we have
+  $\vs{Aρ[χ≔Φ]} ∈ ⟦ο⟧$. We can thus conclude since an arbitrary intersection
+  of elements of $⟦ο⟧$ is trivially an element of $⟦ο⟧$.
+
+  \begin{center}
+    $ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∀χ A} : ο} $
+  \end{center}
+
+\item In the case of the existential type, we can use a similar reasoning
+  as for the universal type. We only need to remark that an arbitrary union
+  of elements of $⟦ο⟧$ is trivially an element of $⟦ο⟧$.
+
+  \begin{center}
+    $ \unaryR{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{∃χ A} : ο} $
+  \end{center}
+
+(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 \item In the case of the membership type, we need to show that
       $\vs{tρ∈Aρ} ∈ ⟦ο⟧$. By induction hypothesis, we know
       $\vs{tρ} = \t{tρ} ∈ ⟦τ⟧ = Λ^{∗}$ and
