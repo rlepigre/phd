@@ -1329,67 +1329,56 @@ corresponding case.
 
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
-we can easily check that a typed term normalises using a pole containing
+we can easily check that closed, typed terms normalise using a pole containing
 only processes reducing to a final state. Note that we need to fix the
-parameters of the system (i.e. the reduction relation and the equivalence
-relation).
-(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
+parameters of the system. Until the end of this section, we will consider
+$({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$.
 \begin{thm}\label("basicnorm")
-If we choose $({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$ then the typed
-terms of our language normalise. More formally, if the judgment
-$Σ \sp Γ; Ξ ⊢ t : A$ is derivable, and if $ρ$ is a substitution over $Σ$
-such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for every stack $π ∈ \ss{Aρ}$ there
-is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
+Every closed, typed term normalises. More precisely, for every term $t∈Λ^{∗}$
+such that $⊢ t : A$ is derivable in the system, there is $v∈Λ_ι^{∗}$ such that
+$\p{t∗π} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
-which is trivially saturated. We will first check that it is also
-$≡_{≻}$-extensional. Let us suppose that $t ≡_{≻} u$ and that
-$\p{t∗π} ∈ \dbot$. By definition of $\dbot$, there must be a value
-$v$ such that $\p{t∗π} ≻^{∗} \p{v∗ε}$, and thus we have
-${\p{t∗π}} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
+We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$ which is
+trivially saturated. We will first check that it is also $≡_{≻}$-extensional.
+Let us suppose that $t ≡_{≻} u$ and that $\p{t∗π} ∈ \dbot$. By definition of
+$\dbot$, there must be a value $v$ such that $\p{t∗π} ≻^{∗} \p{v∗ε}$, and
+thus we have ${\p{t∗π}} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
 ${\p{u∗π}} {⇓}_{≻}$, and thus there must be a value $w$ such that
 $\p{u∗π} ≻ \p{w∗ε}$. This exactly means that $\p{u∗π} ∈ \dbot$.
 
-We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
-$\t{tρ} ∈ \ts{Aρ}$. By definition, this means that $\p{tρ∗ξ} ∈ \dbot$
-for every stack $ξ ∈ \ss{Aρ}$, and in particular $\p{tρ ∗ π} ∈ \dbot$.
-We can hence conclude by definition of $\dbot$ as this exactly means that
-there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
+We can now apply \thmRef("adequacy") with the pole $\dbot$ and the empty
+substitution $ρ_{id}$ to obtain $\t{t} ∈ \ts{A}$. By definition, this means
+that $\p{t ∗ ξ} ∈ \dbot$ for every stack $ξ ∈ \ss{A}$. In particular, we
+have $\p{t ∗ ε} ∈ \dbot$ as we trivially have $ε ∈ \ss{A}$. This exactly
+mearns that there is a value $v∈Λ_ι$ such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$. It
+remains to show that $v$ is closed, but this is trivial as none of our
+reduction rules can introduce a free variable.
 \end{proof}
 \end{thm}
 
-Using a similar technique, it is possible to show a stronger safety
-in the case of //pure// types (i.e. types that do not contain arrows).
-Indeed, when a term $t$ has type $A$ and $A$ is pure, then we can show
-that $t$ reduces to a value of type $A$.
+Using a similar technique, it is possible to show a stronger safety property
+if we restrict ourselves to terms having a //pure// type (i.e. a type that
+does not contain arrows). Indeed, when a closed term $t$ has type $A$ and $A$
+is pure, we can show that $t$ reduces to a value that is contained in the
+semantical interpretation of $A$.
 \begin{thm}\label("basicsafety")
-If the judgment $Σ \sp Γ; Ξ ⊢ t : A$ is derivable for a pure type $A$, and
-if $ρ$ is a substitution over $Σ$ such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for
-every stack $π ∈ \ss{Aρ}$ there is a value $v ∈ \vs{Aρ}$ such that
-$\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
+For every closed term $t ∈ Λ_ι^{∗}$ such that $⊢ t : A$ for a pure type $A$,
+there is a value $v ∈ \vs{A}$ such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
-\todo(None) (* FIXME *)
-(*
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈\vs{Aρ}, p ≻^{∗} \p{v∗ε}\}$
-which is trivially saturated.
-We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
-which is trivially saturated. We will first check that it is also
-$≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
-$\p{t∗π} ∈ \dbot$. By definition of $\dbot$, there must be a value
-$v$ such that $\p{t∗π} ≻^{∗} \p{v∗ε}$, and thus we have
-${\p{t∗π}} {⇓}_{≻}$. Since $t ≡_{≻} u$ we can deduce
-${\p{u∗π}} {⇓}_{≻}$, and thus there must be a value $w$ such that
-$\p{u∗π} ≻ \p{w∗ε}$. This exactly means that $\p{u∗π} ∈ \dbot$.
-
-We can now apply \thmRef("adequacy") with the pole $\dbot$ to obtain
-$\t{tρ} ∈ \ts{Aρ}$. By definition, this means that $\p{tρ∗ξ} ∈ \dbot$
-for every stack $ξ ∈ \ss{Aρ}$, and in particular $\p{tρ ∗ π} ∈ \dbot$.
-We can hence conclude by definition of $\dbot$ as this exactly means that
-there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
-*)
+\todo(None) (* TODO *)
 \end{proof}
 \end{thm}
-(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
+
+Finally, we are going to show that our type system is consistent as a logic.
+In other words, we will show that there is no closed term of type $⊥$.
+\begin{thm}\label("basicconsistency")
+There is no closed term $t ∈ Λ^{∗}$ such that $t \nequiv_{≻} \v{□}$ and
+$⊢ t : ⊥$ is derivable.
+\begin{proof}
+\todo(None) (* TODO *)
+\end{proof}
+\end{thm}
+
 
 =<
 
@@ -1542,9 +1531,9 @@ new cases are displayed bellow.
 \end{itemize}
 \end{proof}
 \end{thm}
-Of course, \theorem("basicnorm") and \theorem("basicsafety") can still be
-proved in the extended system with exactly the same proof, but with the
-extended adequacy lemma.
+Of course, \theorems(["basicnorm";"basicsafety";"basicconsistency"]) can
+still be proved in the extended system with exactly the same proof, but
+with the extended adequacy lemma.
 
 =<
 

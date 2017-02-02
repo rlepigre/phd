@@ -31,7 +31,7 @@ let vfset = vari ["I"; "J"; "K"]
 let fmeta = vari ["A"; "B"; "C"]
 let fvari = vari ["χ"]
 let ovari = vari ["X"; "Y"; "Z"]
-let stvar = vari ["s"]
+let stvar = vari ["s"; "ο"]
 
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
