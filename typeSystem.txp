@@ -1334,7 +1334,7 @@ only processes reducing to a final state. Note that we need to fix the
 parameters of the system (i.e. the reduction relation and the equivalence
 relation).
 (* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
-\begin{thm}
+\begin{thm}\label("basicnorm")
 If we choose $({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$ then the typed
 terms of our language normalise. More formally, if the judgment
 $Σ \sp Γ; Ξ ⊢ t : A$ is derivable, and if $ρ$ is a substitution over $Σ$
@@ -1358,20 +1358,20 @@ there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 \end{proof}
 \end{thm}
 
-(* FIXME needs δ ?
 Using a similar technique, it is possible to show a stronger safety
 in the case of //pure// types (i.e. types that do not contain arrows).
 Indeed, when a term $t$ has type $A$ and $A$ is pure, then we can show
 that $t$ reduces to a value of type $A$.
-\begin{thm}
+\begin{thm}\label("basicsafety")
 If the judgment $Σ \sp Γ; Ξ ⊢ t : A$ is derivable for a pure type $A$, and
 if $ρ$ is a substitution over $Σ$ such that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$, then for
 every stack $π ∈ \ss{Aρ}$ there is a value $v ∈ \vs{Aρ}$ such that
 $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
+\todo(None) (* FIXME *)
+(*
 We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈\vs{Aρ}, p ≻^{∗} \p{v∗ε}\}$
 which is trivially saturated.
-(*
 We consider the pole $\dbot = \{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
 which is trivially saturated. We will first check that it is also
 $≡_{≻}$-extentional. Let us suppose that $t ≡_{≻} u$ and that
@@ -1389,7 +1389,7 @@ there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 *)
 \end{proof}
 \end{thm}
-*)
+(* FIXME FIXME FIXME work in progress FIXME FIXME FIXME *)
 
 =<
 
@@ -1398,7 +1398,9 @@ there is a value $v ∈ Λ_ι$ such that $\p{tρ ∗ π} ≻^{∗} \p{v∗ε}$.
 In our system, the typing rule for the named terms of the \lmcalc is
 limited to stack variables. As a consequence, terms can only contain
 terms of the form $\t{[π]t}$ when $π$ is a stack variable.
-$$ \id(r_name) $$
+\begin{center}
+  $ \id(r_name) $
+\end{center}
 It is however possible to generalise this typing rule to accept more
 stacks, provided that they can be typed in some sense.
 \begin{def}
@@ -1431,11 +1433,15 @@ let r_fram =
 
 Using a stack judgment, the typing rule for named terms can replaced
 by the following, provided that we have enough rules for typing stacks.
-$$ \id(r_name') $$
+\begin{center}
+  $ \id(r_name') $
+\end{center}
 To recover our previous typing rule for named terms, we need at least
 a rule for handling stack variables. This typing rule is very similar
 to the axiom rule ($Ax$), as it refers to the context.
-$$ \id(r_ax') $$
+\begin{center}
+  $ \id(r_ax') $
+\end{center}
 Using ($Ax^⊥$), the old ($[\wc]$) rule can be derived as follows.
 $$
 \proofTree{
@@ -1452,8 +1458,11 @@ formed by pushing a value on a stack, or stack frames. Note that it
 is also possible to give a typing rule for the empty stack. We will
 not use it here as it requires all the processes of the form
 $\p{v∗ε}$ to be in the pole.
-$$ \id(r_push) $$
-$$ \id(r_fram) $$
+\begin{center}
+  $ \id(r_push) $
+
+  $ \id(r_fram) $
+\end{center}
 
 Semantically, we will interpret stack judgments in a similar way as
 value and term judgments. The new adequacy lemma will then involve the
@@ -1462,11 +1471,15 @@ three forms of judgments.
 Let $A$, $B∈\cal{F}$ be two closed types such that $⊢ A : ο$ and $⊢ B : ο$.
 If $v ∈ \vs{A}$ and $π ∈ \ss{B}$ then $\s{v·π} ∈ \ss{A⇒B}$.
 \begin{proof}
-Let us take $\v{λx t} ∈ \vs{A⇒B}$ and show $\p{λx t ∗ v·π} ∈ \dbot$.
-Since $\dbot$ is saturated and $\p{λx t ∗ v·π} ≻ \p{t[x≔v] ∗ π}$, it is
-enough to show $\p{t[x≔v] ∗ π} ∈ \dbot$. As $π ∈ \ss{B}$ we only need
-to show $\t{t[x≔v]} ∈ \ts{B}$. This follows from the definition of
-$\vs{A⇒B}$ since we have $v ∈ \vs{A}$.
+Let us take a value $w ∈ \vs{A⇒B}$ and show that $\p{w ∗ v·π} ∈ \dbot$. If
+$w = \v{□}$ then we have $\p{□ ∗ v·π} ≻ \p{□ ∗ π}$ and thus it is enough to
+show that $\p{□ ∗ π} ∈ \dbot$ since $\dbot$ is saturated. This is immediate
+since $π ∈ \ss{B}$ and $\v{□} ∈ \vs{B}$ since $\vs{B} ∈ ⟦ο⟧$ according to
+\theorem("sortsem"). If $w = \v{λx t}$ then we have $\p{λx t ∗ v·π} ≻
+\p{t[x≔v] ∗ π}$ and thus it is enough to show that $\p{t[x≔v] ∗ π} ∈ \dbot$
+since $\dbot$ is saturated. As $π ∈ \ss{B}$ this amounts to showing that
+$\t{t[x≔v]} ∈ \ts{B}$, but this follows by definition of $\vs{A⇒B}$ as
+$v ∈ \vs{A}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("stack_adequacy")
@@ -1496,8 +1509,8 @@ new cases are displayed bellow.
     $ \id(r_name') $
   \end{center}
 
-\item If the last used rule is ($Ax^⊥$) then we immediately have
-  $\s{αρ} = \s{ρ(α)} ∈ \ss{Aρ}$ since we know that $ρ ⊩ Γ, α:A^⊥$.
+\item If the last used rule is ($Ax^⊥$) then we immediately get
+  $\s{αρ} = \s{ρ(α)} ∈ \ss{Aρ}$ since we know that we have $ρ ⊩ Γ, α:A^⊥$.
 
   \begin{center}
     $ \id(r_ax') $
@@ -1525,9 +1538,13 @@ new cases are displayed bellow.
   \begin{center}
     $ \id(r_fram) $
   \end{center}
+  \linesAfter(1) (* FIXME hack *)
 \end{itemize}
 \end{proof}
 \end{thm}
+Of course, \theorem("basicnorm") and \theorem("basicsafety") can still be
+proved in the extended system with exactly the same proof, but with the
+extended adequacy lemma.
 
 =<
 
