@@ -11,6 +11,15 @@
 )
 \Include{Macros}
 
+\Configure_math_macro{\v}{ syntax = string; }
+\Configure_math_macro{\t}{ syntax = string; }
+\Configure_math_macro{\s}{ syntax = string; }
+\Configure_math_macro{\p}{ syntax = string; }
+\Configure_math_macro{\f}{ syntax = string; }
+\Configure_math_macro{\vs}{ syntax = string; }
+\Configure_math_macro{\ss}{ syntax = string; }
+\Configure_math_macro{\ts}{ syntax = string; }
+
 => A model for a semantical value restriction \label("semValRest")
 
 In this chapter, we consider the encoding of dependent types (i.e. forms
@@ -30,27 +39,27 @@ quantification and the membership predicate. The dependent function
 types can be encoded as follows, and it may range over either values
 or terms.
 $$
-  \f("Π_(x∈A) B") ≔ \f("∀x(x∈A ⇒ B)")
+  \f{Π_(x∈A) B} ≔ \f{∀x(x∈A ⇒ B)}
   \hspace(6.0)
-  \f("Π_(a∈A) B") ≔ \f("∀a(a∈A ⇒ B)")
+  \f{Π_(a∈A) B} ≔ \f{∀a(a∈A ⇒ B)}
 $$
 To work with our dependent function types more easily, we can define
 the corresponding introduction and elimination rules as follows.
 $$
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("λx t") : \f("Π_(y∈A) B")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}
 $$
 $$
 \unaryRN{Π_{τ,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[a≔x]}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("λx t") : \f("Π_(a∈A) B")}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(a∈A) B}}
 $$
 $$
-\binaryRN{Π_{ι,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(x∈A) B")}
-  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[x≔v]")}
+\binaryRN{Π_{ι,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(x∈A) B}}
+  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[x≔v]}}
 $$
 $$
-\binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
-  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}
+\binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
+  {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}
 $$
 Note that both elemination rules require value restriction on the
 side of the argument. In other words, dependent functions can only
@@ -62,40 +71,40 @@ do not have to extend our adequacy lemma (\thmRef("adequacy")). The
 proofs for the derivation of the rules are given bellow.
 $$
 \proofTree{
-  \unary{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("Π_(y∈A) B")}{
-  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("∀y (y∈A ⇒ B)")}{
-  \unaryN{⇒_i}{Σ, y:ι \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("y∈A ⇒ B")}{
-  \unaryN{∈_e}{Σ, y:ι, x:ι \sp Γ, x : \f("y∈A"); Ξ ⊢ t : B}{
+  \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}{
+  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{∀y (y∈A ⇒ B)}}{
+  \unaryN{⇒_i}{Σ, y:ι \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{y∈A ⇒ B}}{
+  \unaryN{∈_e}{Σ, y:ι, x:ι \sp Γ, x : \f{y∈A}; Ξ ⊢ t : B}{
   \unaryN{≡_{τ,ι}}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ, x≡y ⊢ t : B}{
-  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ, x≡y ⊢ t : \f("B[y≔x]")}{
-  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[y≔x]")}{
-    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[y≔x]")}
+  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ, x≡y ⊢ t : \f{B[y≔x]}}{
+  \unaryN{Wk}{Σ, y:ι, x:ι \sp Γ, x : A; Ξ ⊢ t : \f{B[y≔x]}}{
+    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f{B[y≔x]}}
   }}}}}}}
 }
 $$
 $$
 \proofTree{
-  \unary{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("Π_(a∈A) B")}{
-  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("∀a (a∈A ⇒ B)")}{
-  \unaryN{⇒_i}{Σ, a:τ \sp Γ; Ξ ⊢_\tval \v("λx t") : \f("a∈A ⇒ B")}{
-  \unaryN{∈_e}{Σ, a:τ, x:ι \sp Γ, x : \f("a∈A"); Ξ ⊢ t : B}{
+  \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(a∈A) B}}{
+  \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{∀a (a∈A ⇒ B)}}{
+  \unaryN{⇒_i}{Σ, a:τ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{a∈A ⇒ B}}{
+  \unaryN{∈_e}{Σ, a:τ, x:ι \sp Γ, x : \f{a∈A}; Ξ ⊢ t : B}{
   \unaryN{≡_{τ,τ}}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ, x≡a ⊢ t : B}{
-  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ, x≡a ⊢ t : \f("B[a≔x]")}{
-  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[a≔x]")}{
-    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f("B[a≔x]")}
+  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ, x≡a ⊢ t : \f{B[a≔x]}}{
+  \unaryN{Wk}{Σ, a:τ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f{B[a≔x]}}{
+    \hyp{Σ, x:ι \sp Γ, x : A; Ξ ⊢ t : \f{B[a≔x]}}
   }}}}}}}
 }
 $$
 $$
 \proofTree{
- \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[x≔v]")}{
-   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("v∈A ⇒ B[x≔v]")}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀x (x∈A ⇒ B)")}{
-     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(x∈A) B")}
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[x≔v]}}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{v∈A ⇒ B[x≔v]}}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀x (x∈A ⇒ B)}}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(x∈A) B}}
    }}
  }{
-  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f("v∈A")}{
-  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f("v∈A")}{
+  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f{v∈A}}{
+  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f{v∈A}}{
     \hyp{Σ \sp Γ ; Ξ ⊢_\tval v : A}
   }}
  }
@@ -103,14 +112,14 @@ $$
 $$
 $$
 \proofTree{
- \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")}{
-   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("v∈A ⇒ B[a≔v]")}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀a (a∈A ⇒ B)")}{
-     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{v∈A ⇒ B[a≔v]}}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
    }}
  }{
-  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f("v∈A")}{
-  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f("v∈A")}{
+  \unaryN{↑}{Σ \sp Γ ; Ξ ⊢ v : \f{v∈A}}{
+  \unaryN{∈_i}{Σ \sp Γ ; Ξ ⊢_\tval v : \f{v∈A}}{
     \hyp{Σ \sp Γ ; Ξ ⊢_\tval v : A}
   }}
  }
@@ -135,21 +144,21 @@ let _ =
   let first e1 e2 = [ e1; <$=$>; e2 ] in
   let line e = [ []; <$=$>; e ] in
   array [`East ; `East ; `West]
-  [ first <$\vs("Π_(x∈A) B")$> <$\vs("∀x (x∈A ⇒ B)")$>
-  ; line <$\biginter_{Φ∈⟦ι⟧} \vs("Φ∈A ⇒ B[x≔Φ]")$>
-  ; line <$\biginter_{Φ∈⟦ι⟧} \{\v("λx t") \| ∀v∈\vs("Φ∈A"),
-      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
-  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\vs("Φ∈A"),
-      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
-  ; line <$\{\v("λx t") \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs("A") \| w ≡ Φ\},
-      \t("t[x≔v]") ∈ \ts("B[x≔Φ]")\}$>
-  ; line <$\{\v("λx t") \| ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[x≔v]")\}$> ]
+  [ first <$\vs{Π_(x∈A) B}$> <$\vs{∀x (x∈A ⇒ B)}$>
+  ; line <$\biginter_{Φ∈⟦ι⟧} \vs{Φ∈A ⇒ B[x≔Φ]}$>
+  ; line <$\biginter_{Φ∈⟦ι⟧} \{\v{λx t} \| ∀v∈\vs{Φ∈A},
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
+  ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\vs{Φ∈A},
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
+  ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs{A} \| w ≡ Φ\},
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
+  ; line <$\{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}$> ]
 )
 \end{center}
 and similarly, we have
 $$
-  \vs("Π_(a∈A) B") = \{\v("λx t") \|
-    ∀v∈\vs("A"), \t("t[x≔v]") ∈ \ts("B[a≔v]")\}
+  \vs{Π_(a∈A) B} = \{\v{λx t} \|
+    ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[a≔v]}\}
 $$
 if we quantify over a term variable.
 
@@ -210,26 +219,26 @@ our system. To support this claim, we will consider the system in which
 $$
 \unaryRN{∈_{i,⊥}}
   {Σ \sp Γ,Ξ ⊢ t : A}
-  {Σ \sp Γ,Ξ ⊢ t : \f("t∈A")}
+  {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}
 $$
 In this system, the following (unrestricted) typing rule for the
 elimination of the dependent function type can be derived (see the
 typing derivation bellow the rule).
 $$
   \binaryRN{Π_{e,⊥}}
-    {Σ \sp Γ,Ξ ⊢ t : \f("Π_(a∈A) B")}
-    {Σ \sp Γ,Ξ ⊢ u : \f("A")}
-    {Σ \sp Γ,Ξ ⊢ \t("t u") : \f("B[a≔u]")}
+    {Σ \sp Γ,Ξ ⊢ t : \f{Π_(a∈A) B}}
+    {Σ \sp Γ,Ξ ⊢ u : \f{A}}
+    {Σ \sp Γ,Ξ ⊢ \t{t u} : \f{B[a≔u]}}
 $$
 $$
 \proofTree{
- \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")}{
-   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f("u∈A ⇒ B[a≔u]")}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f("∀a (a∈A ⇒ B)")}{
-     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}}{
+   \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{u∈A ⇒ B[a≔u]}}{
+   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
+     \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
    }}
  }{
-  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f("u∈A")}{
+  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f{u∈A}}{
     \hyp{Σ \sp Γ ; Ξ ⊢ u : A}
   }
  }
@@ -242,16 +251,16 @@ used to keep track of the argument used for a function, while typing the
 function itself.
 $$
   \binaryRN{⇒_{e,{∈},⊥}}
-    {Σ \sp Γ;Σ ⊢ t : \f("u∈A⇒B")}
+    {Σ \sp Γ;Σ ⊢ t : \f{u∈A⇒B}}
     {Σ \sp Γ;Σ ⊢ u : A}
-    {Σ \sp Γ;Σ ⊢ \t("t u") : B}
+    {Σ \sp Γ;Σ ⊢ \t{t u} : B}
 $$
 $$
 \proofTree{
- \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B")}{
-   \hyp{Σ \sp Γ ; Ξ ⊢ t : \f("u∈A ⇒ B")}
+ \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B}}{
+   \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{u∈A ⇒ B}}
  }{
-  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f("u∈A")}{
+  \unaryN{∈_{i,⊥}}{Σ \sp Γ ; Ξ ⊢ u : \f{u∈A}}{
     \hyp{Σ \sp Γ ; Ξ ⊢ u : A}
   }
  }
@@ -262,7 +271,7 @@ We will now build a counter-example to the consistency of the system
 without the value restriction on the introduction of the membership
 predicate. We will provide a typable term that that reduces to a value
 that is not in its type. We consider the term
-$t = \t("(λf(λ_v (f F[{}])) (f T[{}])) μα w")$
+$t = \t{(λf(λ_v (f F[{}])) (f T[{}])) μα w}$
 in which $v$ and $w$ are defined as follows.
 \begin{center}
 \diagram(
@@ -273,9 +282,9 @@ let _ =
   ; line "w" "λx [x | F[_] → T[{}] | T[_] → [α]λ_ F[{}]]" ]
 )
 \end{center}
-In many reduction steps, we have $\p("t∗ε") ≻^{∗} \p("C₁[{}]∗ε")$. To
-obtain our counter-example, we will show that $\t("t")$ has type
-$\f("[C₀:{} | C₁:{} ∧ (μα v) F[{}] ≡ F[{}]]")$. As we have
+In many reduction steps, we have $\p{t∗ε} ≻^{∗} \p{C₁[{}]∗ε}$. To
+obtain our counter-example, we will show that $\t{t}$ has type
+$\f{[C₀:{} | C₁:{} ∧ (μα v) F[{}] ≡ F[{}]]}$. As we have
 \begin{center}
 \linesBefore(6)
 \diagram(
@@ -292,73 +301,73 @@ let _ =
 )
 \end{center}
 for every stack $π∈Π$, \lemRef("redtosame") tells us that
-$\t("(μα w) F[{}]") ≡ \t("T[{}]")$. As a consequence, it cannot
-be that $\t("(μα w) F[{}]") ≡ \t("F[{}]")$ and thus the type
-$\f("[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]")$ is equivalent to
-$\f("[C₀ : {}]")$ (i.e. they have the same semantical interpretation).
-This means that if we manage to show that $\t("t")$ has type
-$\f("[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]")$, then we will have a
-contradiction to the type safety as $\t("t")$ reduces to $\v("C₁[{}]")$,
-which is not contained in $\vs("[C₀ : {}]")$.
+$\t{(μα w) F[{}]} ≡ \t{T[{}]}$. As a consequence, it cannot
+be that $\t{(μα w) F[{}]} ≡ \t{F[{}]}$ and thus the type
+$\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$ is equivalent to
+$\f{[C₀ : {}]}$ (i.e. they have the same semantical interpretation).
+This means that if we manage to show that $\t{t}$ has type
+$\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$, then we will have a
+contradiction to the type safety as $\t{t}$ reduces to $\v{C₁[{}]}$,
+which is not contained in $\vs{[C₀ : {}]}$.
 
-In the typing derivation displayed bellow, the type $\f("B")$ is
-defined as $\f("[T:{}|F:{}]")$, the type $\f("C")$ is defined as
-$\f("[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]")$, the context $Γ₁$ is
-defined as $f : \f("B⇒B")$, the context $Γ₂$ is defined as
-$f:\f("B⇒B"), y:\f("B"), y≡\t("f F[{}]")$ and $Γ₃$ is defined as
-$α:\f("B⇒B")^⊥,x:B$.
+In the typing derivation displayed bellow, the type $\f{B}$ is
+defined as $\f{[T:{}|F:{}]}$, the type $\f{C}$ is defined as
+$\f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]}$, the context $Γ₁$ is
+defined as $f : \f{B⇒B}$, the context $Γ₂$ is defined as
+$f:\f{B⇒B}, y:\f{B}, y≡\t{f F[{}]}$ and $Γ₃$ is defined as
+$α:\f{B⇒B}^⊥,x:B$.
 \begin{env}(scale 0.84)
 \begin{proofTree}
 \Caml(
 let p =
   let leaf = ax in
-  leaf   ~name:<$p₁$> <$ Γ₁ ⊢_\tval \t("v") : \f("(f F[{}])∈B ⇒ C") $>;
-  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t("v") : \f("(f F[{}])∈B ⇒ C") $>;
+  leaf   ~name:<$p₁$> <$ Γ₁ ⊢_\tval \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
+  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
 
 
-  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t("f") : \f("B⇒B")$>;
-  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t("f") : \f("B⇒B")$>;
+  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
+  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
 
-  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t("{}") : \f("{}")$>;
-  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t("F[{}]") : \f("B")$>;
-  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t("F[{}]") : \f("B")$>;
-
-  binary  ~name:<$⇒_e$>
-    <$ Γ₁ ⊢ \t("f F[{}]") : \f("B") $>;
-
-
-  binary ~name:<$⇒_{e,{∈},⊥}$> <$ Γ₁ ⊢ \t("v (f F[{}])") : \f("C") $>;
-  unary  ~name:<$⇒_i$> <$ Γ₁ ⊢_\tval \t("λ_ v (f F[{}])") : \f("B ⇒ C") $>;
-  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t("λ_ v (f F[{}])") : \f("B ⇒ C") $>;
-
-
-  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t("f") : \f("B⇒B")$>;
-  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t("f") : \f("B⇒B")$>;
-
-  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t("{}") : \f("{}")$>;
-  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t("T[{}]") : \f("B")$>;
-  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t("T[{}]") : \f("B")$>;
+  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
+  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{F[{}]} : \f{B}$>;
+  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{F[{}]} : \f{B}$>;
 
   binary  ~name:<$⇒_e$>
-    <$ Γ₁ ⊢ \t("f T[{}]") : \f("B") $>;
+    <$ Γ₁ ⊢ \t{f F[{}]} : \f{B} $>;
+
+
+  binary ~name:<$⇒_{e,{∈},⊥}$> <$ Γ₁ ⊢ \t{v (f F[{}])} : \f{C} $>;
+  unary  ~name:<$⇒_i$> <$ Γ₁ ⊢_\tval \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
+  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
+
+
+  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
+  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
+
+  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
+  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{T[{}]} : \f{B}$>;
+  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{T[{}]} : \f{B}$>;
+
+  binary  ~name:<$⇒_e$>
+    <$ Γ₁ ⊢ \t{f T[{}]} : \f{B} $>;
 
 
   binary ~name:<$⇒_e$>
-    <$ f:\f("B⇒B") ⊢ \t("(λ_ v (f F[{}])) (f T[{}])")
-       : \f("[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]") $>;
+    <$ f:\f{B⇒B} ⊢ \t{(λ_ v (f F[{}])) (f T[{}])}
+       : \f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]} $>;
   unary  ~name:<$Π_{τ,i}$>
-    <$ ⊢_\tval \t("λf (λ_ v (f F[{}])) (f T[{}])")
-       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]") $>;
+    <$ ⊢_\tval \t{λf (λ_ v (f F[{}])) (f T[{}])}
+       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
   unary  ~name:<$↑$>
-    <$ ⊢ \t("λf (λ_ v (f F[{}])) (f T[{}])")
-       : \f("Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]") $>;
+    <$ ⊢ \t{λf (λ_ v (f F[{}])) (f T[{}])}
+       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
 
   leaf    ~name:<$p₂$>
-    <$ ⊢ \t("u") : \f("B⇒B") $>;
+    <$ ⊢ \t{u} : \f{B⇒B} $>;
 
   binary ~name:<$Π_{e,⊥}$>
-    <$ ⊢ \t("(λf (λ_ v (f F[{}])) (f T[{}])) u")
-       : \f("[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]") $>;
+    <$ ⊢ \t{(λf (λ_ v (f F[{}])) (f T[{}])) u}
+       : \f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]} $>;
   display_proof ()
 )
 $$ \id(p) $$
@@ -367,30 +376,30 @@ $$ \id(p) $$
 \Caml(
 let p =
   ax     ~name:<$Ax$>
-    <$ Γ₂ ⊢_\tval y : \f("B") $>;
+    <$ Γ₂ ⊢_\tval y : \f{B} $>;
 
-  ax      ~name:<$×_i$> <$ Γ₂, y≡\t("F[{}]") ⊢_\tval \t("{}") : \f("{}")$>;
-  hyp <$y≡\t("f F[{}]"), y≡\t("F[{}]") ⊢ \t("f F[{}]") ≡ \t("F[{}]")$>;
+  ax      ~name:<$×_i$> <$ Γ₂, y≡\t{F[{}]} ⊢_\tval \t{{}} : \f{{}}$>;
+  hyp <$y≡\t{f F[{}]}, y≡\t{F[{}]} ⊢ \t{f F[{}]} ≡ \t{F[{}]}$>;
   binary ~name:<$\restriction_e$>
-    <$ Γ₂, y ≡ \t("F[{}]") ⊢_\tval \t("{}") : \f("{} ∧ f F[{}] ≡ F[{}]") $>;
-  unary  ~name:<$+_e$> <$ Γ₂, y ≡ \t("F[{}]") ⊢_\tval \t("C₁[{}]") : \f("C") $>;
-  unary  ~name:<$↑$> <$ Γ₂, y ≡ \t("F[{}]") ⊢ \t("C₁[{}]") : \f("C") $>;
+    <$ Γ₂, y ≡ \t{F[{}]} ⊢_\tval \t{{}} : \f{{} ∧ f F[{}] ≡ F[{}]} $>;
+  unary  ~name:<$+_e$> <$ Γ₂, y ≡ \t{F[{}]} ⊢_\tval \t{C₁[{}]} : \f{C} $>;
+  unary  ~name:<$↑$> <$ Γ₂, y ≡ \t{F[{}]} ⊢ \t{C₁[{}]} : \f{C} $>;
 
-  ax      ~name:<$×_i$> <$ Γ₂, y≡\t("T[{}]") ⊢_\tval \t("{}") : \f("{}")$>;
-  unary  ~name:<$+_e$> <$ Γ₂, y ≡ \t("T[{}]") ⊢_\tval \t("C₀[{}]") : \f("C") $>;
-  unary  ~name:<$↑$> <$ Γ₂, y ≡ \t("T[{}]") ⊢ \t("C₀[{}]") : \f("C") $>;
+  ax      ~name:<$×_i$> <$ Γ₂, y≡\t{T[{}]} ⊢_\tval \t{{}} : \f{{}}$>;
+  unary  ~name:<$+_e$> <$ Γ₂, y ≡ \t{T[{}]} ⊢_\tval \t{C₀[{}]} : \f{C} $>;
+  unary  ~name:<$↑$> <$ Γ₂, y ≡ \t{T[{}]} ⊢ \t{C₀[{}]} : \f{C} $>;
 
   ternary  ~name:<$+_e$>
-    <$ f:\f("B⇒B"), y:\f("B"), y ≡ \t("f F[{}]")
-       ⊢ \t("[y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
-       : \f("C") $>;
+    <$ f:\f{B⇒B}, y:\f{B}, y ≡ \t{f F[{}]}
+       ⊢ \t{[y | F[_] → C₁[{}] | T[_] → C₀[{}]]}
+       : \f{C} $>;
   unary  ~name:<$∈_e$>
-    <$ f:\f("B⇒B"), y:\f("(f F[{}])∈B")
-       ⊢ \t("[y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
-       : \f("C") $>;
+    <$ f:\f{B⇒B}, y:\f{(f F[{}])∈B}
+       ⊢ \t{[y | F[_] → C₁[{}] | T[_] → C₀[{}]]}
+       : \f{C} $>;
   unary  ~name:<$⇒_ι$>
-    <$ f:\f("B⇒B") ⊢_\tval \t("λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]")
-       : \f("(f F[{}])∈B ⇒ C") $>;
+    <$ f:\f{B⇒B} ⊢_\tval \t{λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]}
+       : \f{(f F[{}])∈B ⇒ C} $>;
   unary   ~name:<$p₁$> (mcolor white <$...$>);
   display_proof ()
 )
@@ -400,26 +409,26 @@ $$ \id(p) $$
 \Caml(
 let p =
   ax      ~name:<$Ax$>  <$ Γ₃ ⊢_\tval x:B $>;
-  ax      ~name:<$×_i$> <$ Γ₃ ⊢_\tval \v("{}") : \f("{}") $>;
-  unary   ~name:<$+_i$> <$ Γ₃ ⊢_\tval \v("T[{}]") : \f("B") $>;
-  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v("T[{}]") : \f("B") $>;
-  ax      ~name:<$×_i$> <$ Γ₃ ⊢_\tval \v("{}") : \f("{}") $>;
-  unary   ~name:<$+_i$> <$ Γ₃ ⊢_\tval \v("F[{}]") : \f("B") $>;
-  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v("F[{}]") : \f("B") $>;
-  unary   ~name:<$⇒_i$> <$ Γ₃ ⊢_\tval \v("λ_F[{}]") : \f("B⇒B") $>;
-  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v("λ_F[{}]") : \f("B⇒B") $>;
-  unary   ~name:<$[\wc]$> <$ Γ₃ ⊢ \t("[α]λ_F[{}]"):\f("B") $>;
+  ax      ~name:<$×_i$> <$ Γ₃ ⊢_\tval \v{{}} : \f{{}} $>;
+  unary   ~name:<$+_i$> <$ Γ₃ ⊢_\tval \v{T[{}]} : \f{B} $>;
+  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v{T[{}]} : \f{B} $>;
+  ax      ~name:<$×_i$> <$ Γ₃ ⊢_\tval \v{{}} : \f{{}} $>;
+  unary   ~name:<$+_i$> <$ Γ₃ ⊢_\tval \v{F[{}]} : \f{B} $>;
+  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v{F[{}]} : \f{B} $>;
+  unary   ~name:<$⇒_i$> <$ Γ₃ ⊢_\tval \v{λ_F[{}]} : \f{B⇒B} $>;
+  unary   ~name:<$↑$> <$ Γ₃ ⊢ \v{λ_F[{}]} : \f{B⇒B} $>;
+  unary   ~name:<$[\wc]$> <$ Γ₃ ⊢ \t{[α]λ_F[{}]}:\f{B} $>;
   ternary ~name:<$+_e$>
-    <$ α:\f("B⇒B")^⊥,x:B ⊢
-       \t("[x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : B $>;
+    <$ α:\f{B⇒B}^⊥,x:B ⊢
+       \t{[x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]} : B $>;
   unary   ~name:<$⇒_i$>
-    <$ α:\f("B⇒B")^⊥ ⊢_\tval
-       \t("λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+    <$ α:\f{B⇒B}^⊥ ⊢_\tval
+       \t{λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]} : \f{B⇒B} $>;
   unary   ~name:<$↑$>
-    <$ α:\f("B⇒B")^⊥ ⊢
-       \t("λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+    <$ α:\f{B⇒B}^⊥ ⊢
+       \t{λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]} : \f{B⇒B} $>;
   unary   ~name:<$μ$>
-    <$ ⊢ \t("μα λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]") : \f("B⇒B") $>;
+    <$ ⊢ \t{μα λx [x|F[_]→T[{}]|T[_]→[α]λ_F[{}]]} : \f{B⇒B} $>;
   unary   ~name:<$p₂$> (mcolor white <$...$>);
   display_proof ()
 )
@@ -456,14 +465,14 @@ and not syntactic values only. Thanks to our notion of observational
 equivalence, this property can be expressed easily in the syntax. Indeed,
 we will replace a typing rule like
 \begin{center}
-$ \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}
-    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t("t v") : \f("B[a≔v]")} $
+$ \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
+    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}} $
 \end{center}
 with the following, where value restriction is replaced by an additional
 premise involving an equivalence.
 \begin{center}
-$ \ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f("Π_(a∈A) B")}{Σ \sp Γ ; Ξ ⊢ u : A}
-      {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t("t u") : \f("B[a≔u]")} $
+$ \ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}{Σ \sp Γ ; Ξ ⊢ u : A}
+      {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
 \end{center}
 The third premise requires the term $u$, which does not have to be a
 value anymore, to be equivalent to some value $v$.
@@ -492,14 +501,14 @@ rule as follows.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                       <$ Σ \sp Γ ; Ξ ⊢ \t("t") : \f("A") $>;
-  hyp                       <$ Ξ ⊢ \t("t") ≡ \t("v") $>;
-  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t("v") : \f("A") $>;
-  unary   ~name:<$↓$>       <$ Σ \sp Γ ; Ξ ⊢_\tval \t("v") : \f("A") $>;
-  unary   ~name:<$∈_i$>     <$ Σ \sp Γ ; Ξ ⊢_\tval \t("v") : \f("v∈A") $>;
-  unary   ~name:<$↑$>       <$ Σ \sp Γ ; Ξ ⊢ \t("v") : \f("v∈A") $>;
-  hyp                       <$ Ξ ⊢ \t("t") ≡ \t("v") $>;
-  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t("t") : \f("t∈A") $>;
+  hyp                       <$ Σ \sp Γ ; Ξ ⊢ \t{t} : \f{A} $>;
+  hyp                       <$ Ξ ⊢ \t{t} ≡ \t{v} $>;
+  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t{v} : \f{A} $>;
+  unary   ~name:<$↓$>       <$ Σ \sp Γ ; Ξ ⊢_\tval \t{v} : \f{A} $>;
+  unary   ~name:<$∈_i$>     <$ Σ \sp Γ ; Ξ ⊢_\tval \t{v} : \f{v∈A} $>;
+  unary   ~name:<$↑$>       <$ Σ \sp Γ ; Ξ ⊢ \t{v} : \f{v∈A} $>;
+  hyp                       <$ Ξ ⊢ \t{t} ≡ \t{v} $>;
+  binary  ~name:<$≡_{τ,τ}$> <$ Σ \sp Γ ; Ξ ⊢ \t{t} : \f{t∈A} $>;
   display_proof ()
 )
 \begin{center}
@@ -508,27 +517,27 @@ $\id(p)$
 \end{proofTree}
 The obtained, relaxed version of the membership introduction rule
 \begin{center}
-$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t("t") : \f("A")}
-    {Ξ ⊢ \t("t") ≡ \t("v")}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")} $
+$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{A}}
+    {Ξ ⊢ \t{t} ≡ \t{v}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}} $
 \end{center}
 can then immediatly be used to derive a relaxed version of the
 elimination of the dependent function type (having again an equivalence
 as a premise).
 \begin{center}
-$ \ternaryRN{Π_{e,τ}}{Σ \sp Γ;Σ ⊢ \t("t") : \f("Π_(a∈A) B")}
-    {Σ \sp Γ;Σ ⊢ \t("u") : \f("A")}{Ξ ⊢ \t("u") ≡ \t("v")}
-    {Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]")} $
+$ \ternaryRN{Π_{e,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{Π_(a∈A) B}}
+    {Σ \sp Γ;Σ ⊢ \t{u} : \f{A}}{Ξ ⊢ \t{u} ≡ \t{v}}
+    {Σ \sp Γ;Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
 \end{center}
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t("t") : \f("Π_(a∈A) B")$>;
-  unary                     <$Σ \sp Γ;Σ ⊢ \t("t") : \f("∀a (a∈A ⇒ B)")$>;
-  unary   ~name:<$∀_e$>     <$Σ \sp Γ;Σ ⊢ \t("t") : \f("u∈A ⇒ B[a≔u]")$>;
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t("u") : \f("A")$>;
-  hyp                       <$Ξ ⊢ \t("u") ≡ \t("v")$>;
-  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t("u") : \f("u∈A")$>;
-  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]") $>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t{t} : \f{Π_(a∈A) B}$>;
+  unary                     <$Σ \sp Γ;Σ ⊢ \t{t} : \f{∀a (a∈A ⇒ B)}$>;
+  unary   ~name:<$∀_e$>     <$Σ \sp Γ;Σ ⊢ \t{t} : \f{u∈A ⇒ B[a≔u]}$>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t{u} : \f{A}$>;
+  hyp                       <$Ξ ⊢ \t{u} ≡ \t{v}$>;
+  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t{u} : \f{u∈A}$>;
+  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t{t u} : \f{B[a≔u]} $>;
   display_proof ()
 )
 \begin{center}
@@ -541,29 +550,29 @@ typing rule for general application. It can be seen as a relaxed form
 of the following rule (which can be derived easily in the initial
 system).
 \begin{center}
-$ \binaryRN{⇒_{e,{∈}}}{Σ \sp Γ;Ξ ⊢ t : \f("v∈A⇒B")}
-    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ;Ξ ⊢ \t("t v") : B} $
+$ \binaryRN{⇒_{e,{∈}}}{Σ \sp Γ;Ξ ⊢ t : \f{v∈A⇒B}}
+    {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ;Ξ ⊢ \t{t v} : B} $
 \end{center}
 The interest of such a rule is to keep track of the argument a function
 will be applied to, when typing the function itself. In particular, this
 is useful to learn equivalences when the argument of a function is used
 in a case analysis. However, in its restricted form, this typing rule is
-rather useless since a term of the form $\t("(λx [x|(Ci[xi]→ti) i∈I]) v")$
-is equivalent to $\t("[v|(Ci[xi]→ti) i∈I]")$, and thus the same effect
+rather useless since a term of the form $\t{(λx [x|(Ci[xi]→ti) i∈I]) v}$
+is equivalent to $\t{[v|(Ci[xi]→ti) i∈I]}$, and thus the same effect
 can be obtained using the ($≡_{τ,τ}$). Using semantical value restriction,
 we can derive the following relaxed rule.
 \begin{center}
-$ \ternaryRN{⇒_{e,{∈},τ}}{Σ \sp Γ;Ξ ⊢ t : \f("u∈A⇒B")}{Σ \sp Γ;Ξ ⊢ u : A}
-    {Ξ ⊢ u ≡ v}{Σ \sp Γ;Ξ ⊢ \t("t u") : B} $
+$ \ternaryRN{⇒_{e,{∈},τ}}{Σ \sp Γ;Ξ ⊢ t : \f{u∈A⇒B}}{Σ \sp Γ;Ξ ⊢ u : A}
+    {Ξ ⊢ u ≡ v}{Σ \sp Γ;Ξ ⊢ \t{t u} : B} $
 \end{center}
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t("t") : \f("u∈A ⇒ B")$>;
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t("u") : \f("A")$>;
-  hyp                       <$Ξ ⊢ \t("u") ≡ \t("v")$>;
-  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t("u") : \f("u∈A")$>;
-  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t("t u") : B$>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t{t} : \f{u∈A ⇒ B}$>;
+  hyp                       <$Σ \sp Γ;Σ ⊢ \t{u} : \f{A}$>;
+  hyp                       <$Ξ ⊢ \t{u} ≡ \t{v}$>;
+  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t{u} : \f{u∈A}$>;
+  binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t{t u} : B$>;
   display_proof ()
 )
 \begin{center}
@@ -573,17 +582,17 @@ $$\id(p)$$
 The relaxed rule is very useful to obtain a typing rule for a generalised
 form of case analysis ranging over terms (and not only values).
 \begin{center}
-$ \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("[(Ci : Ai) i∈I]")}{Ξ ⊢ t ≡ v}
-     {[Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
-     {Σ \sp Γ;Ξ ⊢ \t("(λx [x | (Ci[xi] → ti) i∈I]) t") : B} $
+$ \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}}{Ξ ⊢ t ≡ v}
+     {[Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+     {Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B} $
 \end{center}
 \begin{env}(scale 0.65)
 \Caml(
 let subp = <$
     \proofTree{
-      \unaryN{≡_{τ,τ}}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t("Ci[xi]") ⊢ t_i : B}{
-        \unaryN{Wk}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t("Ci[xi]") ⊢ t_i : B}{
-          \hyp{Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t("Ci[xi]") ⊢ t_i : B}
+      \unaryN{≡_{τ,τ}}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t{Ci[xi]} ⊢ t_i : B}{
+        \unaryN{Wk}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t{Ci[xi]} ⊢ t_i : B}{
+          \hyp{Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B}
         }
       }
     }
@@ -593,22 +602,22 @@ let subp = <$
 \Caml(
 let p =
   ax       ~name:<$Ax$> (* FIXME floating in the air *)
-    <$Σ \sp Γ,x:\f("[(Ci : Ai) i∈I]");Σ,x≡t ⊢_\tval x:\f("[(Ci : Ai) i∈I]")$>;
+    <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}$>;
   hyp <$[\id(subp)]_{i∈I}$>;
   binary   ~name:<$+_e$>
-    <$Σ \sp Γ,x:\f("[(Ci : Ai) i∈I]");Σ,x≡t ⊢ \t("[x|(Ci[xi]→ti) i∈I]"):B$>;
+    <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
   unary    ~name:<$∈_e$>
-    <$Σ \sp Γ,x:\f("t∈[(Ci : Ai) i∈I]");Σ ⊢ \t("[x|(Ci[xi]→ti) i∈I]"):B$>;
+    <$Σ \sp Γ,x:\f{t∈[(Ci : Ai) i∈I]};Σ ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
   unary    ~name:<$⇒_i$>
-    <$Σ \sp Γ;Σ ⊢_\tval \t("λx [x | (Ci[xi] → ti) i∈I]") :
-        \f("t∈[(Ci : Ai) i∈I] ⇒ B")$>;
+    <$Σ \sp Γ;Σ ⊢_\tval \t{λx [x | (Ci[xi] → ti) i∈I]} :
+        \f{t∈[(Ci : Ai) i∈I] ⇒ B}$>;
   unary    ~name:<$↑$>
-    <$Σ \sp Γ;Σ ⊢ \t("λx [x | (Ci[xi] → ti) i∈I]") :
-        \f("t∈[(Ci : Ai) i∈I] ⇒ B")$>;
-  hyp                       <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("[(Ci : Ai) i∈I]")$>;
-  hyp                       <$Ξ ⊢ \t("t") ≡ \t("v")$>;
+    <$Σ \sp Γ;Σ ⊢ \t{λx [x | (Ci[xi] → ti) i∈I]} :
+        \f{t∈[(Ci : Ai) i∈I] ⇒ B}$>;
+  hyp                       <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}$>;
+  hyp                       <$Ξ ⊢ \t{t} ≡ \t{v}$>;
   ternary  ~name:<$⇒_{e,{∈},τ}$>
-    <$Σ \sp Γ;Ξ ⊢ \t("(λx [x | (Ci[xi] → ti) i∈I]) t") : B$>;
+    <$Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B$>;
   display_proof ()
 )
 \begin{center}
@@ -617,8 +626,8 @@ $$\id(p)$$
 \end{proofTree}
 \end{env}
 Note that without the ($+_{e,τ}$) rule, it would be impossible to preserve
-the equivalences of the form $t ≡ \t("Ci[xi]")$. We would only know that
-$x ≡ \t("Ci[xi]")$, which is not enough since we would have no way of
+the equivalences of the form $t ≡ \t{Ci[xi]}$. We would only know that
+$x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of
 linking $x$ to the term $t$.
 
 Of course, we can only apply semantical value restriction to our system if
@@ -648,47 +657,47 @@ reduction relation then there is a pole $\dbot$ and a set of values
 $Φ ∈ ⟦ο⟧$ such that $Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values
 that $Φ$.
 \begin{proof}
-Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λ_ι, p ≻^{∗} \p("v∗ε")\}$
-and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v("λx Ω")\}$ is suitable. As
+Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
+and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v{λx Ω}\}$ is suitable. As
 we have $Λ_ι ⊆ Λ_ι^{⊥⊥}$ by \lemRef("orthosimple"), it is enough to show
 that $Φ^⊥ = Λ_ι^⊥$ since in this case we get $Λ_ι ⊆ Φ^{⊥⊥} = Λ_ι^{⊥⊥}$. Of
 course, there are many values that are in $Λ_ι$, but not in $Φ$. For example,
-we have $\v("{}") ∈ Λ_ι$ but $\v("{}") \nequiv_{≻} \v("λxΩ")$ according to
+we have $\v{{}} ∈ Λ_ι$ but $\v{{}} \nequiv_{≻} \v{λxΩ}$ according to
 \thmRef("nequivlamreco"). Since $Φ ⊆ Λ_ι$ we must have $Φ^⊥ ⊇ Λ_ι^⊥$ by
 \lemRef("orthoinclstack"), so it only remains to show that $Φ^⊥ ⊆ Λ_ι^⊥$.
-Let us take a stack $π ∈ Φ^⊥$. By definition, we know $\p("w∗π") ∈ \dbot$
-for every value $w ≡_{≻} \v("λxΩ")$. Let us now take a value $v∈Λ_ι$ and
-show that $\p("v∗π") ∈ \dbot$. We will now perform a case analysis on the
+Let us take a stack $π ∈ Φ^⊥$. By definition, we know $\p{w∗π} ∈ \dbot$
+for every value $w ≡_{≻} \v{λxΩ}$. Let us now take a value $v∈Λ_ι$ and
+show that $\p{v∗π} ∈ \dbot$. We will now perform a case analysis on the
 form of $π$.
 \begin{itemize}
-\item If $π = ε$, then $\p("v∗π") ∈ \dbot$ by definition of $\dbot$.
+\item If $π = ε$, then $\p{v∗π} ∈ \dbot$ by definition of $\dbot$.
 \item If $π = α$ for some $α∈\cal{V}_σ$ then it cannot be that $π ∈ Φ^⊥$.
-      If it were the case, we would have $\p("λxΩ ∗ α") ∈ \dbot$, which
+      If it were the case, we would have $\p{λxΩ ∗ α} ∈ \dbot$, which
       cannot be true since this process is blocked.
-\item If $π = \s("v₀·ξ")$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
+\item If $π = \s{v₀·ξ}$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
       it cannot be that $π ∈ Φ^⊥$. If it were the case, we would have
-      $\p("λxΩ ∗ v₀·ξ") ≻ \p("Ω ∗ ξ") ∈ \dbot$, which cannot be true since
+      $\p{λxΩ ∗ v₀·ξ} ≻ \p{Ω ∗ ξ} ∈ \dbot$, which cannot be true since
       this process is non-terminating.
-\item If $π = \s("[t]ξ")$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
-      consider the reduction of the process $\p("t ∗ z·ξ")$, where
-      $z∈\cal{V}_ι$ is a fresh $λ$-variable. We know that $\p("t∗z·ξ")$
+\item If $π = \s{[t]ξ}$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
+      consider the reduction of the process $\p{t ∗ z·ξ}$, where
+      $z∈\cal{V}_ι$ is a fresh $λ$-variable. We know that $\p{t∗z·ξ}$
       cannot be non-terminating, as otherwise
-      $\p("(t∗z·ξ)[z≔λxΩ]") = \p("t∗λxΩ·ξ")$ would also be non-terminating
+      $\p{(t∗z·ξ)[z≔λxΩ]} = \p{t∗λxΩ·ξ}$ would also be non-terminating
       according to \lemRef("redstable"). This would contradict
-      $\s("[t]ξ") ∈ Φ^⊥$ since we have $\p("λxΩ∗[t]ξ") ≻ \p("t∗λxΩ·ξ")$.
-      Consequently, there is $q ∈ Λ×Π$ such that $\p("z∗[t]ξ") ≻ \p("q")$.
+      $\s{[t]ξ} ∈ Φ^⊥$ since we have $\p{λxΩ∗[t]ξ} ≻ \p{t∗λxΩ·ξ}$.
+      Consequently, there is $q ∈ Λ×Π$ such that $\p{z∗[t]ξ} ≻ \p{q}$.
       We now reason by case analysis following \lemRef("possibilities"). If
-      $q$ is final, then $\p("q[z≔v]")$ is also final by
-      \lemRef("redstable"), and thus $\p("v∗[t]ξ") ∈ \dbot$. In all the
-      other cases, $\p("q[z≔λxΩ]")$ is either still blocked, or
-      non-terminating, which contradicts the fact that $\s("[t]ξ") ∈ Φ^⊥$.
+      $q$ is final, then $\p{q[z≔v]}$ is also final by
+      \lemRef("redstable"), and thus $\p{v∗[t]ξ} ∈ \dbot$. In all the
+      other cases, $\p{q[z≔λxΩ]}$ is either still blocked, or
+      non-terminating, which contradicts the fact that $\s{[t]ξ} ∈ Φ^⊥$.
 \end{itemize}
 \end{proof}
 \end{thm}
 
 The idea now is to use our equivalence relation $({≡}_{≻})$ to extend
 the reduction relation $({≻})$ with a new, surprising reduction rule. It
-will reduce processes having the form $\p("δ(v,w) ∗ π")$ to $\p("v ∗ π")$
+will reduce processes having the form $\p{δ(v,w) ∗ π}$ to $\p{v ∗ π}$
 in the case where $v \nequiv_{≻} w$, and remain stuck otherwise. With
 such a reduction rule, the definitions of reduction and equivalence
 become interdependent. Consequently, we need to be very careful so
@@ -703,10 +712,10 @@ let _ =
   let line e1 e2 = [ e1 ; <$=$> ; e2 ] in
   array [`East ; `Main ; `West]
   ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
-  [ line <$({↠}_i)$> <$({≻}) ∪ \{(\p("δ(v,w) ∗ π"), \p("v ∗ π")) \st
+  [ line <$({↠}_i)$> <$({≻}) ∪ \{(\p{δ(v,w) ∗ π}, \p{v ∗ π}) \st
       ∃j < i, v \nequiv_j w\}$>
   ; line <$({≡}_i)$> <$\{(t,u) \st ∀j ≤ i, ∀π∈Π, ∀ρ∈\cal{S},
-      {{\p("tρ∗π")} {⇓}_j} ⇔ {{\p("uρ∗π")} {⇓}_j}\}$> ]
+      {{\p{tρ∗π}} {⇓}_j} ⇔ {{\p{uρ∗π}} {⇓}_j}\}$> ]
 )
 \end{center}
 Here, all the relations are well-defined as there is no circularity. In
@@ -756,12 +765,12 @@ let _ =
   ~horizontal_padding:(function 1 -> 5.0 | _ -> 4.0) (* Fix *)
   [ line <$({≡})$>
       <$ \{(t,u) \st ∀i∈\bbN, ∀π∈Π, ∀ρ∈\cal{S},
-         {{\p("tρ∗π")} {⇓}_i} ⇔ {{\p("uρ∗π")} {⇓}_i}\} $>
+         {{\p{tρ∗π}} {⇓}_i} ⇔ {{\p{uρ∗π}} {⇓}_i}\} $>
   ; line <$({\nequiv})$>
       <$ \{(t,u), (u,t) \st ∃i∈\bbN, ∃π∈Π, ∃ρ∈\cal{S},
-         {{\p("tρ∗π")} {⇓}_i} ∧ {{\p("uρ∗π")} {⇑}_i}\}$>
+         {{\p{tρ∗π}} {⇓}_i} ∧ {{\p{uρ∗π}} {⇑}_i}\}$>
   ; line <$({↠})$>
-      <$({≻}) ∪ \{(\p("δ(v,w)∗π"), \p("v∗π")) \st v \nequiv w\}$> ]
+      <$({≻}) ∪ \{(\p{δ(v,w)∗π}, \p{v∗π}) \st v \nequiv w\}$> ]
 )
 \end{center}
 Note that the definition of $({↠})$ corresponds exactly to what we aimed
@@ -778,9 +787,9 @@ $$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
 We need to show that for every value $v∈Φ^{⊥⊥}$ we also have $v∈Φ$. We
 are going to show the contrapositive, so let us assume $v∉Φ$ and show
 $v∉Φ^{⊥⊥}$. By definition, we need to find a stack $π∈Φ^⊥$ such that
-$\p("v∗π")∉\dbot$. We will take $π=\s("[λxδ(x,v)][[π₀]t₀]ε")$ and show
+$\p{v∗π}∉\dbot$. We will take $π=\s{[λxδ(x,v)][[π₀]t₀]ε}$ and show
 that it is suitable. We first need to show that $π∈Φ^⊥$ so we take
-$w∈Φ$ and we show that $\p("w∗π")∈\dbot$. By definition, we have
+$w∈Φ$ and we show that $\p{w∗π}∈\dbot$. By definition, we have
 \begin{center}
 \linesBefore(7)
 \diagram(
@@ -794,13 +803,13 @@ let _ =
   ; line "δ(w,v)∗[[π₀]t₀]ε"
   ; line "w∗[[π₀]t₀]ε"
   ; line "[π₀]t₀∗w·ε"
-  ; last <$\p("t₀∗π₀") ∈ \dbot$> ]
+  ; last <$\p{t₀∗π₀} ∈ \dbot$> ]
 )
 \linesAfter(2)
 \end{center}
 as $v ≡ w$ since $v∉Φ$, $w∈Φ$ and $Φ$ is closed under $({≡})$. We can
 thus conclude using the fact that $\dbot$ is $↠$-saturated. It now
-remains to show that $\p("v∗π₀")∉\dbot$. As we have
+remains to show that $\p{v∗π₀}∉\dbot$. As we have
 \begin{center}
 \linesBefore(4)
 \diagram(
@@ -814,9 +823,9 @@ let _ =
 )
 \linesAfter(2)
 \end{center}
-and $\p("δ(v,v)∗[[π₀]t₀]ε")$ is blocked (since $v ≡ v$ by reflexivity)
-we have ${\p("δ(v,v)∗[[π₀]t₀]ε")} {⇑_{↠}}$. As a consequence we have
-we have ${\p("v∗π")} {⇑_{↠}}$ and thus $\p("v∗π") ∉ \dbot$.
+and $\p{δ(v,v)∗[[π₀]t₀]ε}$ is blocked (since $v ≡ v$ by reflexivity)
+we have ${\p{δ(v,v)∗[[π₀]t₀]ε}} {⇑_{↠}}$. As a consequence we have
+we have ${\p{v∗π}} {⇑_{↠}}$ and thus $\p{v∗π} ∉ \dbot$.
 \end{proof}
 \end{thm}
 \begin{rem}
@@ -840,62 +849,62 @@ compatible wiht $({≡}_{≻})$. Let us first show that it is indeed a
 congruence.
 \begin{thm}\label("fullsubstequiv")
 Let $t$, $u ∈ Λ$ be two terms and $ρ ∈ \cal{S}$ be a substitution. If we
-have $\t("t") ≡ \t("u")$ then $\t("tρ") ≡ \t("uρ")$.
+have $\t{t} ≡ \t{u}$ then $\t{tρ} ≡ \t{uρ}$.
 \begin{proof}
 Let us take $i₀ ∈ \bbN$, $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove
-${{\p("(tρ)ρ₀ ∗ π₀")} {⇓}_{i₀}} ⇔ {{\p("(uρ)ρ₀ ∗ π₀")} {⇓}_{i₀}}$,
+${{\p{(tρ)ρ₀ ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{(uρ)ρ₀ ∗ π₀}} {⇓}_{i₀}}$,
 which can be rewritten as
-${{\p("t(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{i₀}} ⇔ {{\p("u(ρ ∘ ρ₀) ∗ π₀")} {⇓}_{i₀}}$.
+${{\p{t(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{u(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}}$.
 We can thus conclude using the definition of $t ≡ u$ with the natural
 number $i₀$, the substitution $ρ ∘ ρ₀$ and the stack $π₀$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("fullextval")
 Let $v$, $w∈Λ_ι$ be values, $t∈Λ$ be a term and $x∈\cal{V}_ι$ be a
-$λ$-variable. If $v ≡ w$ then we have $\t("t[x≔v]") ≡ \t("t[x≔w]")$.
+$λ$-variable. If $v ≡ w$ then we have $\t{t[x≔v]} ≡ \t{t[x≔w]}$.
 \begin{proof}
 We are going to prove the contrapositive so we suppose
-$\t("t[x≔v]") \nequiv \t("t[x≔w]")$ and show $v \nequiv w$.
+$\t{t[x≔v]} \nequiv \t{t[x≔w]}$ and show $v \nequiv w$.
 By definition there is $i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that
-${\p("(t[x≔v])ρ ∗ π")} {⇓}_i$ and ${\p("(t[x≔w])ρ ∗ π")} {⇑}_i$
+${\p{(t[x≔v])ρ ∗ π}} {⇓}_i$ and ${\p{(t[x≔w])ρ ∗ π}} {⇑}_i$
 (up to symmetry). Since we are free to rename $x$, we may assume
-that we have $\p("(t[x≔v])ρ ∗ π") = \p("tρ[x≔vρ] ∗ π")$ and
-$\p("(t[x≔w])ρ ∗ π") = \p("tρ[x≔wρ] ∗ π")$. We thus suppose that
-${\p("tρ[x≔vρ] ∗ π")} {⇓}_i$ and that ${\p("tρ[x≔wρ] ∗ π")} {⇑}_i$.
+that we have $\p{(t[x≔v])ρ ∗ π} = \p{tρ[x≔vρ] ∗ π}$ and
+$\p{(t[x≔w])ρ ∗ π} = \p{tρ[x≔wρ] ∗ π}$. We thus suppose that
+${\p{tρ[x≔vρ] ∗ π}} {⇓}_i$ and that ${\p{tρ[x≔wρ] ∗ π}} {⇑}_i$.
 To show $v \nequiv w$ we need to find $i₀∈\bbN$, $π₀∈Π$ and
-$ρ₀∈\cal{S}$ such that ${\p("vρ₀ ∗ π")₀} {⇓}_{i₀}$ and
-${\p("wρ₀ ∗ π₀")} {⇑}_{i₀}$ (up to symmetry). We can take $i₀ = i$,
-$π₀ = \s("[λx tρ]π")$ and $ρ₀ = ρ$ as
-${\p("vρ₀ ∗ [λx tρ]π") ↠ \p("tρ[x≔vρ] ∗ π")}_i$ and
-${\p("wρ₀ ∗ [λx tρ]π") ↠ \p("tρ[x≔wρ] ∗ π")}_i$. By hypothesis,
+$ρ₀∈\cal{S}$ such that ${\p{vρ₀ ∗ π}₀} {⇓}_{i₀}$ and
+${\p{wρ₀ ∗ π₀}} {⇑}_{i₀}$ (up to symmetry). We can take $i₀ = i$,
+$π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ as
+${\p{vρ₀ ∗ [λx tρ]π} ↠ \p{tρ[x≔vρ] ∗ π}}_i$ and
+${\p{wρ₀ ∗ [λx tρ]π} ↠ \p{tρ[x≔wρ] ∗ π}}_i$. By hypothesis,
 the first of these processes converges while the second diverges.
 \end{proof}
 \end{thm}
 
 \begin{lem}\label("aposs")
 Let $p∈Λ×Π$ be a process, $t∈Λ$ be a term and $a∈\cal{V}_τ$ be a term
-variable. If we have ${\p("p[a≔t]")} {⇓}_k$ for some $k∈\bbN$ then
+variable. If we have ${\p{p[a≔t]}} {⇓}_k$ for some $k∈\bbN$ then
 there is a blocked process $q∈Λ×Π$ such that $p ≻^{∗} q$ and either
 \begin{itemize}
-\item $q = \p("v∗ε")$ for some value $v∈Λ_ι$,
-\item $q = \p("a∗π")$ for some stack $π∈Π$,
-\item $k ≠ 0$ and $q = \p("δ(v,w)∗π")$ for some values $v$, $w∈Λ_ι$
+\item $q = \p{v∗ε}$ for some value $v∈Λ_ι$,
+\item $q = \p{a∗π}$ for some stack $π∈Π$,
+\item $k ≠ 0$ and $q = \p{δ(v,w)∗π}$ for some values $v$, $w∈Λ_ι$
       and $π∈Π$. Moreover, in this case we know that
-      $\v("v[a≔t]") \nequiv_j \v("w[a≔t]")$ for some $j < k$.
+      $\v{v[a≔t]} \nequiv_j \v{w[a≔t]}$ for some $j < k$.
 \end{itemize}
 \begin{proof}
-If $p$ is non-terminating then $\p("p[a≔t]")$ is also non-terminating
+If $p$ is non-terminating then $\p{p[a≔t]}$ is also non-terminating
 according to \lemRef("redstable"). As this contradicts the fact that
-${\p("p[a≔t]")} {⇓}_k$, there must be a blocked process $q∈Λ×Π$ such
+${\p{p[a≔t]}} {⇓}_k$, there must be a blocked process $q∈Λ×Π$ such
 that $p ≻^{∗} q$ since $({≻}) ⊆ ({↠}_k)$. Using \thmRef("redcompatall"),
-we obtain $\p("p[a≔t]") ≻^{∗} \p("q[a≔t]")$, which tells us that
-${\p("q[a≔t]")} {⇓}_k$. This means that $q$ cannot be stuck, as
+we obtain $\p{p[a≔t]} ≻^{∗} \p{q[a≔t]}$, which tells us that
+${\p{q[a≔t]}} {⇓}_k$. This means that $q$ cannot be stuck, as
 otherwise $q[a≔t]$ would also be stuck by \lemRef("redstable") and
-this would contradict ${\p("q[a≔t]")} {⇓}_k$.
+this would contradict ${\p{q[a≔t]}} {⇓}_k$.
 (* *)
-Let us now suppose that $p = \p("δ(v,w)∗π")$ for some $v$, $w∈Λ_ι$
-and $π∈Π$. Since ${\p("δ(vρ,wρ)∗π")} {⇓}_k$ there must be $i < k$
-(and thus $k≠0$) such that $\v("vρ") \nequiv_j \v("wρ")$, otherwise
+Let us now suppose that $p = \p{δ(v,w)∗π}$ for some $v$, $w∈Λ_ι$
+and $π∈Π$. Since ${\p{δ(vρ,wρ)∗π}} {⇓}_k$ there must be $i < k$
+(and thus $k≠0$) such that $\v{vρ} \nequiv_j \v{wρ}$, otherwise
 we would obtain a contradiction.
 (* *)
 According to \lemRef("possibilities"), it remains to rule out the
@@ -915,33 +924,33 @@ and $b≠a$.
             "b ∗ π"
             "v ∗ α" ]
 )
-If $q$ was of one of these forms, then $\p("q[a≔t]")$ would still be
-blocked, which would again contradict ${\p("q[a≔t]")} {⇓}_k$.
+If $q$ was of one of these forms, then $\p{q[a≔t]}$ would still be
+blocked, which would again contradict ${\p{q[a≔t]}} {⇓}_k$.
 \end{proof}
 \end{lem}
 
 \begin{lem}\label("afullextlem")
 Let $u₁$, $u₂$, $t∈Λ$ be three terms and $a∈\cal{V}_τ$ be a term
-variable. For all $k ∈ \bbN$, if $\t("u₁") ≡_k \t("u₂")$ then
-$\t("t[a≔u₁]") ≡_k \t("t[a≔u₂]")$.
+variable. For all $k ∈ \bbN$, if $\t{u₁} ≡_k \t{u₂}$ then
+$\t{t[a≔u₁]} ≡_k \t{t[a≔u₂]}$.
 \begin{proof}
-We take $k ∈ \bbN$, suppose that $\t("u₁") ≡_k \t("u₂")$ and show that
-$\t("t[a≔u₁]") ≡_k \t("t[a≔u₂]")$. By definition, we need to take $π∈Π$
+We take $k ∈ \bbN$, suppose that $\t{u₁} ≡_k \t{u₂}$ and show that
+$\t{t[a≔u₁]} ≡_k \t{t[a≔u₂]}$. By definition, we need to take $π∈Π$
 and $ρ∈\cal{S}$, and show the following.
-$$ {{\p("(t[a≔u₁])ρ∗π")} {⇓}_k} ⇔ {{\p("(t[a≔u₂])ρ∗π")} {⇓}_k} $$
+$$ {{\p{(t[a≔u₁])ρ∗π}} {⇓}_k} ⇔ {{\p{(t[a≔u₂])ρ∗π}} {⇓}_k} $$
 As we are free to rename the variable $a$, we may assume
-$\t("(t[a≔u₁])ρ") = \t("tρ[a≔u₁ρ]")$,
-$\t("(t[a≔u₂])ρ") = \t("tρ[a≔u₂ρ]")$ and $a∉FV_σ(π)$.
-By symmetry, we can thus assume that we have ${\p("tρ[a≔u₁ρ]∗π")} {⇓}_k$
-and show ${\p("tρ[a≔u₂ρ]∗π")} {⇓}_k$.
+$\t{(t[a≔u₁])ρ} = \t{tρ[a≔u₁ρ]}$,
+$\t{(t[a≔u₂])ρ} = \t{tρ[a≔u₂ρ]}$ and $a∉FV_σ(π)$.
+By symmetry, we can thus assume that we have ${\p{tρ[a≔u₁ρ]∗π}} {⇓}_k$
+and show ${\p{tρ[a≔u₂ρ]∗π}} {⇓}_k$.
 
 We will now build a sequence $(t_i,π_i,l_i)_{i ∈ I}$ defined in such
 a way that for all $i∈I$ we have
-$\p("tρ[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$
+$\p{tρ[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$
 in $l_i$ steps. We will also require $(l_i)_{i ∈ I}$ to be increasing
 and to have a strictly increasing subsequence. Under this condition our
-sequence will be finite. If it was infinite, $\p("tρ[a≔u₁ρ]∗π")$ would
-be non-terminating, and this would contradict ${\p("tρ[a≔u₁ρ]∗π")} {⇓}_k$.
+sequence will be finite. If it was infinite, $\p{tρ[a≔u₁ρ]∗π}$ would
+be non-terminating, and this would contradict ${\p{tρ[a≔u₁ρ]∗π}} {⇓}_k$.
 As a consequence, our sequence has a finite number $n+1$ of elements
 (for some $n∈\bbN$), and we can denote it $(t_i,π_i,l_i)_{i ≤ n}$.
 To show that $(l_i)_{i ≤ n}$ has a strictly increasing subsequence,
@@ -952,112 +961,112 @@ that $l_{i+1} > l_i$.
 *)
 
 To define $(t₀,π₀,l₀)$ we consider the reduction of the process
-$\p("tρ∗π")$. Since we have
-$\p("(tρ∗π)[a≔u₁ρ]") = {\p("tρ[a≔u₁]∗π")} {⇓}_k$
+$\p{tρ∗π}$. Since we have
+$\p{(tρ∗π)[a≔u₁ρ]} = {\p{tρ[a≔u₁]∗π}} {⇓}_k$
 we can apply \lemRef("aposs") to obtain a blocked process $p$ such
-that $\p("tρ∗π") ≻^j p$. We thus take $\p("t₀∗π₀") = p$ and $l₀=j$.
+that $\p{tρ∗π} ≻^j p$. We thus take $\p{t₀∗π₀} = p$ and $l₀=j$.
 According to \thmRef("redcompatall") we have
-$\p("(tρ∗π)[a≔u₁ρ]") ≻^j \p("t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]")$. Consequently,
+$\p{(tρ∗π)[a≔u₁ρ]} ≻^j \p{t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]}$. Consequently,
 we can deduce that
-$\p("(tρ∗π)[a≔u₁ρ]") ↠_k^{∗} \p("t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]")$
+$\p{(tρ∗π)[a≔u₁ρ]} ↠_k^{∗} \p{t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]}$
 in $l₀ = j$ steps.
 
 To define $(t_{i+1},π_{i+1},l_{i+1})$ we consider the process
-$\p("ti[a≔u₁ρ]∗πi")$. By construction we know that
-$\p("tρ[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in $l_i$ steps.
-According to \lemRef("aposs"), $\p("ti∗πi")$ can only be of three
+$\p{ti[a≔u₁ρ]∗πi}$. By construction we know that
+$\p{tρ[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in $l_i$ steps.
+According to \lemRef("aposs"), $\p{ti∗πi}$ can only be of three
 different shapes.
 \begin{itemize}
-\item If $\p("ti∗πi") = \p("v∗ε")$ for some $v∈Λ_ι$ then the
+\item If $\p{ti∗πi} = \p{v∗ε}$ for some $v∈Λ_ι$ then the
       sequence ends with $n = i$.
-\item If $\t("ti") = a$ then we consider the process $\p("ti[a≔u₁ρ]∗πi")$.
-      By construction we know ${\p("(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]")} {⇓}_k$, and
+\item If $\t{ti} = a$ then we consider the process $\p{ti[a≔u₁ρ]∗πi}$.
+      By construction we know ${\p{(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]}} {⇓}_k$, and
       thus \lemRef("aposs") gives us a blocked process $p$ such that
-      $\p("ti[a≔u₁ρ]∗πi") ≻^j p$. By \thmRef("redcompatall")
-      $\p("(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]") ≻^j \p("p[a≔u₁ρ]")$, and hence
-      $\p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k^{∗} \p("p[a≔u₁ρ]")$ in $j$ steps.
-      We then take as a definition $\p("ti+1∗πi+1") = p$ and
+      $\p{ti[a≔u₁ρ]∗πi} ≻^j p$. By \thmRef("redcompatall")
+      $\p{(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]} ≻^j \p{p[a≔u₁ρ]}$, and hence
+      $\p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k^{∗} \p{p[a≔u₁ρ]}$ in $j$ steps.
+      We then take as a definition $\p{ti+1∗πi+1} = p$ and
       $l_{i+1} = l_i + j$.
 
       Now, is it possible to have $j=0$? This can only happen when
-      $\p("ti[a≔u₁ρ]∗πi")$ is of one of the three forms of \lemRef("aposs").
-      It cannot be of the form $\p("a∗π")$ as we assumed that $a$ does not
-      appear in $\t("u₁ρ")$. If it is of the form $\p("v∗ε")$, then we
+      $\p{ti[a≔u₁ρ]∗πi}$ is of one of the three forms of \lemRef("aposs").
+      It cannot be of the form $\p{a∗π}$ as we assumed that $a$ does not
+      appear in $\t{u₁ρ}$. If it is of the form $\p{v∗ε}$, then we
       reached the end of the sequence with $i = n$ so there is no problem.
-      We only have to be careful when $\t("ti[a≔u₁ρ]") = \t("δ(v,w)")$. In
+      We only have to be careful when $\t{ti[a≔u₁ρ]} = \t{δ(v,w)}$. In
       this case, we will make sure that we always have $l_{i+2} > l_{i+1}$
       (see the following case).
-\item If $\t("ti") = \t("δ(v,w)")$ for some $v$, $w∈Λ_ι$ then we know
-      $\v("v[a≔u₁ρ]") \nequiv_m \v("w[a≔u₁ρ]")$ for some $m < k$. Hence,
-      we have $\p("ti[a≔u₁ρ]∗πi") = \p("δ(v[a≔u₁ρ],w[a≔u₁ρ])∗πi") ↠_k
-      \p("v[a≔u₁ρ]∗πi")$ by definition. Moreover,
-      $\p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k \p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")$
+\item If $\t{ti} = \t{δ(v,w)}$ for some $v$, $w∈Λ_ι$ then we know
+      $\v{v[a≔u₁ρ]} \nequiv_m \v{w[a≔u₁ρ]}$ for some $m < k$. Hence,
+      we have $\p{ti[a≔u₁ρ]∗πi} = \p{δ(v[a≔u₁ρ],w[a≔u₁ρ])∗πi} ↠_k
+      \p{v[a≔u₁ρ]∗πi}$ by definition. Moreover,
+      $\p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$
       by (an extention of) \thmRef("redcompatall"). Since
-      $\p("t[a≔u₁ρ]∗π") ↠_k^{∗} \p("ti[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in $l_i$ steps
-      we get that $\p("t[a≔u₁ρ]∗π") ↠_k^{∗} \p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")$ in
+      $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in $l_i$ steps
+      we get that $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in
       $l_i+1$ steps, and hence we have
-      $\p("(v[a≔u₁ρ]∗πi)[a≔u₁ρ]") = {\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]")} {⇓}_k$.
+      $\p{(v[a≔u₁ρ]∗πi)[a≔u₁ρ]} = {\p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}} {⇓}_k$.
 
-      We now consider the reduction of the process $\p("v[a≔u₁ρ]∗πi")$.
+      We now consider the reduction of the process $\p{v[a≔u₁ρ]∗πi}$.
       According to \lemRef("aposs") there is a blocked process $p$ such
-      that $\p("v[a≔u₁ρ]∗πi") ≻^j p$. Using \thmRef("redcompatall") we
-      obtain $\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]") ≻^j \p("p[a≔u₁ρ]")$ from which we can
-      deduce that we have $\p("v[a≔u₁ρ]∗πi[a≔u₁ρ]") ↠_k^{∗} \p("p[a≔u₁ρ]")$
-      in $j$ steps. We then take $\p("ti+1∗πi+1") = p$ and
+      that $\p{v[a≔u₁ρ]∗πi} ≻^j p$. Using \thmRef("redcompatall") we
+      obtain $\p{v[a≔u₁ρ]∗πi[a≔u₁ρ]} ≻^j \p{p[a≔u₁ρ]}$ from which we can
+      deduce that we have $\p{v[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k^{∗} \p{p[a≔u₁ρ]}$
+      in $j$ steps. We then take $\p{ti+1∗πi+1} = p$ and
       $l_{i+1} = l_i + j + 1$ (and thus $l_{i+1} > l_i$).
 \end{itemize}
 Intuitively $(t_i,π_i,l_i)_{i ≤ n}$ mimics the reduction of the process
-$\p("t[a≔u₁ρ]∗π")$ while making explicit every substitution of $a$ and
+$\p{t[a≔u₁ρ]∗π}$ while making explicit every substitution of $a$ and
 every reduction of a $δ$-like state.
 
 To end the proof we will show that for all $i ≤ n$ we have
-${\p("ti[a≔u₂ρ]∗πi[a≔u₂ρ]")} {⇓}_k$. For $i = 0$ this will give
-us ${\p("t[a≔u₂ρ]∗π")} {⇓}_k$, which is the expected result. As
-by construction $\p("tn∗πn") = \p("v∗ε")$, we have
-$\p("tn[a≔u₂ρ]∗πn[a≔u₂ρ]") = \p("v[a≔u₂ρ]∗ε")$
-from which we get ${\p("tn[a≔u₂ρ]∗πn[a≔u₂ρ]")} {⇓}_k$.
-We now suppose that ${\p("ti+1[a≔u₁ρ]∗πi+1[a≔u₂ρ]")} {⇓}_k$ for
-$0 ≤ i < n$ and show that ${\p("ti[a≔u₁ρ]∗πi[a≔u₂ρ]")} {⇓}_k$.
-By construction $\p("ti∗πi")$ can be of two shapes since only
-$\p("tn∗πn")$ can be of the form $\p("v∗ε")$.
+${\p{ti[a≔u₂ρ]∗πi[a≔u₂ρ]}} {⇓}_k$. For $i = 0$ this will give
+us ${\p{t[a≔u₂ρ]∗π}} {⇓}_k$, which is the expected result. As
+by construction $\p{tn∗πn} = \p{v∗ε}$, we have
+$\p{tn[a≔u₂ρ]∗πn[a≔u₂ρ]} = \p{v[a≔u₂ρ]∗ε}$
+from which we get ${\p{tn[a≔u₂ρ]∗πn[a≔u₂ρ]}} {⇓}_k$.
+We now suppose that ${\p{ti+1[a≔u₁ρ]∗πi+1[a≔u₂ρ]}} {⇓}_k$ for
+$0 ≤ i < n$ and show that ${\p{ti[a≔u₁ρ]∗πi[a≔u₂ρ]}} {⇓}_k$.
+By construction $\p{ti∗πi}$ can be of two shapes since only
+$\p{tn∗πn}$ can be of the form $\p{v∗ε}$.
 \begin{itemize}
-\item If $\t("ti") = a$ then we have
-      $\p("u₁ρ∗πi") ↠_k^{∗} \p("ti+1 ∗ πi+1")$.
+\item If $\t{ti} = a$ then we have
+      $\p{u₁ρ∗πi} ↠_k^{∗} \p{ti+1 ∗ πi+1}$.
       As a consequence, \thmRef("redcompatall") gives us
-      $\p("u₁ρ∗πi[a≔u₂ρ]") ↠_k \p("ti+1[a≔u₂ρ]∗πi[a≔u₂ρ]")$
-      from which we can deduce that we have ${\p("u₁ρ∗πi[a≔u₂ρ]")} {⇓}_k$
-      by induction hypothesis. Since $\t("u₁") ≡_k \t("u₂")$ by hypothesis,
-      we obtain $\p("u₂ρ∗πi[a≔u₂ρ]") = {\p("(ti∗πi)[a≔u₂ρ]")} {⇓}_k$.
-\item If $\t("ti") = \t("δ(v,w)")$ then we have
-      $\p("v∗πi") ↠_k \p("ti+1∗πi+1")$. As a consequence,
+      $\p{u₁ρ∗πi[a≔u₂ρ]} ↠_k \p{ti+1[a≔u₂ρ]∗πi[a≔u₂ρ]}$
+      from which we can deduce that we have ${\p{u₁ρ∗πi[a≔u₂ρ]}} {⇓}_k$
+      by induction hypothesis. Since $\t{u₁} ≡_k \t{u₂}$ by hypothesis,
+      we obtain $\p{u₂ρ∗πi[a≔u₂ρ]} = {\p{(ti∗πi)[a≔u₂ρ]}} {⇓}_k$.
+\item If $\t{ti} = \t{δ(v,w)}$ then we have
+      $\p{v∗πi} ↠_k \p{ti+1∗πi+1}$. As a consequence,
       \thmRef("redcompatall") gives us
-      $\p("v[a≔u₂ρ]∗πi[a≔u₂ρ]") ↠_k \p("ti+1[a≔u₂ρ]∗πi+1[a≔u₂ρ]")$.
+      $\p{v[a≔u₂ρ]∗πi[a≔u₂ρ]} ↠_k \p{ti+1[a≔u₂ρ]∗πi+1[a≔u₂ρ]}$.
       Using the induction hypothesis we obtain
-      ${\p("v[a≔u₂ρ]∗πi[a≔u₂ρ]")} {⇓}_k$. It remains to show that we have
-      $\p("δ(v[a≔u₂ρ],w[a≔u₂ρ])∗πi[a≔u₂ρ]") ↠_k^{∗}
-      \p("v[a≔u₂ρ]∗πi[a≔u₂ρ]")$. We need to find $j < k$ such that
-      $\v("v[a≔u₂ρ]") \nequiv_k \v("w[a≔u₂ρ]")$.
+      ${\p{v[a≔u₂ρ]∗πi[a≔u₂ρ]}} {⇓}_k$. It remains to show that we have
+      $\p{δ(v[a≔u₂ρ],w[a≔u₂ρ])∗πi[a≔u₂ρ]} ↠_k^{∗}
+      \p{v[a≔u₂ρ]∗πi[a≔u₂ρ]}$. We need to find $j < k$ such that
+      $\v{v[a≔u₂ρ]} \nequiv_k \v{w[a≔u₂ρ]}$.
       By construction, there is $m < k$ such that we have
-      $\v("v[a≔u₁ρ]") \nequiv_m \v("w[a≔u₁ρ]")$, and we will show
-      $\v("v[a≔u₂ρ]") \nequiv_m \v("w[a≔u₂ρ]")$. Using the global
+      $\v{v[a≔u₁ρ]} \nequiv_m \v{w[a≔u₁ρ]}$, and we will show
+      $\v{v[a≔u₂ρ]} \nequiv_m \v{w[a≔u₂ρ]}$. Using the global
       induction hypothesis twice, we obtain that
-      $\v("v[a≔u₁ρ]") ≡_m \v("v[a≔u₂ρ]")$ and that
-      $\v("w[a≔u₁ρ]") ≡_m \v("w[a≔u₂ρ]")$.
-      Now if we suppose $\v("v[a≔u₂ρ]") ≡_m \v("w[a≔u₂ρ]")$ then we
-      have $\v("v[a≔u₁ρ]") ≡_m \v("v[a≔u₂ρ]") ≡_m \v("w[a≔u₂ρ]") ≡_m
-      \v("v[a≔u₁ρ]")$, which contradicts $\v("v[a≔u₁ρ]") \nequiv_m
-      \v("w[a≔u₁ρ]")$. Hence we must have $\v("v[a≔u₂ρ]") \nequiv_m
-      \v("w[a≔u₂ρ]")$.
+      $\v{v[a≔u₁ρ]} ≡_m \v{v[a≔u₂ρ]}$ and that
+      $\v{w[a≔u₁ρ]} ≡_m \v{w[a≔u₂ρ]}$.
+      Now if we suppose $\v{v[a≔u₂ρ]} ≡_m \v{w[a≔u₂ρ]}$ then we
+      have $\v{v[a≔u₁ρ]} ≡_m \v{v[a≔u₂ρ]} ≡_m \v{w[a≔u₂ρ]} ≡_m
+      \v{v[a≔u₁ρ]}$, which contradicts $\v{v[a≔u₁ρ]} \nequiv_m
+      \v{w[a≔u₁ρ]}$. Hence we must have $\v{v[a≔u₂ρ]} \nequiv_m
+      \v{w[a≔u₂ρ]}$.
 \end{itemize}
 \end{proof}
 \end{lem}
 \begin{thm}\label("fullextterm")
 Let $u₁$, $u₂$, $t∈Λ$ be three terms and $a∈\cal{V}_τ$ be a term variable.
-If $u₁ ≡ u₂$ then $\t("t[a≔u₁]") ≡ \t("t[a≔u₂]")$.
+If $u₁ ≡ u₂$ then $\t{t[a≔u₁]} ≡ \t{t[a≔u₂]}$.
 \begin{proof}
 We suppose that $u₁ ≡ u₂$ which means that $u₁ ≡_i u₂$ for all $i∈\bbN$. We
-need to show that $\t("t[a≔u₁]") ≡ \t("t[a≔u₂]")$ so we take $i₀∈\bbN$ and
-show $\t("t[a≔u₁]") ≡_{i₀} \t("t[a≔u₂]")$. By hypothesis we have
+need to show that $\t{t[a≔u₁]} ≡ \t{t[a≔u₂]}$ so we take $i₀∈\bbN$ and
+show $\t{t[a≔u₁]} ≡_{i₀} \t{t[a≔u₂]}$. By hypothesis we have
 $u₁ ≡_{i₀} u₂$ and hence we can conclude using \lemRef("afullextlem").
 \end{proof}
 \end{thm}
@@ -1085,47 +1094,47 @@ $({≡}₀) = ({≡}_{≻})$.
 
 \begin{thm}\label("fullcompat2")
 Let $t$, $u∈Λ$ be two terms. If for every stack $π∈Π$ there is a process
-$p ∈ Λ×Π$ such that both $\p("t∗π") ≻^{∗} p$ and $\p("u∗π") ≻^{∗} p$,
+$p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
 then $t ≡ u$.
 \begin{proof}
 By definition, we need to take $i₀ ∈ \bbN$, $π₀ ∈ Π$ and $ρ₀ ∈ \cal{S}$ and
-show that we have ${{\p("tρ₀∗π₀")} {⇓}_{i₀}} ⇔ {{\p("uρ₀∗π₀")} {⇓}_{i₀}}$.
-By symmetry, we may assume ${\p("tρ₀∗π₀")} {⇓}_{i₀}$ and show
-${\p("uρ₀∗π₀")} {⇓}_{i₀}$. By hypothesis, we know that there is $p₀ ∈ Λ×Π$
-such that $\p("t∗π₀") ≻^{∗} p₀$ and $\p("u∗π₀") ≻^{∗} p₀$. Now, using
-\thmRef("redcompatall") we obtain $\p("tρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$ and
-$\p("uρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$. Note that we may assume that $\s("π₀ρ₀")$
-since we are free to rename the variables bound by $ρ₀$ in $\t("tρ₀")$ and
-$\t("uρ₀")$. We can hence deduce that ${\p("p₀ρ₀")} {⇓}_{i₀}$ as otherwise
-we could not have ${\p("tρ₀∗π₀")} {⇓}_{i₀}$. Now, since 
-$\p("uρ₀∗π₀") ≻^{∗} \p("p₀ρ₀")$ we can conclude that 
-${\p("uρ₀∗π₀")} {⇓}_{≻}$.
+show that we have ${{\p{tρ₀∗π₀}} {⇓}_{i₀}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{i₀}}$.
+By symmetry, we may assume ${\p{tρ₀∗π₀}} {⇓}_{i₀}$ and show
+${\p{uρ₀∗π₀}} {⇓}_{i₀}$. By hypothesis, we know that there is $p₀ ∈ Λ×Π$
+such that $\p{t∗π₀} ≻^{∗} p₀$ and $\p{u∗π₀} ≻^{∗} p₀$. Now, using
+\thmRef("redcompatall") we obtain $\p{tρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ and
+$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$. Note that we may assume that $\s{π₀ρ₀}$
+since we are free to rename the variables bound by $ρ₀$ in $\t{tρ₀}$ and
+$\t{uρ₀}$. We can hence deduce that ${\p{p₀ρ₀}} {⇓}_{i₀}$ as otherwise
+we could not have ${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Now, since 
+$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ we can conclude that 
+${\p{uρ₀∗π₀}} {⇓}_{≻}$.
 \end{proof}
 \end{thm}
 
 \begin{thm}\label("fullcompat3")
 Let $t₁$, $t₂∈Λ$ be two terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$. If
 there is a term $u∈Λ$ such that for all terms $v∈Λ_ι$ and stacks $π∈Π$
-we have $\p("t₁[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$ and
-$\p("t₂[x≔v]∗[u]π") ≻^{∗} \p("v∗π")$,
-and if $\t("t₁[x≔v₁]") ≡ \t("t₂[x≔v₂]")$ for some values $v₁$, $v₂∈Λ_ι$,
+we have $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$,
+and if $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some values $v₁$, $v₂∈Λ_ι$,
 then we have $v₁ ≡ v₂$.
 \begin{proof}
 Let us take $v₁$, $v₂∈Λ_ι$ such that $v₁ \nequiv v₂$ and show that
-$\t("t₁[x≔v₁]") \nequiv \t("t₂[x≔v₂]")$. By definition there is
-$i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that ${\p("v₁ρ∗π")} {⇓}_i$ and
-${\p("v₂ρ∗π")} {⇑}_i$ (up to symmetry). We need to find $i₀∈\bbN$,
-$π₀∈Π$ and $ρ₀∈\cal{S}$ such that ${\p("(t₁[x≔v₁])ρ₀∗π₀")} {⇓}_{i₀}$
-and ${\p("(t₂[x≔v₂])ρ₀∗π₀")} {⇑}_{i₀}$. We will now show that $i₀ = i$,
-$π₀ = \s("[u]π")$ and $ρ₀ = ρ$ are suitable. By hypothesis, we know
-that $\p("t₁[x≔v₁]∗[u]π") ≻^{∗} \p("v₁∗π")$ and that
-$\p("t₂[x≔v₂]∗[u]π") ≻^{∗} \p("v₂∗π")$. We then obtain
-$\p("(t₁[x≔v₁])ρ∗[u]π") = \p("(t₁[x≔v₁]∗[u]π)ρ") ≻^{∗}
-\p("(v₁∗π)ρ") = {\p("v₁ρ∗π")} {⇓}_i$ and $\p("(t₂[x≔v₂])ρ∗[u]π") =
-\p("(t₂[x≔v₂]∗[u]π)ρ") ≻^{∗} \p("(v₂∗π)ρ") = {\p("v₂ρ∗π")} {⇑}_i$
-using \lemRef("redcompatall"). Note that we may assume $\t("uρ") = u$
-and $\s("πρ") = π$ as we are free to rename the variables bound by $ρ$
-in $\t("(t₁[x≔v₁])ρ")$ and $\t("(t₂[x≔v₂])ρ")$.
+$\t{t₁[x≔v₁]} \nequiv \t{t₂[x≔v₂]}$. By definition there is
+$i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that ${\p{v₁ρ∗π}} {⇓}_i$ and
+${\p{v₂ρ∗π}} {⇑}_i$ (up to symmetry). We need to find $i₀∈\bbN$,
+$π₀∈Π$ and $ρ₀∈\cal{S}$ such that ${\p{(t₁[x≔v₁])ρ₀∗π₀}} {⇓}_{i₀}$
+and ${\p{(t₂[x≔v₂])ρ₀∗π₀}} {⇑}_{i₀}$. We will now show that $i₀ = i$,
+$π₀ = \s{[u]π}$ and $ρ₀ = ρ$ are suitable. By hypothesis, we know
+that $\p{t₁[x≔v₁]∗[u]π} ≻^{∗} \p{v₁∗π}$ and that
+$\p{t₂[x≔v₂]∗[u]π} ≻^{∗} \p{v₂∗π}$. We then obtain
+$\p{(t₁[x≔v₁])ρ∗[u]π} = \p{(t₁[x≔v₁]∗[u]π)ρ} ≻^{∗}
+\p{(v₁∗π)ρ} = {\p{v₁ρ∗π}} {⇓}_i$ and $\p{(t₂[x≔v₂])ρ∗[u]π} =
+\p{(t₂[x≔v₂]∗[u]π)ρ} ≻^{∗} \p{(v₂∗π)ρ} = {\p{v₂ρ∗π}} {⇑}_i$
+using \lemRef("redcompatall"). Note that we may assume $\t{uρ} = u$
+and $\s{πρ} = π$ as we are free to rename the variables bound by $ρ$
+in $\t{(t₁[x≔v₁])ρ}$ and $\t{(t₂[x≔v₂])ρ}$.
 \end{proof}
 \end{thm}
 
@@ -1150,19 +1159,19 @@ Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
 context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
 that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 \begin{itemize}
-\item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t("tρ") ∈ \ts("Aρ")$.
-\item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s("πρ") ∈ \ss("Aρ")$.
-\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v("vρ") ∈ \vs("Aρ")$.
+\item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t{tρ} ∈ \ts{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s{πρ} ∈ \ss{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
 \end{itemize}
 \begin{proof}
 As for \thmRef("adequacy") (and \thmRef("stack_adequacy")), the proof is
 done by induction of the derivation of the typing judgments. For all the
 rules of \figRef("typerules") and the rules for typing stacks given in
 \thmRef("stack_adequacy") the proof does not change. We only have to be
-concerned wiou our new ($↓$) rule. We need to show $\v("vρ") ∈ \vs("Aρ")$,
-knowing that $\v("vρ") ∈ \ts("Aρ")$ by induction hypothesis. We can thus
-conclude since we know that every value of $\ts("Aρ")$ is also in
-$\vs("Aρ")$ thanks to \thmRef("main").
+concerned wiou our new ($↓$) rule. We need to show $\v{vρ} ∈ \vs{Aρ}$,
+knowing that $\v{vρ} ∈ \ts{Aρ}$ by induction hypothesis. We can thus
+conclude since we know that every value of $\ts{Aρ}$ is also in
+$\vs{Aρ}$ thanks to \thmRef("main").
 \end{proof}
 \end{thm}
 
@@ -1191,9 +1200,9 @@ we will derive the new arrow introduction rule ($⇒_{i,τ}$) as follows.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                 <$Σ,x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : \f("A")$>;
-  unary ~name:<$⇒_i$> <$Σ \sp Γ;Ξ ⊢_\tval \t("λx t") : \f("A⇒B")$>;
-  unary ~name:<$↑$>   <$Σ \sp Γ;Ξ ⊢ \t("λx t") : \f("A⇒B")$>;
+  hyp                 <$Σ,x:ι \sp Γ,x:A;Ξ ⊢ \t{t} : \f{A}$>;
+  unary ~name:<$⇒_i$> <$Σ \sp Γ;Ξ ⊢_\tval \t{λx t} : \f{A⇒B}$>;
+  unary ~name:<$↑$>   <$Σ \sp Γ;Ξ ⊢ \t{λx t} : \f{A⇒B}$>;
   display_proof ()
 )
 \begin{center}
@@ -1206,10 +1215,10 @@ elimination rule ($×_{e,τ}$) as follows.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                  <$Σ \sp Γ;Ξ ⊢ v : \f("{(li:Ai)i∈I}")$>;
-  unary  ~name:<$↓$>   <$Σ \sp Γ;Ξ ⊢_\tval v : \f("{(li:Ai)i∈I}")$>;
+  hyp                  <$Σ \sp Γ;Ξ ⊢ v : \f{{(li:Ai)i∈I}}$>;
+  unary  ~name:<$↓$>   <$Σ \sp Γ;Ξ ⊢_\tval v : \f{{(li:Ai)i∈I}}$>;
   hyp                  <$k∈I$>;
-  binary ~name:<$×_e$> <$Σ \sp Γ;Ξ ⊢ \t("v.lk") : \f("Ak")$>;
+  binary ~name:<$×_e$> <$Σ \sp Γ;Ξ ⊢ \t{v.lk} : \f{Ak}$>;
   display_proof ()
 )
 \begin{center}
@@ -1227,14 +1236,14 @@ given in a previous section.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                      <$Σ,χ:s \sp Γ;Ξ ⊢ \t("t") : \f("A")$>;
+  hyp                      <$Σ,χ:s \sp Γ;Ξ ⊢ \t{t} : \f{A}$>;
   hyp                      <$Ξ ⊢ t ≡ v$>;
-  binary ~name:<$≡_{τ,τ}$> <$Σ,χ:s \sp Γ;Ξ ⊢ \t("v") : \f("A")$>;
-  unary  ~name:<$↓$>       <$Σ,χ:s \sp Γ;Ξ ⊢_\tval \t("v") : \f("A")$>;
-  unary  ~name:<$∀_i$>     <$Σ \sp Γ;Ξ ⊢_\tval \t("v") : \f("∀χ^s A")$>;
-  unary  ~name:<$↑$>       <$Σ \sp Γ;Ξ ⊢ \t("v") : \f("∀χ^s A")$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ,χ:s \sp Γ;Ξ ⊢ \t{v} : \f{A}$>;
+  unary  ~name:<$↓$>       <$Σ,χ:s \sp Γ;Ξ ⊢_\tval \t{v} : \f{A}$>;
+  unary  ~name:<$∀_i$>     <$Σ \sp Γ;Ξ ⊢_\tval \t{v} : \f{∀χ^s A}$>;
+  unary  ~name:<$↑$>       <$Σ \sp Γ;Ξ ⊢ \t{v} : \f{∀χ^s A}$>;
   hyp                      <$Ξ ⊢ t ≡ v$>;
-  binary ~name:<$≡_{τ,τ}$> <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}$>;
   display_proof ()
 )
 \begin{center}
@@ -1249,16 +1258,16 @@ elimination rules of the dependent product type.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                  <$Σ,x:ι \sp Γ,x:\f("x∈A");Ξ ⊢ t : \f("B[a≔x]")$>;
-  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f("x∈A");Ξ ⊢ t : \f("B[a≔x]")$>;
-  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f("x∈A");Ξ,{x≡a}⊢t:\f("B[a≔x]")$>;
+  hyp                  <$Σ,x:ι \sp Γ,x:\f{x∈A};Ξ ⊢ t : \f{B[a≔x]}$>;
+  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f{x∈A};Ξ ⊢ t : \f{B[a≔x]}$>;
+  unary  ~name:<$Wk$>  <$Σ,a:τ,x:ι \sp Γ,x:\f{x∈A};Ξ,{x≡a}⊢t:\f{B[a≔x]}$>;
   ax     ~name:<$⊤$>   <$Ξ,{x≡a} ⊢ x ≡ a$>;
-  binary ~name:<$≡_{τ,τ}$> <$Σ,a:τ,x:ι \sp Γ,x:\f("a∈A");Ξ,{x≡a}⊢t:\f("B")$>;
+  binary ~name:<$≡_{τ,τ}$> <$Σ,a:τ,x:ι \sp Γ,x:\f{a∈A};Ξ,{x≡a}⊢t:\f{B}$>;
   unary  ~name:<$∈_e$> <$Σ, a:τ, x:ι \sp Γ,x:A;Ξ,{x≡a} ⊢ t : B$>;
-  unary  ~name:<$∈_e$> <$Σ, a:τ, x:ι \sp Γ,x:\f("a∈A");Ξ ⊢ t : B$>;
-  unary  ~name:<$⇒_i$> <$Σ, a:τ \sp Γ;Ξ ⊢ \t("λx t") : \f("a∈A ⇒ B")$>;
-  ax     ~name:<$⊤$>   <$Ξ ⊢ \t("λx t") ≡ \v("λx t")$>;
-  binary ~name:<$∀_i$> <$Σ \sp Γ;Ξ ⊢ \t("λx t") : \f("∀a(a∈A ⇒ B)")$>;
+  unary  ~name:<$∈_e$> <$Σ, a:τ, x:ι \sp Γ,x:\f{a∈A};Ξ ⊢ t : B$>;
+  unary  ~name:<$⇒_i$> <$Σ, a:τ \sp Γ;Ξ ⊢ \t{λx t} : \f{a∈A ⇒ B}$>;
+  ax     ~name:<$⊤$>   <$Ξ ⊢ \t{λx t} ≡ \v{λx t}$>;
+  binary ~name:<$∀_i$> <$Σ \sp Γ;Ξ ⊢ \t{λx t} : \f{∀a(a∈A ⇒ B)}$>;
   display_proof ()
 )
 \begin{center}
@@ -1268,12 +1277,12 @@ $$\id(p)$$
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                  <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀a(a∈A ⇒ B)")$>;
-  unary  ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t("t") : \f("u∈A ⇒ B[a≔u]")$>;
-  hyp                  <$Σ \sp Γ;Ξ ⊢ \t("u") : \f("A")$>;
+  hyp                  <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀a(a∈A ⇒ B)}$>;
+  unary  ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{u∈A ⇒ B[a≔u]}$>;
+  hyp                  <$Σ \sp Γ;Ξ ⊢ \t{u} : \f{A}$>;
   hyp                  <$Ξ ⊢ u ≡ v$>;
-  binary ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t("u") : \f("u∈A")$>;
-  binary ~name:<$⇒_e$> <$Σ \sp Γ;Ξ ⊢ \t("t u") : \f("B[a≔u]")$>;
+  binary ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t{u} : \f{u∈A}$>;
+  binary ~name:<$⇒_e$> <$Σ \sp Γ;Ξ ⊢ \t{t u} : \f{B[a≔u]}$>;
   display_proof ()
 )
 \begin{center}
@@ -1287,120 +1296,120 @@ existential quantification and product types. As for the dependent
 function type, the membership predicate is used to bridge the world
 of terms and the world of types.
 $$
-  \f("Σ_(x∈A) B") ≔ \f("∃x {l₁:x∈A; l₂:B}")
+  \f{Σ_(x∈A) B} ≔ \f{∃x {l₁:x∈A; l₂:B}}
   \hspace(6.0)
-  \f("Σ_(a∈A) B") ≔ \f("∃a {l₁:a∈A; l₂:B}")
+  \f{Σ_(a∈A) B} ≔ \f{∃a {l₁:a∈A; l₂:B}}
 $$
 As dependent pair types are based on records (which can only contain
 values in our system), their use is rather limited. It seems however
 possible to rely on a dependent product type to obtain satisfactory
 typing rules based on terms of the following form.
-$$ \t("(λxλy{l₁=x;l₂=y;}) t₁ t₂") $$
+$$ \t{(λxλy{l₁=x;l₂=y;}) t₁ t₂} $$
 \end{rem}
 
 (*
 $$
-\binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[y≔v₁]")}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(y∈A) B")}
+\binaryRN{Σ_{ι,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f{B[y≔v₁]}}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v{{l₁ = v₁; l₂ = v₂}} : \f{Σ_(y∈A) B}}
 $$
 $$
-\binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f("B[a≔v₁]")}
-  {Σ \sp Γ ; Ξ ⊢_\tval \v("{l₁ = v₁; l₂ = v₂}") : \f("Σ_(a∈A) B")}
+\binaryRN{Σ_{τ,i}}{Σ \sp Γ ; Ξ ⊢ v₁ : A}{Σ \sp Γ ; Ξ ⊢ v₂ : \f{B[a≔v₁]}}
+  {Σ \sp Γ ; Ξ ⊢_\tval \v{{l₁ = v₁; l₂ = v₂}} : \f{Σ_(a∈A) B}}
 $$
 *)
 
 \Caml(
 let r_ax =
-  <$\axiomRN{Ax_τ}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t("x") : A}$>
+  <$\axiomRN{Ax_τ}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t{x} : A}$>
 
 let r_arrow_i =
-  <$\unaryRN{⇒_{i,τ}}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t("t") : B}
-   {Σ \sp Γ;Ξ ⊢ \v("λx t") : A ⇒ B}$>
+  <$\unaryRN{⇒_{i,τ}}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t{t} : B}
+   {Σ \sp Γ;Ξ ⊢ \v{λx t} : A ⇒ B}$>
 
 let r_arrow_e =
-  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t("t") : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t("u") : A}
-   {Σ \sp Γ;Ξ ⊢ \t("t u") : B}$>
+  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t{t} : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t{u} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{t u} : B}$>
 
 let r_mu =
-  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t("t") : A}
-   {Σ \sp Γ;Ξ ⊢ \t("μα t") : A}$>
+  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{μα t} : A}$>
 
 let r_name =
-  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t("t") : A}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : A^⊥}
-   {Σ \sp Γ;Ξ ⊢ \t("[π]t") : B}$>
+  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : A^⊥}
+   {Σ \sp Γ;Ξ ⊢ \t{[π]t} : B}$>
 
 let r_ax' =
-  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s("α") : A^⊥}$>
+  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s{α} : A^⊥}$>
 
 let r_push =
-  <$\binaryRN{\wc·\wc_τ}{Σ \sp Γ;Ξ ⊢ \v("v") : A}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s("v·π") : \f("A⇒B")^⊥}$>
+  <$\binaryRN{\wc·\wc_τ}{Σ \sp Γ;Ξ ⊢ \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{v·π} : \f{A⇒B}^⊥}$>
 
 let r_fram =
-  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A⇒B")}
-   {Σ \sp Γ;Ξ ⊢ \s("π") : \f("B")^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s("[t]π") : \f("A")^⊥}$>
+  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A⇒B}}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{[t]π} : \f{A}^⊥}$>
 
 let r_forall_i =
-  <$\binaryRN{∀_{i,τ}}{Σ, χ:s \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}$>
+  <$\binaryRN{∀_{i,τ}}{Σ, χ:s \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}$>
 
 let r_forall_e =
-  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("∀χ^s A")}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ ≔ B]")}$>
+  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ ≔ B]}}$>
 
 let r_exists_i =
-  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t("t") : \f("A[χ≔B]")}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("∃χ^s A")}$>
+  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ≔B]}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∃χ^s A}}$>
 
 let r_exists_e =
-  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f("A[χ≔B]");Ξ ⊢ \t("t") : \f("C")}
-   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f("∃χ^s A");Ξ ⊢ \t("t") : \f("C")}$>
+  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f{A[χ≔B]};Ξ ⊢ \t{t} : \f{C}}
+   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
 
 let r_memb_i =
-  <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ⊢t≡v}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("t∈A")}$>
+  <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}}$>
 
 let r_memb_e =
-  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t("u") : C}
-   {Σ, x:ι \sp Γ,x:\f("t∈A");Ξ ⊢ \t("u") : C}$>
+  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t{u} : C}
+   {Σ, x:ι \sp Γ,x:\f{t∈A};Ξ ⊢ \t{u} : C}$>
 
 let r_rest_i =
-  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t("t") : A}{Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ;Ξ ⊢ \t("t") : \f("A ∧ u₁≡u₂")}$>
+  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A ∧ u₁≡u₂}}$>
 
 let r_rest_e =
-  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t("u₁")≡\t("u₂") ⊢ \t("t") : C}
-   {Σ, x:ι \sp Γ,x:\f("A ∧ u₁≡u₂");Ξ ⊢ \t("t") : C}$>
+  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t{u₁}≡\t{u₂} ⊢ \t{t} : C}
+   {Σ, x:ι \sp Γ,x:\f{A ∧ u₁≡u₂};Ξ ⊢ \t{t} : C}$>
 
 let r_prod_i =
-  <$\unaryRN{×_{i,τ}}{[Σ \sp Γ;Ξ ⊢ \v("vi") : \f("Ai")]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢ \v("{(li = vi) i∈I}") : \f("{(li : Ai) i∈I}")}$>
+  <$\unaryRN{×_{i,τ}}{[Σ \sp Γ;Ξ ⊢ \v{vi} : \f{Ai}]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \v{{(li = vi) i∈I}} : \f{{(li : Ai) i∈I}}}$>
 
 let r_prod_e =
-  <$\binaryRN{×_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("{(li : Ai) i∈I}")}
-   {k∈I}{Σ \sp Γ;Ξ ⊢ \t("v.lk") : A_k}$>
+  <$\binaryRN{×_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{{(li : Ai) i∈I}}}
+   {k∈I}{Σ \sp Γ;Ξ ⊢ \t{v.lk} : A_k}$>
 
 let r_sum_i =
-  <$\binaryRN{+_{i,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("Ak")}{k∈I}
-   {Σ \sp Γ;Ξ ⊢ \v("Ck[v]") : \f("[(Ci : Ai) i∈I]")}$>
+  <$\binaryRN{+_{i,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{Ak}}{k∈I}
+   {Σ \sp Γ;Ξ ⊢ \v{Ck[v]} : \f{[(Ci : Ai) i∈I]}}$>
 
 let r_sum_e =
-  <$\binaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v("v") : \f("[(Ci : Ai) i∈I]")}
-   {[Σ \sp Γ,x_i:A_i;Ξ,v≡\t("Ci[xi]") ⊢ t_i : B]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢ \t("[v | (Ci[xi] → ti) i∈I]") : B}$>
+  <$\binaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{[(Ci : Ai) i∈I]}}
+   {[Σ, x_i:ι \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : B}$>
 
 let r_eq_i =
-  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t("t[x≔w₁]") : \f("A[x≔w₁]")}
-   {Ξ ⊢ \v("w₁") ≡ \v("w₂")}
-   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t("t[x≔w₂]") : \f("A[x≔w₂]")}$>
+  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t{t[x≔w₁]} : \f{A[x≔w₁]}}
+   {Ξ ⊢ \v{w₁} ≡ \v{w₂}}
+   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t{t[x≔w₂]} : \f{A[x≔w₂]}}$>
 
 let r_eq_t =
-  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t("t[a≔u₁]") : \f("A[a≔u₁]")}
-   {Ξ ⊢ \t("u₁") ≡ \t("u₂")}
-   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t("t[a≔u₂]") : \f("A[a≔u₂]")}$>
+  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}
+   {Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
 
 let rs env =
   let env = resize_env 3.4 env in
@@ -1431,7 +1440,7 @@ observational equivalence induced by $({↠})$
 \begin{def}
 The relation $({≡}_{↠}) ⊆ Λ×Λ$ is defined as follows.
 $$ ({≡}_{↠}) = \{(t,u) \| ∀π∈Π, ∀ρ∈\cal{S},
-     {{\p("tρ∗π")} {⇓}_{↠}} ⇔ {{\p("uρ∗π")} {⇓}_{↠}} \} $$
+     {{\p{tρ∗π}} {⇓}_{↠}} ⇔ {{\p{uρ∗π}} {⇓}_{↠}} \} $$
 \end{def}
 \begin{lem}
 The relation $({≡}_{↠}) ⊆ Λ×Λ$ is and equivalence relation.
@@ -1445,20 +1454,20 @@ If $t$, $u∈Λ$ are two terms such that $t ≡ u$ then $t ≡_{↠} u$. In othe
 words, we have $({≡}) ⊆ ({≡}_{↠})$
 \begin{proof}
 Let us suppose that $t ≡ u$, take $π₀∈Π$ and take $ρ₀∈\cal{S}$. By
-symmetry we can assume that ${\p("tρ₀∗π₀")} {⇓}_{↠}$ and show that
-${\p("uρ₀∗π₀")} {⇓}_{↠}$. By definition there is $i₀∈\bbN$ such that
-${\p("tρ₀∗π₀")} {⇓}_{i₀}$. Since $t ≡ u$ we know that for all $i∈\bbN$,
+symmetry we can assume that ${\p{tρ₀∗π₀}} {⇓}_{↠}$ and show that
+${\p{uρ₀∗π₀}} {⇓}_{↠}$. By definition there is $i₀∈\bbN$ such that
+${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Since $t ≡ u$ we know that for all $i∈\bbN$,
 $π∈Π$ and $ρ∈\cal{S}$ we have
-${{\p("tσ∗π")} {⇓}_i} ⇔ {{\p("uσ∗π")} {⇓}_i}$.
+${{\p{tσ∗π}} {⇓}_i} ⇔ {{\p{uσ∗π}} {⇓}_i}$.
 This is true in particular for $i = i₀$, $π = π₀$ and $ρ = ρ₀$. We
-hence obtain ${\p("uρ₀∗π₀")} {⇓}_{i₀}$ which give us
-${\p("uρ₀∗π₀")} {⇓}_{↠}$.
+hence obtain ${\p{uρ₀∗π₀}} {⇓}_{i₀}$ which give us
+${\p{uρ₀∗π₀}} {⇓}_{↠}$.
 \end{proof}
 \end{thm}
 \begin{rem}
 The converse implication is not true in general, that is we do not
 have $({≡}) ⊇ ({≡}_{↠})$. A counter-example is given by the terms
-$t = \t("δ(λx x, {})")$ and $u = \t("λx x")$. More generally, if
+$t = \t{δ(λx x, {})}$ and $u = \t{λx x}$. More generally, if
 $p ∈ Λ×Π$ is a process, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does not
 imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number $i ∈ \bbN$.
 \end{rem}
