@@ -22,27 +22,36 @@
 
 => A model for a semantical value restriction \label("semValRest")
 
-In this chapter, we consider the encoding of dependent types (i.e. forms
-of typed quantifications) into our system. However, the expressiveness of
+In this chapter, we consider the encoding of dependent types (i.e. a form
+of typed quantification) into our system. However, the expressiveness of
 such constructs is considerably limited by value restriction. To solve
 this issue we introduce the notion of //semantical value restriction//,
 which allows the system to accept many more programs. Obtaining a model
 justifying //semantical value restriction// will require us to change our
-notions or reduction and observational equivalence.
+notions of reduction and observational equivalence.
 
 => Dependent function types
 
-As\label("encodedep")
-discussed at the begining of \chapter("typeSystem"), it is possible
-to encode a form of dependent types into our system using (untyped)
-quantification and the membership predicate. The dependent function
-types can be encoded as follows, and it may range over either values
-or terms.
+It is possible to encode a form of dependent types into our system to
+obtain typed quantification over the values (or terms) of a given type.
+This encoding relies on the well-known relativised quantification scheme.
+It was suggested by Alexandre Miquel during a visit to Montevideo.
+\begin{def}
+Let $A$, $B ∈ \cal{F}$ be two types, $x ∈ \cal{V}_ι$ be a $λ$-variable and
+$a ∈ \cal{V}_τ$ be a term variable. We will use the following notations
+for representing dependent function types ranging over values and terms
+respectively.
 $$
   \f{Π_(x∈A) B} ≔ \f{∀x(x∈A ⇒ B)}
   \hspace(6.0)
   \f{Π_(a∈A) B} ≔ \f{∀a(a∈A ⇒ B)}
 $$
+\end{def}
+Of course, we do not need to give additional sorting rules since
+$\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars. Note
+however that nothing prevents the variable that is quantified over
+to appear in the type $\f{A}$.
+
 To work with our dependent function types more easily, we can define
 the corresponding introduction and elimination rules as follows.
 $$

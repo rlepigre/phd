@@ -597,8 +597,8 @@ restriction to remain sound. In our formalism, this means that the $∀_i$
 rule applies to value judgments. The $∈_i$ rule requires value restriction
 as well, as otherwise the system cannot be proved sound. As the $∈_i$ rule
 will be involved in the derivation of the typing rule for the elimination
-of the dependent function type in \section("encodedep"), the latter will
-also need value restriction.
+of the dependent function type at the begining of \chapter("semValRest"),
+the latter will also need value restriction.
 
 =<
 => Call-by-value realisability semantics
