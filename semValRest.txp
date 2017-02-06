@@ -20,6 +20,116 @@
 \Configure_math_macro{\ss}{ syntax = string; }
 \Configure_math_macro{\ts}{ syntax = string; }
 
+\Caml(
+let r_ax =
+  <$\axiomRN{Ax_τ}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t{x} : A}$>
+
+let r_arrow_i =
+  <$\unaryRN{⇒_{i,τ}}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t{t} : B}
+   {Σ \sp Γ;Ξ ⊢ \v{λx t} : A ⇒ B}$>
+
+let r_arrow_e =
+  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t{t} : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t{u} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{t u} : B}$>
+
+let r_mu =
+  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \t{μα t} : A}$>
+
+let r_name =
+  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t{t} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : A^⊥}
+   {Σ \sp Γ;Ξ ⊢ \t{[π]t} : B}$>
+
+let r_ax' =
+  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s{α} : A^⊥}$>
+
+let r_push =
+  <$\binaryRN{\wc·\wc_τ}{Σ \sp Γ;Ξ ⊢ \v{v} : A}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{v·π} : \f{A⇒B}^⊥}$>
+
+let r_fram =
+  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A⇒B}}
+   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
+   {Σ \sp Γ;Ξ ⊢ \s{[t]π} : \f{A}^⊥}$>
+
+let r_forall_i =
+  <$\binaryRN{∀_{i,τ}}{Σ, χ:s \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}$>
+
+let r_forall_e =
+  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ ≔ B]}}$>
+
+let r_exists_i =
+  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ≔B]}}{Σ ⊢ B : s}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∃χ^s A}}$>
+
+let r_exists_e =
+  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f{A[χ≔B]};Ξ ⊢ \t{t} : \f{C}}
+   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
+
+let r_memb_i =
+  <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}}$>
+
+let r_memb_e =
+  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t{u} : C}
+   {Σ, x:ι \sp Γ,x:\f{t∈A};Ξ ⊢ \t{u} : C}$>
+
+let r_rest_i =
+  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A ∧ u₁≡u₂}}$>
+
+let r_rest_e =
+  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t{u₁}≡\t{u₂} ⊢ \t{t} : C}
+   {Σ, x:ι \sp Γ,x:\f{A ∧ u₁≡u₂};Ξ ⊢ \t{t} : C}$>
+
+let r_prod_i =
+  <$\unaryRN{×_{i,τ}}{[Σ \sp Γ;Ξ ⊢ \v{vi} : \f{Ai}]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \v{{(li = vi) i∈I}} : \f{{(li : Ai) i∈I}}}$>
+
+let r_prod_e =
+  <$\binaryRN{×_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{{(li : Ai) i∈I}}}
+   {k∈I}{Σ \sp Γ;Ξ ⊢ \t{v.lk} : A_k}$>
+
+let r_sum_i =
+  <$\binaryRN{+_{i,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{Ak}}{k∈I}
+   {Σ \sp Γ;Ξ ⊢ \v{Ck[v]} : \f{[(Ci : Ai) i∈I]}}$>
+
+let r_sum_e =
+  <$\binaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{[(Ci : Ai) i∈I]}}
+   {[Σ, x_i:ι \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+   {Σ \sp Γ;Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : B}$>
+
+let r_eq_i =
+  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t{t[x≔w₁]} : \f{A[x≔w₁]}}
+   {Ξ ⊢ \v{w₁} ≡ \v{w₂}}
+   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t{t[x≔w₂]} : \f{A[x≔w₂]}}$>
+
+let r_eq_t =
+  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}
+   {Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
+
+let rs env =
+  let env = resize_env 3.4 env in
+  let rs =
+    [ [r_ax;r_arrow_e] ; [r_ax';r_arrow_i] ; [r_mu; r_name] ; [r_push; r_fram]
+    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
+    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
+    ; [r_eq_i] ; [r_eq_t] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs ->
+    draw_boxes env (boxify_scoped env cs))) rs
+
+let derived_rules () =
+  figure_here ~name:"derivedrules"
+              ~caption:[tT "Derived typing rules."] (dr rs)
+)
+
 => A model for a semantical value restriction \label("semValRest")
 
 In this chapter, we consider the encoding of dependent types (i.e. a form
@@ -1150,7 +1260,7 @@ Combination of \thmRef("fullsubstequiv"), \thmRef("fullextval") and
 \end{proof}
 \end{thm}
 
-Now that we have show that $({≡})$ is a congruence, it remains to show that
+Now that we have proved $({≡})$ to be a congruence, it remains to show that
 it is compatible with $({≡}_{≻})$. To do so, we first need to show that we
 $({≡})$ contains $({≡}_{≻})$
 \begin{thm}\label("fullcompat1")
@@ -1246,8 +1356,10 @@ $\vs{Aρ}$ thanks to \thmRef("main").
 \end{proof}
 \end{thm}
 
+(* TODO safety theorem using δ to show extensionality of the pole. *)
+
 We have now obtained a model allowing the use of semantical value
-restriction. We will see in the next section that our the presence of
+restriction. We will see in the next section that the presence of
 coercion rules between value and terms judgments will allow us to make
 the type system a lot simpler by only considering one form of judgments.
 
@@ -1277,7 +1389,7 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 As for value judgments appearing in a premise, we will simply precompose
@@ -1293,13 +1405,13 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 
 The full set of our new rule is displayed in \figRef("derivedrules").
-Note that some rules, like ($⇒_e$) have not changed from our original
-system. All the modified rules but ($∀_{i,τ}$) and ($∈_{i,τ}$) can be
+Note that some rules, like ($⇒_e$) for example, remain unchanged.
+All the modified rules but ($∀_{i,τ}$) and ($∈_{i,τ}$) can be
 derived immediately as demonstrated above. The rules ($∀_{i,τ}$) and
 ($∈_{i,τ}$) are instances of the semantical value restriction. The
 former can be derived as follows, and a derivation for the latter was
@@ -1318,7 +1430,7 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 
@@ -1342,7 +1454,7 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 \begin{proofTree}
@@ -1357,7 +1469,7 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 
@@ -1389,116 +1501,6 @@ $$
 $$
 *)
 
-\Caml(
-let r_ax =
-  <$\axiomRN{Ax_τ}{Σ, x:ι \sp Γ, x:A; Ξ ⊢ \t{x} : A}$>
-
-let r_arrow_i =
-  <$\unaryRN{⇒_{i,τ}}{Σ, x:ι \sp Γ,x:A;Ξ ⊢ \t{t} : B}
-   {Σ \sp Γ;Ξ ⊢ \v{λx t} : A ⇒ B}$>
-
-let r_arrow_e =
-  <$\binaryRN{⇒_e}{Σ \sp Γ;Ξ ⊢ \t{t} : A ⇒ B}{Σ \sp Γ;Ξ ⊢ \t{u} : A}
-   {Σ \sp Γ;Ξ ⊢ \t{t u} : B}$>
-
-let r_mu =
-  <$\unaryRN{μ}{Σ, α:σ \sp Γ,α:A^⊥;Ξ ⊢ \t{t} : A}
-   {Σ \sp Γ;Ξ ⊢ \t{μα t} : A}$>
-
-let r_name =
-  <$\binaryRN{[\wc]}{Σ \sp Γ;Ξ ⊢ \t{t} : A}
-   {Σ \sp Γ;Ξ ⊢ \s{π} : A^⊥}
-   {Σ \sp Γ;Ξ ⊢ \t{[π]t} : B}$>
-
-let r_ax' =
-  <$\axiomRN{Ax^⊥}{Σ, α:σ \sp Γ, α:A^⊥; Ξ ⊢ \s{α} : A^⊥}$>
-
-let r_push =
-  <$\binaryRN{\wc·\wc_τ}{Σ \sp Γ;Ξ ⊢ \v{v} : A}
-   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s{v·π} : \f{A⇒B}^⊥}$>
-
-let r_fram =
-  <$\binaryRN{[\wc]\wc}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A⇒B}}
-   {Σ \sp Γ;Ξ ⊢ \s{π} : \f{B}^⊥}
-   {Σ \sp Γ;Ξ ⊢ \s{[t]π} : \f{A}^⊥}$>
-
-let r_forall_i =
-  <$\binaryRN{∀_{i,τ}}{Σ, χ:s \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
-   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}$>
-
-let r_forall_e =
-  <$\binaryRN{∀_e}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀χ^s A}}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ ≔ B]}}$>
-
-let r_exists_i =
-  <$\binaryRN{∃_i}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A[χ≔B]}}{Σ ⊢ B : s}
-   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∃χ^s A}}$>
-
-let r_exists_e =
-  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f{A[χ≔B]};Ξ ⊢ \t{t} : \f{C}}
-   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
-
-let r_memb_i =
-  <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
-   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}}$>
-
-let r_memb_e =
-  <$\unaryRN{∈_e}{Σ, x:ι \sp Γ,x:A;Ξ,x≡t ⊢ \t{u} : C}
-   {Σ, x:ι \sp Γ,x:\f{t∈A};Ξ ⊢ \t{u} : C}$>
-
-let r_rest_i =
-  <$\binaryRN{↾_i}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
-   {Σ \sp Γ;Ξ ⊢ \t{t} : \f{A ∧ u₁≡u₂}}$>
-
-let r_rest_e =
-  <$\unaryRN{↾_e}{Σ, x:ι \sp Γ,x:A;Ξ,\t{u₁}≡\t{u₂} ⊢ \t{t} : C}
-   {Σ, x:ι \sp Γ,x:\f{A ∧ u₁≡u₂};Ξ ⊢ \t{t} : C}$>
-
-let r_prod_i =
-  <$\unaryRN{×_{i,τ}}{[Σ \sp Γ;Ξ ⊢ \v{vi} : \f{Ai}]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢ \v{{(li = vi) i∈I}} : \f{{(li : Ai) i∈I}}}$>
-
-let r_prod_e =
-  <$\binaryRN{×_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{{(li : Ai) i∈I}}}
-   {k∈I}{Σ \sp Γ;Ξ ⊢ \t{v.lk} : A_k}$>
-
-let r_sum_i =
-  <$\binaryRN{+_{i,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{Ak}}{k∈I}
-   {Σ \sp Γ;Ξ ⊢ \v{Ck[v]} : \f{[(Ci : Ai) i∈I]}}$>
-
-let r_sum_e =
-  <$\binaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \v{v} : \f{[(Ci : Ai) i∈I]}}
-   {[Σ, x_i:ι \sp Γ,x_i:A_i;Ξ,v≡\t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
-   {Σ \sp Γ;Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : B}$>
-
-let r_eq_i =
-  <$\binaryRN{≡_{τ,ι}}{Σ \sp Γ[x≔w₁];Ξ ⊢ \t{t[x≔w₁]} : \f{A[x≔w₁]}}
-   {Ξ ⊢ \v{w₁} ≡ \v{w₂}}
-   {Σ \sp Γ[x≔w₂];Ξ ⊢ \t{t[x≔w₂]} : \f{A[x≔w₂]}}$>
-
-let r_eq_t =
-  <$\binaryRN{≡_{τ,τ}}{Σ \sp Γ[a≔u₁];Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}
-   {Ξ ⊢ \t{u₁} ≡ \t{u₂}}
-   {Σ \sp Γ[a≔u₂];Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
-
-let rs env =
-  let env = resize_env 3.4 env in
-  let rs =
-    [ [r_ax;r_arrow_e] ; [r_ax';r_arrow_i] ; [r_mu; r_name] ; [r_push; r_fram]
-    ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
-    ; [r_memb_i;r_rest_e] ; [r_prod_e;r_sum_i] ; [r_prod_i] ; [r_sum_e]
-    ; [r_eq_i] ; [r_eq_t] ]
-  in
-  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
-  List.map (List.map (fun cs ->
-    draw_boxes env (boxify_scoped env cs))) rs
-
-let _ =
-  figure_here ~name:"derivedrules"
-              ~caption:[tT "Derived typing rules."] (dr rs)
-)
-
 =<
 
 => Understanding our new equivalence
@@ -1508,6 +1510,9 @@ to another equivalence relation with a more intuitive definition. The
 definition of this new relation, denoted $({≡}_{↠})$, will be very similar
 to that of $({≡}_{≻})$ (see \chapter("obsEquiv")). It can be seen as the
 observational equivalence induced by $({↠})$
+
+\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
+
 \begin{def}
 The relation $({≡}_{↠}) ⊆ Λ×Λ$ is defined as follows.
 $$ ({≡}_{↠}) = \{(t,u) \| ∀π∈Π, ∀ρ∈\cal{S},
