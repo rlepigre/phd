@@ -195,7 +195,8 @@ let _ =
 )
 \end{env}
 \end{center}
-The proof is very similar when we quantify over term variables.
+The proof is very similar when we quantify over term variables, but it
+requires the use of \lemma("texttyp").
 \end{proof}
 \end{lem}
 
