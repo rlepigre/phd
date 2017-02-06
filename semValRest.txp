@@ -48,12 +48,13 @@ $$
 $$
 \end{def}
 Of course, we do not need to give additional sorting rules since
-$\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars. Note
-however that nothing prevents the variable that is quantified over
-to appear in the type $\f{A}$.
+$\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars.
+However, note that nothing prevents the variable that is quantified
+over to appear in the type $\f{A}$.
 
-To work with our dependent function types more easily, we can define
-the corresponding introduction and elimination rules as follows.
+To work with our dependent function types more easily, we can consider
+the following introduction and elimination rule for the new dependent
+function type.
 $$
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
   {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}
@@ -72,12 +73,14 @@ $$
 $$
 Note that both elemination rules require value restriction on the
 side of the argument. In other words, dependent functions can only
-be applied to values.
-
-The four new typing rules can immediatly be used to extend the type
-system as they are all derivable. In particular, this means that we
-do not have to extend our adequacy lemma (\thmRef("adequacy")). The
-proofs for the derivation of the rules are given bellow.
+be applied to values. The four new typing rules can immediatly be
+used to extend the type system as they are all derivable. In
+particular, this means that we do not have to extend our adequacy
+lemma (\thmRef("adequacy")).
+\begin{lem}
+The typing rules for the dependent function types are derivable.
+\begin{proof}
+The derivations for earch of the new rules is given below.
 $$
 \proofTree{
   \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}{
@@ -134,6 +137,9 @@ $$
  }
 }
 $$
+\linesAfter(1)
+\end{proof}
+\end{lem}
 \begin{rem}
 Note that in the typing rules we consider, the variable bound by the
 dependent type (i.e. $x$ or $a$ respectively) does not appear free in
@@ -147,29 +153,51 @@ respect to the semantics. Indeed, their interpretation is similar to
 the arrow type (i.e. non-dependent functions), but the type of the
 body depends on the input. If the variable that is quantified over is
 a value variable (i.e. a $λ$-variable) then we have
+\begin{lem}
+If $A$, $B ∈ \cal{F}$ are types such that the sorting judgments $⊢ A : ο$
+and $x : ι ⊢ B : ο$ are derivable then we have the following.
+$$
+  \vs{Π_(x∈A) B} = \{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}
+                   ∪ \{\v{□}\}
+$$
+Similarly, if $a : τ ⊢ B : ο$ is derivable then we have the following.
+$$
+  \vs{Π_(a∈A) B} = \{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[a≔v]}\}
+                   ∪ \{\v{□}\}
+$$
+\begin{proof}
+The proof is done using simple equational reasoning starting from the
+definition of $\vs{∀x (x∈A ⇒ B)}$ and $\vs{∀a (a∈A ⇒ B)}$ respectively.
 \begin{center}
+\begin{env}(scale 0.94)
 \diagram(
 let _ =
   let first e1 e2 = [ e1; <$=$>; e2 ] in
   let line e = [ []; <$=$>; e ] in
+  let empty = [[]; []; []] in
   array [`East ; `East ; `West]
-  [ first <$\vs{Π_(x∈A) B}$> <$\vs{∀x (x∈A ⇒ B)}$>
-  ; line <$\biginter_{Φ∈⟦ι⟧} \vs{Φ∈A ⇒ B[x≔Φ]}$>
+  [ empty
+  ; first <$\vs{Π_(x∈A) B}$> <$\vs{∀x (x∈A ⇒ B)}$>
+  ; line <$\biginter_{Φ∈⟦ι⟧}
+      (* FIXME hack *)
+      {\vs{Φ∈A ⇒ B[x≔Φ]}^{\mcolor(white){⊥⊥}} \mcolor(white){,}}$>
+  ; line <$\biginter_{Φ∈⟦ι⟧} (\{\v{λx t} \| ∀v∈\vs{Φ∈A},
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\})$>
   ; line <$\biginter_{Φ∈⟦ι⟧} \{\v{λx t} \| ∀v∈\vs{Φ∈A},
-      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
   ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\vs{Φ∈A},
-      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
   ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs{A} \| w ≡ Φ\},
-      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\}$>
-  ; line <$\{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}$> ]
+      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
+  ; line <$\{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}
+      ∪ \{\v{□}\}$>
+  ; empty ]
 )
+\end{env}
 \end{center}
-and similarly, we have
-$$
-  \vs{Π_(a∈A) B} = \{\v{λx t} \|
-    ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[a≔v]}\}
-$$
-if we quantify over a term variable.
+The proof is very similar when we quantify over term variables.
+\end{proof}
+\end{lem}
 
 =<
 
