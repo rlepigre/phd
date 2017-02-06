@@ -857,9 +857,10 @@ $$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
 We need to show that for every value $v∈Φ^{⊥⊥}$ we also have $v∈Φ$. We
 are going to show the contrapositive, so let us assume $v∉Φ$ and show
 $v∉Φ^{⊥⊥}$. By definition, we need to find a stack $π∈Φ^⊥$ such that
-$\p{v∗π}∉\dbot$. We will take $π=\s{[λxδ(x,v)][[π₀]t₀]ε}$ and show
-that it is suitable. We first need to show that $π∈Φ^⊥$ so we take
-$w∈Φ$ and we show that $\p{w∗π}∈\dbot$. By definition, we have
+$\p{v∗π}∉\dbot$. We will take $π=\s{[λxδ(x,v)][[π₀]t₀]ε}$ with
+$\p{t₀∗π₀} ∈ \dbot$ and show that it is suitable. We first need to show
+that $π∈Φ^⊥$ so we take $w∈Φ$ and we show that $\p{w∗π}∈\dbot$. By
+definition, we have
 \begin{center}
 \linesBefore(7)
 \diagram(
