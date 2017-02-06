@@ -215,12 +215,12 @@ be found in \cite("Castagna2016"), for example.
 
 In this thesis, we will show that it is possible to design a practical
 type system based on subtyping for our language. It allows for a rather
-straight-forward implementation using standard unification techniques
-following the typing and subtyping rules that will be given in the
-following sections. In particular, the typing and subtyping procedures
-never have to backtrack since they are directed by the syntax of terms
-and types respectively. The ideas presented here were introduced in a
-joint work of Christophe Raffalli and the author \cite("Lepigre2017").
+straight-forward implementation following the typing and subtyping rules
+that will be given in the following sections. In particular, the typing
+and subtyping procedures never have to backtrack since they are directed
+by the syntax of terms and types respectively. The ideas presented here
+were introduced in a joint work of Christophe Raffalli and the author
+\cite("Lepigre2017").
 
 =<
 
@@ -232,7 +232,7 @@ subtyping relation $A ⊂ B$ (meaning "$A$ is a subtype of $B$") using a
 //local subtyping// relation $t ∈ A ⊂ B$. It will be interpreted as
 "if $t$ has type $A$ then it also has type $B$". Usual subtyping is then
 recovered using choice operators inspired from //Hilbert's Epsilon and
-Tau functions// \cite("Hilbert1968"). In our system, the choice operator
+Tau functions// \cite("Hilbert1934"). In our system, the choice operator
 $\v{εx∈A(t∉B)}$ denotes a value $v$ of type $A$ such that $\t{t[x≔v]}$
 does not have type $B$. If no such term exists, then an arbitrary term
 of type $A$ can be chosen. We can then take $\v{εx∈A(x∉B)} ∈ A ⊂ B$ as
@@ -241,18 +241,22 @@ a definition of $A ⊂ B$.
 Of course, for the choice operator $\v{εx∈A(t∉B)}$ to be well-defined
 we will need the interpretation of every type to non-empty. It is the
 case in \cite("Lepigre2017") as the model is based on Girard's
-reducibility candidates \mcite(["Girard1972"; "Girard1989"]).
+reducibility candidates \mcite(["Girard1972"; "Girard1989"]). Here,
+we will use the special value $\v{□}$ as it is contained in the
+interpretation of all types by construction. This is its very purpose.
 \end{rem}
 
 Choice operators can be used to replace the notion of free variables,
-and hence suppress the need for typing contexts. Intuitively,
-$\v{εx∈A(t∉B)}$ denotes a counterexample to the fact that $\t{λx t}$
-has type $\f{A⇒B}$. Consequently, we will use the rule of the form
+and hence suppress the need for typing contexts. The contexts will
+then be limited to an equational context containing closed terms.
+Intuitively, $\v{εx∈A(t∉B)}$ denotes a counterexample to the fact
+that $\t{λx t}$ has type $\f{A⇒B}$. Consequently, we will use the
+following rule for typing $λ$-abstractions.
 \begin{center}
 $ \unaryR{Ξ ⊢ \t{t[x≔εx∈A(t∉B)]} : B}
     {Ξ ⊢ \t{λxt} : \f{A⇒B}} $
 \end{center}
-for typing $λ$-abstractions. It can be read as a proof by contradiction
+It can be read as a proof by contradiction
 as its premise is only valid when there is no value $v$ of type $A$ such
 that $\t{t[x≔v]}$ does not have type $B$. The axiom rule is then
 replaced by the following typing rule for choice operators.
@@ -263,11 +267,11 @@ Obviously, the same trick can be used for $μ$-variables and
 $μ$-abstractions. As for choice operators for values, choice
 operators for stack will need to always be well-defined. As
 a consequence, we will need to make sure that the set of stacks
-associated to each type contain at least one element.
+associated to each type contain at least the empty stack $\s{ε}$.
 
 The use of choice operators and the elimination of typing contexts
-will plays an essential role in the definition of our type system
-with subtyping. Indeed, they will allow us to handle quantifiers
+will plays an essential role in the definition of our type system.
+Indeed, they will allow us to handle quantifiers
 using our local subtyping relation only. This will allow us to work
 with syntax-directed typing rules only, and most of the work will
 be done using subtyping.

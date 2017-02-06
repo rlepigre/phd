@@ -309,11 +309,11 @@ let biblio =
   ; notes   = "Unpublished"
   ; year    = "2017" };
 
-  { key     = "Hilbert1968"
+  { key     = "Hilbert1934"
   ; authors = "David Hilbert and Paul Bernays"
   ; title   = "Grundlagen der Mathematik, Volume 1"
   ; notes   = "Grundlehren der mathematischen Wissenschaften"
-  ; year    = "1934" };
+  ; year    = "1934 / 1939" };
 
   ]
 
