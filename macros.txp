@@ -632,17 +632,4 @@ let tabular_layout ratio vsep lines =
 let todo = function
   | None     -> color red <<TODO (...) >>
   | Some txt -> color red (<<TODO (>> @ [tT txt] @ <<)>>)
-
-(* Fit math on the width if too big. *)
-let fit x =
-  let fn env =
-    let bx = draw_boxes env (Maths.draw [env] x) in
-    let (x0,y0,x1,y1) = bounding_box bx in
-    let mw = x1 -. x0 in
-    let pw = env.normalMeasure in
-    let sz = env.size in
-    let size = if mw <= pw then sz else sz *. pw /. mw in
-    {env with size}
-  in
-  Env fn :: x
 )
