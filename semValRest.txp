@@ -32,10 +32,10 @@ notions of reduction and observational equivalence.
 
 => Dependent function types
 
-It is possible to encode a form of dependent types into our system to
-obtain typed quantification over the values (or terms) of a given type.
-This encoding relies on the well-known relativised quantification scheme.
-It was suggested by Alexandre Miquel during a visit to Montevideo.
+It is possible to encode dependent types into our system to obtain a
+form of quantification over the values (or terms) of a given type.
+This encoding relies on the well-known relativised quantification
+scheme, and it was suggested by Alexandre Miquel.
 \begin{def}
 Let $A$, $B ∈ \cal{F}$ be two types, $x ∈ \cal{V}_ι$ be a $λ$-variable and
 $a ∈ \cal{V}_τ$ be a term variable. We will use the following notations
@@ -53,8 +53,7 @@ However, note that nothing prevents the variable that is quantified
 over to appear in the type $\f{A}$.
 
 To work with our dependent function types more easily, we can consider
-the following introduction and elimination rule for the new dependent
-function type.
+the following introduction and elimination rules.
 $$
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
   {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}
@@ -144,15 +143,14 @@ $$
 Note that in the typing rules we consider, the variable bound by the
 dependent type (i.e. $x$ or $a$ respectively) does not appear free in
 the type $A$. In fact, this restriction is not necessary, and we could
-addapt our rules accordingly. However, the considered types would not
+addapt the rules accordingly. However, the considered types would not
 correspond to dependent functions anymore.
 \end{rem}
 
-Note that our encoding of the dependent products makes sense with
+Our encoding of the dependent products makes sense with
 respect to the semantics. Indeed, their interpretation is similar to
-the arrow type (i.e. non-dependent functions), but the type of the
-body depends on the input. If the variable that is quantified over is
-a value variable (i.e. a $λ$-variable) then we have
+the arrow type as it contains functions, but the type of their body
+depends on the value of the input.
 \begin{lem}
 If $A$, $B ∈ \cal{F}$ are types such that the sorting judgments $⊢ A : ο$
 and $x : ι ⊢ B : ο$ are derivable then we have the following.
