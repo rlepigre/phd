@@ -70,16 +70,16 @@ $$
 \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
   {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}
 $$
-Note that both elemination rules require value restriction on the
+Note that both elimination rules require value restriction on the
 side of the argument. In other words, dependent functions can only
-be applied to values. The four new typing rules can immediatly be
+be applied to values. The four new typing rules can immediately be
 used to extend the type system as they are all derivable. In
 particular, this means that we do not have to extend our adequacy
 lemma (\thmRef("adequacy")).
 \begin{lem}
 The typing rules for the dependent function types are derivable.
 \begin{proof}
-The derivations for earch of the new rules is given below.
+The derivations for each of the new rules is given below.
 $$
 \proofTree{
   \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}{
@@ -136,14 +136,14 @@ $$
  }
 }
 $$
-\linesAfter(1)
+\linesAfter(0)
 \end{proof}
 \end{lem}
 \begin{rem}
 Note that in the typing rules we consider, the variable bound by the
 dependent type (i.e. $x$ or $a$ respectively) does not appear free in
 the type $A$. In fact, this restriction is not necessary, and we could
-addapt the rules accordingly. However, the considered types would not
+adapt the rules accordingly. However, the considered types would not
 correspond to dependent functions anymore.
 \end{rem}
 
@@ -202,11 +202,11 @@ requires the use of \lemma("texttyp").
 
 => The limits of value restriction
 
-In languages like ||OCaml||, value restriction is not an issue. As it is
-only required on the typing rule for polymorphism, programmers almost never
-notice it as they mostly define functions (which are values). Moreover, if
-a problematic instance of value restriction is encountered, one can always
-use a dummy $λ$-abstraction (or an $η$-expension) to transform a term into
+In languages like ||OCaml||, value restriction is not an issue. Indeed, it
+is only required on the typing rule for polymorphism, and programmers almost
+never notice it as they mostly define functions (which are values). Moreover,
+if a problematic instance of value restriction is encountered, one can always
+use a dummy $λ$-abstraction (or an $η$-expansion) to transform a term into
 a value. A common example of this situation arises when working with
 combinators (e.g. parser combinators) and partial application. As an
 example, let us consider the code bellow (written in ||OCaml|| syntax).
@@ -231,7 +231,7 @@ to any parser, with any return type. However, the combinator ##mono##
 defined above is only weakly polymorphic. This means that we will only be
 able to apply it to parsers of one fixed (but yet unknown) type. Of course,
 ##seq any## is not a value, and value restriction applies. To solve this
-lack of generality, one need to rely on an $η$-expension as in ##poly##,
+lack of generality, one need to rely on an $η$-expansion as in ##poly##,
 which has the expected type ##'a parser -> (char, 'a) parser##.
 
 As the definition of ##seq## is probably something like
@@ -239,24 +239,22 @@ As the definition of ##seq## is probably something like
 ##mono##. Indeed, the evaluation of ##seq any## would instantly reduce to
 a value (without any side-effect) in one $β$-reduction. This means that
 ##seq any## could actually be considered a value. However, as discussed
-in the introduction, value restriction is a very simple and elegent way
+in the introduction, value restriction is a very simple and elegant way
 to ensure the soundness of the type system. For this reason, the
 limitations discussed here are certainly not enough of a problem to
-motivate the design and implementation of a more complex cryterion.
+motivate the design and implementation of a more complex criterion.
 
 In our system, value restriction is not only required on the introduction
 rule for the universal quantifier, but also on the introduction rule for
 the membership predicate. As it is used to derive the ($Π_{ι,e}$) and
 ($Π_{τ,e}$) rules, value restriction is enforced on the argument of
-dependent functions. This restriction is indeed necessary as with an
+dependent functions. This restriction is indeed necessary as an
 unrestricted ($∈_i$) rule breaks the consistency (and the type safety) of
 our system. To support this claim, we will consider the system in which
 ($∈_i$) has been replaced by the following (unrestricted) typing rule.
-$$
-\unaryRN{∈_{i,⊥}}
-  {Σ \sp Γ,Ξ ⊢ t : A}
-  {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}
-$$
+\begin{center}
+$ \unaryRN{∈_{i,⊥}}{Σ \sp Γ,Ξ ⊢ t : A} {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}$
+\end{center}
 In this system, the following (unrestricted) typing rule for the
 elimination of the dependent function type can be derived (see the
 typing derivation bellow the rule).
@@ -472,11 +470,10 @@ $$ \id(p) $$
 \end{proofTree}
 \end{env}
 
-As the empty type can be inhabited in the presence of a typing rule
-without value restriction for the membership type, we can deduce that
-the unrestricted rule is unsound. As a consequence, there is no hope
-of encoding an unrestricted elimination rule for the dependent product
-into our system. Indeed, only the membership types are able to link
+We can thus conclude that the typing rule without value restriction for
+the membership type is unsound. As a consequence, there is no hope
+of encoding an unrestricted elimination rule for the dependent function
+type into our system. Indeed, only the membership types are able to link
 the world of terms and the world of types thanks to their semantics.
 
 The limitation imposed by the value restriction on the dependent
@@ -485,7 +482,7 @@ forbids the composition of dependent functions, which is very usual
 in practice. In \chapter("implem"), we will consider interesting
 examples of programs that could not be accepted under the usual
 syntactic restriction. For them to be accepted in our system, we
-need another cryterion that accepts more programs, while still being
+need another criterion that accepts more programs, while still being
 sound.
 
 =<
@@ -499,29 +496,29 @@ the notion of //semantical value restriction// \cite("Lepigre2016").
 The main idea is to relax the restriction to allow terms "behaving like",
 and not syntactic values only. Thanks to our notion of observational
 equivalence, this property can be expressed easily in the syntax. Indeed,
-we will replace a typing rule like
+we will substitute a typing rule like
 \begin{center}
 $ \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
     {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}} $
 \end{center}
-with the following, where value restriction is replaced by an additional
-premise involving an equivalence.
+with the following, where value restriction is replaced with an additional
+premise.
 \begin{center}
 $ \ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}{Σ \sp Γ ; Ξ ⊢ u : A}
       {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
 \end{center}
-The third premise requires the term $u$, which does not have to be a
-value anymore, to be equivalent to some value $v$.
+This third premise requires the term $u$ to be equivalent to some value
+$v$. Of course, $u$ does not have to be a value itself.
 
 \begin{rem}
 Semantical value restriction is a strict relaxation of value restriction.
 Indeed, value restriction exactly corresponds to a version of semantical
 value restriction in which we would only be able to use reflexivity to
-show that two terms are equal.
+show that two terms are equivalent.
 \end{rem}
 
 In the syntax, semantical value restriction will be presented as a simple
-extention of our type system with the following, seemingly obvious, typing
+extension of our type system with the following, seemingly obvious, typing
 rule.
 \begin{center}
 $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
@@ -533,7 +530,15 @@ provided that the considered term is a value. The (${≡}_{τ,τ}$) rule can
 then be used to obtain a proof of $Σ \sp Γ ; Ξ ⊢ v : A$ from
 $Σ \sp Γ ; Ξ ⊢ t : A$, provided $Ξ ⊢ t ≡ v$ can be proved. We can, for
 example, derive a relaxed version of the membership introduction typing
-rule as follows.
+rule.
+\begin{lem}\label("derivmem")
+The following typing rule is derivable in our system extended with (${↓}$).
+\begin{center}
+$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{A}}
+    {Ξ ⊢ \t{t} ≡ \t{v}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}} $
+\end{center}
+\begin{proof}
+We can use the following derivation.
 \begin{proofTree}
 \Caml(
 let p =
@@ -551,19 +556,22 @@ let p =
 $\id(p)$
 \end{center}
 \end{proofTree}
-The obtained, relaxed version of the membership introduction rule
-\begin{center}
-$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{A}}
-    {Ξ ⊢ \t{t} ≡ \t{v}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}} $
-\end{center}
-can then immediatly be used to derive a relaxed version of the
-elimination of the dependent function type (having again an equivalence
-as a premise).
+\linesAfter(0) (* FIXME hack *)
+\end{proof}
+\end{lem}
+We can then immediately derive a relaxed version of the elimination rule of
+the dependent function type. Again, an additional premise with an equivalence
+to a value is required.
+\begin{lem}
+The following typing rule is derivable in our system extended with (${↓}$).
 \begin{center}
 $ \ternaryRN{Π_{e,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{Π_(a∈A) B}}
     {Σ \sp Γ;Σ ⊢ \t{u} : \f{A}}{Ξ ⊢ \t{u} ≡ \t{v}}
     {Σ \sp Γ;Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
 \end{center}
+\begin{proof}
+Using \lemma("derivmem") we can use the following derivation in the system
+extended with the ($∈_{i,τ}$) rule.
 \begin{proofTree}
 \Caml(
 let p =
@@ -577,11 +585,14 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
+\linesAfter(0) (* FIXME hack *)
+\end{proof}
+\end{lem}
 
-Aditionally, semantical value restriction allows us to derive a strong
+Additionally, semantical value restriction allows us to derive a strong
 typing rule for general application. It can be seen as a relaxed form
 of the following rule (which can be derived easily in the initial
 system).
@@ -589,18 +600,22 @@ system).
 $ \binaryRN{⇒_{e,{∈}}}{Σ \sp Γ;Ξ ⊢ t : \f{v∈A⇒B}}
     {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ;Ξ ⊢ \t{t v} : B} $
 \end{center}
-The interest of such a rule is to keep track of the argument a function
-will be applied to, when typing the function itself. In particular, this
-is useful to learn equivalences when the argument of a function is used
-in a case analysis. However, in its restricted form, this typing rule is
-rather useless since a term of the form $\t{(λx [x|(Ci[xi]→ti) i∈I]) v}$
-is equivalent to $\t{[v|(Ci[xi]→ti) i∈I]}$, and thus the same effect
-can be obtained using the ($≡_{τ,τ}$). Using semantical value restriction,
-we can derive the following relaxed rule.
+The aim of such a rule is to keep track of the argument that will be applied
+to a function, when typing the function itself. This is useful, in particular,
+when this argument is used in a case analysis. However, in its restricted
+form, this typing rule is not very useful since a term like
+$\t{(λx [x|(Ci[xi]→ti) i∈I]) v}$ is equivalent to $\t{[v|(Ci[xi]→ti) i∈I]}$,
+and thus the same effect can be obtained using the ($≡_{τ,τ}$). With
+semantical value restriction, we can derive a stronger, relaxed rule.
+\begin{lem}
+The following typing rule is derivable in our system extended with (${↓}$).
 \begin{center}
 $ \ternaryRN{⇒_{e,{∈},τ}}{Σ \sp Γ;Ξ ⊢ t : \f{u∈A⇒B}}{Σ \sp Γ;Ξ ⊢ u : A}
     {Ξ ⊢ u ≡ v}{Σ \sp Γ;Ξ ⊢ \t{t u} : B} $
 \end{center}
+\begin{proof}
+Using again \lemma("derivmem") to obtain the ($∈_{i,τ}$) rule, we can use
+the following derivation.
 \begin{proofTree}
 \Caml(
 let p =
@@ -615,30 +630,52 @@ let p =
 $$\id(p)$$
 \end{center}
 \end{proofTree}
-The relaxed rule is very useful to obtain a typing rule for a generalised
-form of case analysis ranging over terms (and not only values).
+\linesAfter(0) (* FIXME hack *)
+\end{proof}
+\end{lem}
+The ($⇒_{e,{∈},τ}$) rule can be used, for example, to obtain a typing rule
+for a generalised form of case analysis ranging over terms (and not only
+values).
+\begin{env}(scale 0.96)
 \begin{center}
-$ \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}}{Ξ ⊢ t ≡ v}
-     {[Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
-     {Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B} $
+$\fit{
+  \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}}
+     {[Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B]_{i∈I}}
+     {Ξ ⊢ t ≡ v}
+     {Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B}
+  }$
 \end{center}
-\begin{env}(scale 0.65)
+\end{env}
+\begin{env}(scale 0.64)
 \Caml(
 let subp = <$
-    \proofTree{
-      \unaryN{≡_{τ,τ}}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t{Ci[xi]} ⊢ t_i : B}{
-        \unaryN{Wk}{Σ \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t{Ci[xi]} ⊢ t_i : B}{
-          \hyp{Σ \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B}
-        }
+  \proofTree{
+    \unaryN{≡_{τ,τ}}{
+      Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t{Ci[xi]} ⊢ t_i : B
+    }{
+      \unaryN{Wk}{Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t{Ci[xi]} ⊢ t_i : B}{
+        \hyp{Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B}
       }
     }
-  $>
+  } $>
+
+let dummy = <$
+  \proofTree{
+    \unaryN{Ax}{
+      Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}
+    }{
+      \hyp{\mcolor(white){1 \over 1}} (* FIXME hack *)
+    }
+  } $>
 )
 \begin{proofTree}
 \Caml(
 let p =
-  ax       ~name:<$Ax$> (* FIXME floating in the air *)
+  hyp <$\id(dummy)$>;
+  (*
+  ax       ~name:<$Ax$> (* FIXME hack, floating in the air *)
     <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}$>;
+  *)
   hyp <$[\id(subp)]_{i∈I}$>;
   binary   ~name:<$+_e$>
     <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
@@ -657,7 +694,7 @@ let p =
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$$\fit(p)$$
 \end{center}
 \end{proofTree}
 \end{env}
@@ -667,7 +704,7 @@ $x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of
 linking $x$ to the term $t$.
 
 Of course, we can only apply semantical value restriction to our system if
-we can addapt our model so that the ($↓$) rule is adequate. As we will see
+we can adapt our model so that the ($↓$) rule is adequate. As we will see
 in the next sections, the required modifications are highly non-trivial and
 require a modification of our notions of reduction and equivalence.
 
@@ -810,7 +847,7 @@ let _ =
 )
 \end{center}
 Note that the definition of $({↠})$ corresponds exactly to what we aimed
-for: an extention of $({≻})$ with a reduction rule for $δ$-like terms
+for: an extension of $({≻})$ with a reduction rule for $δ$-like terms
 carrying two non-equivalent values.
 
 \begin{thm}\label("main")
@@ -881,7 +918,7 @@ need to verify some properties before being able to fix the parameters of
 our model definitively. There is no problem in adopting $({↠})$ as our
 reduction relation as it contains $({≻})$. Nevertheless, we need to check
 that our equivalence relation $({≡})$ is a congruence and that it is
-compatible wiht $({≡}_{≻})$. Let us first show that it is indeed a
+compatible with $({≡}_{≻})$. Let us first show that it is indeed a
 congruence.
 \begin{thm}\label("fullsubstequiv")
 Let $t$, $u ∈ Λ$ be two terms and $ρ ∈ \cal{S}$ be a substitution. If we
@@ -1037,7 +1074,7 @@ different shapes.
       we have $\p{ti[a≔u₁ρ]∗πi} = \p{δ(v[a≔u₁ρ],w[a≔u₁ρ])∗πi} ↠_k
       \p{v[a≔u₁ρ]∗πi}$ by definition. Moreover,
       $\p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$
-      by (an extention of) \thmRef("redcompatall"). Since
+      by (an extension of) \thmRef("redcompatall"). Since
       $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in $l_i$ steps
       we get that $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in
       $l_i+1$ steps, and hence we have
@@ -1204,7 +1241,7 @@ As for \thmRef("adequacy") (and \thmRef("stack_adequacy")), the proof is
 done by induction of the derivation of the typing judgments. For all the
 rules of \figRef("typerules") and the rules for typing stacks given in
 \thmRef("stack_adequacy") the proof does not change. We only have to be
-concerned wiou our new ($↓$) rule. We need to show $\v{vρ} ∈ \vs{Aρ}$,
+concerned with our new ($↓$) rule. We need to show $\v{vρ} ∈ \vs{Aρ}$,
 knowing that $\v{vρ} ∈ \ts{Aρ}$ by induction hypothesis. We can thus
 conclude since we know that every value of $\ts{Aρ}$ is also in
 $\vs{Aρ}$ thanks to \thmRef("main").
@@ -1213,7 +1250,7 @@ $\vs{Aρ}$ thanks to \thmRef("main").
 
 We have now obtained a model allowing the use of semantical value
 restriction. We will see in the next section that our the presence of
-coersion rules between value and terms jugments will allow us to make
+coercion rules between value and terms judgments will allow us to make
 the type system a lot simpler by only considering one form of judgments.
 
 =<
@@ -1265,7 +1302,7 @@ $$\id(p)$$
 The full set of our new rule is displayed in \figRef("derivedrules").
 Note that some rules, like ($⇒_e$) have not changed from our original
 system. All the modified rules but ($∀_{i,τ}$) and ($∈_{i,τ}$) can be
-derived immediatly as demonstrated above. The rules ($∀_{i,τ}$) and
+derived immediately as demonstrated above. The rules ($∀_{i,τ}$) and
 ($∈_{i,τ}$) are instances of the semantical value restriction. The
 former can be derived as follows, and a derivation for the latter was
 given in a previous section.
@@ -1508,7 +1545,7 @@ $p ∈ Λ×Π$ is a process, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does n
 imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number $i ∈ \bbN$.
 \end{rem}
 As shown by the \thmRef("eq_incl"), our $({≡})$ relation is more
-fine-grained (i.e. it disctiminates more terms than $({≡}_{↠})$).
+fine-grained (i.e. it discriminates more terms than $({≡}_{↠})$).
 However, its formulation does not really provide more intuition
 on the behaviour of our equivalence relation. Indeed, the definition
 of $({↠})$ still involves $({≡})$, an thus the definition of
