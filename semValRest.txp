@@ -633,10 +633,8 @@ $$\id(p)$$
 \linesAfter(0) (* FIXME hack *)
 \end{proof}
 \end{lem}
-The ($⇒_{e,{∈},τ}$) rule can be used, for example, to obtain a typing rule
-for a generalised form of case analysis ranging over terms (and not only
-values).
-\begin{env}(scale 0.96)
+The ($⇒_{e,{∈},τ}$) rule can be used to obtain the following rule for a
+generalised form of case analysis ranging over terms (and not only values).
 \begin{center}
 $\fit{
   \ternaryRN{+_{e,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}}
@@ -645,8 +643,10 @@ $\fit{
      {Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B}
   }$
 \end{center}
-\end{env}
-\begin{env}(scale 0.64)
+Without such a rule, it would be impossible to preserve the equivalences of
+the form $t ≡ \t{Ci[xi]}$ in the premises. We would only know that
+$x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of linking
+$x$ to the term $t$. The derivation of the ($+_{e,τ}$) rule is given bellow.
 \Caml(
 let subp = <$
   \proofTree{
@@ -697,16 +697,13 @@ let p =
 $$\fit(p)$$
 \end{center}
 \end{proofTree}
-\end{env}
-Note that without the ($+_{e,τ}$) rule, it would be impossible to preserve
-the equivalences of the form $t ≡ \t{Ci[xi]}$. We would only know that
-$x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of
-linking $x$ to the term $t$.
 
-Of course, we can only apply semantical value restriction to our system if
-we can adapt our model so that the ($↓$) rule is adequate. As we will see
-in the next sections, the required modifications are highly non-trivial and
-require a modification of our notions of reduction and equivalence.
+Of course, the derivation of all the new typing rules introduced in this
+section is conditioned to the soundness of semantical value restriction.
+As a consequence, we need to adapt our model so that the ($↓$) rule is
+adequate. As we will see in the next sections, the required modifications
+are highly non-trivial and require a modification of our notions of
+reduction and equivalence.
 
 =<
 
