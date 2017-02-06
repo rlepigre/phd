@@ -1416,6 +1416,7 @@ derived immediately as demonstrated above. The rules ($∀_{i,τ}$) and
 ($∈_{i,τ}$) are instances of the semantical value restriction. The
 former can be derived as follows, and a derivation for the latter was
 given in a previous section.
+\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 \begin{proofTree}
 \Caml(
 let p =
@@ -1510,8 +1511,6 @@ to another equivalence relation with a more intuitive definition. The
 definition of this new relation, denoted $({≡}_{↠})$, will be very similar
 to that of $({≡}_{≻})$ (see \chapter("obsEquiv")). It can be seen as the
 observational equivalence induced by $({↠})$
-
-\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 
 \begin{def}
 The relation $({≡}_{↠}) ⊆ Λ×Λ$ is defined as follows.
