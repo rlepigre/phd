@@ -227,7 +227,7 @@ and f2m : form -> Maths.math list = function
                       let subscript_right =
                         match so with
                         | None   -> vari2m x
-                        | Some s -> bin' 2 "∈" (vari2m x, vari2m s)
+                        | Some s -> bin' 2 ":" (vari2m x, vari2m s)
                       in
                       let n = [Maths.Ordinary {n with subscript_right}] in
                       let s = if not m then "∈" else "∉" in
