@@ -1,8 +1,53 @@
+\Caml(
+  open ProofTree
+  open Diagrams
+  open Lang
+
+  let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
+
+  let vs a = <$ ⟦\f(a)⟧ $>
+  let ss a = <$ ⟦\f(a)⟧^⊥ $>
+  let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
+
+  let mt = mathsText
+  let wbox = <$\mathsize{3.}{\wbox}$>
+  let bbox = <$\mathsize{3.}{\bbox}$>
+)
+\Include{Macros}
+
+\Configure_math_macro{\v}{ syntax = string; }
+\Configure_math_macro{\t}{ syntax = string; }
+\Configure_math_macro{\s}{ syntax = string; }
+\Configure_math_macro{\p}{ syntax = string; }
+\Configure_math_macro{\f}{ syntax = string; }
+\Configure_math_macro{\vs}{ syntax = string; }
+\Configure_math_macro{\ss}{ syntax = string; }
+\Configure_math_macro{\ts}{ syntax = string; }
+
 => Implementation and examples \label("implem")
 
 => Syntax-directed unification
 
-... (* TODO *)
+With the implementation in mind, it is important for our general typing
+rules to be directed by the syntax. This means that we should be able
+to select which rule to apply by looking at the surface constructor of
+the term we want to type-check. The general typing rules given in
+\figRef("subrules") can all be implemented as a syntax-directed procedure,
+with the exception of the ($⇒_e$) and ($⇒_{e,{∈}}$) rules (which form
+a critical pair). However, this is not really a problem since we can
+choose to apply the ($⇒_{e,{∈}}$) rule whenever possible, and fallback
+to the ($⇒_e$) rule. It is always safe to do so thanks to the following
+lemma.
+
+\begin{lem}
+If a typing judgment $Ξ ⊢ \t{t u} : \f{B}$ has a typing proof starting
+with the ($⇒_e$) rule, and if the judgment $Ξ ⊢ v≡u$ is provable, then
+$Ξ ⊢ \t{t u} : \f{B}$ also has a typing proof starting with the
+($⇒_{e,{∈}}$) rule.
+\begin{proof}
+\todo(Some "Hopeless ?") (* TODO *)
+\end{proof}
+\end{lem}
 
 =<
 => Equivalence decision procedure
