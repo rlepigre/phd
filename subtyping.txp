@@ -307,7 +307,13 @@ It is not a problem since such a rule cannot be implemented.
 Indeed, it would require the system to guess an intermediate
 type. Transitivity is generally admissible in subtyping systems.
 In our system however, it is an open problem whether a form of
-transitivity is admissible.
+transitivity is admissible. However, type annotations of the form
+$((t : A) : B) : C$ can always be used to decompose a proof of
+$t : C$ into proofs of $t : A$, $t ∈ A ⊂ B$ and $t ∈ B ⊂ C$. Such
+annotations are required in the implementations of systems having
+and admissible transitivity rule as well. Indeed, applying a
+transitivity rule without annotations would require the algorithm
+to guess the intermediate types $A$ and $C$.
 
 =<
 => Typing and subtyping rules
@@ -324,11 +330,11 @@ choice operators. They will be made available in the syntax, and
 will provide an alternative presentation of quantifiers. Note that
 our system needs to be extended with the following two sorting
 rules.
-$$
-  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : ο}
+\begin{center}
+$ \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : ο}
   \hspace(4.0)
-  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∉A)} : ο}
-$$
+  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∉A)} : ο} $
+\end{center}
 \end{def}
 
 To introduce value and stack witnesses into our system, we will
@@ -344,11 +350,14 @@ constructor $\s{εα∈A(t∉A)}$, where $α∈\cal{V}_σ$ is a
 $μ$-variable, $t∈Λ$ is a term and $A∈\cal{F}$ is a
 proposition. Note that our system needs to be extended
 with the following two sorting rules.
-$$
-  \ternaryR{Σ ⊢ A : ο}{Σ, x : ι ⊢ t : τ}{Σ ⊢ B : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : ο}
-  \hspace(4.0)
-  \binaryR{Σ ⊢ A : ο}{Σ, α : σ ⊢ t : τ}{Σ ⊢ \f{εχ∈s(t∈A)} : ο}
-$$
+\begin{center}
+$ \ternaryR{Σ ⊢ A:ο}{x:ι ⊢ t:τ}{Σ ⊢ B : ο}{Σ ⊢ \t{εx∈A(t∉B)}:ι}
+  \hspace(4.0) \binaryR{Σ ⊢ A:ο}{α:σ ⊢ t:τ}{Σ ⊢ \s{εα∈A(t∉A)}:σ} $
+\end{center}
+It is important to note that the variable $x$ (resp. $α$) is
+only bound in $t$. Moreover, thanks to the sorting rules, no
+other variable than $x$ (resp. $α$) may be bound in $t$. This
+restriction is required for the definition of our semantics.
 \end{def}
 Note that our extension of the syntax of values and the syntax
 of stacks propagates to the terms and formulas in general.
@@ -360,7 +369,7 @@ and $Π^{+}$ respectively.
 \end{def}
 
 Before giving the new typing and subtyping rules of our system,
-we need to consider three (and in fact three) new forms of judgments.
+we need to consider three (and in fact four) new forms of judgments.
 \begin{def}
 A //general typing judgment// is a triple of an equational context
 $Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
@@ -377,6 +386,8 @@ be correct if it is derivable using the deduction rules of
 \figRef("subrules").
 \end{def}
 
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
+
 With the implementation in mind, it is important for our general typing
 rules to be directed by the syntax. This means that we should be able
 to select which rule to apply by looking at the surface constructor of
@@ -387,7 +398,6 @@ a critical pair). However, this is not really a problem since we can
 choose to apply the ($⇒_{e,{∈}}$) rule whenever possible, and fallback
 to the ($⇒_e$) rule. It is always safe to do so thanks to the following
 lemma.
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 \begin{lem}
 If a typing judgment $Ξ ⊢ \t{t u} : \f{B}$ has a typing proof starting
