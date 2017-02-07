@@ -618,29 +618,23 @@ We consider the last rules used in the proof.
     $\id(r_arrow_ee)$
   \end{center}
 
-(* TODO from here. *)
-
-\item In the case of the ($μ$) rule, we need to show that $\t{μαt} ⊩ A$.
-  We can assume that $\v{□} ∉ \t{⟦μαt⟧}$ as otherwise it is immediate. In
-  particular, this means that $\v{□} ∉ \t{⟦t⟧}$. We have to show that
-  $\t{⟦μαt⟧} = \t{μα⟦t⟧} ∈ \ts{A}$ so we take a stack $π ∈ \ss{A}$
-  and show $\p{μα⟦t⟧ ∗ π} ∈ \dbot$. As $\dbot$ is $({↠})$-saturated, it
-  is enougth to show $\p{⟦t⟧[α≔π] ∗ π} ∈ \dbot$, which rewrites as
-  $\p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$. Let us now consider the induction
-  hypothesis, which states that $\t{t[α ≔ εα∈A(t∉A)]} ⊩ A$. We will
-  reason by case on the definition of $\t{⟦εα∈A(t∉A)⟧}$ so we first
-  suppose that it is equal to $\v{□}$. This means that for every stack
-  $ξ ∈ \ss{A}$ we have $\t{⟦t[α≔π]⟧} ∈ \ts{A}$ (it cannot be that
-  $\v{□} ∈ \t{⟦t[α≔π]⟧}$ since $\v{□} ∉ \t{⟦t⟧}$). In particular, this is
-  true for $ξ = π$ so we can conclude. Let us now suppose that
-  $\t{⟦εα∈A(t∉A)⟧} = π$ with $π ∈ \ss{A}$ such that $\t{⟦t[α≔π]⟧} ∉
-  \ts{A}$ (we cannot have $\v{□} ∈ \t{⟦t[α≔π]⟧}$ as $\v{□} ∉ \t{⟦t⟧}$).
-  This is a contradiction since the induction hypothesis gives
-  $\t{⟦t[α ≔ εα∈A(t∉A)]⟧} = \t{⟦t[α≔π]⟧} ∉ \ts{A}$ as
-  $\v{□} ∉ \t{⟦t[α≔π]⟧}$.
+\item In the case of the ($μ$) rule, we need to show that $\t{μαt} ⊩ A$,
+  which is the same as $\t{μα⟦t⟧} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$
+  and show $\p{μα⟦t⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is $({↠})$-saturated,
+  it is enougth to show $\p{⟦t⟧[α≔π] ∗ π} = \p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$.
+  consequently, we need to show that $\t{⟦t[α≔π]⟧} ∈ \ts{A}$ since we
+  know that $π ∈ \ss{A}$. Let us now suppose that there is a stack
+  $\s{ξ} ∈ \ss{A}$ such that $\t{⟦t[α≔ξ]⟧} ∉ \ts{A}$. In this case we
+  can suppose that we have $\t{⟦εα∈A(t∉A)⟧} = ξ$ and this gives a
+  contradiction. Indeed, the induction hypothesis tells us that
+  $\t{⟦t[α≔εα∈A(t∉A)]⟧} ∈ \ts{A}$. As a consequence, we have
+  $\t{⟦t[α≔ξ]⟧} ∈ \ts{A}$ for all $ξ ∈ \ss{A}$. In particular, this is
+  true for $ξ = π$.
   \begin{center}
     $\id(r_mu)$
   \end{center}
+
+(* TODO from here. *)
 
 \item In the case of the ($[\wc]$) rule, we need to show that $\t{[π]u}
   ⊩ B$. We can assume that $\v{□} ∉ \t{⟦[π]u⟧}$ as otherwise it is immediate.
