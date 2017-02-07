@@ -594,33 +594,31 @@ We consider the last rules used in the proof.
     $\id(r_ax)$
   \end{center}
 
-(* TODO from here. *)
-
 \item In the case of the ($⇒_{e,{∈}}$) rule, we need to show that
-  $\t{t u} ⊩ B$. We can suppose that $\v{□} ∉ \t{⟦t u⟧}$ as otherwise
-  we can conclude immediatly. In particular, this means that
-  $\v{□} ∉ \t{⟦t⟧}$ and that $\v{□} ∉ \t{⟦u⟧}$, and thus $⟦t⟧ ∈ \ts{u∈A ⇒ B}$
-  and $⟦u⟧ ∈ \ts{A}$ by our induction hypotheses. We need to show that
-  we have $\t{⟦t u⟧} = \t{⟦t⟧ ⟦u⟧} ∈ \ts{B}$ so we take $π ∈ \ss{B}$
-  and we show that $\p{⟦t⟧ ⟦u⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is
-  $({↠})$-saturated, it is enough to show that $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$.
-  Now, as our pole is $({≡})$-extensional and we know that
-  $\t{⟦u⟧} ≡ \t{⟦v⟧}$ for a value $v$, it is enough to show
-  $\p{⟦v⟧ ∗ [⟦t⟧]π} ∈ \dbot$. Again, since $\dbot$ is $({↠})$-saturated,
-  it is enough to show that $\p{⟦t⟧ ∗ ⟦v⟧·π} ∈ \dbot$. Since we know that
-  $⟦t⟧ ∈ \ts{u∈A ⇒ B}$ we only have to show that $\s{⟦v⟧·π} ∈ \ss{u∈A ⇒ B}$.
-  We thus take a value $\t{λxf} ∈ \vs{u∈A ⇒ B}$ and show that
-  $\p{λx f ∗ ⟦v⟧·π} ∈ \dbot$. We can again take a reduction step and
-  show that $\p{f[x≔⟦v⟧] ∗ π} ∈ \dbot$, for which it is enough to
-  show that $\t{f[x≔⟦v⟧]} ∈ ⟦B⟧$. To be able to conclude using the
-  definition of $\vs{u∈A ⇒ B}$, we need to show that $\t{⟦v⟧} ∈
-  \vs{u∈A}$. As we know that $\t{⟦u⟧} ≡ \t{⟦v⟧}$ it only remains
-  to show that $\t{⟦v⟧} ∈ ⟦A⟧$. This follows from $⟦u⟧ ∈ \ts{A}$
-  and \thmRef("main") as we know that $\ts{A}$ must be closed under
-  $({≡})$.
+  $\t{t u} ⊩ B$, which is the same as $\t{⟦t⟧ ⟦u⟧} ∈ \ts{B}$. We thus take
+  $π ∈ \ss{B}$ and we show $\p{⟦t⟧ ⟦u⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is
+  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$. Now,
+  as our pole is $({≡})$-extensional and we know that $\t{⟦u⟧} ≡ \t{⟦v⟧}$
+  for a value $v$, it is enough to show that $\p{⟦v⟧ ∗ [⟦t⟧]π} ∈ \dbot$.
+  Again, as $\dbot$ is $({↠})$-saturated, it is enough to show
+  $\p{⟦t⟧ ∗ ⟦v⟧·π} ∈ \dbot$. Since we know that $⟦t⟧ ∈ \ts{u∈A ⇒ B}$ by
+  our first induction hypothesis, we only need to show
+  $\s{⟦v⟧·π} ∈ \ss{u∈A ⇒ B}$. We thus take a value $\v{w} ∈ \vs{u∈A ⇒ B}$
+  and show that $\p{w ∗ ⟦v⟧·π} ∈ \dbot$. If $\v{w} = \v{□}$ then we can
+  conclude as for the ($⇒_e$) rule. If $\v{w} = \v{λx f}$ then we can
+  again take a reduction step and show that $\p{f[x≔⟦v⟧] ∗ π} ∈ \dbot$,
+  for which it is enough to show that $\t{f[x≔⟦v⟧]} ∈ ⟦B⟧$. To conclude
+  using the definition of $\vs{u∈A ⇒ B}$, we need to show that $\t{⟦v⟧} ∈
+  \vs{u∈A}$. As we have $\t{⟦u⟧} ≡ \t{⟦v⟧}$, we only need to show that
+  that $\t{⟦v⟧} ∈ ⟦A⟧$. Using \thmRef("main") it is enough to show that
+  $\t{⟦v⟧} ∈ \ts{A}$. This follows from \theorem("poleext") since
+  $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis and we know that
+  $\t{⟦u⟧} ≡ \t{⟦v⟧}$.
   \begin{center}
     $\id(r_arrow_ee)$
   \end{center}
+
+(* TODO from here. *)
 
 \item In the case of the ($μ$) rule, we need to show that $\t{μαt} ⊩ A$.
   We can assume that $\v{□} ∉ \t{⟦μαt⟧}$ as otherwise it is immediate. In
