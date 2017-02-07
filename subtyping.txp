@@ -72,7 +72,7 @@ let r_prod_i =
     {(Ξ ⊢ \t{vi} : \f{Ai})_{i∈I}}{Ξ ⊢ \t{{(li = vi) i∈I}} : C}$>
 
 let r_prod_e =
-  <$\unaryRN{×_e}{Ξ ⊢ \t{v} : \f{{l : A}}} {Ξ ⊢ \t{v.l} : A}$>
+  <$\unaryRN{×_e}{Ξ ⊢ \t{v} : \f{{lk : A}}} {Ξ ⊢ \t{v.lk} : A}$>
 
 let r_ax_sub =
   <$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t{t} : A ⊂ A}$>
@@ -634,132 +634,116 @@ We consider the last rules used in the proof.
     $\id(r_mu)$
   \end{center}
 
-(* TODO from here. *)
-
 \item In the case of the ($[\wc]$) rule, we need to show that $\t{[π]u}
-  ⊩ B$. We can assume that $\v{□} ∉ \t{⟦[π]u⟧}$ as otherwise it is immediate.
-  As a consequence, we have $\v{□} ∉ \s{⟦π⟧}$ and $\v{□} ∉ \t{⟦u⟧}$, and thus
-  the induction hypotheses give $\t{⟦u⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈
-  ⟦A⟧$. We need to show $\t{⟦[π]u⟧} = \t{[⟦π⟧]⟦u⟧} ∈ \ts{B}$ so we
-  take $ξ ∈ \ss{B}$ and show that we have $\p{[⟦π⟧]⟦u⟧ ∗ ξ} ∈ \dbot$.
-  As $\dbot$ is $({↠})$-saturated, it is enougth to show $\p{⟦u⟧ ∗ ⟦π⟧}
-  ∈ \dbot$. This is immediate since we have $\t{⟦u⟧} ∈ \ts{A}$ and
-  $\s{⟦π⟧} ∈ ⟦A⟧$.
+  ⊩ B$, which is the same as $\t{[⟦π⟧]⟦u⟧} ∈ \ts{B}$. We thus take
+  $ξ ∈ \ss{B}$ and show that $\p{[⟦π⟧]⟦u⟧ ∗ ξ} ∈ \dbot$. As $\dbot$ is
+  $({↠})$-saturated, it is enougth to show $\p{⟦u⟧ ∗ ⟦π⟧} ∈ \dbot$. This
+  is immediate since our two induction hypotheses give respectively
+  $\t{⟦u⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈ \ss{A}$.
   \begin{center}
     $\id(r_name)$
   \end{center}
 
 \item In the case of the ($Ax^⊥$) rule, we need to show that
-  $\s{εα∈A(t∉A)} ⊩ B$. We can assume that $\s{⟦εα∈A(t∉A)⟧} ≠ \v{□}$
-  as otherwise this is immediate. As a consequence, we know that
-  $\s{⟦εα∈A(t∉A)⟧} = π$ such that $π ∈ \ss{A}$. As we need to show
-  that $π ∈ \ss{B}$, it is enough to prove that $\ss{A} ⊆ \ss{B}$. According
-  to \lemRef("orthoinclstack"), it is even enough to show that we have
-  $⟦B⟧ ⊆ ⟦A⟧$. By induction hypothesis, we know that $\t{εx∈B(x∉A)}⊩B⊂A$
-  and thus we can conclude using \lemRef("subtypingincl").
+  $\s{εα∈A(t∉A)} ⊩ B$, which is the same as $\s{⟦εα∈A(t∉A)⟧} ∈ \ss{B}$.
+  By induction hypothesis, we know that $\t{εx∈B(x∉A)}⊩B⊂A$ and thus we
+  can apply \lemma("subtypingincl") to obtain $\vs{B} ⊆ \vs{A}$.
+  According to \lemma("orthoinclstack") this means that $\ss{A} ⊆ \ss{B}$
+  and thus it is enough to show that $\s{⟦εα∈A(t∉A)⟧} ∈ \ss{A}$. This
+  is immediate since $\s{⟦εα∈A(t∉A)⟧}$ is either equal to some stack
+  $π ∈ \ss{A}$ or to $\s{ε}$. In this second case, we can also conclude
+  since $\s{ε} ∈ \ss{A}$ follows from the fact that $\dbot$ only contains
+  processes reducing to a final state.
   \begin{center}
     $\id(r_ax_bot)$
   \end{center}
 
 \item In the case of the ($\wc·\wc$) rule, we need to show that
-  $\s{v·π} ⊩ C$. We can assume that $\v{□} ∉ \s{⟦v·π⟧}$ as otherwise
-  this is immediate. As a consequence, $\v{□} ∉ \v{⟦v⟧}$ and $\v{□} ∉
-  \s{⟦π⟧}$, and thus $\v{⟦v⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈ \ss{B}$
-  by the first two induction hypotheses. We need to show that we have
-  $\s{⟦v·π⟧} ∈ \ss{C}$. Using the third induction hypothesis
-  together with \lemRef("subtypingincl"), it is enough to show that
-  $\s{⟦v·π⟧} ∈ \ss{A⇒B}$. We thus take a value $\v{λx t} ∈
-  \vs{A⇒B}$ and we show that $\p{λx t ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$. As
-  $\dbot$ is $({↠})$-saturated, it is enougth to show 
-  $\p{t[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$. Since $\s{⟦π⟧} ∈ \ss{B}$, we
-  need to show that $\t{t[x≔⟦v⟧]} ∈ \ts{B}$ but this follows
-  from the definition of $\vs{A⇒B}$.
+  $\s{v·π} ⊩ C$, which is the same as $\s{⟦v⟧·⟦π⟧} ∈ \ss{C}$. According to
+  the third induction hypothesis, combined with \lemma("subtypingincl")
+  and \lemma("orthoinclstack"), we have $\ss{C} ⊆ \ss{A⇒B}$. As a
+  consequence, it is enough for us to show $\s{⟦v⟧·⟦π⟧} ∈ \ss{A⇒B}$.
+  We thus take a value $\v{w} ∈ \vs{A⇒B}$ and we show that
+  $\p{w ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$. If $\v{w} = \v{□}$ then it is enough to
+  show that $\p{□ ∗ ⟦π⟧} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated.
+  This is immediate since $\s{⟦π⟧} ∈ \ss{B}$ by the second
+  induction hypothesis and $\v{□} ∈ \vs{B}$ as $\vs{B} ∈ ⟦ο⟧$.
+  If $\v{w} = \v{λx f}$ then it is enough to show that
+  $\p{t[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$ as $({↠})$-saturated. Using the
+  second induction hypothesis, we only need to show that
+  $\t{t[x≔⟦v⟧]} ∈ \ts{B}$. This follows from the definition of
+  $\vs{A⇒B}$ since we know that $\v{⟦v⟧} ∈ \vs{A}$ using the first
+  induction hypothesis.
   \begin{center}
     $\id(r_push)$
   \end{center}
 
 \item In the case of the ($[\wc]\wc$) rule, we need to show that
-  $\s{[t]π} ⊩ A$. We can assume that $\v{□} ∉ \s{⟦[t]π⟧}$ as
-  otherwise this is immediate. As a consequence, $\v{□} ∉ \t{⟦t⟧}$
-  and $\v{□} ∉ \s{⟦π⟧}$, and thus $\t{⟦t⟧} ∈ \ts{A⇒B}$
-  and $\s{⟦π⟧} ∈ \ss{B}$ by the first two induction hypotheses.
-  We need to show that we have $\s{⟦[t]π⟧} ∈ ⟦A⟧^\bot$ so we
-  take a value $v ∈ ⟦A⟧$ and we show that $\p{v ∗ [⟦t⟧]⟦π⟧} ∈
-  \dbot$. As $\dbot$ is $({↠})$-saturated, it is enougth to show 
-  $\p{⟦t⟧ ∗ v·⟦π⟧} ∈ \dbot$. As we know that we have $\t{⟦t⟧}
-  ∈ \ts{A⇒B}$ it remains to show that the stack $\s{v·⟦π⟧}$
-  is in $\ss{A⇒B}$. We can then finish the proof like in the
-  previous case.
+  $\s{[t]π} ⊩ A$, which is the same as $\s{⟦[t]π⟧} ∈ \ss{A}$. We thus
+  take a value $v ∈ ⟦A⟧$ and we show that $\p{v ∗ [⟦t⟧]⟦π⟧} ∈ \dbot$.
+  As $\dbot$ is $({↠})$-saturated, it is enough to show $\p{⟦t⟧ ∗ v·⟦π⟧}
+  ∈ \dbot$. Using the first induction hypothesis we have $\t{⟦t⟧} ∈
+  \ts{A⇒B}$. As a consequence, we only need to show $\s{v·⟦π⟧} ∈
+  \ss{A⇒B}$. This can be done as in the proof of the previous case.
   \begin{center}
     $\id(r_fram)$
   \end{center}
 
-\item In the case of the ($×_e$) rule, we need to show that
-  $\t{v.l} ⊩ A$. We can assume that $\v{□} ∉ \t{⟦v.l⟧}$ as
-  otherwise this is immediate. As a consequence, we know that
-  $\v{□} ∉ \v{⟦v⟧}$ and the induction hypothesis gives us
-  $\v{⟦v⟧} ∈ \ts{{l:A}}$. Moreover, \thmRef("main")
-  tells us that $\v{⟦v⟧} ∈ \vs{{l:A}}$, which means that
-  $\v{⟦v⟧} = \v{{l = w}}$ for some value $w∈⟦A⟧$. We need
-  to show that $\t{⟦v.l⟧} ∈ \ts{A}$ so we take $π ∈ \ss{A}$
-  and we show that we have
-  $\p{⟦v⟧.l ∗ π} = \p{{l = w}.l ∗ π} ∈ \dbot$. As $\dbot$
-  is $({↠})$-saturated, it is enougth to show 
-  $\p{w ∗ π} ∈ \dbot$. This is immediate as $w ∈ ⟦A⟧$ and
-  $π ∈ \ss{A}$.
+\item In the case of the ($×_e$) rule, we need to show that $\t{v.lk} ⊩ A$,
+  which is the same as $\t{⟦v⟧.lk} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$ and
+  show that $\p{⟦v⟧.lk ∗ π} ∈ \dbot$. By induction hypothesis, we know that
+  $\v{⟦v⟧} ∈ \ts{{lk:A}}$. Moreover, using \theorem("main") this gives us
+  $\v{⟦v⟧} ∈ \vs{{lk:A}}$. If $\v{⟦v⟧} = \v{□}$ then it is enough to show
+  that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated. This is
+  immediate since $π ∈ \ss{A}$ and $\v{□} ∈ \vs{A}$ as $\vs{A} ∈ ⟦ο⟧$.
+  If $\v{⟦v⟧} = \v{{(li = wi) i∈I}}$ with $k ∈ I$ and $\v{wk} ∈ \vs{A}$
+  then it is enough to show $\p{wk ∗ π} ∈ \dbot$ as $\dbot$ is
+  $({↠})$-saturated. This is immediate since $\v{wk} ∈ \vs{A}$ by definition
+  of $\vs{{lk:A}}$ and $π ∈ \ss{A}$.
   \begin{center}
     $\id(r_prod_e)$
   \end{center}
 
 \item In the case of the ($×_i$) rule, we need to show $\t{{(li = vi) i∈I}}
-  ⊩ C$. We can assume that we have $\v{□} ∉ \t{⟦{(li = vi) i∈I}⟧}$ as otherwise
-  the proof is immediate. In particular, this means that for all $i∈I$ we
-  have $\v{□} ∉ \t{⟦vi⟧}$ and thus we learn $\t{⟦vi⟧} ∈ \vs{Ai}$ using
-  \thmRef("main") with the induction hypotheses. We need to show that
-  $\t{{(li = ⟦vi⟧) i∈I}} ∈ \ts{C}$, but according to the first induction
-  hypothesis (combined with \thmRef("main")) it is enough to show that
-  $\t{{(li = ⟦vi⟧) i∈I}} ∈ \vs{{(li : Ai) i∈I}}$. This follows by definition
-  as we know that $\t{⟦vi⟧} ∈ \vs{Ai}$ for all $i∈I$.
+  ⊩ C$. Using the first induction hypothesis, it is enough to show that
+  $\t{{(li = ⟦vi⟧) i∈I}} ∈ \vs{{(li : Ai) i∈I}}$. By definition, we need to
+  show that $\v{⟦vi⟧} ∈ \vs{Ai}$ for all $i ∈ I$. This follows from the
+  induction hypotheses and \theorem("main").
   \begin{center}
     $\id(r_prod_i)$
   \end{center}
 
 \item In the case of the ($+_e$) rule, we need to show
-  $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ \f{C}$. We can assume that we have
-  $\v{□} ∉ \t{⟦[v | (Ci[xi] → ti) i∈I]⟧}$ as otherwise this is immediate.
-  In particular, this means that $\v{□} ∉ \t{⟦v⟧}$ and that $\v{□} ∉ \t{⟦ti⟧}$
-  for all $i∈I$. We need to show that we have
-  $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$ so we take a stack
-  $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈
-  \dbot$. Using the first induction hypothesis (together with
-  \thmRef("main")) we learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$.
-  By definition, this means that there is $k∈I$ and $w ∈ \vs{Ai}$
-  such that $\t{⟦v⟧} = \t{Ck[w]}$. As a consequence, we can use
-  \thmRef("equivtrivial") and the fact that $\dbot$ is $({≡})$-extensional
-  to learn that $\p{⟦tk⟧[xk≔w] ∗ π} ∈ \dbot$. It is thus enough to
-  show that $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. Now if $\t{⟦εxk∈Ak(tk∉C)⟧} = \v{□}$
-  then for all $\v{vk} ∈ \vs{Ak}$ we have $\t{⟦tk⟧[xk≔vk]} ∈ \ts{C}$.
-  In particular, this is true for $\v{vk} = w$ and thus we can conclude
-  that $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. It remains to consider the case where
-  there is $\v{vk}∈\vs{Ak}$ such that $\t{⟦tk⟧[xk≔vk]} ∉ \ts{C}$. If $w$
-  is not such a value then we can conclude since this means that we have
-  $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$. However, if $\t{⟦tk⟧[xk≔w]} ∉ \ts{C}$ then
-  we can decide that $\t{⟦εxk∈Ak(tk∉C)⟧} = \v{w}$. In this case, as
+  $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ \f{C}$, which is the same as
+  $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$. We thus take a stack
+  $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈ \dbot$.
+  Using the first induction hypothesis (together with \theorem("main")) we
+  learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$. If $\v{⟦w⟧} = \v{□}$ then
+  we only need to show that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is
+  $({↠})$-saturated. This is immediate since $π ∈ \ss{C}$ and
+  $\v{□} ∈ \vs{C}$ as $\vs{C} ∈ ⟦ο⟧$. If $\t{⟦v⟧} = \t{Ck[w]}$ for some
+  $k ∈ I$ and $w ∈ \vs{Ai}$ then we only need to show that
+  $\p{⟦tk⟧[xk≔w] ∗ π} = \p{⟦tk[xk≔w]⟧ ∗ π} ∈ \dbot$ as $\dbot$ is
+  $({↠})$-saturated. It is thus enough to show that $\t{⟦tk[xk≔w]⟧} ∈
+  \ts{C}$. Let us now suppose that there is a value $\v{vk} ∈ \vs{Ak}$
+  such that $\t{⟦tk[xk≔vk]⟧} ∉ \ts{C}$. If $w$ is not such a value then
+  we can conclude since this means that we have $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$.
+  However, if $\t{⟦tk[xk≔w]⟧} ∉ \ts{C}$ then we can assume that
+  $\t{⟦εxk∈Ak(tk∉C)⟧} = \v{w}$. In this case, as
   $\v{⟦v⟧} ≡ \v{⟦Ck[w]⟧} = \v{Ck[w]}$, the induction hypothesis gives us
-  $\t{⟦tk⟧[xk≔w]} ∈ \ts{C}$, which is a contradiction.
+  $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$, which is a contradiction. It only remains
+  to consider the case where we have $\t{⟦tk[xk≔vk]⟧} ∈ \ts{C}$ for all
+  $\v{vk} ∈ \vs{Ak}$. In particular, this is true for $\v{vk} = w$ and
+  thus we can conclude.
   \begin{center}
     $\id(r_sum_e)$
   \end{center}
 
 \item In the case of the ($+_i$) rule, we need to show $\t{Ck[v]} ⊩ B$.
-  We can assume that we have $\v{□} ∉ \t{⟦Ck[v]⟧}$ as otherwise the proof
-  is immediate. As a consequence, we know that $\v{□} ∉ \t{⟦v⟧}$ and thus
-  the first induction hypothesis (combined with \thmRef("main")) gives
-  us $\t{⟦v⟧} ∈ ⟦A⟧$. We need to show that $\t{⟦Ck[v]⟧} ∈ \ts{B}$.
   Using the second induction hypothesis, it is enough to show that
-  $\t{⟦Ck[v]⟧} = \t{Ck[⟦v⟧]} ∈ \ts{[Ck:A]}$, which amounts to showing
-  that $\t{Ck[⟦v⟧]} ∈ ⟦[Ck:A]⟧$ according to \thmRef("main"). This is
-  immediate by definition since we have $\t{⟦v⟧} ∈ ⟦A⟧$.
+  $\t{Ck[⟦v⟧]} ∈ \ts{[Ck:A]}$. By definition, it is enough to show that
+  $\v{⟦v⟧} ∈ \vs{A}$. This follows from the combination of the first
+  induction hypothesis with \theorem("main").
   \begin{center}
     $\id(r_sum_i)$
   \end{center}
@@ -771,49 +755,48 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($Gen$) rule, we need to show that $t ⊩ A ⊂ B$.
-  We can assume that $\v{□} ∉ \t{⟦t⟧}$ as otherwise the proof is immediate.
   Using the induction hypothesis with \lemRef("subtypingincl") we obtain
-  $⟦A⟧ ⊆ ⟦B⟧$, and we conclude using \lemRef("orthoincl").
+  $⟦A⟧ ⊆ ⟦B⟧$, and we can thus conclude using \lemRef("orthoincl").
   \begin{center}
     $\id(r_ax_gen)$
   \end{center}
 
-\item In the case of the ($⇒$) rule, we need to show that $t ⊩ \f{A₁⇒B₁}
-  ⊂ \f{A₂⇒B₂}$. We may suppose $\v{□} ∉ ⟦t⟧$ as otherwise it is immediate.
-  We thus assume $\t{⟦t⟧} ∈ \ts{A₁⇒B₁}$ and show that we have
-  $\t{⟦t⟧} ∈ \ts{A₂⇒B₂}$. Now, as the pole is $({≡})$-extensional
-  and $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value $v$, we know that
-  $\t{⟦v⟧} ∈ \ts{A₁⇒B₁}$ and we only have to show that
-  $\t{⟦v⟧} ∈ \ts{A₂⇒B₂}$. With \thmRef("main") we even have
-  $\t{⟦v⟧} ∈ \vs{A₁⇒B₁}$ and we can show $\t{⟦v⟧} ∈ \vs{A₂⇒B₂}$.
-  We can now assume that $\t{⟦v⟧} = \t{λx f}$ as otherwise this would
-  contradict the fact that $\t{⟦v⟧} ∈ \vs{A₁⇒B₁}$. Let us now suppose
-  that we have $\t{⟦εx∈A₂(t x∉B₂)⟧} = \v{□}$, and thus for all $w∈\vs{A₂}$
-  we have $\t{⟦t⟧ w} ∈ \ts{B₂}$. As we have $\t{⟦v⟧}≡\t{⟦t⟧}$
-  and $\t{⟦v⟧} = \t{λx f}$ we can use \thmRef("fullextterm") and the fact
-  that $\ts{B₂}$ is closed under $({≡})$ to deduce that
-  $\t{(λx f) w} ∈ \ts{B₂}$. We can then use \thmRef("cbvbeta") to
-  obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same reason. This exactly
-  means that $\t{⟦v⟧} = \t{λx f} ∈ \vs{A₂⇒B₂}$. Finally, let us
-  suppose that $\t{⟦εx∈A₂(t x∉B₂)⟧} = w$ for some value $w ∈ \vs{A₂}$
-  such that $\t{⟦t⟧ w} ∉ \ts{B₂}$. Using the first induction
-  hypothesis, we learn that $w ∈ \vs{A₁}$ and thus we obtain that
-  $\t{f[x≔w]} ∈ \ts{B₁}$ by definition of $\vs{A₁⇒B₁}$. Now,
-  using again \thmRef("cbvbeta") and \thmRef("fullextterm") with the
-  equivalence we have, we know that $\t{f[x≔w]} ≡ \t{⟦t⟧ w}$ and thus
-  we can use the second induction hypothesis to conclude.
+\item In the case of the ($⇒$) rule, we need to show that $t ⊩ \f{A₁⇒B₁} ⊂
+  \f{A₂⇒B₂}$. We thus assume $\t{⟦t⟧} ∈ \ts{A₁⇒B₁}$ and show that we have
+  $\t{⟦t⟧} ∈ \ts{A₂⇒B₂}$. Now, as $\dbot$ is $({≡})$-extensional and
+  $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value $v$, we know that $\t{⟦v⟧} ∈
+  \ts{A₁⇒B₁}$ and we only have to show that $\t{⟦v⟧} ∈ \ts{A₂⇒B₂}$. With
+  \theorem("main") we even have $\t{⟦v⟧} ∈ \vs{A₁⇒B₁}$ and we can show
+  $\t{⟦v⟧} ∈ \vs{A₂⇒B₂}$. If $\v{⟦v⟧} = \v{□}$ then this is immediate
+  as we have $\v{□} ∈ \vs{A₁⇒B₁}$ and $\v{□} ∈ \vs{A₂⇒B₂}$ by definition.
+  Let us now suppose that $\t{⟦v⟧} = \t{λx f}$ and that for all
+  $w ∈ \vs{A₁}$ we have $\t{f[x≔w]} ∈ \ts{B₁}$.
+  (* *)
+  If for all $w∈\vs{A₂}$ we have $\t{⟦t⟧ w} ∈ \ts{B₂}$ then, since we have
+  $\t{⟦t⟧} ≡ \t{λx f}$, we can use \theorem("fullextterm") and
+  \theorem("poleext") to get $\t{(λx f) w} ∈ \ts{B₂}$. We can then use
+  \thmRef("cbvbeta") to obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same reason.
+  This exactly means that we have $\t{⟦v⟧} = \t{λx f} ∈ \vs{A₂⇒B₂}$.
+  (* *)
+  Finally, let us suppose that $\t{⟦t⟧ w} ∉ \ts{B₂}$ for some value
+  $w ∈ \vs{A₂}$. We can assume that $\t{⟦εx∈A₂(t x∉B₂)⟧} = w$ and
+  thus the second induction hypothesis gives us $w ∈ \vs{A₁}$. We then
+  obtain that $\t{f[x≔w]} ∈ \ts{B₁}$ by definition of $\vs{A₁⇒B₁}$.
+  Now, using again \thmRef("cbvbeta") and \thmRef("fullextterm") we obtain
+  $\t{f[x≔w]} ≡ \t{⟦t⟧ w}$ and thus we can conclude using the second
+  induction hypothesis.
   \begin{center}
     $\id(r_arrow)$
   \end{center}
 
-\item In the case of the ($+$) rule, we need to show
-  $t ⊩ \f{[(Ci : Ai) i∈I₁]} ⊂ \f{[(Ci : Bi) i∈I₂]}$. We may assume
-  $\v{□} ∉ \t{⟦t⟧}$ as otherwise it is immediate. As in the case of the
-  ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
-  $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I₁]}$ and show that $\t{⟦v⟧} ∈
-  \vs{[(Ci : Bi) i∈I₂]}$. By definition, we know that $\t{⟦v⟧} =
-  \t{Ck[w]}$ for some $k∈I₁$ and $\v{w} ∈ \vs{Ak}$. As a consequence,
-  we only need to show that $\v{w} ∈ \vs{Bk}$. Let us now consider
+\item In the case of the ($+$) rule, we need to show $t ⊩ \f{[(Ci:Ai) i∈I₁]}
+  ⊂ \f{[(Ci:Bi) i∈I₂]}$. As in the case of the ($⇒$) rule, we know that
+  $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that we have
+  $\t{⟦v⟧} ∈ \vs{[(Ci:Ai) i∈I₁]}$ and show that
+  $\t{⟦v⟧} ∈ \vs{[(Ci:Bi) i∈I₂]}$. If $\v{⟦v⟧} = \v{□}$ then the proof is
+  trivial as for the ($⇒$) rule. As a consequence, we may assume that
+  $\v{⟦v⟧} = \v{Ck[w]}$ for some $k ∈ I₁$ and $\v{w} ∈ \vs{Ak}$. Thus, we
+  only need to show that $\v{w} ∈ \vs{Bk}$. Let us now consider
   the term $\t{⟦(λx[x|Ck[xk]→xk]) t⟧} = \t{(λx[x|Ck[xk]→xk]) ⟦t⟧}$.
   As we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{Ck[w]}$, we know
   $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{(λx[x|Ck[xk]→xk]) Ck[w]}$.
@@ -826,11 +809,11 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($×$) rule, we need to show
-  $t ⊩ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}$. We may assume
-  $\v{□} ∉ \t{⟦t⟧}$ as otherwise it is immediate. As in the case of the
-  ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
-  $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈
-  \vs{{(li : Bi) i∈I₂}}$. By definition, $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$
+  $t ⊩ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}$. As in the case of
+  the ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
+  we have $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈
+  \vs{{(li : Bi) i∈I₂}}$. Again, if $\v{⟦v⟧} = \v{□}$ then the proof is
+  trivial. As a consequence, we may assume $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$
   with $I₁ ⊆ I$ and $\v{vi} ∈ \vs{Ai}$ for all index $i∈I₁$. As a
   consequence, we only need to show that $\v{vi} ∈ \vs{Bi}$ for all
   $i∈I₂$. Let us take $k∈I₂$ and show that $\v{vk} ∈ \vs{Bk}$. We
@@ -838,13 +821,15 @@ We consider the last rules used in the proof.
   $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
   we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
   $\t{(λx x.lk) ⟦t⟧} = \t{(λx x.lk) {(li=vi) i∈I}}$. Using
-  \thmRef("cbvbeta") and \thmRef("") we obtain
+  \thmRef("cbvbeta") and \thmRef("equivtrivial") we obtain
   $\t{(λx x.lk) ⟦t⟧} = \t{vk}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
   and \thmRef("main").
   \begin{center}
     $\id(r_prod)$
   \end{center}
+
+(* TODO from here. *)
 
 \item In the case of the ($∀_l$) rule, we need to show that $t ⊩
   \f{∀χ^s A} ⊂ \f{B}$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
