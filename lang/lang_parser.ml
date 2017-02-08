@@ -66,6 +66,13 @@ let fset elt sep =
   | e:elt es:{_:sep e:elt}*$ -> Expli(e::es)
   | EMPTY                    -> Expli([])
 
+let fset_ne elt sep =
+  let sep = parser _:STR(sep) in
+  parser
+  | "⋯" e:elt "⋯"            -> Impli(e,None)
+  | '(' e:elt ')' c:cond     -> Impli(e,Some c)
+  | e:elt es:{_:sep e:elt}*$ -> Expli(e::es)
+
 (* Parsing function for all the syntactic entities. *)
 let parser valu prio =
   | x:vvari                                   when prio = VSimp -> VVari(x)
@@ -87,13 +94,13 @@ and        term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
   | t:tmeta                                   when prio = TAtom -> TMeta(t)
   | "⟦" t:(term TAppl) "⟧"                    when prio = TAtom -> TSema(t)
-  | v:(valu VComp)$                           when prio = TAtom -> TValu(v)
+  | {"⟦" FAIL()}? v:(valu VComp)$             when prio = TAtom -> TValu(v)
   | '(' t:(term TAppl) ')'                    when prio = TAtom -> TGrou(t)
   | t:(term TSubs) ts:(term TSubs)*$          when prio = TAppl -> tappl t ts
   | "μ" a:svari t:(term TAppl)$               when prio = TAtom -> TSave(a,t)
   | '[' s:(stac SFull) ']' t:(term TAppl)$    when prio = TAtom -> TRest(s,t)
   | t:(term TAtom) s:subs                     when prio = TSubs -> TSubt(t,s)
-  | c:(ctxt TAtom) '[' t:(term TAppl) ']'     when prio = TAtom -> TCtxt(c,t)
+  | c:(ctxt TAtom) "<[" t:(term TAppl) "]>"   when prio = TAtom -> TCtxt(c,t)
   | v:(valu VProj) '.' l:label                when prio = TAtom -> TProj(v,l)
   | "R(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsRe(v,t)
   | "F(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsFn(v,t)
@@ -144,7 +151,7 @@ and        form prio =
   | '(' a:(form FFull) ')'                    when prio = FAtom -> FGrou(a)
   | a:(form FAtom) fs:{"⇒" b:(form FAtom)}*$  when prio = FFull -> ffunc (a::fs)
   | a:(form FAtom) "×" b:(form FAtom)$        when prio = FFull -> FBPrd(a,b)
-  | '{' fs:(fset ffield ";") '}'              when prio = FAtom -> FProd(fs)
+  | '{' fs:(fset_ne ffield ";") '}'           when prio = FAtom -> FProd(fs)
   | '[' ps:(fset fpatt  "|") ']'              when prio = FAtom -> FDSum(ps)
   | "∀" x:qvari s:{"^" stvar}? a:(form FFull) when prio = FAtom -> FUniv(x,s,a)
   | "∃" x:qvari s:{"^" stvar}? a:(form FFull) when prio = FAtom -> FExis(x,s,a)

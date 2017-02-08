@@ -386,11 +386,11 @@ communities.
 
 The main idea behind the Krivine abstract machine is to think of a term
 $\t("t₀") ∈ Λ$ as a couple $(\t("t"),\c("E")) ∈ Λ × [V]$ such that
-$\t("t₀") = \t("E[t]")$ (the term $\t("t")$ is said to be in head position).
+$\t("t₀") = \t("E<[t]>")$ (the term $\t("t")$ is said to be in head position).
 Using this representation, $β$-reduction proceeds in two steps. First, the
 machine state $(\t("t"), \c("E"))$ is transformed into a state of the form
 $(\t("(λx u) v"), \c("F"))$, in such a way that
-$\t("E[t]") = \t("F[(λx u) v]")$. The $β$-redex can then be reduced to
+$\t("E<[t]>") = \t("F<[(λx u) v]>")$. The $β$-redex can then be reduced to
 obtain the state $(\t("u[x ≔ v]"), \c("F"))$. This behaviour can be attained
 using the following reduction rules, which are obtained naturally from the
 definition of right-to-left call-by-value evaluation.
