@@ -829,80 +829,74 @@ We consider the last rules used in the proof.
     $\id(r_prod)$
   \end{center}
 
-(* TODO from here. *)
-
 \item In the case of the ($∀_l$) rule, we need to show that $t ⊩
-  \f{∀χ^s A} ⊂ \f{B}$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
-  immediate. We thus suppose that $\t{⟦t⟧} ∈ \ts{∀χ^s A}$
-  and show that $\t{⟦t⟧} ∈ \ts{B}$. Using the induction
-  hypothesis, it is enough to show that we have $\t{⟦t⟧} ∈
-  \ts{A[χ≔C]}$. We will thus show that $\ts{∀χ^s A} ⊆
-  \ts{A[χ≔C]}$, for which it is enough to show $\vs{∀χ^s A}
-  ⊆ \vs{A[χ≔C]}$ according to \lemRef("orthoincl"). This is
-  immediate by definition of $\vs{∀χ^s A}$.
+  \f{∀χ^s A} ⊂ \f{B}$. We thus suppose that $\t{t} ⊩ \f{∀χ^s A}$
+  and show $\t{t} ⊩ \f{B}$. By induction hypothesis, it is enough
+  to prove $\t{t} ⊩ \f{A[χ≔C]}$ and thus we will show
+  $\ts{∀χ^s A} ⊆ \ts{A[χ≔C]}$. According to \lemma("orthoincl"),
+  it is enough to show $\vs{∀χ^s A} ⊆ \vs{A[χ≔C]}$, which is
+  immediate by definition.
   \begin{center}
     $\id(r_forall_l)$
   \end{center}
 
-\item In the case of the ($∀_r$) rule, we need to show that $t ⊩
-  \f{A} ⊂ \f{∀χ^s B}$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
-  immediate. We thus suppose that $\t{⟦t⟧} ∈ \ts{A}$ and show that
-  $\t{⟦t⟧} ∈ \ts{∀χ^s B}$. We have
-  $\t{⟦t⟧} ∈ \ts{B[χ ≔ εχ∈s(t∉B)]}$ by induction hypothesis.
-  Now, as the pole is $({≡})$-extensional and $\t{⟦v⟧} ≡ \t{⟦t⟧}$
-  for some value $v$, we know that
-  $\t{⟦v⟧} ∈ \ts{B[χ ≔ εχ∈s(t∉B)]}$ and we only have to show
-  that $\t{⟦v⟧} ∈ \ts{∀χ^s B}$. With \thmRef("main") we even
-  have $\t{⟦v⟧} ∈ \vs{B[χ ≔ εχ∈s(t∉B)]}$ and we can show
-  $\t{⟦v⟧} ∈ \vs{∀χ^s B}$. We now assume (by contradiction) that
-  there is a formula $Φ ∈ ⟦s⟧$ such that we have
-  $\t{⟦t⟧} ∉ \ts{B[χ≔Φ]}$. We can thus decide that
-  $\vs{B[χ ≔ εχ∈s(t∉B)]} = \vs{B[χ≔Φ]}$, which means that
-  $\t{⟦t⟧} ∈ \ts{B[χ≔Φ]}$. As a consequence, it
-  must be that for every formula $Φ ∈ ⟦s⟧$ we have
-  $\t{⟦t⟧} ∈ \ts{B[χ≔Φ]}$, or equivalently
-  $\t{⟦v⟧} ∈ \vs{B[χ≔Φ]}$ using the $({≡})$-extensionality of the
-  pole and \thmRef("main"). This immediately implies that we have
+\item In the case of the ($∀_r$) rule, we need to show that $t ⊩ \f{A} ⊂
+  \f{∀χ^s B}$. We thus suppose that $\t{⟦t⟧} ∈ \ts{A}$ and show that
+  $\t{⟦t⟧} ∈ \ts{∀χ^s B}$. We have $\t{⟦t⟧} ∈ \ts{B[χ ≔ εχ∈s(t∉B)]}$
+  by induction hypothesis. Moreover, as the pole is $({≡})$-extensional
+  and $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value $v$, we have $\t{⟦v⟧} ∈
+  \ts{B[χ ≔ εχ∈s(t∉B)]}$ according to \theorem("poleext"). For the
+  same reason, it will be enough for us to show that
+  $\t{⟦v⟧} ∈ \ts{∀χ^s B}$. With \thmRef("main") we even have
+  $\t{⟦v⟧} ∈ \vs{B[χ ≔ εχ∈s(t∉B)]}$ and we can show
+  $\t{⟦v⟧} ∈ \vs{∀χ^s B}$.
+  (* *)
+  We now suppose that there is $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∉ \ts{B[χ≔Φ]}$.
+  We can thus assume that $\vs{B[χ ≔ εχ∈s(t∉B)]} = \vs{B[χ≔Φ]}$, which
+  contradicts $\t{⟦t⟧} ∈ \ts{B[χ≔Φ]}$.
+  (* *)
+  As a consequence, it must be that for every formula $Φ ∈ ⟦s⟧$ we have
+  $\t{⟦t⟧} ∈ \ts{B[χ≔Φ]}$, or equivalently $\t{⟦v⟧} ∈ \vs{B[χ≔Φ]}$ using
+  \theorem("poleext") and \thmRef("main"). This immediately implies that
   $\t{⟦v⟧} ∈ \vs{∀χ^s B}$.
   \begin{center}
     $\id(r_forall_r)$
   \end{center}
 
 \item In the case of the ($∃_r$) rule, the proof is similar as for the
-  ($∀_l$) rule. We need to show that $t ⊩ \f{A} ⊂ \f{∃χ^s B}$. We
-  can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is immediate. We thus suppose
-  that $\t{⟦t⟧} ∈ \ts{A}$ and show that
-  $\t{⟦t⟧} ∈ \ts{∃χ^s B}$. By induction hypothesis, we know
-  that $\t{⟦t⟧} ∈ \ts{B[χ≔C]}$. We will thus show that
-  $\ts{B[χ≔C]} ⊆ \ts{∃χ^s B}$, for which it is enough
-  to show $\vs{B[χ≔C]} ⊆ \vs{∃χ^s B}$ according to
-  \lemRef("orthoincl"). This is immediate by definition of
-  $\vs{∃χ^s B}$.
+  ($∀_l$) rule. We need to show that $t ⊩ \f{A} ⊂ \f{∃χ^s B}$ so we
+  suppose $\t{⟦t⟧} ∈ \ts{A}$ and show $\t{⟦t⟧} ∈ \ts{∃χ^s B}$. Using
+  the induction hypothesis, we know that $\t{t} ⊩ \f{B[χ≔C]}$. As a
+  consequence, we only need to show $\ts{B[χ≔C]} ⊆ \ts{∃χ^s B}$. This
+  immediatly follows from the definition of $\vs{∃χ^s B}$ using
+  \lemRef("orthoincl").
   \begin{center}
     $\id(r_exists_r)$
   \end{center}
 
 \item In the case of the ($∃_l$) rule, the proof is similar as for the
-  ($∀_r$) rule. We need to show that $t ⊩ \f{∃χ^s A} ⊂ \f{B}$. We
-  can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is immediate. We thus suppose
-  that $\t{⟦t⟧} ∈ \ts{∃χ^s A}$ and show that $\t{⟦t⟧} ∈
-  \ts{B}$. To be able to use the induction hypothesis, we need to
-  show that $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$. Now, as the
-  pole is $({≡})$-extensional and $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some
-  value $v$, we know that $\t{⟦v⟧} ∈ \ts{∃χ^s A}$ and we
-  only need to show that $\t{⟦v⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$.
-  With \thmRef("main") we even have $\t{⟦v⟧} ∈ \vs{∃χ^s A}$ and
-  we can show $\t{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$. Now, if there
-  is $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$ then we can
-  decide to take $\vs{A[χ ≔ εχ∈s(t∈A)]} = \vs{A[χ≔Φ]}$.
-  In particular, this gives us $\t{⟦v⟧} ∈ \vs{A[χ≔Φ]}$ using the
-  $({≡})$-extensionality of the pole and \thmRef("main").
-  Finally, if for all $Φ ∈ ⟦s⟧$ we have $\t{⟦t⟧} ∉ \ts{A[χ≔Φ]}$
-  and thus $\t{⟦v⟧} ∉ \vs{A[χ≔Φ]}$ then we get a contradiction as
-  this means that $\t{⟦v⟧} ∉ \vs{∃χ^s A}$.
+  ($∀_r$) rule. We need to show that $t ⊩ \f{∃χ^s A} ⊂ \f{B}$ so we
+  suppose $\t{t} ⊩ \f{∃χ^s A}$ and show $\t{t} ⊩ \f{B}$. To be able to
+  use the induction hypothesis, we need to show that $\t{⟦t⟧} ∈
+  \ts{A[χ ≔ εχ∈s(t∈A)]}$, provided that $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$.
+  As we have $\t{⟦v⟧} ≡ \t{⟦t⟧}$ we can use \theorem("poleext") and
+  \theorem("main"), assume $\v{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$ and show
+  $\v{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$.
+  (* *)
+  We will now suppose, by contradiction, that for every element $Φ$ of
+  $⟦s⟧$ we have $\t{⟦t⟧} ∉ \ts{A[χ≔Φ]}$ and thus $\t{⟦v⟧} ∉ \vs{A[χ≔Φ]}$
+  using again \theorems(["poleext"; "main"]). This is a contradiction
+  since this exacly means that $\t{⟦v⟧} ∉ \vs{∃χ^s A}$.
+  (* *)
+  Hence, there must be $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$. As
+  a consequence, we can suppose that $\vs{A[χ ≔ εχ∈s(t∈A)]} = \vs{A[χ≔Φ]}$,
+  which gives us $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$. We can thus conclude
+  the proof using \theorems(["poleext"; "main"]) one more time.
   \begin{center}
     $\id(r_exists_l)$
   \end{center}
+
+(* TODO from here. *)
 
 \item In the case of the ($\restriction_l$) rule, we need to show that
   $t ⊩ \f{A∧u₁≡u₂} ⊂ B$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
