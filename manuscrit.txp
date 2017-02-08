@@ -26,10 +26,12 @@ let cover_data =
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
+(* TODO
 (* Remerciements *)
 \begin{minichap}{Remerciements}
 \Include{Remerciements}
 \end{minichap}
+*)
 
 (* Table des matières *)
 \begin{minichap}{Table des matières / Table of contents}
@@ -51,19 +53,25 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{Implementation}
 
+(* TODO ?
 \Include{Conclusion}
+*)
 
+(* TODO
 (* Résumé en français *)
 \begin{minichap}{Résumé « substantiel » en français}
 \Include{Resume}
 \end{minichap}
+*)
 
 (* Bibliographie *)
 \begin{minichap}{References}
 \Include{References}
 \end{minichap}
 
+(* TODO
 (* Abstract / Résumé *)
 \begin{minichap}{Résumé / Abstract}
 \Include{Abstract}
 \end{minichap}
+*)

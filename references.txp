@@ -12,12 +12,15 @@ let references bib =
     let data  =
       [tT e.notes; tT ", "; tT e.year ; tT "."]
     in
-    hspace (-2.0) @ (color Color.gray key) @ title @ auth @ data
+    (* hspace (-2.0) @ *)
+    (color Color.gray key) @ title @ auth @ data
   in
+
+  let coef = 1.0 in
  
   let line c =
     let environment : Document.environment -> Document.environment =
-      fun env -> { env with par_indent = [] ; size = 0.9 *. env.size }
+      fun env -> { env with par_indent = [] ; size = coef *. env.size }
     in
     newPar D.structure ~environment Complete.normal
       Patoline_Format.parameters c

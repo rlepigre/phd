@@ -51,13 +51,13 @@ let biblio =
   { key     = "Garrigue1998"
   ; authors = "Jacques Garrigue"
   ; title   = "Programming with Polymorphic Variants"
-  ; notes   = "Proceedings of the ML Workshop"
+  ; notes   = "In the proceedings of the ML Workshop"
   ; year    = "1998" };
 
   { key     = "MacQueen1984"
   ; authors = "David MacQueen"
   ; title   = "Modules for Standard ML"
-  ; notes   = "Proceedings of LFP"
+  ; notes   = "In the proceedings of LFP"
   ; year    = "1984" };
 
   { key     = "Girard1972"
@@ -76,13 +76,13 @@ let biblio =
   { key     = "Reynolds1974"
   ; authors = "John C. Reynolds"
   ; title   = "Towards a Theory of Type Structure"
-  ; notes   = "Proceedings Colloque sur la Programmation"
+  ; notes   = "In the proceedings Colloque sur la Programmation"
   ; year    = "1974" };
 
   { key     = "Griffin1990"
   ; authors = "Timothy G. Griffin"
   ; title   = "A Formulae-as-Types Notion of Control"
-  ; notes   = "Proceedings of POPL"
+  ; notes   = "In the proceedings of POPL"
   ; year    = "1990" };
 
   { key     = "Wright1994"
@@ -112,7 +112,7 @@ let biblio =
   { key     = "Damas1982"
   ; authors = "Luís Damas and Robin Milner"
   ; title   = "Principal Type-Schemes for Functional Programs"
-  ; notes   = "Proceedings of POPL"
+  ; notes   = "In the proceedings of POPL"
   ; year    = "1982" };
 
   { key     = "Harper1991"
@@ -124,13 +124,13 @@ let biblio =
   { key     = "Leroy1991"
   ; authors = "Xavier Leroy and Pierre Weis"
   ; title   = "Polymorphic Type Inference and Assignment"
-  ; notes   = "Proceedings of POPL"
+  ; notes   = "In the proceedings of POPL"
   ; year    = "1991" };
 
   { key     = "Leroy1993"
   ; authors = "Xavier Leroy"
   ; title   = "Polymorphism by Name for References and Continuations"
-  ; notes   = "Proceedings of POPL"
+  ; notes   = "In the proceedings of POPL"
   ; year    = "1993" };
 
   { key     = "Miquel2001"
@@ -155,45 +155,45 @@ let biblio =
   { key     = "Xi1999"
   ; authors = "Hongwei Xi and Frank Pfenning"
   ; title   = "Dependent Types in Practical Programming"
-  ; notes   = "Proceedings of POPL"
+  ; notes   = "In the proceedings of POPL"
   ; year    = "1999" };
 
   { key     = "Licata2009"
   ; authors = "Daniel Licata and Robert Harper"
   ; title   = "Positively Dependent Types"
-  ; notes   = "Proceedings of PLPV"
+  ; notes   = "In the proceedings of PLPV"
   ; year    = "2009" };
 
   { key     = "Swamy2011"
   ; authors = "Nikhil Swamy, Juan Chen, C. Fournet, P.-Y. Strub, "
               ++ "K. Bhargavan and J. Yang"
   ; title   = "Secure Distributed Programming with Value-Dependent Types"
-  ; notes   = "Proceedings of ICFP"
+  ; notes   = "In the proceedings of ICFP"
   ; year    = "2011" };
 
   { key     = "Munch2009"
   ; authors = "Guillaume Munch-Maccagnoni"
   ; title   = "Focalisation and Classical Realisability"
-  ; notes   = "Proceedings of CSL"
+  ; notes   = "In the proceedings of CSL"
   ; year    = "2009" };
 
   { key     = "Casinghino2014"
   ; authors = "Chris Casinghino, Vilhelm Sjöberg and Stephanie Weirich"
   ; title   = "Combining Proofs and Programs in a Dependently Typed Language"
-  ; notes   = "Proceedings of PLPV"
+  ; notes   = "In the proceedings of PLPV"
   ; year    = "2014" };
 
   { key     = "Jia2008"
   ; authors = "L. Jia, J. Vaughan, Karl Mazurak, J. Zhao, L. Zarko, "
               ++ "J. Schorr and S. Zdancewic"
   ; title   = "AURA: a Programming Language for Authorization and Audit"
-  ; notes   = "Proceedings of ICFP"
+  ; notes   = "In the proceedings of ICFP"
   ; year    = "2008" };
 
   { key     = "Howe1989"
   ; authors = "Douglas J. Howe"
   ; title   = "Equality in Lazy Computation Systems"
-  ; notes   = "Proceedings of LICS"
+  ; notes   = "In the proceedings of LICS"
   ; year    = "1989" };
 
   { key     = "Constable1986"
@@ -242,7 +242,7 @@ let biblio =
   ; authors = "Rodolphe Lepigre"
   ; title   = "A Classical Realizability Model for a Semantical Value "
               ++ "Restriction"
-  ; notes   = "Proceedings of ESOP, LNCS Volume 9632"
+  ; notes   = "In the proceedings of ESOP, LNCS Volume 9632"
   ; year    = "2016" };
 
   { key     = "Church1936"
@@ -263,26 +263,26 @@ let biblio =
   { key     = "Moggi1989"
   ; authors = "Eugenio Moggi"
   ; title   = "Computational Lambda-Calculus and Monads"
-  ; notes   = "Proceedings of LICS"
+  ; notes   = "In the proceedings of LICS"
   ; year    = "1989" };
 
   { key     = "Flanagan1993"
   ; authors = "Cormac Flanagan, Amr Sabry, Bruce Duba and Matthias Felleisen"
   ; title   = "The Essence of Compiling with Continuations"
-  ; notes   = "Proceedings of PLDI"
+  ; notes   = "In the proceedings of PLDI"
   ; year    = "1993" };
 
   { key     = "Tarditi1996"
   ; authors = "David Tarditi, Gregory Morrisett, Perry Cheng and "
               ++ "Christopher Stone, Robert Harper and Peter Lee"
   ; title   = "TIL: A Type-Directed Optimizing Compiler for ML"
-  ; notes   = "Proceedings of PLDI"
+  ; notes   = "In the proceedings of PLDI"
   ; year    = "1996" };
 
   { key     = "Chlipala2005"
   ; authors = "Adam Chlipala, Leaf Petersen and Robert Harper"
   ; title   = "Strict bidirectional type checking"
-  ; notes   = "Proceedings of TLDI"
+  ; notes   = "In the proceedings of TLDI"
   ; year    = "2005" };
 
   { key     = "Mitchell1996"
@@ -294,7 +294,7 @@ let biblio =
   { key     = "Mitchell1991"
   ; authors = "L. Cardelli, S. Martini, J. C. Mitchell and A. Scedrov"
   ; title   = "An Extension of System F with Subtyping"
-  ; notes   = "Proceedins of TACS"
+  ; notes   = "In the proceedings of TACS"
   ; year    = "1991" };
 
   { key     = "Castagna2016"
