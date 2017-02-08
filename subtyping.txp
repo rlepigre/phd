@@ -896,60 +896,48 @@ We consider the last rules used in the proof.
     $\id(r_exists_l)$
   \end{center}
 
-(* TODO from here. *)
-
 \item In the case of the ($\restriction_l$) rule, we need to show that
-  $t ⊩ \f{A∧u₁≡u₂} ⊂ B$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
-  immediate. We thus assume that $\t{⟦t⟧} ∈ \ts{A∧u₁≡u₂}$ and
-  show that we have $\t{⟦t⟧} ∈ \ts{B}$. We can assume $u₁ ≡ u₂$ as
-  otherwise we would have $\ts{A∧u₁≡u₂} = ∅^{⊥⊥} = ∅$, which
-  contradicts $\t{⟦t⟧} ∈ \ts{A∧u₁≡u₂}$. As a consequence, we
-  know that $\vs{A∧u₁≡u₂} = ⟦A⟧$ and thus $\t{⟦t⟧} ∈ \ts{A}$.
-  We can thus apply the induction hypothesis to conclude (using the
-  fact that the $u₁ ≡ u₂$).
+  $t ⊩ \f{A∧u₁≡u₂} ⊂ B$. We thus assume $\t{t} ⊩ \f{A∧u₁≡u₂}$ and show
+  $\t{t} ⊩ \f{B}$. We can assume $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ as otherwise we
+  would have $\ts{A∧u₁≡u₂} = ∅^{⊥⊥} = ∅$, which would contradicts $\t{t}
+  ⊩ \f{A∧u₁≡u₂}$. As a consequence, we have $\vs{A∧u₁≡u₂} = \vs{A}$ and
+  thus $\t{⟦t⟧} ∈ \ts{A}$. We hence apply the induction hypothesis to
+  conclude (using the fact that the $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$).
   \begin{center}
     $\id(r_rest_l)$
   \end{center}
 
 \item In the case of the ($\restriction_r$) rule, we need to show that
-  $t ⊩ A ⊂ \f{B∧u₁≡u₂}$. We can assume $\v{□} ∉ ⟦t⟧$ as otherwise it is
-  immediate. We thus assume that $\t{⟦t⟧} ∈ \ts{A}$ and show that
-  we have $\t{⟦t⟧} ∈ \ts{B∧u₁≡u₂}$. Using the induction
-  hypothesis, we know that $\t{⟦t⟧} ∈ \ts{B}$. To conclude the
-  proof, we will show that $\vs{B∧u₁≡u₂} = ⟦B⟧$. This immediatly
-  follows from the second hypothesis, which gives us $u₁ ≡ u₂$ since
-  the equivalences of $Ξ$ were assumed to be valid.
+  $t ⊩ A ⊂ \f{B∧u₁≡u₂}$. We thus assume $\t{t} ⊩ \f{A}$ and show $\t{t}
+  ⊩ \f{B∧u₁≡u₂}$. Using the induction hypothesis, we know that $\t{t} ⊩
+  \f{B}$. We will thus conclude the proof by showing that $\vs{B∧u₁≡u₂}
+  = \vs{B}$. This is immediate since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ by hypothesis.
   \begin{center}
     $\id(r_rest_r)$
   \end{center}
 
-\item In the case of the ($∈_l$) rule, we need to show that $t ⊩
-  \f{u∈A} ⊂ B$. We can assume that $\v{□} ∉ \t{⟦t⟧}$ as otherwise
-  it is immediate. We thus assume that $\t{⟦t⟧} ∈ \ts{u∈A}$
-  and show that $\t{⟦t⟧} ∈ \ts{B}$. By hypothesis, we have
-  $\t{⟦v⟧} ≡ \t{⟦t⟧}$ and as our pole is $({≡})$-extensional, we
-  know that we have $\t{⟦v⟧} ∈ \ts{u∈A}$ and it is enough
-  to show that $\t{⟦v⟧} ∈ \ts{B}$. Using \thmRef("main"), we know
-  that we have $\t{⟦v⟧} ∈ \vs{u∈A}$, which gives us $\t{⟦v⟧} ≡
-  \t{⟦u⟧}$ and $\t{⟦v⟧} ∈ ⟦A⟧$. We can thus apply the induction
-  hypothesis to obtain $\t{⟦v⟧} ∈ ⟦B⟧$ using again the fact that
-  the pole is $({≡})$-extensional and \thmRef("main").
+\item In the case of the ($∈_l$) rule, we need to show that $t ⊩ \f{u∈A}
+  ⊂ B$. We thus assume that we have $\t{t} ⊩ \f{u∈A}$ and show $\t{t} ∈
+  \f{B}$. By hypothesis, we have $\t{⟦v⟧} ≡ \t{⟦t⟧}$ and since our pole
+  is $({≡})$-extensional, we can use \lemma("poleext") and \theorem("main")
+  to obtain $\t{⟦v⟧} ∈ \vs{u∈A}$. For a similar reason, it is enough to
+  show $\t{⟦v⟧} ∈ \ts{B}$. As $\t{⟦v⟧} ∈ \vs{u∈A}$, we have
+  $\t{⟦v⟧} ≡ \t{⟦u⟧}$ and $\t{⟦v⟧} ∈ ⟦A⟧$ by definition. We can thus
+  conclude by using the induction hypothesis to get $\t{⟦v⟧} ∈ ⟦B⟧$.
   \begin{center}
     $\id(r_memb_l)$
   \end{center}
 
 \item In the case of the ($∈_r$) rule, we need to show that $t ⊩ A ⊂
-  \f{u∈B}$. We can assume that $\v{□} ∉ \t{⟦t⟧}$ as otherwise it is
-  immediate. We thus suppose that $\t{⟦t⟧} ∈ \ts{A}$ and show
-  that $\t{⟦t⟧} ∈ \ts{u∈B}$. Using the first induction
-  hypothesis, we know that $\t{⟦t⟧} ∈ \ts{B}$. Now, as the pole
-  is $({≡})$-extensional and $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value
-  $v$, we know that $\t{⟦v⟧} ∈ \ts{B}$ and we only have to show
-  that $\t{⟦v⟧} ∈ \ts{u∈B}$. According to \thmRef("main")
-  we even have $\t{⟦v⟧} ∈ ⟦B⟧$ and we can show $\t{⟦v⟧} ∈
-  \vs{u∈B}$. By definition of $\vs{u∈B}$ we only have to show
-  that $\t{⟦v⟧} ≡ \t{⟦u⟧}$, which follows by transitivity of
-  $({≡})$ knowing $\t{⟦v⟧} ≡ \t{⟦t⟧}$ and $\t{⟦t⟧} ≡ \t{⟦u⟧}$.
+  \f{u∈B}$. We thus suppose that $\t{t} ⊩ \f{A}$ and show $\t{t} ⊩
+  \f{u∈B}$. Using the first induction hypothesis, we know that
+  $\t{t} ⊩ \f{B}$. Now, as the pole is $({≡})$-extensional and
+  $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value $v$, we can use \lemma("poleext")
+  and \theorem("main") to obtain $\t{⟦v⟧} ∈ \vs{B}$. For a similar
+  reason, it is enough to show that $\t{⟦v⟧} ∈ \ts{u∈B}$. By
+  definition of $\vs{u∈B}$, it only remains to show $\t{⟦v⟧} ≡ \t{⟦u⟧}$,
+  which follows by transitivity of $({≡})$ knowing $\t{⟦v⟧} ≡ \t{⟦t⟧}$
+  and $\t{⟦t⟧} ≡ \t{⟦u⟧}$.
   \begin{center}
     $\id(r_memb_r)$
   \end{center}
