@@ -8,7 +8,7 @@ let parser index =
   | "i+1" -> "i+1" | "α" -> "α" | "f" -> "f"
 
 (* Generic parser for variables. *)
-let parser vari p   = x:p {- i:index}?
+let parser vari p   = x:p {- i:index}?$
 let parser wildcard = "_" -> ("_", None)
 let vari ns =
   let str s = Earley.string s s in
@@ -16,22 +16,22 @@ let vari ns =
   Earley.alternatives [wildcard; normal]
 
 (* Predifined parsers for all kind of variables and metavariables. *)
-let vvari = vari ["x"; "y"; "z"; "f"; "g"; "h"]
-let vmeta = vari ["v"; "w"; "r"; "Φ"]
-let tvari = vari ["a"; "b"; "c"]
-let tmeta = vari ["t"; "u"; "Ω"]
-let cmeta = vari ["E"; "F"]
-let svari = vari ["α"; "β"; "γ"]
-let smeta = vari ["π"; "ξ"; "ρ"]
-let pmeta = vari ["p"; "q"; "ψ"]
-let const = vari ["C"; "D" ; "S" ; "Z"; "T"; "F"]
-let label = vari ["l"; "k"]
-let subsm = vari ["σ"; "ρ"]
-let vfset = vari ["I"; "J"; "K"]
-let fmeta = vari ["A"; "B"; "C"]
-let fvari = vari ["χ"]
-let ovari = vari ["X"; "Y"; "Z"]
-let stvar = vari ["s"; "ο"]
+let parser vvari = (vari ["x"; "y"; "z"; "f"; "g"; "h"])
+let parser vmeta = (vari ["v"; "w"; "r"; "Φ"])
+let parser tvari = (vari ["a"; "b"; "c"])
+let parser tmeta = (vari ["t"; "u"; "Ω"])
+let parser cmeta = (vari ["E"; "F"])
+let parser svari = (vari ["α"; "β"; "γ"])
+let parser smeta = (vari ["π"; "ξ"; "ρ"])
+let parser pmeta = (vari ["p"; "q"; "ψ"])
+let parser const = (vari ["C"; "D" ; "S" ; "Z"; "T"; "F"])
+let parser label = (vari ["l"; "k"])
+let parser subsm = (vari ["σ"; "ρ"])
+let parser vfset = (vari ["I"; "J"; "K"])
+let parser fmeta = (vari ["A"; "B"; "C"])
+let parser fvari = (vari ["χ"])
+let parser ovari = (vari ["X"; "Y"; "Z"])
+let parser stvar = (vari ["s"; "ο"])
 
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
@@ -52,7 +52,7 @@ type vprio = VSimp | VProj | VComp
 type tprio = TAtom | TSubs | TAppl
 type sprio = SAtom | SFull
 type pprio = PAtom | PFull
-type fprio = FAtom | FFull
+type fprio = FAtom | FInte | FFull
 
 (* Auxiliary parsers. *)
 let vsub var elt = parser v:var b:{"≔" -> true | "←" -> false} e:elt
@@ -143,7 +143,8 @@ and        proc prio =
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
 and        form prio =
-  | t:(term TAppl)                            when prio = FAtom -> FTerm(t)
+  | t:(term TAppl) u:{"≡" u:(term TAppl)}?$   when prio = FAtom ->
+      (match u with None -> FTerm(t) | Some u -> FRest(None,(t,u)))
   | s:(stac SFull)                            when prio = FAtom -> FStac(s)
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
   | x:qvari s:{"^" stvar}?                    when prio = FAtom -> FVari(x,s)
@@ -152,7 +153,7 @@ and        form prio =
   | a:(form FAtom) s:subs$                    when prio = FAtom -> FSubs(a,s)
   | a:(form FAtom) '(' b:(form FFull) ')'     when prio = FAtom -> FAppl(a,b)
   | '(' a:(form FFull) ')'                    when prio = FAtom -> FGrou(a)
-  | a:(form FAtom) fs:{"⇒" b:(form FAtom)}*$  when prio = FFull -> ffunc (a::fs)
+  | a:(form FInte) fs:{"⇒" b:(form FInte)}*$  when prio = FFull -> ffunc (a::fs)
   | a:(form FAtom) "×" b:(form FAtom)$        when prio = FFull -> FBPrd(a,b)
   | '{' fs:(fset_ne ffield ";") '}'           when prio = FAtom -> FProd(fs)
   | '[' ps:(fset fpatt  "|") ']'              when prio = FAtom -> FDSum(ps)
@@ -169,14 +170,15 @@ and        form prio =
   | "μ" x:ovari a:(form FFull)                when prio = FAtom -> FLFix(x,a)
   | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
   | t:(term TAppl) "∈" a:(form FAtom)         when prio = FAtom -> FMemb(t,a)
-  | a:{a:(form FAtom) "∧"}? e:equa            when prio = FAtom -> FRest(a,e)
+  | a:(form FAtom) e:{"∧" e:equa}?$           when prio = FInte ->
+      (match e with None -> a | Some e -> FRest(Some a,e))
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
   | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
       m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'
       when prio = FAtom -> FWitn(x,s,t,m,b)
 and ffield = l:label ':' a:(form FFull)$
 and fpatt  = c:const ':' a:(form FFull)$
-and equa   = t:(term TAppl)$ "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
+and equa   = t:(term TAppl) "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
 and        subs =
   | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)
   | s:subsm                                             -> SubsM(s)
