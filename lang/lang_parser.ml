@@ -169,7 +169,7 @@ and        form prio =
                                               when prio = FAtom -> FDTPd(x,a,b)
   | "μ" x:ovari a:(form FFull)                when prio = FAtom -> FLFix(x,a)
   | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
-  | t:(term TAppl) "∈" a:(form FAtom)         when prio = FAtom -> FMemb(t,a)
+  | t:(term TAppl) "∈" a:(form FAtom)$        when prio = FAtom -> FMemb(t,a)
   | a:(form FAtom) e:{"∧" e:equa}?$           when prio = FInte ->
       (match e with None -> a | Some e -> FRest(Some a,e))
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)

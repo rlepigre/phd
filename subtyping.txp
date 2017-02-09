@@ -81,8 +81,8 @@ let r_ax_gen =
   <$\unaryRN{Gen}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \t{t} : A ⊂ B}$>
 
 let r_arrow =
-  <$\ternaryRN{⇒}{Ξ ⊢ \t{εx∈A₂(t x∉b₂)} ∈ \f{A₂} ⊂ \f{A₁}}
-    {Ξ ⊢ \t{t εx∈A₂(t x∉b₂)} ∈ \f{B₁} ⊂ \f{B₂}}
+  <$\ternaryRN{⇒}{Ξ ⊢ \t{εx∈A₂(t x∉B₂)} ∈ \f{A₂} ⊂ \f{A₁}}
+    {Ξ ⊢ \t{t εx∈A₂(t x∉B₂)} ∈ \f{B₁} ⊂ \f{B₂}}
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{A₁ ⇒ B₁} ⊂ \f{A₂ ⇒ B₂}}$>
 
