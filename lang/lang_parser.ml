@@ -74,27 +74,30 @@ let fset_ne elt sep =
   | e:elt es:{_:sep e:elt}*$ -> Expli(e::es)
 
 (* Parsing function for all the syntactic entities. *)
-let parser valu prio =
+let parser vaux (sa,prio) =
   | x:vvari                                   when prio = VSimp -> VVari(x)
   | v:vmeta                                   when prio = VSimp -> VMeta(v)
-  | "⟦" v:(valu VComp) "⟧"                    when prio = VSimp -> VSema(v)
+  | "⟦" v:(vaux (sa,VComp)) "⟧"               when prio = VSimp
+                                                          && sa -> VSema(v)
   | "λ" x:vvari t:(term TAppl)$               when prio = VComp -> VLAbs(x,t)
-  | c:const '[' v:(valu VComp) ']'            when prio = VSimp -> VCons(c,v)
-  | "{" fs:(fset field ";") ';'? "}"          when prio = VSimp -> VReco(fs)
-  | '(' v:(valu VComp) ')'                    when prio = VProj -> VGrou(v)
-  | v:(valu VSimp) g:subs$                    when prio = VSimp -> VSubs(v,g)
-  | v:(valu VSimp)                            when prio = VComp -> v
-  | v:(valu VSimp)                            when prio = VProj -> v
+  | c:const '[' v:(vaux (true,VComp)) ']'     when prio = VSimp -> VCons(c,v)
+  | "{" fs:(fset (field sa) ";") ';'? "}"     when prio = VSimp -> VReco(fs)
+  | '(' v:(vaux (true,VComp)) ')'             when prio = VProj -> VGrou(v)
+  | v:(vaux (sa,VSimp)) g:subs$               when prio = VSimp -> VSubs(v,g)
+  | v:(vaux (sa,VSimp))                       when prio = VComp -> v
+  | v:(vaux (sa,VSimp))                       when prio = VProj -> v
   | s:subs '(' x:vvari ')'                    when prio = VSimp -> VASub(s,x)
   | "ε" x:vvari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
       when prio = VSimp -> VWitn(x,a,t,b)
   | "□"                                       when prio = VSimp -> VWBox
-and field = l:label "=" v:(valu VComp)
+and field sa = l:label "=" v:(vaux (true,VComp))
+and valu prio = v:(vaux (true,prio))
+and valu_ns prio = v:(vaux (false,prio))
 and        term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
   | t:tmeta                                   when prio = TAtom -> TMeta(t)
   | "⟦" t:(term TAppl) "⟧"                    when prio = TAtom -> TSema(t)
-  | {"⟦" FAIL()}? v:(valu VComp)$             when prio = TAtom -> TValu(v)
+  | v:(valu_ns VComp)$                        when prio = TAtom -> TValu(v)
   | '(' t:(term TAppl) ')'                    when prio = TAtom -> TGrou(t)
   | t:(term TSubs) ts:(term TSubs)*$          when prio = TAppl -> tappl t ts
   | "μ" a:svari t:(term TAppl)$               when prio = TAtom -> TSave(a,t)
