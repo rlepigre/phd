@@ -1013,7 +1013,7 @@ we have ${\p{v∗π}} {⇑_{↠}}$ and thus $\p{v∗π} ∉ \dbot$.
 \thmRef("main") only gives us the required property of the model
 for poles of terminating processes (i.e. processes that eventually
 reduce to a final states). This limitation is not a problem here as
-we will only consider poles having this property in the following.
+we will only consider poles having this property.
 \end{rem}
 
 =<
@@ -1036,8 +1036,8 @@ Let us take $i₀ ∈ \bbN$, $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove
 ${{\p{(tρ)ρ₀ ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{(uρ)ρ₀ ∗ π₀}} {⇓}_{i₀}}$,
 which can be rewritten as
 ${{\p{t(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{u(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}}$.
-We can thus conclude using the definition of $t ≡ u$ with the natural
-number $i₀$, the substitution $ρ ∘ ρ₀$ and the stack $π₀$.
+We can thus conclude by definition of $t ≡ u$ using $i₀$, the
+substitution $ρ ∘ ρ₀$ and the stack $π₀$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("fullextval")
@@ -1416,7 +1416,6 @@ derived immediately as demonstrated above. The rules ($∀_{i,τ}$) and
 ($∈_{i,τ}$) are instances of the semantical value restriction. The
 former can be derived as follows, and a derivation for the latter was
 given in a previous section.
-\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 \begin{proofTree}
 \Caml(
 let p =
@@ -1434,6 +1433,7 @@ let p =
 $\id(p)$
 \end{center}
 \end{proofTree}
+\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 
 With our new set of typing rules, it is very easy to derive introduction
 and elimination rules for the dependent product type. Using the ($∈_{i,τ}$)
