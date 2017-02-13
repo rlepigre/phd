@@ -16,12 +16,12 @@ let vari ns =
   Earley.alternatives [wildcard; normal]
 
 (* Predifined parsers for all kind of variables and metavariables. *)
-let parser vvari = (vari ["x"; "y"; "z"; "f"; "g"; "h"])
+let parser vvari = (vari ["x"; "y"; "z"; "f"; "g"; "h" ; "⋯"])
 let parser vmeta = (vari ["v"; "w"; "r"; "Φ"])
 let parser tvari = (vari ["a"; "b"; "c"])
 let parser tmeta = (vari ["t"; "u"; "Ω"])
 let parser cmeta = (vari ["E"; "F"])
-let parser svari = (vari ["α"; "β"; "γ"])
+let parser svari = (vari ["α"; "β"; "γ"; "ε"])
 let parser smeta = (vari ["π"; "ξ"; "ρ"])
 let parser pmeta = (vari ["p"; "q"; "ψ"])
 let parser const = (vari ["C"; "D" ; "S" ; "Z"; "T"; "F"])
@@ -124,7 +124,6 @@ and        ctxt prio =
   | e:(ctxt TAtom)                            when prio = TSubs -> e
   | e:(ctxt TSubs)                            when prio = TAppl -> e
 and        stac prio =
-  | "ε"                                       when prio = SAtom -> SEmpt
   | a:svari                                   when prio = SAtom -> SVari(a)
   | s:smeta                                   when prio = SAtom -> SMeta(s)
   | "⟦" s:(stac SFull) "⟧"                    when prio = SAtom -> SSema(s)

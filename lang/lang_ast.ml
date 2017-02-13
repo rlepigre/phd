@@ -42,8 +42,7 @@ and  term =
   | TSubt of term * subs               (* tσ     *)
   | TSema of term                      (* ⟦t⟧    *)
 and  stac =
-  | SEmpt                              (* ε      *)
-  | SVari of vari                      (* α, β   *)
+  | SVari of vari                      (* α, β, ε*)
   | SMeta of vari                      (* π, ρ   *)
   | SPush of valu * stac               (* v.π    *)
   | SFram of term * stac               (* [t]π   *)

@@ -529,7 +529,7 @@ rejected. Although this is not a problem for formalizing mathematics, this
 makes programming tedious.
 
 The TRELLYS project \cite("Casinghino2014") aims at providing a language in
-which a consistent core can interact with type-safe dependently-typed
+which a consistent core interacts with type-safe dependently-typed
 programming with general recursion. Although the language defined in
 \cite("Casinghino2014") is call-by-value and allows effect, it suffers from
 value restriction like Aura \cite("Jia2008"). The value restriction does not
@@ -545,7 +545,7 @@ Another similar system can be found in the work of Alexandre Miquel
 \cite("Miquel2001"), where propositions can be classical and Curry-style.
 However the rest of the language remains Church style and does not embed a
 full ML-like language.
-(* *)
+
 The PVS system \cite("Owre1996") is similar to ours as it is based on
 classical higher-order logic. However this tool does not seem to be a
 programming language, but rather a specification language coupled with proof

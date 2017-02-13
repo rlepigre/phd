@@ -20,6 +20,7 @@
 \Configure_math_macro{\s}{ syntax = string; }
 \Configure_math_macro{\p}{ syntax = string; }
 \Configure_math_macro{\f}{ syntax = string; }
+\Configure_math_macro{\subs}{ syntax = string; }
 \Configure_math_macro{\vs}{ syntax = string; }
 \Configure_math_macro{\ss}{ syntax = string; }
 \Configure_math_macro{\ts}{ syntax = string; }
@@ -535,7 +536,7 @@ $v ∈ \ts{B}$, which implies $v ∈ \ts{B}$ by \theorem("main"). This
 exactly means that $⟦A⟧ ⊆ ⟦B⟧$.
 \end{proof}
 \end{lem}
-\begin{thm}
+\begin{thm}\label("fulladequacy")
 Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
 $t ∈ Λ^{+}$ be a raw term. If for every equivalence $(\t{t₁},\t{t₂}) ∈ Ξ$
 we have $\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$ then:
@@ -941,9 +942,203 @@ We consider the last rules used in the proof.
   \begin{center}
     $\id(r_memb_r)$
   \end{center}
+  \linesAfter(0) (* FIXME hack *)
 \end{itemize}
 \end{proof}
 \end{thm}
+
+=<
+
+=> Completeness on pure types
+
+(* TODO *) \todo(None)
+
+=<
+
+=> Normalisation, safety and consistency
+
+Thanks to our new adequacy lemma (\theorem("fulladequacy")), we can now
+study the properties of our system. Although several similar results were
+already given in \chapter("typeSystem"), we cannot reuse them since our
+type system and its semantics have been modified. We will however use
+very similar techniques, which consist in considering particular examples
+of poles.
+
+In this thesis, the choice of a pole is more constrained than it usually
+is the framework of classical realisability (e.g. \mcite(["Krivine2009";
+"Miquel2011"])). Indeed, the only property that is commonly required of
+a pole is to be saturated under the reduction relation of the abstract
+machine (i.e. to be closed under backward reduction). Here however, we
+need to ask for two more properties. Our poles need to be
+$({≡})$-extensional for the semantics of our types to be closed under
+equivalence. And our poles must contain only terminating processes so
+that we can prove our main theorem (\theorem("main")).
+
+\begin{thm}\label("fullnorm")
+Every closed, typed term normalises. More precisely, for every term
+$t∈Λ^{∗}$ such that $⊢ t : A$ is derivable, there is $v∈Λ_ι^{∗}$ such
+that $\p{t∗π} ↠^{∗} \p{v∗ε}$.
+\begin{proof}
+We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ↠^{∗} \p{v∗ε}\}$ which is
+trivially saturated. Moreover, this pole only contains processes that reduce
+to a final state. Let us now verify that $\dbot$ is $≡$-extensional. We thus
+suppose that $t ≡ u$ and that $\p{t∗π} ∈ \dbot$. By definition of $\dbot$,
+there must be a value $v$ such that $\p{t∗π} ↠^{∗} \p{v∗ε}$. This means that
+there must be $k ∈ \bbN$ such that $\p{t∗π} ↠_k^{∗} \p{v∗ε}$, and hence we
+have ${\p{t∗π}} {⇓}_{↠}$. Since $t ≡ u$ we can deduce ${\p{u∗π}} {⇓}_{↠}$,
+and thus there must be a value $w$ such that $\p{u∗π} ↠_k^{∗} \p{w∗ε}$. As
+a consequence, we have $\p{u∗π} ↠^{∗} \p{w∗ε}$, which gives us
+$\p{u∗π} ∈ \dbot$.
+
+We can now apply \thmRef("fulladequacy") with the pole $\dbot$ and obtain
+$\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$ it cannot contain any choice operator,
+and thus we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
+$\p{t∗π} ∈ \dbot$ for every stack $ξ ∈ \ss{A}$. In particular, we have
+$\p{t ∗ ε} ∈ \dbot$ as we trivially have $ε ∈ \ss{A}$. This exactly means
+that there is a value $v∈Λ_ι$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$. It remains
+to show that $v$ is closed, but this is trivial as $\p{t∗ε}$ is closed and
+none of our reduction rules can introduce a free variable.
+\end{proof}
+\end{thm}
+
+Now that we have proved normalisation, we will show that our system is
+type safe. In other words, a typed program is expected to reduce to a value
+of the corresponding type. For instance, a program which type corresponds
+to some encoding of the natural numbers is expected to evaluate to a
+value representing a natural number. As usual in classical realisability,
+we do not prove type safety for all types, but only for so-called "pure
+type", which do not contain function arrows.
+\begin{rem}
+The restriction to pure types is not a problem in practice since functions
+can only be observed through their application. In particular, placing a
+function in a well-typed context will only allow us to observe well-typed
+output.
+\end{rem}
+
+Even when we restrict to pure types, the proof of type safety is subtle in
+our system. The difficult part consist in showing that the pole defined from
+the value level interpretation of a pure type is $≡$-extensional. This is
+in fact possible thanks (again) to our $\t{δ(v,w)}$ term constructor.
+Nonetheless, there is a technical problem due to the definition of the
+semantics of product types, which has been extended to allow for extra
+record fields. To solve this problem, we will need to build a "cleanup term"
+that will be applied to a value to erase superfluous record fields throughout
+its structure. It will be important for such term to be pure (i.e. not to
+capture or restore stacks).
+\begin{def}
+Let $\v{v}$, $\v{w} ∈ Λ_ι^{∗}$ be closed values that does not contain any
+$λ$-abstractions. We will write $\v{v} ⊆ \v{w}$ if $\v{v}$ and $\v{w}$
+have the same structure, but the records of $\v{v}$ have less fields than
+the corresponding records of $\v{w}$. More formally, $({⊆})$ is defined to
+be the smallest relation such that $\v{□} ⊆ \v{□}$ and:
+\begin{itemize}
+  \item if $\v{v} ⊆ \v{w}$ then for all $k∈\bbN$ we have $\v{Ck[v]} ⊆
+        \v{Ck[w]}$,
+  \item if for all $i∈I$ we have $\v{vi} ⊆ \v{wi}$ and if $I ⊆ K$ then
+        $\v{{(li=vi)i∈I}} ⊆ \v{{(li=wi)i∈K}}$.
+\end{itemize}
+\end{def}
+
+\begin{lem}\label("cleaning")
+Let $A ∈ \cal{F}$ be a pure type. There is a closed term $t ∈ Λ^{∗}$ such
+that for every value $\v{v} ∈ \vs{A}$ there is a value $\v{v₀} ∈ \vs{A}₀$
+such that $\v{v₀} ⊆ \v{v}$ and $\p{t v ∗ π} ≻^{∗} \p{v₀ ∗ π}$ for every
+stack $π ∈ Π$. Here, $⟦\wc⟧₀$ denotes the type interpretation function that
+does not allow records to have more fields than their type require.
+\begin{proof}
+We do a proof by induction on the structure of $\v{v}$ and $\f{A}$.
+\begin{itemize}
+  \item If $\v{v} = \v{□}$ then we can take $\t{t} = \t{λx x}$ and
+    $\v{v₀} = \v{□}$.
+  \item If $\v{v} = \v{Ck[w]}$ and $\f{A} = \f{[(Ci:Ai)i∈I]}$ then it must
+    be that $k∈I$ and $\v{w} ∈ \vs{Ak}$ as otherwise this would contradict
+    $\v{v} ∈ \vs{A}$. By induction hypothesis, we have a term $\t{t₀}$ and
+    $\v{w₀} ∈ \vs{Ak}₀$ such that $\p{t₀ w ∗ π} ≻^{∗} \p{w₀ ∗ π}$ for all
+    $π ∈ Π$ and $\v{w₀} ⊆ \v{w}$. As a consequence, we can take
+    $t = \t{λx [x|Ck[y]→(λz Ck[z]) (t₀ y)]}$ and $v₀ = Ck[w₀]$.
+  \item If $\v{v} = \v{{(li = vi)i∈K}}$ and $\f{A} = \f{{(li:Ai)i∈I}}$ then
+    it must be that $I ⊆ K$ and $\v{vi} ∈ \vs{Ai}$ for all $i∈I$ as
+    otherwise this would contradict $\v{v} ∈ \vs{A}$. As a consequence,
+    for all $i∈I$ our induction hypothesis gives us a term $\t{ti}$ and
+    a value $\v{wi} ∈ \vs{Ai}₀$ such that $\v{wi} ⊆ \v{vi}$ and
+    $\p{ti vi ∗ π} ≻^{∗} \p{wi ∗ π}$ for every stack $π ∈ I$. Without loss
+    of generality we can assume that $I = \{0,⋯,n\}$. We can thus take
+    $\t{t} = \t{λx (λx₁ ⋯ λxn {(li=xi)i∈I}) (ti x.li) ⋯ (tn x.ln)}$
+    and $\v{v₀} = \v{{(li = wi)i∈I}}$.
+  \item If $\v{v} ≠ \v{□}$ and $\f{A} = \f{B∧u₁≡u₂}$ then it must be that
+    $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ as otherwise we get a contradiction. Consequently,
+    we have $\vs{A} = \vs{B}$ and we can use the term and the value given
+    by the induction hypothesis.
+  \item If $\v{v} ≠ \v{□}$ and $\f{A} = \f{u∈B}$ then it must be that
+    $\t{v} ≡ \t{⟦u⟧}$ as otherwise we get a contradiction. As a consequence,
+    we have $\v{v} ∈ \vs{A}$ and we can use the term and the value given
+    by the induction hypothesis.
+  \item (* TODO *) \todo(None)
+\end{itemize}
+\end{proof}
+\end{lem}
+
+\begin{thm}\label("fullsafety")
+For every closed term $t ∈ Λ_ι^{∗}$ such that $⊢ t : A$ for a pure type $A$,
+there is a value $v ∈ \vs{A}$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$.
+\begin{proof}
+We consider the pole $\dbot_A = \{p ∈ Λ∗Π \| ∃v∈\vs{A}, p ↠^{∗} \p{v∗ε}\}$
+which is trivially saturated. Moreover, this pole only contains processes
+that reduce to a final state. Note that the set $\vs{A}$ can be used in the
+definition of $\dbot_A$ because $A$ is pure. If it were not, the definition
+would be circular as the pole plays a role in the interpretation of the
+arrow type. Let us now verify that $\dbot_A$ is $≡$-extensional. We thus
+suppose that $t ≡ u$ and that $\p{t∗π} ∈ \dbot_A$. By definition there must
+be a value $v∈\vs{A}$ such that $\p{t∗π} ↠^{∗} \p{v∗ε}$. Now, since $t ≡ u$
+there must be $w∈Λ_ι$ such that $\p{u∗π} ↠^{∗} \p{w∗ε}$ and it remains to
+show that $w ∈ \vs{A}$. To conclude, it is enough to show $w ≡ v$ as we know
+that $\vs{A}$ is closed under $({≡})$. We will now use \lemma("cleaning") to
+obtain a "cleanup term" $u$ for the type $\f{A}$. By definition, there is a
+value $\v{v₀} ∈ \vs{A}₀$ such that $\p{u v ∗ π} ≻^{∗} \p{v₀ ∗ π}$ for every
+stack $π ∈ Π$. We then consider the substitution
+$\subs{ρ} = \subs{[ε ≔ [λy u y][λx δ(x,v₀)]ε]}$ and apply it to $\p{t∗π}$.
+We thus obtain $\p{(t∗π)ρ} ↠^{∗} \p{vρ∗[λy u y]ε} ↠^{2} \p{u vρ∗ε}$. Since
+$v ∈ \vs{A}$ and $\f{A}$ is pure, we know that $\v{vρ} ∈ \vs{A}$. Indeed,
+the empty stack symbol $\s{ε}$ can only appear in $λ$-abstractions
+contained in record fields that are not required by the type $\f{A}$. As a
+consequence, the definition of $u$ gives us $\p{(t∗π)ρ} ↠^{∗} \p{v₀∗ε}$.
+Now, as we know that $\v{v₀} ∈ \vs{A}₀ ⊆ \vs{A}$ and thus $\p{(t∗π)ρ} ∈
+\dbot$. Since we know that $t ≡ u$ we then obtain $\p{(t∗π)ρ} ∈ \dbot$,
+and thus $\p{wρ ∗ [λy u y][λx δ(x,v₀)]ε} ∈ \dbot$. Now, with a few more
+reduction steps we obtain $\p{u wρ ∗ [λx δ(x,v₀)]ε} ∈ \dbot$.
+(* FIXME FIXME FIXME *)
+
+We can now apply \thmRef("fulladequacy") with the pole $\dbot_A$ and obtain
+$\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$ it cannot contain any choice operator,
+and thus we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
+$\p{t∗π} ∈ \dbot_A$ for every stack $ξ ∈ \ss{A}$. In particular, we have
+$\p{t ∗ ε} ∈ \dbot_A$ as we trivially have $ε ∈ \ss{A}$. This exactly means
+that there is a value $v∈\vs{A}$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$.
+\end{proof}
+\end{thm}
+
+(* TODO *) \todo(None)
+
+\begin{thm}\label("fullconsistency")
+There is no closed term $t ∈ Λ^{∗}$ that does not contain $\v{□}$ and such
+that $⊢ t : ⊥$ is derivable.
+\begin{proof}
+Let us assume that there a term $t ∈ Λ^{∗}$ that $⊢ t : ⊥$. As $⊥$ is a pure
+type we can apply \theorem("fullsafety") to obtain a value $v ∈ ⟦⊥⟧$ such
+that $\p{t∗ε} ↠^{∗} \p{v∗ε}$. However, we have $⟦⊥⟧=\vs{∀χ^ο χ}=\{\v{□}\}$
+so it must be that $\v{v} = \v{□}$. This is a contradiction since we know
+that the process $\p{t∗ε}$ does not contain $\v{□}$, and thus $\p{v∗ε}$
+cannot contain $\v{□}$ either.
+\end{proof}
+\end{thm}
+
+(* TODO *) \todo(None)
+
+=<
+
+=> Toward (co-)inductive types and recursion
+
+(* TODO *) \todo(None)
 
 =<
 

@@ -52,32 +52,17 @@ $Ξ ⊢ \t{t u} : \f{B}$ also has a typing proof starting with the
 =<
 => Equivalence decision procedure
 
-... (* TODO *)
-
-=<
-=> Subtyping heuristics
-
-... (* TODO *)
-
-=<
-=> Inductive and coinductive types
-
-... (* TODO *)
-
-=<
-=> Fixpoint and recursion
-
-... (* TODO *)
+(* TODO *) \todo(None)
 
 =<
 => Examples of programs
 
-... (* TODO *)
+(* TODO *) \todo(None)
 
 =<
 => Examples of proofs
 
-... (* TODO *)
+(* TODO *) \todo(None)
 
 =<
 

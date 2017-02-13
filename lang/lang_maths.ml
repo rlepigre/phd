@@ -123,7 +123,6 @@ and  patt2m : patt -> Maths.math list = fun (c,x,t) ->
   let pat = (vari2m c) @ (str "[") @ (vari2m x) @ (str "]") in
   bin' 2 "→" (pat, t2m t)
 and     s2m : stac -> Maths.math list = function
-  | SEmpt      -> str "ε"
   | SVari(a)   -> vari2m a
   | SMeta(s)   -> vari2m s
   | SSema(s)   -> semantic_brackets (s2m s)
