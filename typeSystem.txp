@@ -1330,9 +1330,9 @@ corresponding case.
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that closed, typed terms normalise using a pole containing
-only processes reducing to a final state. Note that we need to fix the
-parameters of the system. Until the end of this section, we will consider
-$({≡})$ to be $({≡}_{≻})$ and $R$ to be $({≻})$.
+only processes reducing to a final state. Note that here, we need to fix the
+parameters of the system. We will consider $({≡})$ to be $({≡}_{≻})$ and $R$
+to be $({≻})$ in the following theorem.
 \begin{thm}\label("basicnorm")
 Every closed, typed term normalises. More precisely, for every term $t∈Λ^{∗}$
 such that $⊢ t : A$ is derivable in the system, there is $v∈Λ_ι^{∗}$ such that
@@ -1356,35 +1356,19 @@ reduction rules can introduce a free variable.
 \end{proof}
 \end{thm}
 
-Using a similar technique, it is possible to show a stronger safety property
-if we restrict ourselves to terms having a //pure// type (i.e. a type that
-does not contain arrows). Indeed, when a closed term $t$ has type $A$ and $A$
-is pure, we can show that $t$ reduces to a value that is contained in the
-semantical interpretation of $A$.
-\begin{thm}\label("basicsafety")
-For every closed term $t ∈ Λ_ι^{∗}$ such that $⊢ t : A$ for a pure type $A$,
-there is a value $v ∈ \vs{A}$ such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$.
-\begin{proof}
-\todo(None) (* TODO *)
-\end{proof}
-\end{thm}
-Note that the value $\v{□}$ cannot appear during reduction. It is easy to
-see that none of our reduction rules can introduce it.
+Using similar techniques, it will be possible to prove a stronger safety
+property in \chapter("subtyping"). In particular, we will show that terms
+of type $A$ reduce to values of $\vs{A}$, provided that $A$ is a //pure
+type//. Roughtly, this will corespond to types that do not contain arrows.
+In particular, we will use the fact that the value interpretation of such
+a type does not depend on the choice of the pole.
 
-Finally, we are going to show that our type system is consistent as a logic.
-In other words, we will show that there is no closed term of type $⊥$.
-\begin{thm}\label("basicconsistency")
-There is no closed term $t ∈ Λ^{∗}$ that does not contain $\v{□}$ and such
-that $⊢ t : ⊥$ is derivable.
-\begin{proof}
-Let us assume that there a term $t ∈ Λ^{∗}$ that $⊢ t : ⊥$. As $⊥$ is a pure
-type we can apply \theorem("basicsafety") to obtain a value $v ∈ ⟦⊥⟧$ such
-that $\p{t∗ε} ≻^{∗} \p{v∗ε}$. However, we have $⟦⊥⟧=\vs{∀χ^ο χ}=\{\v{□}\}$
-so it must be that $\v{v} = \v{□}$. This is a contradiction since we know
-that the process $\p{t∗ε}$ does not contain $\v{□}$, and thus $\p{v∗ε}$
-cannot contain $\v{□}$ either.
-\end{proof}
-\end{thm}
+\begin{rem}
+We do not prove any type safety result here as our realisability model and
+type system will be altered in \chapters(["subtyping"; "semValRest"]). In
+particular, the reduction relation $({↠})$ that will be introduced in
+\chapter("semValRest") will allow for simpler proofs.
+\end{rem}
 
 =<
 
@@ -1537,9 +1521,8 @@ new cases are displayed bellow.
 \end{itemize}
 \end{proof}
 \end{thm}
-Of course, \theorems(["basicnorm";"basicsafety";"basicconsistency"]) can
-still be proved in the extended system with exactly the same proof, but
-with the extended adequacy lemma.
+Of course, \theorem("basicnorm") can still be proved in the extended system
+with exactly the same proof, but using the extended adequacy lemma.
 
 =<
 
