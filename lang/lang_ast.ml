@@ -83,7 +83,7 @@ and form =
   | FAppl of form * form               (* A(B)    *)
   | FFunc of form * form               (* A ⇒ B   *)
   | FGrou of form                      (* (A)     *)
-  | FProd of (vari * form) fset        (* {l_1 : A_1 ; ⋯ ; l_n : A_n} *)
+  | FProd of (vari * form) fset * bool (* {l_1 : A_1 ; ⋯ ; l_n : A_n [; ⋯]} *)
   | FBPrd of form * form               (* A × B   *)
   | FDSum of (vari * form) fset        (* [C_1 : A_1 ; ⋯ ; C_n : A_n] *)
   | FUniv of vari * vari option * form (* ∀χ^s A  *)

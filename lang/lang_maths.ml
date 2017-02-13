@@ -184,8 +184,9 @@ and f2m : form -> Maths.math list = function
   | FSubs(a,s)     -> (f2m a) @ (subs2m s)
   | FGrou(a)       -> (str "(") @ (f2m a) @ (str ")")
   | FBPrd(a,b)     -> bin' 2 "×" (f2m a, f2m b)
-  | FProd(fs)      -> let aux (l,a) = bin' 2 ":" (vari2m l, f2m a) in
-                      (str "{") @ (fset2m aux (str ";") fs) @ (str "}")
+  | FProd(fs,e)    -> let aux (l,a) = bin' 2 ":" (vari2m l, f2m a) in
+                      let e = if e then (str ";") @ (str "⋯") else [] in
+                      (str "{") @ (fset2m aux (str ";") fs) @ e @ (str "}")
   | FDSum(ps)      -> let aux (c,a) = bin' 2 ":" (vari2m c, f2m a) in
                       (str "[") @ (fset2m aux (str "|") ps) @ (str "]")
   | FUniv(x,s,a)   -> let c =
