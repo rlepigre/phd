@@ -94,19 +94,19 @@ let r_sum =
     {Ξ ⊢ \t{t} ∈ \f{[(Ci : Ai) i∈I₁]} ⊂ \f{[(Ci : Bi) i∈I₂]}}$>
 
 let r_prod =
-  <$\ternaryRN{×}{I₂ ⊂ I₁}
-    {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
+  <$\binaryRN{×}
+    {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I}}
     {Ξ ⊢ t ≡ v}
-    {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}}$>
+    {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I}} ⊂ \f{{(li : Bi) i∈I}}}$>
 
 let r_prod_ext1 =
-  <$\ternaryRN{×^{∗}}{I₂ ⊂ I₁}
+  <$\ternaryRN{×_{ext}}{I₂ ⊂ I₁}
     {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁ ; ⋯}} ⊂ \f{{(li : Bi) i∈I₂ ; ⋯}}}$>
 
 let r_prod_ext2 =
-  <$\ternaryRN{×^{∗}}{I₂ ⊂ I₁}
+  <$\ternaryRN{×_{⊂}}{I₂ ⊂ I₁}
     {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂ ; ⋯}}}$>
@@ -536,28 +536,19 @@ in such a way that:
 Note that for every sort $s ∈ \cal{S}$ it is easy to see that $⟦s⟧ ≠ ∅$.
 As a consequence, the interpretation of a type is always well-defined.
 \end{def}
-
-(* BEGIN FIXME duplicated ? *)
-Our current semantics does not allow all the basic subtyping relations that
-we could desire. Indeed, it is easy to see that we have 
-$\vs{[(Ci : Ai) i∈I₁]} ⊆ \vs{[(Ci : Ai) i∈I₂]}$ whenever $I₁ ⊆ I₂$. However,
-the corresponding relation on product types is not satisfied. Intuitively,
-the records of the set $\vs{{(li:Ai) i∈I}}$ must be exactly of the form
-$\v{{(li = vi) i∈I}}$, hence they cannot contain additional fields. This
-leads us to modify the \defRef("typesem") again in the following way.
 \begin{def}
-We change the interpretation of product types as follows.
+We also extend \defRef("typesem") with an interpretation for the extensible
+product type. It is defined as follows.
 \begin{center}
-\linesBefore(2)
-$\vs{{(li:Ai) i∈I}} = \{\v{{(li = vi) i∈K}} \| {K = I∪J}
-                    ∧ {∀i∈I, \v{vi} ∈ \vs{Ai}}
-                    ∧ {∀i∈J, \v{vi} ∈ Λ_ι^{∗}}\} ∪ \{\v{□}\}$
+\linesBefore(2) (* FIXME HACK *)
+$\vs{{(li:Ai) i∈I;⋯}} = \{\v{{(li = vi) i∈K}} \| {I ⊆ K}
+                      ∧ {∀i∈I, \v{vi} ∈ \vs{Ai}} \} ∪ \{\v{□}\}$
 \end{center}
 \end{def}
-By allowing records of a given type to contain more fields that necessary,
-we immediatly enable the relation $\vs{{(li : Ai) i∈I₁}} ⊆
-\vs{{(li : Ai) i∈I₂}}$ whenever $I₂ ⊆ I₁$.
-(* END FIXME duplicated ? *)
+
+We will now given the interpretation of our different forms of judgments
+in the semantics, and prove the adequacy of the semantics with respect to
+the typing rules given in \figRefs(["subrules"; "typrules"]).
 
 \begin{def}
 We will write $t ⊩ A$ whenever $\t{⟦t⟧} ∈ \ts{A}$, $π ⊩ A$ whenever
@@ -566,14 +557,14 @@ $\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊆ B$ if $t ⊩ A$ implies $t ⊩ B$.
 
 \begin{lem}\label("subtypingincl")
 Let $A$, $B ∈ \cal{F}$ be two formulas such that $\t{εx∈A(x∉B)} ⊩ A ⊂ B$.
-In this case we have $⟦A⟧ ⊆ ⟦B⟧$.
+In this case we have $\vs{A} ⊆ \vs{B}$.
 \begin{proof}
 Let us suppose that there is $v ∈ \vs{A}$ such that $v ∉ \ts{B}$. As we
 can choose $\t{⟦εx∈A(x∉B)⟧} = v$ and since $v ∈ \ts{A}$ by
-\lemma("orthosimple"), our hypothesis gives us $v ∈ \ts{B}$, which is a
+\lemma("orthosimple"), our hypothesis gives us $v ∈ \ts{B}$ which is a
 contradiction. As a consequence, for all $v ∈ \vs{A}$ we know that
-$v ∈ \ts{B}$, which implies $v ∈ \ts{B}$ by \theorem("main"). This
-exactly means that $⟦A⟧ ⊆ ⟦B⟧$.
+$v ∈ \ts{B}$, which implies $v ∈ \vs{B}$ by \theorem("main"). This
+exactly means that $\vs{A} ⊆ \vs{B}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("fulladequacy")
@@ -608,16 +599,16 @@ We consider the last rules used in the proof.
   and we show that $\p{⟦t⟧ ⟦u⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is
   $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$.
   Since $⟦u⟧ ∈ \ts{A}$ by the second induction hypothesis, we will prove
-  that $\s{[⟦t⟧]π} ∈ \ss{A}$. We thus take $v ∈ ⟦a⟧$ and show that we
+  that $\s{[⟦t⟧]π} ∈ \ss{A}$. We thus take $v ∈ \vs{A}$ and show that we
   have $\p{v ∗ [⟦t⟧]π} ∈ \dbot$. Again, since $\dbot$ is $({↠})$-saturated
   it is enough to show that $\p{⟦t⟧ ∗ v·π} ∈ \dbot$. As $⟦t⟧ ∈ \ts{A ⇒ B}$
   according to the first induction hypothesis, we only have to show that
   $\s{v·π} ∈ \ts{A⇒B}$ so we take $\v{w} ∈ \vs{A⇒B}$ and show that
-  $\p{w ∗ v·π} ∈ \dbot$. If $w = \v{□}$ then we have $\p{□∗v·π} ≻ \p{□∗π}$
+  $\p{w ∗ v·π} ∈ \dbot$. If $w = \v{□}$ then we have $\p{□∗v·π} ↠ \p{□∗π}$
   and it is enough to show $\p{□∗π}∈\dbot$ as $\dbot$ is $({↠})$-saturated.
   Since $π ∈ \ss{B}$ we only have to show that $\v{□} ∈ \vs{B}$ which is
   immediate since $\vs{B} ∈ ⟦ο⟧$. If $w = \v{λx f}$ then we have
-  $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and it is enough to show
+  $\p{λx f ∗ v·π} ↠ \p{f[x ≔ v] ∗ π}$ and it is enough to show
   $\p{f[x ≔ v] ∗ π} ∈ \dbot$ since $\dbot$ is $({↠})$-saturated. Since 
   $\s{π} ∈ \ss{B}$ it only remains to show $\t{f[x ≔ v]} ∈ \ts{B}$, but
   this is true by definition of $\vs{A ⇒ B}$ since $\v{v} ∈ \vs{A}$.
@@ -648,10 +639,10 @@ We consider the last rules used in the proof.
   and show that $\p{w ∗ ⟦v⟧·π} ∈ \dbot$. If $\v{w} = \v{□}$ then we can
   conclude as for the ($⇒_e$) rule. If $\v{w} = \v{λx f}$ then we can
   again take a reduction step and show that $\p{f[x≔⟦v⟧] ∗ π} ∈ \dbot$,
-  for which it is enough to show that $\t{f[x≔⟦v⟧]} ∈ ⟦B⟧$. To conclude
+  for which it is enough to show that $\t{f[x≔⟦v⟧]} ∈ \vs{B}$. To conclude
   using the definition of $\vs{u∈A ⇒ B}$, we need to show that $\t{⟦v⟧} ∈
   \vs{u∈A}$. As we have $\t{⟦u⟧} ≡ \t{⟦v⟧}$, we only need to show that
-  that $\t{⟦v⟧} ∈ ⟦A⟧$. Using \thmRef("main") it is enough to show that
+  that $\t{⟦v⟧} ∈ \vs{A}$. Using \thmRef("main") it is enough to show that
   $\t{⟦v⟧} ∈ \ts{A}$. This follows from \theorem("poleext") since
   $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis and we know that
   $\t{⟦u⟧} ≡ \t{⟦v⟧}$.
@@ -721,7 +712,7 @@ We consider the last rules used in the proof.
 
 \item In the case of the ($[\wc]\wc$) rule, we need to show that
   $\s{[t]π} ⊩ A$, which is the same as $\s{⟦[t]π⟧} ∈ \ss{A}$. We thus
-  take a value $v ∈ ⟦A⟧$ and we show that $\p{v ∗ [⟦t⟧]⟦π⟧} ∈ \dbot$.
+  take a value $v ∈ \vs{A}$ and we show that $\p{v ∗ [⟦t⟧]⟦π⟧} ∈ \dbot$.
   As $\dbot$ is $({↠})$-saturated, it is enough to show $\p{⟦t⟧ ∗ v·⟦π⟧}
   ∈ \dbot$. Using the first induction hypothesis we have $\t{⟦t⟧} ∈
   \ts{A⇒B}$. As a consequence, we only need to show $\s{v·⟦π⟧} ∈
@@ -733,14 +724,13 @@ We consider the last rules used in the proof.
 \item In the case of the ($×_e$) rule, we need to show that $\t{v.lk} ⊩ A$,
   which is the same as $\t{⟦v⟧.lk} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$ and
   show that $\p{⟦v⟧.lk ∗ π} ∈ \dbot$. By induction hypothesis, we know that
-  $\v{⟦v⟧} ∈ \ts{{lk:A}}$. Moreover, using \theorem("main") this gives us
-  $\v{⟦v⟧} ∈ \vs{{lk:A}}$. If $\v{⟦v⟧} = \v{□}$ then it is enough to show
+  $\v{⟦v⟧} ∈ \ts{{lk:A;⋯}}$. Moreover, using \theorem("main") this gives us
+  $\v{⟦v⟧} ∈ \vs{{lk:A;⋯}}$. If $\v{⟦v⟧} = \v{□}$ then it is enough to show
   that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated. This is
   immediate since $π ∈ \ss{A}$ and $\v{□} ∈ \vs{A}$ as $\vs{A} ∈ ⟦ο⟧$.
-  If $\v{⟦v⟧} = \v{{(li = wi) i∈I}}$ with $k ∈ I$ and $\v{wk} ∈ \vs{A}$
-  then it is enough to show $\p{wk ∗ π} ∈ \dbot$ as $\dbot$ is
-  $({↠})$-saturated. This is immediate since $\v{wk} ∈ \vs{A}$ by definition
-  of $\vs{{lk:A}}$ and $π ∈ \ss{A}$.
+  If $\v{⟦v⟧} = \v{{(li = wi) i∈I}}$ with $k ∈ I$ then it is enough to show
+  $\p{wk ∗ π} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated. This is immediate
+  since $\v{wk} ∈ \vs{A}$ by definition of $\vs{{lk:A;⋯}}$ and $π ∈ \ss{A}$.
   \begin{center}
     $\id(r_prod_e)$
   \end{center}
@@ -797,7 +787,7 @@ We consider the last rules used in the proof.
 
 \item In the case of the ($Gen$) rule, we need to show that $t ⊩ A ⊂ B$.
   Using the induction hypothesis with \lemRef("subtypingincl") we obtain
-  $⟦A⟧ ⊆ ⟦B⟧$, and we can thus conclude using \lemRef("orthoincl").
+  $\vs{A} ⊆ \vs{B}$, and we can thus conclude using \lemRef("orthoincl").
   \begin{center}
     $\id(r_ax_gen)$
   \end{center}
@@ -850,24 +840,46 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($×$) rule, we need to show
-  $t ⊩ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}$. As in the case of
+  $t ⊩ \f{{(li : Ai) i∈I}} ⊂ \f{{(li : Bi) i∈I}}$. As in the case of
   the ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
-  we have $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈
-  \vs{{(li : Bi) i∈I₂}}$. Again, if $\v{⟦v⟧} = \v{□}$ then the proof is
+  we have $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I}}$ and show that $\t{⟦v⟧} ∈
+  \vs{{(li : Bi) i∈I}}$. Again, if $\v{⟦v⟧} = \v{□}$ then the proof is
   trivial. As a consequence, we may assume $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$
-  with $I₁ ⊆ I$ and $\v{vi} ∈ \vs{Ai}$ for all index $i∈I₁$. As a
-  consequence, we only need to show that $\v{vi} ∈ \vs{Bi}$ for all
-  $i∈I₂$. Let us take $k∈I₂$ and show that $\v{vk} ∈ \vs{Bk}$. We
-  now going to consider the term
+  and $\v{vi} ∈ \vs{Ai}$ for all index $i∈I$. As a consequence, we only
+  need to show that $\v{vi} ∈ \vs{Bi}$ for all $i∈I$. Let us take $k∈I$
+  and consider the term $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As we
+  have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. Using
+  \thmRef("cbvbeta") and \thmRef("equivtrivial") we obtain
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$. We can hence conclude using the
+  induction hypothesis, the $({≡})$-extensionality of the pole and
+  \thmRef("main").
+  \begin{center}
+    $\id(r_prod)$
+  \end{center}
+
+\item In the case of the ($×_{ext}$) rule, the proof is similar to the ($×$)
+  case. Since we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ we can assume $\t{⟦v⟧} ∈
+  \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈ \vs{{(li : Bi) i∈I₂}}$. 
+  If $\v{⟦v⟧} = \v{□}$ then the proof is trivial so we may assume that
+  $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$ with $I₁ ⊆ I$ and $\v{vi} ∈ \vs{Ai}$ for all
+  index $i∈I₁$. As a consequence, we only need to show $\v{vi} ∈ \vs{Bi}$
+  for all $i∈I₂$. Let us take $k∈I₂$ and consider the term
   $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
   we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
-  $\t{(λx x.lk) ⟦t⟧} = \t{(λx x.lk) {(li=vi) i∈I}}$. Using
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. Using
   \thmRef("cbvbeta") and \thmRef("equivtrivial") we obtain
-  $\t{(λx x.lk) ⟦t⟧} = \t{vk}$. We can hence conclude using
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
   and \thmRef("main").
   \begin{center}
-    $\id(r_prod)$
+    $\id(r_prod_ext1)$
+  \end{center}
+
+\item In the case of the ($×_{⊂}$) rule, the proof is exactly the same as
+  for ($×_{ext}$) with $I = I₁$.
+  \begin{center}
+    $\id(r_prod_ext2)$
   \end{center}
 
 \item In the case of the ($∀_l$) rule, we need to show that $t ⊩
@@ -906,11 +918,10 @@ We consider the last rules used in the proof.
 
 \item In the case of the ($∃_r$) rule, the proof is similar as for the
   ($∀_l$) rule. We need to show that $t ⊩ \f{A} ⊂ \f{∃χ^s B}$ so we
-  suppose $\t{⟦t⟧} ∈ \ts{A}$ and show $\t{⟦t⟧} ∈ \ts{∃χ^s B}$. Using
-  the induction hypothesis, we know that $\t{t} ⊩ \f{B[χ≔C]}$. As a
-  consequence, we only need to show $\ts{B[χ≔C]} ⊆ \ts{∃χ^s B}$. This
-  immediatly follows from the definition of $\vs{∃χ^s B}$ using
-  \lemRef("orthoincl").
+  suppose $t ⊩ \f{A}$ and show $t ⊩ \f{∃χ^s B}$. Using the induction
+  hypothesis, we know that $\t{t} ⊩ \f{B[χ≔C]}$. As a consequence, we
+  only need to show $\ts{B[χ≔C]} ⊆ \ts{∃χ^s B}$. This immediatly follows
+  from the definition of $\vs{∃χ^s B}$ using \lemRef("orthoincl").
   \begin{center}
     $\id(r_exists_r)$
   \end{center}
@@ -937,6 +948,7 @@ We consider the last rules used in the proof.
     $\id(r_exists_l)$
   \end{center}
 
+(* FIXME FIXME FIXME from here. *)
 \item In the case of the ($\restriction_l$) rule, we need to show that
   $t ⊩ \f{A∧u₁≡u₂} ⊂ B$. We thus assume $\t{t} ⊩ \f{A∧u₁≡u₂}$ and show
   $\t{t} ⊩ \f{B}$. We can assume $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ as otherwise we
@@ -963,8 +975,8 @@ We consider the last rules used in the proof.
   is $({≡})$-extensional, we can use \lemma("poleext") and \theorem("main")
   to obtain $\t{⟦v⟧} ∈ \vs{u∈A}$. For a similar reason, it is enough to
   show $\t{⟦v⟧} ∈ \ts{B}$. As $\t{⟦v⟧} ∈ \vs{u∈A}$, we have
-  $\t{⟦v⟧} ≡ \t{⟦u⟧}$ and $\t{⟦v⟧} ∈ ⟦A⟧$ by definition. We can thus
-  conclude by using the induction hypothesis to get $\t{⟦v⟧} ∈ ⟦B⟧$.
+  $\t{⟦v⟧} ≡ \t{⟦u⟧}$ and $\t{⟦v⟧} ∈ \vs{A}$ by definition. We can thus
+  conclude by using the induction hypothesis to get $\t{⟦v⟧} ∈ \vs{B}$.
   \begin{center}
     $\id(r_memb_l)$
   \end{center}
@@ -989,7 +1001,7 @@ We consider the last rules used in the proof.
 
 =<
 
-=> Completeness on pure types
+=> Completeness on simple data types
 
 (* TODO *) \todo(None)
 
