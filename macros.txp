@@ -83,6 +83,9 @@ let chapters l =
 let theorems l =
   (tT "Theorems ") :: build_list (List.map (generalRef "Theorem") l)
 
+let figRefs l =
+  (tT "Figures ") :: build_list (List.map (generalRef "figure") l)
+
 let chapter l = (tT "Chapter ") :: sectref l
 let section l = (tT "Section ") :: sectref l
 

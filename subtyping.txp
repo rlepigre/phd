@@ -73,7 +73,7 @@ let r_prod_i =
     {(Ξ ⊢ \t{vi} : \f{Ai})_{i∈I}}{Ξ ⊢ \t{{(li = vi) i∈I}} : C}$>
 
 let r_prod_e =
-  <$\unaryRN{×_e}{Ξ ⊢ \t{v} : \f{{lk : A}}} {Ξ ⊢ \t{v.lk} : A}$>
+  <$\unaryRN{×_e}{Ξ ⊢ \t{v} : \f{{lk : A; ⋯}}} {Ξ ⊢ \t{v.lk} : A}$>
 
 let r_ax_sub =
   <$\axiomRN{Ax_{⊂}}{Ξ ⊢ \t{t} : A ⊂ A}$>
@@ -98,6 +98,18 @@ let r_prod =
     {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂}}}$>
+
+let r_prod_ext1 =
+  <$\ternaryRN{×^{∗}}{I₂ ⊂ I₁}
+    {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
+    {Ξ ⊢ t ≡ v}
+    {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁ ; ⋯}} ⊂ \f{{(li : Bi) i∈I₂ ; ⋯}}}$>
+
+let r_prod_ext2 =
+  <$\ternaryRN{×^{∗}}{I₂ ⊂ I₁}
+    {(Ξ ⊢ \t{(λx x.li) t} ∈ \f{Ai} ⊂ \f{Bi})_{i∈I₂}}
+    {Ξ ⊢ t ≡ v}
+    {Ξ ⊢ \t{t} ∈ \f{{(li : Ai) i∈I₁}} ⊂ \f{{(li : Bi) i∈I₂ ; ⋯}}}$>
 
 let r_forall_l =
   <$\unaryRN{∀_l}
@@ -145,8 +157,8 @@ let r_memb_r =
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{u ∈ B}}$>
 
-let rs env =
-  let env = resize_env 3.1 env in
+let typ_rs env =
+  let env = resize_env 3.5 env in
   let rs =
     [ [ r_arrow_i ; r_arrow_e ]
     ; [ r_ax ; r_arrow_ee ]
@@ -154,10 +166,19 @@ let rs env =
     ; [ r_push ; r_fram ]
     ; [ r_prod_e ; r_prod_i ]
     ; [ r_sum_e ]
-    ; [ r_sum_i ; r_ax_sub ; r_ax_gen ]
-    ; [ r_arrow ]
-    ; [ r_sum ]
-    ; [ r_prod ]
+    ; [ r_sum_i ] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
+let sub_rs env =
+  let env = resize_env 3.5 env in
+  let rs =
+    [ [ r_arrow ]
+    ; [ r_sum ; r_ax_sub ]
+    ; [ r_prod ; r_ax_gen ]
+    ; [ r_prod_ext1 ]
+    ; [ r_prod_ext2 ]
     (* quantifiers. *)
     ; [ r_forall_l ; r_forall_r ]
     ; [ r_exists_r ; r_exists_l ]
@@ -168,9 +189,13 @@ let rs env =
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
+let typrules () =
+  figure_here ~name:"typrules"
+    ~caption:[tT "Typing rules for terms and stacks."] (dr typ_rs)
+
 let subrules () =
   figure_here ~name:"subrules"
-    ~caption:[tT "Typing and subtyping rules."] (dr rs)
+    ~caption:[tT "Local subtyping rules."] (dr sub_rs)
 )
 
 => Introducing subtyping into the system \label("subtyping")
@@ -192,8 +217,8 @@ on limited forms of subtyping for their module system \cite("MacQueen1984"),
 or for the use of polymorphic variants \cite("Garrigue1998"). Overall,
 subtyping is useful for both product types (e.g. records or modules) and
 sum types (e.g. polymorphic variants). It provides canonical injections
-between a type and its subtypes. For example, natural numbers may be
-defined as a subtype of integers.
+between a type and its subtypes. For example, the natural numbers may be
+defined as a subtype of the integers.
 
 The downside of subtyping is that it is difficult to incorporate in
 complex systems like //Haskell// or ||OCaml||. For example, ||OCaml||
@@ -218,10 +243,9 @@ In this thesis, we will show that it is possible to design a practical
 type system based on subtyping for our language. It allows for a rather
 straight-forward implementation following the typing and subtyping rules
 that will be given in the following sections. In particular, the typing
-and subtyping procedures never have to backtrack since they are directed
-by the syntax of terms and types respectively. The ideas presented here
-were introduced in a joint work of Christophe Raffalli and the author
-\cite("Lepigre2017").
+and subtyping procedures are directed by the syntax of terms and types
+respectively. The ideas presented here were introduced in a joint work
+of Christophe Raffalli and the author \cite("Lepigre2017").
 
 =<
 
@@ -272,10 +296,9 @@ associated to each type contain at least the empty stack $\s{ε}$.
 
 The use of choice operators and the elimination of typing contexts
 will plays an essential role in the definition of our type system.
-Indeed, they will allow us to handle quantifiers
-using our local subtyping relation only. This will allow us to work
-with syntax-directed typing rules only, and most of the work will
-be done using subtyping.
+Indeed, they will allow us to handle quantifiers using our local
+subtyping relation. This will allow us to work with syntax-directed
+typing rules, and most of the work will be done using subtyping.
 
 Choice operators will also be used for the handling of quantifiers.
 We will thus introduce two new type constructors $\f{εX(t∈A)}$ and
@@ -285,22 +308,26 @@ type such that the term $t$ does not have type $\f{B[X≔εX(t∉B)]}$.
 Intuitively, $\f{εX(t∉B)}$ is a counter-example to the judgment
 "$t$ has type $\f{∀X B}$". Hence, to show that $t$ has type
 $\f{∀X B}$, it will be enough to show that it has type
-$\f{B[X≔εX(t∉B)]}$. As a consequence, the usual typing rule for
-universal quantifier introduction is subsumed by the following local
-subtyping rule.
+$\f{B[X≔εX(t∉B)]}$. As a consequence, our typing rule for the
+introduction of the universal quantifier is subsumed by the
+following local subtyping rule.
 \begin{center}
 $ \binaryR{Ξ ⊢ t ∈ A ⊂ \f{B[X≔εX(t∉B)]}}{Ξ ⊢ t ≡ v}
           {Ξ ⊢ t ∈ A ⊂ \f{∀X B}} $
 \end{center}
-Note that the rule include a premise stating the term $t$ carried by
+Note that the rule includes a premise stating the term $t$ carried by
 the judgments should be equivalent to a value. This corresponds to
 the semantical value restriction condition in our new system with
 subtyping.
 
 In conjunction with local subtyping, choice operators allow the
 derivation of many valid permutations of quantifiers and connectors.
-For instance, Mitchell's containment axiom \cite("Mitchell1991")
-$$ \f{∀X (A ⇒ B)} ⊂ \f{(∀X A) ⇒ (∀X B)}$$
+For example, subtyping relations like
+$$
+  \f{∀X ∀Y A} ⊂ \f{∀Y ∀X A}
+  \hspace(4.0)
+  \f{{l₁ : ∀X A; l₂ : ∀X B}} ⊂ \f{∀X {l₁ : A; l₂ : B}}
+$$
 can be easily derived. Consequently, our type system mostly
 contains typing and subtyping rules that are syntax-directed.
 In particular, we do not have a transitivity rule for subtyping.
@@ -336,6 +363,7 @@ $ \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : ο
   \hspace(4.0)
   \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∉A)} : ο} $
 \end{center}
+\linesAfter(0) (* FIXME hack. *)
 \end{def}
 
 To introduce value and stack witnesses into our system, we will
@@ -360,8 +388,6 @@ only bound in $t$. Moreover, thanks to the sorting rules, no
 other variable than $x$ (resp. $α$) may be bound in $t$. This
 restriction is required for the definition of our semantics.
 \end{def}
-Note that our extension of the syntax of values and the syntax
-of stacks propagates to the terms and formulas in general.
 \begin{def}
 We will refer to values, terms and stacks that may contain value
 and stack witnesses as //raw// values, //raw// terms and //raw//
@@ -369,8 +395,31 @@ stacks. The corresponding sets will be denoted $Λ^{+}_ι$, $Λ^{+}$
 and $Π^{+}$ respectively.
 \end{def}
 
-Before giving the new typing and subtyping rules of our system,
-we need to consider three (and in fact four) new forms of judgments.
+Before going into our new typing and subtyping rules, we will extend
+the syntax of formulas one more times. Indeed, our current system (and
+its semantics) does not allow for all the basic subtyping relations that
+we could hope for. For instance, if $I₁ ⊆ I₂$ then it is possible to show
+that $\f{[(Ci : Ai) i∈I₁]}$ is a subtype of $\f{[(Ci : Ai) i∈I₂]}$ in
+the system. However, the corresponding relation on product types is
+not satisfied by our semantics. Intuitively, the elements of the type
+$\f{{(li:Ai) i∈I}}$ must of the form $\v{{(li = vi) i∈I}}$. In particular,
+they cannot have additional record fields. One solution to this problem
+would be to amend the semantics of product types. Instead, we will keep our
+original, //strict// product type, and introduce another //extensible//
+product type.
+\begin{def}
+We extend the syntax of formulas $\cal{F}$ with a constructors
+$\f{{(li : Ai) i∈I ; ⋯}}$ for the //extensible product type//. Our
+system again requires a new sorting rule.
+\begin{center}
+$\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li:Ai)i∈I;⋯}} : ο}$
+\end{center}
+\linesAfter(0) (* FIXME hack. *)
+\end{def}
+\Caml(let _ = typrules ()) (* NOTE can be moved *)
+
+We will now give the new typing and subtyping rules of our system, which
+will contains three (and in fact four) new forms of judgments.
 \begin{def}
 A //general typing judgment// is a triple of an equational context
 $Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
@@ -382,11 +431,10 @@ $A$, $B ∈ \cal{F}$ that is denoted $Ξ ⊢ t ∈ A ⊂ B$. We will use the
 notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v{εx∈A(x∉B)}$.
 \end{def}
 \begin{def}
-A general typing judgment or a pointed subtyping judgment is said to
-be correct if it is derivable using the deduction rules of
-\figRef("subrules").
+A general typing judgment, a general stack judgment or a pointed
+subtyping judgment is said to be correct if it is derivable using
+the rules of \figRefs(["subrules"; "typrules"]).
 \end{def}
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 There is nothing too surprising about our new typing rules. Note
 however that, in the case where our equivalence decision procedure
 is unable to prove a premise of the form $Ξ ⊢ v ≡ t$ in a local
@@ -474,6 +522,7 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents_terms
 )
 \end{center}
 \end{def}
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 It is important to note that, from now on, raw values, raw terms and raw
 stacks may appear in types of any sort. However, up to the interpretation
@@ -499,6 +548,7 @@ Note that for every sort $s ∈ \cal{S}$ it is easy to see that $⟦s⟧ ≠ ∅
 As a consequence, the interpretation of a type is always well-defined.
 \end{def}
 
+(* BEGIN FIXME duplicated ? *)
 Our current semantics does not allow all the basic subtyping relations that
 we could desire. Indeed, it is easy to see that we have 
 $\vs{[(Ci : Ai) i∈I₁]} ⊆ \vs{[(Ci : Ai) i∈I₂]}$ whenever $I₁ ⊆ I₂$. However,
@@ -518,6 +568,7 @@ $\vs{{(li:Ai) i∈I}} = \{\v{{(li = vi) i∈K}} \| {K = I∪J}
 By allowing records of a given type to contain more fields that necessary,
 we immediatly enable the relation $\vs{{(li : Ai) i∈I₁}} ⊆
 \vs{{(li : Ai) i∈I₂}}$ whenever $I₂ ⊆ I₁$.
+(* END FIXME duplicated ? *)
 
 \begin{def}
 We will write $t ⊩ A$ whenever $\t{⟦t⟧} ∈ \ts{A}$, $π ⊩ A$ whenever
