@@ -439,6 +439,7 @@ There is nothing too surprising about our new typing rules. Note
 however that, in the case where our equivalence decision procedure
 is unable to prove a premise of the form $Ξ ⊢ v ≡ t$ in a local
 subtyping rule, one can always fallback to the ($Gen$) rule.
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 =<
 => Semantics of subtyping
@@ -478,7 +479,7 @@ $π ∈ Π^+$), we denote $⟦v⟧ ∈ Λ_ι$ (resp. $⟦t⟧ ∈ Λ$, $⟦π⟧
 semantical interpretation. It is defined inductively as follows.
 \begin{center}
 \diagram(
-let contents_values =
+let contents =
   let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
   let spec syn s  n = [<$ \syn(s) $> ; <$ = $> ; n] in
   two_cols
@@ -488,41 +489,29 @@ let contents_values =
   ; line v "⟦□⟧"                  "□"
   ; line t "⟦a⟧"                  "a"
   ; line t "⟦t u⟧"                "⟦t⟧ ⟦u⟧"
-  ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
-  ; spec v "⟦εx∈A(t∉B)⟧"          <$ v∈\vs{A} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
-  ; spec v "⟦εx∈A(t∉B)⟧"          <$ \v{□} \hspace(0.4) otherwise $>
-  ; line t "⟦μα t⟧"               "μα ⟦t⟧"
-  ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
-  ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]" ]
-let _ = array [`East; `Main; `West; `East; `Main; `West] contents_values
-          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
-          ~vertical_padding:(fun n -> if n = 1 then 1.0 else 2.0)
-)
-\end{center}
-\begin{center}
-\diagram(
-let contents_terms =
-  let line syn s1 s2 = [<$ \syn(s1) $> ; <$ = $> ; <$ \syn(s2) $>] in
-  let spec syn s  n = [<$ \syn(s) $> ; <$ = $> ; n] in
-  two_cols
-  [ line t "⟦v.lk⟧"               "⟦v⟧.lk"
+  ; line t "⟦v.lk⟧"               "⟦v⟧.lk"
   ; line t "⟦Y(t,v)⟧"             "Y(⟦t⟧,⟦v⟧)"
   ; line t "⟦R(v,t)⟧"             "R(⟦v⟧,⟦t⟧)"
   ; line s "⟦α⟧"                  "α"
   ; line s "⟦v·π⟧"                "⟦v⟧·⟦π⟧"
   ; line s "⟦[t]π⟧"               "[⟦t⟧]⟦π⟧"
+  ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
+  ; spec v "⟦εx∈A(t∉B)⟧"          <$ v∈\vs{A} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
+  ; spec v "⟦εx∈A(t∉B)⟧"          <$ \v{□} \hspace(0.4) otherwise $>
+  ; line t "⟦μα t⟧"               "μα ⟦t⟧"
+  ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
+  ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦F(v,t)⟧"             "F(⟦v⟧,⟦t⟧)"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
   ; line s "⟦ε⟧"                  "ε"
   ; spec s "⟦εα∈A(t∉A)⟧"          <$ π∈\ss{A} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>
   ; spec s "⟦εα∈A(t∉A)⟧"          <$ \s{ε} \hspace(0.4) otherwise $> ]
-let _ = array [`East; `Main; `West; `East; `Main; `West] contents_terms
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
           ~vertical_padding:(fun n -> 2.0)
 )
 \end{center}
 \end{def}
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 It is important to note that, from now on, raw values, raw terms and raw
 stacks may appear in types of any sort. However, up to the interpretation
