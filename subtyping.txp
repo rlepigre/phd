@@ -62,6 +62,10 @@ let r_sum_i =
   <$\binaryRN{+_i}{Ξ ⊢ \t{v} : \f{A}}
     {Ξ ⊢ \t{Ck[v]} ∈ \f{[Ck : A]} ⊂ \f{B}}{Ξ ⊢ \t{Ck[v]} : B}$>
 
+let r_equiv =
+  <$\binaryRN{≡}{Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+    {Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
+
 let r_sum_e =
   <$\binaryRN{+_e}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
     {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
@@ -134,8 +138,9 @@ let r_exists_l =
     {Ξ ⊢ \t{t} ∈ \f{∃χ^s A} ⊂ \f{B}}$>
 
 let r_rest_l =
-  <$\unaryRN{\restriction_l}
+  <$\binaryRN{\restriction_l}
     {Ξ, u₁ ≡ u₂ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {Ξ ⊢ v ≡ t}
     {Ξ ⊢ \t{t} ∈ \f{A ∧ u₁ ≡ u₂} ⊂ \f{B}}$>
 
 let r_rest_r =
@@ -166,7 +171,7 @@ let typ_rs env =
     ; [ r_push ; r_fram ]
     ; [ r_prod_e ; r_prod_i ]
     ; [ r_sum_e ]
-    ; [ r_sum_i ] ]
+    ; [ r_sum_i ; r_equiv ] ]
   in
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
@@ -779,6 +784,20 @@ We consider the last rules used in the proof.
     $\id(r_sum_i)$
   \end{center}
 
+\item In the case of the ($≡$) rule, we need to show $\t{t[a≔u₁]} ⊩
+  \f{A[a≔u₁]}$, which is the same as $\t{⟦t[a≔u₁]⟧} ∈ \ts{A[a≔u₁]}$.
+  Since we have $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ we know that we have
+  $\vs{A[a≔u₁]} = \vs{A[a≔u₂]}$ according to \lemma("texttyp"). As
+  a consequence, it is enough to show that we have $\t{⟦t[a≔u₁]⟧} ∈
+  \ts{A[a≔u₂]}$. Since $\t{⟦t[a≔u₂]⟧} ∈ \ts{A[a≔u₂]}$ by
+  induction hypothesis, we only need to show that
+  $\t{⟦t[a≔u₁]⟧} ≡ \t{⟦t[a≔u₂]⟧}$ to be able to conclude using
+  \theorem("poleext"). Since we know that $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ this
+  follows from \theorem("fullextterm").
+  \begin{center}
+    $\id(r_equiv)$
+  \end{center}
+
 \item In the case of the ($Ax_{⊂}$) rule, the proof is immediate. Indeed,
   it is always true that $t ⊩ A$ implies $t ⊩ A$.
   \begin{center}
@@ -948,14 +967,15 @@ We consider the last rules used in the proof.
     $\id(r_exists_l)$
   \end{center}
 
-(* FIXME FIXME FIXME from here. *)
-\item In the case of the ($\restriction_l$) rule, we need to show that
-  $t ⊩ \f{A∧u₁≡u₂} ⊂ B$. We thus assume $\t{t} ⊩ \f{A∧u₁≡u₂}$ and show
-  $\t{t} ⊩ \f{B}$. We can assume $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ as otherwise we
-  would have $\ts{A∧u₁≡u₂} = ∅^{⊥⊥} = ∅$, which would contradicts $\t{t}
-  ⊩ \f{A∧u₁≡u₂}$. As a consequence, we have $\vs{A∧u₁≡u₂} = \vs{A}$ and
-  thus $\t{⟦t⟧} ∈ \ts{A}$. We hence apply the induction hypothesis to
-  conclude (using the fact that the $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$).
+\item In the case of the ($\restriction_l$) rule, we need to show that $t ⊩
+  \f{A∧u₁≡u₂} ⊂ B$. We thus assume that we have $\t{⟦t⟧} ∈ \ts{A∧u₁≡u₂}$ and
+  we show $\t{⟦t⟧} ∈ \ts{B}$. As in the case of the ($⇒$) rule, we know that
+  $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that we have $\t{⟦v⟧} ∈ \vs{A∧u₁≡u₂}$
+  and we can show $\t{⟦v⟧} ∈ \vs{B}$. Now, if $\v{⟦v⟧} = \v{□}$ then we can
+  conclude immediatly. Otherwise, we have $\v{⟦v⟧} ∈ \vs{A}$ and
+  $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ by definition of $\vs{A∧u₁≡u₂}$. As a consequence,
+  we can apply the induction hypothesis to obtain $\t{⟦v⟧} ∈ \vs{B}$ (using
+  the fact that the $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$).
   \begin{center}
     $\id(r_rest_l)$
   \end{center}
@@ -970,13 +990,13 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($∈_l$) rule, we need to show that $t ⊩ \f{u∈A}
-  ⊂ B$. We thus assume that we have $\t{t} ⊩ \f{u∈A}$ and show $\t{t} ∈
-  \f{B}$. By hypothesis, we have $\t{⟦v⟧} ≡ \t{⟦t⟧}$ and since our pole
-  is $({≡})$-extensional, we can use \lemma("poleext") and \theorem("main")
-  to obtain $\t{⟦v⟧} ∈ \vs{u∈A}$. For a similar reason, it is enough to
-  show $\t{⟦v⟧} ∈ \ts{B}$. As $\t{⟦v⟧} ∈ \vs{u∈A}$, we have
-  $\t{⟦v⟧} ≡ \t{⟦u⟧}$ and $\t{⟦v⟧} ∈ \vs{A}$ by definition. We can thus
-  conclude by using the induction hypothesis to get $\t{⟦v⟧} ∈ \vs{B}$.
+  ⊂ B$. We thus assume that we have $\t{t} ⊩ \f{u∈A}$ and show $\t{t} ⊩
+  \f{B}$. As in the case of the ($⇒$) rule, we know that $\t{⟦t⟧}≡\t{⟦v⟧}$
+  so we can assume that we have $\v{⟦v⟧} ∈ \vs{u∈A}$ and show $\t{⟦v⟧} ∈
+  \ts{B}$. As $\t{⟦v⟧} ∈ \vs{u∈A}$, we have $\t{⟦v⟧} ≡ \t{⟦u⟧}$ and
+  $\t{⟦v⟧} ∈ \vs{A}$ by definition. We can thus conclude by using the
+  induction hypothesis to get $\t{⟦v⟧} ∈ \vs{B}$ since we know
+  $\t{⟦t⟧} ≡ \t{⟦u⟧}$.
   \begin{center}
     $\id(r_memb_l)$
   \end{center}
