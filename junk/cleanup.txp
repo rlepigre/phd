@@ -1,0 +1,61 @@
+(* Cleanup term stuff for extensible records *)
+
+Nonetheless, there is a technical problem due to the definition of the
+semantics of product types, which has been extended to allow for extra
+record fields. To solve this problem, we will need to build a "cleanup term"
+that will be applied to a value to erase superfluous record fields throughout
+its structure. It will be important for such term to be pure (i.e. not to
+capture or restore stacks).
+\begin{def}
+Let $\v{v}$, $\v{w} ∈ Λ_ι^{∗}$ be closed values that does not contain any
+$λ$-abstractions. We will write $\v{v} ⊆ \v{w}$ if $\v{v}$ and $\v{w}$
+have the same structure, but the records of $\v{v}$ have less fields than
+the corresponding records of $\v{w}$. More formally, $({⊆})$ is defined to
+be the smallest relation such that $\v{□} ⊆ \v{□}$ and:
+\begin{itemize}
+  \item if $\v{v} ⊆ \v{w}$ then for all $k∈\bbN$ we have $\v{Ck[v]} ⊆
+        \v{Ck[w]}$,
+  \item if for all $i∈I$ we have $\v{vi} ⊆ \v{wi}$ and if $I ⊆ K$ then
+        $\v{{(li=vi)i∈I}} ⊆ \v{{(li=wi)i∈K}}$.
+\end{itemize}
+\end{def}
+
+\begin{lem}\label("cleaning")
+Let $A ∈ \cal{F}$ be a pure type. There is a closed term $t ∈ Λ^{∗}$ such
+that for every value $\v{v} ∈ \vs{A}$ there is a value $\v{v₀} ∈ \vs{A}₀$
+such that $\v{v₀} ⊆ \v{v}$ and $\p{t v ∗ π} ≻^{∗} \p{v₀ ∗ π}$ for every
+stack $π ∈ Π$. Here, $⟦\wc⟧₀$ denotes the type interpretation function that
+does not allow records to have more fields than their type require.
+\begin{proof}
+We do a proof by induction on the structure of $\v{v}$ and $\f{A}$.
+\begin{itemize}
+  \item If $\v{v} = \v{□}$ then we can take $\t{t} = \t{λx x}$ and
+    $\v{v₀} = \v{□}$.
+  \item If $\v{v} = \v{Ck[w]}$ and $\f{A} = \f{[(Ci:Ai)i∈I]}$ then it must
+    be that $k∈I$ and $\v{w} ∈ \vs{Ak}$ as otherwise this would contradict
+    $\v{v} ∈ \vs{A}$. By induction hypothesis, we have a term $\t{t₀}$ and
+    $\v{w₀} ∈ \vs{Ak}₀$ such that $\p{t₀ w ∗ π} ≻^{∗} \p{w₀ ∗ π}$ for all
+    $π ∈ Π$ and $\v{w₀} ⊆ \v{w}$. As a consequence, we can take
+    $t = \t{λx [x|Ck[y]→(λz Ck[z]) (t₀ y)]}$ and $v₀ = Ck[w₀]$.
+  \item If $\v{v} = \v{{(li = vi)i∈K}}$ and $\f{A} = \f{{(li:Ai)i∈I}}$ then
+    it must be that $I ⊆ K$ and $\v{vi} ∈ \vs{Ai}$ for all $i∈I$ as
+    otherwise this would contradict $\v{v} ∈ \vs{A}$. As a consequence,
+    for all $i∈I$ our induction hypothesis gives us a term $\t{ti}$ and
+    a value $\v{wi} ∈ \vs{Ai}₀$ such that $\v{wi} ⊆ \v{vi}$ and
+    $\p{ti vi ∗ π} ≻^{∗} \p{wi ∗ π}$ for every stack $π ∈ I$. Without loss
+    of generality we can assume that $I = \{0,⋯,n\}$. We can thus take
+    $\t{t} = \t{λx (λx₁ ⋯ λxn {(li=xi)i∈I}) (ti x.li) ⋯ (tn x.ln)}$
+    and $\v{v₀} = \v{{(li = wi)i∈I}}$.
+  \item If $\v{v} ≠ \v{□}$ and $\f{A} = \f{B∧u₁≡u₂}$ then it must be that
+    $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ as otherwise we get a contradiction. Consequently,
+    we have $\vs{A} = \vs{B}$ and we can use the term and the value given
+    by the induction hypothesis.
+  \item If $\v{v} ≠ \v{□}$ and $\f{A} = \f{u∈B}$ then it must be that
+    $\t{v} ≡ \t{⟦u⟧}$ as otherwise we get a contradiction. As a consequence,
+    we have $\v{v} ∈ \vs{A}$ and we can use the term and the value given
+    by the induction hypothesis.
+  \item (* TODO *) \todo(None)
+\end{itemize}
+\end{proof}
+\end{lem}
+
