@@ -1348,11 +1348,16 @@ Moreover, we will implicitly assume that in these constructions, the variable
 $X$ only appears positively in $A$ (i.e. it is in covariant position).
 \end{def}
 
-(*
-\o{εθ<τ(t∈A)}
-*)
-
 (* TODO *)
+
+(* \o{εθ<τ(t∈A)} *)
+
+(* FIXME semantics *)
+$$
+  \vs{μτX A} = \bigcup_{o < ⟦\o{τ}⟧} ⟦(X ↦ A)^o \{\v{□}\}⟧
+  \hspace(6.0)
+  \vs{ντX A} = \bigcap_{o < ⟦\o{τ}⟧} ⟦(X ↦ A)^o Λ_ι⟧
+$$
 
 =<
 
