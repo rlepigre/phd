@@ -1304,16 +1304,52 @@ let _ =
   bnfs
   [ ( << $(\cal{O})$ >>
     , << $τ, υ$ >>
-    , << $\o{θ} \| \o{∞} \| \o{τ+1} \| \o{εθ<τ(t∈A)} $ >>
+    , << $\o{θ} \| \o{∞} \| \o{τ+1} $ >>
     , << $θ ∈ \cal{V}_κ$ >> ) ]
 )
 \end{center}
+Our syntactic ordinals are formed using variable, the constant $\o{∞}$ and
+a successor symbol $\o{τ+1}$. Ordinal variables will be bound by our
+higher-order quantifiers in formulas and in choice operators. we extend the
+system with the following two sorting rules.
+\begin{center}
+$\axiomR{Σ ⊢ \o{∞} : κ}$
+\hspace(6.0)
+$\unaryR{Σ ⊢ \o{τ} : κ}{Σ ⊢ \o{τ+1} : κ}$
+\end{center}
+\end{def}
+Note that we do not need to include a sorting rule for ordinal variables as
+they are handled like other kinds of variables.
+
+\begin{def}
+We denote $⟦\o{∞}⟧$ the set of all the ordinals smaller or equal to the
+cardinal of the set $⟦ο⟧$. This ordinal will thus be big enough to ensure
+the convergence of all fixpoints in the semantics. We will use the notation
+$⟦\cal{O}⟧$ for the ordinal $⟦\o{∞}⟧+ω$.
+\end{def}
+
+We will now extend the syntax of our types with two constructors denoting
+the least or greatest fixpoint of a parametric type. Intuitively, these
+types will allow us to construct inductive and coinductive types. As we
+are using sized types, our fixpoint constructors will have the peculiarity
+of carrying an ordinal. In particular, a fixpoint carrying the ordinal
+$\o{∞}$ will correspond to usual (not sized) types.
+\begin{def}
+We extend the syntax of formulas $\cal{F}$ with a least fixpoint constructor
+$\f{μτX A}$ and a greatest fixpoint constructor $\f{ντX A}$. Both of these
+constructors carry an ordinal. Note that we need to extend our system with
+the following sorting rules.
+\begin{center}
+$\binaryR{Σ, X:ο ⊢ A : ο}{Σ ⊢ τ : κ}{Σ ⊢ \f{μτX A} : ο}$
+\hspace(6.0)
+$\binaryR{Σ, X:ο ⊢ A : ο}{Σ ⊢ τ : κ}{Σ ⊢ \f{ντX A} : ο}$
+\end{center}
+Moreover, we will implicitly assume that in these constructions, the variable
+$X$ only appears positively in $A$ (i.e. it is in covariant position).
 \end{def}
 
 (*
-\begin{def}
-We denote $∞ = Card(⟦ο⟧)$ $\cal{O} = Card(⟦ο⟧) + ω$ 
-\end{def}
+\o{εθ<τ(t∈A)}
 *)
 
 (* TODO *)

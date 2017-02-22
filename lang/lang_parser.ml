@@ -176,8 +176,8 @@ and        form prio =
                                               when prio = FAtom -> FDVPd(x,a,b)
   | "Σ_(" x:tvari "∈" a:(form FFull) ")" b:(form FFull)
                                               when prio = FAtom -> FDTPd(x,a,b)
-  | "μ" x:ovari a:(form FFull)                when prio = FAtom -> FLFix(x,a)
-  | "ν" x:ovari a:(form FFull)                when prio = FAtom -> FGFix(x,a)
+  | "μ" o:ordi? x:ovari a:(form FFull)        when prio = FAtom -> FLFix(x,o,a)
+  | "ν" o:ordi? x:ovari a:(form FFull)        when prio = FAtom -> FGFix(x,o,a)
   | t:(term TAppl) "∈" a:(form FAtom)$        when prio = FAtom -> FMemb(t,a)
   | a:(form FAtom) e:{"∧" e:equa}?$           when prio = FInte ->
       (match e with None -> a | Some e -> FRest(Some a,e))

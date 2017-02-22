@@ -224,8 +224,22 @@ and f2m : form -> Maths.math list = function
                       let n = Maths.node (Maths.glyphs "Σ") in
                       let n = [Maths.Ordinary {n with subscript_right}] in
                       n @ (f2m b)
-  | FLFix(x,a)     -> (str "μ") @ (vari2m x) @ (str ".") @ (f2m a)
-  | FGFix(x,a)     -> (str "ν") @ (vari2m x) @ (str ".") @ (f2m a)
+  | FLFix(x,o,a)   -> let subscript_right =
+                        match o with
+                        | None    -> []
+                        | Some(o) -> o2m o
+                      in
+                      let n = Maths.node (Maths.glyphs "μ") in
+                      let n = [Maths.Ordinary {n with subscript_right}] in
+                      n @ (vari2m x) @ (str ".") @ (f2m a)
+  | FGFix(x,o,a)   -> let subscript_right =
+                        match o with
+                        | None    -> []
+                        | Some(o) -> o2m o
+                      in
+                      let n = Maths.node (Maths.glyphs "ν") in
+                      let n = [Maths.Ordinary {n with subscript_right}] in
+                      n @ (vari2m x) @ (str ".") @ (f2m a)
   | FMemb(t,a)     -> bin' 3 "∈" (t2m t, f2m a)
   | FRest(a,(t,u)) -> let eq = bin' 2 "≡" (t2m t, t2m u) in
                       begin
