@@ -32,6 +32,8 @@ let parser fmeta = (vari ["A"; "B"; "C"])
 let parser fvari = (vari ["χ"])
 let parser ovari = (vari ["X"; "Y"; "Z"])
 let parser stvar = (vari ["s"; "ο"])
+let parser vordi= (vari ["θ"; "η"])
+let parser ometa = (vari ["τ"; "υ"])
 
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
@@ -141,6 +143,13 @@ and        proc prio =
   | '(' p:(proc PFull) ')'                    when prio = PAtom -> PGrou(p)
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
+and        ordi =
+  | x:vordi     -> OVari(x)
+  | x:ometa     -> OMeta(x)
+  | "∞"         -> OInfi
+  | o:ordi "+1" -> OSucc(o)
+  | "ε" x:vordi '<' o:ordi '(' t:(term TAppl) "∈" a:(form FFull) ')'
+                -> OWitn(x,o,t,a)
 and        form prio =
   | t:(term TAppl) u:{"≡" u:(term TAppl)}?$   when prio = FAtom ->
       (match u with None -> FTerm(t) | Some u -> FRest(None,(t,u)))
@@ -201,3 +210,4 @@ let parse_stac = parse "stack"        stac
 let parse_proc = parse "process"      proc
 let parse_form = parse "formula"      form
 let parse_subs = parse "substitution" subs
+let parse_ordi = parse "ordinal"      ordi

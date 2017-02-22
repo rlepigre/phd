@@ -51,6 +51,12 @@ and  stac =
   | SASub of subs * vari               (* ρ(α)   *)
   | SWitn of vari * form * term * form
   | SSema of stac                      (* ⟦π⟧    *)
+and  ordi =
+  | OVari of vari                      (* θ, η   *)
+  | OMeta of vari                      (* τ, υ   *)
+  | OInfi                              (* ∞      *)
+  | OSucc of ordi                      (* o+1    *)
+  | OWitn of vari * ordi * term * form (* εθ<τ(t∈A) *)
 and  proc =
   | PMeta of vari                      (* p, q   *)
   | PProc of term * stac               (* t ∗ π  *)

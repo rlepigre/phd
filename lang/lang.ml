@@ -19,5 +19,6 @@ let c : string -> maths = with_cache (fun s -> c2m (parse_ctxt s))
 let s : string -> maths = with_cache (fun s -> s2m (parse_stac s))
 let p : string -> maths = with_cache (fun s -> p2m (parse_proc s))
 let f : string -> maths = with_cache (fun s -> f2m (parse_form s))
+let o : string -> maths = with_cache (fun s -> o2m (parse_ordi s))
 
 let subs : string -> maths = with_cache (fun s -> subs2m (parse_subs s))

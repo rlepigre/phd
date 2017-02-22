@@ -4,7 +4,8 @@ type entry =
   ; authors : string
   ; title   : string
   ; notes   : string
-  ; year    : string }
+  ; year    : string
+  ; url     : string }
 
 type bibliography =
   (string * (entry * bool ref)) list

@@ -4,7 +4,8 @@ type entry =
   ; authors : string   (* Authors. *)
   ; title   : string   (* Title. *)
   ; notes   : string   (* Additional data (e.g. publisher). *)
-  ; year    : string } (* Year. *)
+  ; year    : string   (* Year. *)
+  ; url     : string } (* URL (usually DOI). *)
 
 (* Abstract bibliography type. *)
 type biblio
