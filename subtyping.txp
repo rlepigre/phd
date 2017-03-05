@@ -1353,11 +1353,15 @@ $X$ only appears positively in $A$ (i.e. it is in covariant position).
 (* \o{εθ<τ(t∈A)} *)
 
 (* FIXME semantics *)
+\begin{def}
+In the semantics, sized inductive and coinductive types are interpreted
+respectively as pre-fixpoints and post-fixpoints.
 $$
   \vs{μτX A} = \bigcup_{o < ⟦\o{τ}⟧} ⟦(X ↦ A)^o \{\v{□}\}⟧
   \hspace(6.0)
   \vs{ντX A} = \bigcap_{o < ⟦\o{τ}⟧} ⟦(X ↦ A)^o Λ_ι⟧
 $$
+\end{def}
 
 =<
 

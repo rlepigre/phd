@@ -13,9 +13,10 @@ let bob  = ("Robert Harper", "Carnegie Mellon University, United States")
 let usmb = "Université Savoie Mont Blanc"
 let cover_data =
   { author    = "Rodolphe Lepigre"
-  ; title     = [ "Restriction Sémantique par Valeurs" (* FIXME *)
+  ; title     = [ "Sémantique et Implantation"
+                ; "d'une extension de ML"
                 ; "pour la Preuve de Programmes" ]
-  ; def_date  = "XX XXXXX 2017" (* FIXME *)
+  ; def_date  = "XX juillet 2017" (* FIXME *)
   ; lab       = "LAMA, " ^ usmb
   ; advisor   = ("Christophe Raffalli", usmb)
   ; coadvisor = Some ("Pierre Hyvernat", usmb)
@@ -25,6 +26,16 @@ let cover_data =
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
+
+(*
+
+Idées de titre.
+
+Restriction Sémantique par Valeurs pour la Preuve de Programmes
+
+Sémantique et Implantation d'une extension de ML pour la preuve de programme
+
+*)
 
 (* TODO
 (* Remerciements *)

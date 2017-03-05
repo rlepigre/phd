@@ -1,32 +1,68 @@
+\Include{Epigraph}
 \Include{Macros}
+
 \Caml(
+  open Diagrams
   open ProofTree
   open PMLVerbatim
   open Lang
 )
 
-=> Introduction \label("intro")
+=> From Programming to Program Proving \label("intro")
 
-Program proving is inherently difficult and time consuming. This is probably
-the reason why so few programmers care to show the correctness of their
-programs formally.
+\linesBefore(6)
+\begin{epigraph}
+  //[In 1949,] as soon as we started programming, we found to our surprise
+  that it wasn't as easy to get programs right as we had thought. Debugging
+  had to be discovered. I can remember the exact instant when I realized that
+  a large part of my life from then on was going to be spent in finding
+  mistakes in my own programs.//
+
+	\blackline()
+
+  \begin{raggedRight}
+    Maurice Wilkes (1913-2010)
+  \end{raggedRight}
+  \linesAfter(6)
+\end{epigraph}
 (* *)
+Since the apparition of the very first computers, every generation of
+programmers has been faced with the issue of code reliability. Statically
+typed languages such as Java, Haskell, OCaml, Rust or Scala have addressed
+the problem by running syntactic checks at compile time to detect incorrect
+programs. Their strongly typed discipline is especially useful when several
+incompatible data objects have to be manipulated together. For example, a
+program computing an integer addition on a boolean (or function) argument
+is immediately rejected. In recent years, the benefit of static typing has
+even begun to be recognised in the dynamically typed languages community.
+Static type checkers are now available for languages like Javascript
+\mcite(["Microsoft2012";"Facebook2014"]) or Python \cite("Lehtosalo2014").
+
+In the last thirty years, significant progress has been made in the
+application of type theory to computer languages. The Curry-Howard
+correspondence, which links the type systems of functional programming
+languages to mathematical logic, has been explored in two main directions.
+On the one hand, proof assistants like Coq or Agda are based on very
+expressive logics. To prove their consistency, the underlying programming
+languages need to be restricted to contain only programs that can be
+proved terminating. As a result, they forbid the most general forms of
+recursion. On the other hand, functional programming languages like OCaml
+or Haskell are well-suited for programming, as they impose no restriction
+on recursion. However, they are based on inconsistent logics, which means
+that they cannot be used for proving mathematical formulas.
+
 The aim of this thesis work is to provide a uniform environment in which
 programs can be designed, specified and proved. The idea is to combine a
-full-fledged programming language with an enriched type-system allowing
-the specification of computational behaviours.
-(* *)
-Using such a tool, a programmer can adjust the level of guarantees to his
-needs, by using more or less fine-grained specifications. The system can thus
-be used as ML for type-safe general programming, or as a proof assistant
-for proving properties of ML programs.
-(* *)
-In the system, there is no syntactic distinction between programs and proofs.
-Consequently, programming and proving features can be used both in proofs and
-in programs. For instance, proofs can be composed as (and with) programs to
-form proof tactics. In programs, unreachable branches can be eliminated using
-proof mechanisms.
-(* *)
+full-fledged, ML-like programming language with an enriched type-system
+allowing the specification of computational behaviours. With such a tool,
+a programmer can adjust the level of guarantees to his needs, by giving
+more or less fine-grained specifications. The system can thus be used as
+ML for type-safe general programming, or as a proof assistant for proving
+properties of ML programs. In the system, there is no syntactic distinction
+between programs and proofs. Consequently, programming and proving features
+can be used both in proofs and in programs. For instance, proofs can be
+composed with programs for them to transport their own properties. In
+programs, unreachable branches can be eliminated thanks to proof mechanisms.
 The uniformity of the framework implies that programs can be incrementally
 refined to obtain more guarantees.
 
@@ -35,22 +71,22 @@ refined to obtain more guarantees.
 In this thesis, our first goal is the design of a new type system for a
 statically typed functional programming language. We choose to consider a
 call-by-value language similar to OCaml or SML, as they have proved to be
-higly practical and efficient. In particular, our language provides
+highly practical and efficient. In particular, our language provides
 polymorphic variants \cite("Garrigue1998") and SML style records, which
 are convenient for encoding datatypes. As an example, the type of lists can
 be defined and used as follows in our language.
-### PML
-type rec List(A) = [ Nil | Cons of { hd : A ; tl : List(A) } ]
+### PML "examples/list.pml"
+type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
-val rec exists : ∀A (A ⇒ Bool) ⇒ List(A) ⇒ Bool = fun pred l →
-  match l with
-  | Nil    → Fls
-  | Cons c → if pred c.hd then Tru else exists pred c.tl
+val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
+  case l of
+  | Nil[_]  → false
+  | Cons[c] → if pred c.hd then true else (exists pred c.tl)
 
-val rec rev_append : ∀A List(A) ⇒ List(A) ⇒ List(A) = fun la lb →
-  match la with
-  | Nil    → lb
-  | Cons c → rev_concat c.tl (Cons {hd = c.hd ; tl = lb})
+val rec rev_append : ∀a, list<a> ⇒ list<a> ⇒ list<a> = fun l1 l2 →
+  case l1 of
+  | Nil[_]  → l2
+  | Cons[c] → rev_append c.tl Cons[{hd = c.hd; tl = l2}]
 ###
 
 Like in OCaml or SML, polymorphism is provided to allow more generic
@@ -60,7 +96,7 @@ can be applied to lists containing elements of an arbitrary type.
 In general, ML-like languages only allow a limited form of polymorphism
 on let-bindings. In these systems, generalisation can only happen on
 expressions of the form ##let x = t in u##. For example, the function
-### PML
+### OCaml
 let silly_ocaml : ('a → 'a) → unit → unit option =
   fun f u → f (Some (f u))
 ###
@@ -68,43 +104,12 @@ is rejected by the OCaml type checker. In our system, polymorphism is not
 limited: universal quantification is allowed anywhere in types. As a
 consequence, our type system has the full power of Jean-Yves Girard and John
 Reynold's System F \mcite(["Girard1972"; "Reynolds1974"]). For example, the
-equivalent of
-##silly_ocaml##
-### PML
-val silly : (∀A A → A) → {} → Option({}) =
-  fun f u → f (Some (f u))
+equivalent of ##silly_ocaml##
+### PML "examples/silly.pml"
+val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
+  fun f u → f Some[f u]
 ###
 is accepted by our type-checker.
-
-Our language provides a module system encoded using records, and thus
-preserving the minimality of our language. The values contained in a module
-can be accessed using projection. They can also be made accessible by
-//opening// the record, extending the current scope with its fields.
-Our system also allows type abstractions encoded using existential types.
-For instance, the following type definition corresponds to a module
-signature for sets with elements of type ##E##.
-### PML
-type Set(E) = ∃S { empty : S
-                 ; add   : E ⇒ S ⇒ S
-                 ; mem   : E ⇒ S ⇒ Bool
-                 ; union : S ⇒ S ⇒ S }
-###
-Using such an encoding for modules, functors correspond to simple functions.
-For example, we can implement a functor producing a ##Set## module using
-lists.
-### PML
-type Eq(E) = { equal : E ⇒ E ⇒ Bool }
-
-val makeSet : ∀E Eq(E) ⇒ Set(E) = ∀E fun o →
-  { empty : List(E)              = Nil
-  ; add   : E ⇒ List(E)         = fun e l → Cons {hd = e ; tl = l}
-  ; mem   : E ⇒ List(E) ⇒ Bool = fun e → exists (o.equal e)
-  ; union : List(E) ⇒ List(E) ⇒ List(E) = rev_append }
-###
-A module of type ##Set(E)## can be obtained by providing ##makeSet## with
-an equality function on the type ##E##. The functions contained in the
-module can then be accessed in the usual way with dot projection. The
-abstract type ##S## can be refered to similarly.
 
 The languages of the ML family generally allow operations generating
 side-effects like references (i.e. mutable variables). Our system provides

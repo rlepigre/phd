@@ -379,6 +379,27 @@ let biblio =
   ; year    = "2008"
   ; url     = "http://dx.doi.org/10.2168/LMCS-4(2:3)2008" };
 
+  { key     = "Microsoft2012"
+  ; authors = "Microsoft"
+  ; title   = "TypeScript - Javascript that scales"
+  ; notes   = "Open source project"
+  ; year    = "2012"
+  ; url     = "https://www.typescriptlang.org" };
+
+  { key     = "Facebook2014"
+  ; authors = "Facebook Inc."
+  ; title   = "Flow - A static type checker for Javascript"
+  ; notes   = "Open source project"
+  ; year    = "2012"
+  ; url     = "https://flowtype.org/" };
+
+  { key     = "Lehtosalo2014"
+  ; authors = "Jukka Lehtosalo"
+  ; title   = "mypy - Optional static typing for Python"
+  ; notes   = "Open source project"
+  ; year    = "2014"
+  ; url     = "http://mypy-lang.org" };
+
   ]
 
 let init () =

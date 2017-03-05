@@ -6,6 +6,7 @@ SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
 manuscrit.pdf: $(SRC)
 	patoline --format FormatManuscrit $(FLAG) manuscrit.txp
+	pml2 examples/*.pml
 
 manuscrit.ps: manuscrit.pdf
 	pdftops $^
