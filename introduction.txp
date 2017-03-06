@@ -51,30 +51,29 @@ or Haskell are well-suited for programming, as they impose no restriction
 on recursion. However, they are based on inconsistent logics, which means
 that they cannot be used for proving mathematical formulas.
 
-The aim of this thesis work is to provide a uniform environment in which
+The aim of this work is to provide a uniform environment in which
 programs can be designed, specified and proved. The idea is to combine a
 full-fledged, ML-like programming language with an enriched type-system
-allowing the specification of computational behaviours. With such a tool,
-a programmer can adjust the level of guarantees to his needs, by giving
-more or less fine-grained specifications. The system can thus be used as
-ML for type-safe general programming, or as a proof assistant for proving
-properties of ML programs. In the system, there is no syntactic distinction
-between programs and proofs. Consequently, programming and proving features
-can be used both in proofs and in programs. For instance, proofs can be
-composed with programs for them to transport their own properties. In
-programs, unreachable branches can be eliminated thanks to proof mechanisms.
-The uniformity of the framework implies that programs can be incrementally
-refined to obtain more guarantees.
+allowing the specification of computational behaviours. The system can
+thus be used as ML for type-safe general programming, or as a proof
+assistant for proving properties of ML programs. The uniformity of the
+framework implies that programs can be incrementally refined to obtain
+more guarantees. In particular, there is no syntactic distinction
+between programs and proofs in the system. This means that programming
+and proving features can be mixed when constructing proofs or programs.
+For instance, proof can be composed with programs for them to transport
+properties (e.g. addition carrying its commutativity proof). In programs,
+proof mechanisms can also be used to eliminate unreachable code.
 
-=> ML-style general programming
+=> A programming language first
 
-In this thesis, our first goal is the design of a new type system for a
-statically typed functional programming language. We choose to consider a
-call-by-value language similar to OCaml or SML, as they have proved to be
-highly practical and efficient. In particular, our language provides
-polymorphic variants \cite("Garrigue1998") and SML style records, which
-are convenient for encoding datatypes. As an example, the type of lists can
-be defined and used as follows in our language.
+In this thesis, our first goal is to design a type system for a practical,
+functional programming language. Out of the many possible technical choices,
+we decided to consider a call-by-value language similar to OCaml or SML, as
+they have proved to be highly practical and efficient. Our language provides
+polymorphic variants \cite("Garrigue1998") and SML style records, which are
+convenient for encoding data types. As an example, the type of lists can be
+defined and used as follows.
 ### PML "examples/list.pml"
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
@@ -88,33 +87,39 @@ val rec rev_append : ∀a, list<a> ⇒ list<a> ⇒ list<a> = fun l1 l2 →
   | Nil[_]  → l2
   | Cons[c] → rev_append c.tl Cons[{hd = c.hd; tl = l2}]
 ###
+The ##exists## function takes as input a predicate and a list, and it
+returns a boolean indicating whether there is an element satisfying the
+predicate in the list. The ##rev_append## function takes as input two
+lists ##l1## and ##l2##, and it appends ##l2## to the reversal of ##l1##.
+Note that these two functions are polymorphic, they can hence be applied
+to lists containing elements of an arbitrary type. In our syntax for
+types, polymorphism is materialised using a universally quantified type
+variable.
 
-Like in OCaml or SML, polymorphism is provided to allow more generic
-programs. For instance, the functions ##exists## and ##rev_append##
-can be applied to lists containing elements of an arbitrary type.
-(* *)
-In general, ML-like languages only allow a limited form of polymorphism
-on let-bindings. In these systems, generalisation can only happen on
-expressions of the form ##let x = t in u##. For example, the function
+Polymorphism is an important feature as it allows for more generic
+programs. In general, ML-like languages only allow a limited form of
+polymorphism on let-bindings. In these systems, generalisation can only
+happen on expressions of the form ##let x = t in u##. As a consequence,
+the following function is rejected by the OCaml type checker.
 ### OCaml
 let silly_ocaml : ('a → 'a) → unit → unit option =
   fun f u → f (Some (f u))
 ###
-is rejected by the OCaml type checker. In our system, polymorphism is not
-limited: universal quantification is allowed anywhere in types. As a
-consequence, our type system has the full power of Jean-Yves Girard and John
-Reynold's System F \mcite(["Girard1972"; "Reynolds1974"]). For example, the
-equivalent of ##silly_ocaml##
+In our system, polymorphism is not limited: universal quantification is
+allowed anywhere in types. As a consequence, our system has the full
+power of Jean-Yves Girard and John Reynold's System F \mcite(["Girard1972"
+; "Reynolds1974"]). For example, the equivalent of ##silly_ocaml## is
+accepted by our type-checker.
 ### PML "examples/silly.pml"
 val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
   fun f u → f Some[f u]
 ###
-is accepted by our type-checker.
 
 The languages of the ML family generally allow operations generating
-side-effects like references (i.e. mutable variables). Our system provides
-another kind of operations generating side-effects: control operators. As
-demonstrated by Timothy G. Griffin \cite("Griffin1990"), control operators
+side-effects, for example references (i.e. mutable variables). Our system
+provides yet another kind of operations generating side-effects: control
+operators. As demonstrated by Timothy G. Griffin \cite("Griffin1990"),
+control operators
 like Lisp's //call/cc// can be used to give a computational interpretation
 to classical logic. On the programming side, they can be used to encode an
 exception mechanism. For example, the following function can be used to
