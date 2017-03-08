@@ -28,7 +28,7 @@ let two_cols ls =
   zip c1 c2 []
 
 let _ =
-  let pnum i = if i < 3 then "" else string_of_int i in
+  let pnum i = if i < 5 then "" else string_of_int i in
   DefaultFormat.sprint_page_number := pnum
 
 module type Env =
@@ -447,7 +447,7 @@ module PMLVerbatim : sig
       ; "let" ; "in" ; "rec" ; "match" ; "case" ; "with" ; "of"
       ; "save" ; "restore" ]
 
-    let separators = ["("; ")"]
+    let separators = ["("; ")"; "["; "]"]
 
     let symbols  =
       let simple_verb : string -> string * content =
@@ -456,6 +456,14 @@ module PMLVerbatim : sig
       let scissors =
         bB (fun env -> [Drawing (scissors_drawing env)])
       in
+      let langle =
+        let s = [Maths.Ordinary (Maths.node (Maths.glyphs "⟨"))] in
+        bB (fun env -> Maths.draw [env] s)
+      in
+      let rangle =
+        let s = [Maths.Ordinary (Maths.node (Maths.glyphs "⟩"))] in
+        bB (fun env -> Maths.draw [env] s)
+      in
       [ simple_verb "∀"
       ; simple_verb "→"
       ; simple_verb "∃"
@@ -463,6 +471,9 @@ module PMLVerbatim : sig
       ; simple_verb "⇒"
       ; simple_verb "μ"
       ; simple_verb "ν"
+      ; simple_verb "ι"
+      ; ("<" , langle)
+      ; (">" , rangle)
       ; ("8<", scissors)
       ; ("✂" , scissors) ]
 
@@ -471,7 +482,13 @@ module PMLVerbatim : sig
       lines_to_file lines fn;
       let params = {keywords ; separators ; symbols} in
       let build_word = handle_word params in
-      let build_line l = hspace pad @ handle_spaces params build_word l in
+      let build_line l =
+        hspace pad @
+        if String.length l > 2 && l.[0] = '/' && l.[1] = '/' then
+          color Color.grey [tT l]
+        else
+          handle_spaces params build_word l
+      in
       line_per_line D.structure build_line lines
   
     let verbatim =

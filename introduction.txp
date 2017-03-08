@@ -63,9 +63,9 @@ between programs and proofs in the system. This means that programming
 and proving features can be mixed when constructing proofs or programs.
 For instance, proof can be composed with programs for them to transport
 properties (e.g. addition carrying its commutativity proof). In programs,
-proof mechanisms can also be used to eliminate unreachable code.
+proof mechanisms can be used to eliminate unreachable code.
 
-=> A programming language first
+=> Writing functional programs
 
 In this thesis, our first goal is to design a type system for a practical,
 functional programming language. Out of the many possible technical choices,
@@ -80,7 +80,7 @@ type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
   case l of
   | Nil[_]  → false
-  | Cons[c] → if pred c.hd then true else (exists pred c.tl)
+  | Cons[c] → if pred c.hd then true else exists pred c.tl
 
 val rec rev_append : ∀a, list<a> ⇒ list<a> ⇒ list<a> = fun l1 l2 →
   case l1 of
@@ -93,111 +93,130 @@ predicate in the list. The ##rev_append## function takes as input two
 lists ##l1## and ##l2##, and it appends ##l2## to the reversal of ##l1##.
 Note that these two functions are polymorphic, they can hence be applied
 to lists containing elements of an arbitrary type. In our syntax for
-types, polymorphism is materialised using a universally quantified type
-variable.
+types, polymorphism is explicitly materialised using a universally
+quantified type variable.
 
 Polymorphism is an important feature as it allows for more generic
 programs. In general, ML-like languages only allow a limited form of
 polymorphism on let-bindings. In these systems, generalisation can only
-happen on expressions of the form ##let x = t in u##. As a consequence,
+happen on expressions of the form "##let x = t in u##". As a consequence,
 the following function is rejected by the OCaml type checker.
 ### OCaml
 let silly_ocaml : ('a → 'a) → unit → unit option =
   fun f u → f (Some (f u))
 ###
 In our system, polymorphism is not limited: universal quantification is
-allowed anywhere in types. As a consequence, our system has the full
-power of Jean-Yves Girard and John Reynold's System F \mcite(["Girard1972"
-; "Reynolds1974"]). For example, the equivalent of ##silly_ocaml## is
-accepted by our type-checker.
+allowed anywhere in types. Our system has thus the full power of System F
+\mcite(["Girard1972" ; "Reynolds1974"]). In particular, the equivalent of
+##silly_ocaml## is accepted by our type-checker.
 ### PML "examples/silly.pml"
 val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
   fun f u → f Some[f u]
 ###
+In fact, System F polymorphism is not the only form of quantification that
+is supported in our system. It also provide existential types, which are an
+essential first step toward the encoding of a module system supporting a
+notion of abstract interface. Moreover, our system is based on higher-order
+logic, which means that types are not the only objects that can be quantified
+over in types. In particular, we will see that quantifiers can range over
+terms in the next section.
 
-The languages of the ML family generally allow operations generating
-side-effects, for example references (i.e. mutable variables). Our system
-provides yet another kind of operations generating side-effects: control
-operators. As demonstrated by Timothy G. Griffin \cite("Griffin1990"),
-control operators
+The programming languages of the ML family generally include operations
+generating side-effects, for example references (i.e. mutable variables).
+Our system is no exception as it provides control operators. As first
+discovered by Timothy G. Griffin \cite("Griffin1990"), control operators
 like Lisp's //call/cc// can be used to give a computational interpretation
 to classical logic. On the programming side, they can be used to encode an
 exception mechanism. For example, the following function can be used to
-compute the product of a list of integers rather efficiently.
-### PML
-val rec product : List(Int) ⇒ Int = fun l → save k →
-  match l with
-  | Nil    → 1
-  | Cons c → if c.hd = 0 then restore k 0
-              else mul c.hd (product c.tl)
+compute the conjunction of a list of booleans rather efficiently.
+### PML "examples/list.pml"
+val rec conjunction : list<bool> ⇒ bool = fun l → save k →
+  case l of
+  | Nil[_]  → true
+  | Cons[c] → if c.hd then conjunction c.tl else restore k false
 ###
 Here, the continuation is saved in a variable ##k## and is restored with
-the value ##0## if the absorbing element of multiplication is found in
-the list.
+the value ##false## if the boolean ##false## is encountered in the list.
+
+Our control operators can also be used to define programs which types
+correspond to logical formulas that are only valid in classical logic.
+For instance, the type of the following programs corresponds to Pierce's
+law, the law of the excluded middle and the principle of double negation
+elimination.
+### PML "examples/classical.pml"
+val pierce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
+  fun x → save k → x (fun y → restore k y)
+
+// Disjoint sum of two types (logical disjunction)
+type either<a,b> = [InL of a ; InR of b]
+
+// Usual definition of the logical negation
+type neg<a> = a ⇒ ∀x, x
+
+val excl_mid : ∀a, {} ⇒ either<a, neg<a>> =
+  fun _ → save k → InR[fun x → [k] InL[x]]
+
+val dneg_elim : ∀a, neg<neg<a>> ⇒ a = pierce
+###
+Note that the definition of ##excl_mid## contains a dummy function
+constructor. Its presence is required for a reason related to value
+restriction (see \section("valrest")). It would not be necessary if
+##excl_mid## was not polymorphic in ##a##. Moreover, note that
+##dneg_elim## can be defined to be exactly ##pierce## thanks to
+subtyping.
 
 =<
 
 => Proofs of ML programs
 
-The system presented in this thesis is not only a programming language, but
-also a proof assistant focusing on program proving. Its proof mechanism
-relies on dependent products and equality types $t ≡ u$, where $t$ and $u$
-are (possibly untyped) terms of the language itself. Equality types are
-interpreted as $\top$ (i.e. truth) if the denoted equivalence holds, and as
-$\bot$ (i.e. falsity) otherwise.
-(* *)
-In our system, a proof is first and foremost a program. For instance, a
-pattern-matching corresponds to a case analysis in a proof, and a recursive
-call to the use of an induction hypothesis. As a consequence, we may say
-that we follow the //program as proof principle//, rather than the usual
-//proof as program principle//. In particular, proofs can be composed as
-(and with) programs to form proof tactics.
+The system presented in this thesis is not only a programming language,
+but also a proof assistant focusing on program proving. Its proof mechanism
+relies on equality types of the form ##t ≡ u##, where ##t## and ##u## are
+arbitrary (possibly untyped) terms of the language itself. Such an equality
+types is inhabited by ##{}## (i.e. the record with no fields) if the denoted
+equivalence is true, and it is empty otherwise. In our system, a proof is
+first and foremost a program. For instance, a pattern-matching corresponds
+to a case analysis in a proof, and a recursive call to the use of an
+induction hypothesis.
 
-We will now consider several proof examples involving unary natural numbers.
-Their type is defined bellow together with the corresponding addition
-function.
-### PML
-type rec Nat = [Zero | Succ of Nat]
+In this section, we will consider simple proof examples on unary natural
+numbers (a.k.a. Peano numbers). Their type is given bellow, together with
+the corresponding addition function defined using recursion on its first
+argument.
+### PML "examples/nat.pml"
+type rec nat = [Zero ; Succ of nat]
 
-val rec add : Nat ⇒ Nat ⇒ Nat = fun n m →
-  match n with
-  | Zero    → m
-  | Succ nn → S (add nn m)
+val rec add : nat ⇒ nat ⇒ nat = fun n m →
+  case n of
+  | Zero[_] → m
+  | Succ[k] → Succ[add k m]
 ###
-As a first example, we are going to show that for every ##n## we have
-##add Zero n ≡ n##. To express this property, we quantifiy over program
-values to obtain ##∀n (add Zero n ≡ n)##. This statement can then be proved
-using the following program.
-(*
-      ⊢ add Zero x ≡ x
-   ---------------------- ✄
-    ⊢ ✄ : add Zero x ≡ x       x ∉ FV(·)
-   -------------------------------------- ∀i
-    ⊢ ✄ : ∀x (add Zero x ≡ x)
-*)
-### PML
-val addZeroN : ∀n (add Zero n ≡ n) = 8<
+As a first example, we will show that ##add Zero n ≡ n## for all ##n##. To
+express this property, we can use the type ##∀n:ι, add Zero[{}] n ≡ n##,
+where ##ι## can though of as the set of all the program values. This
+statement can then be proved as follows.
+### PML "examples/nat.pml"
+val addZeroN : ∀n:ι, add Zero[{}] n ≡ n = {}
 ###
-The special term ##8<## (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context, using equational reasoning.
-Our first proof is immediate since we have ##add Zero n ≡ n## by definition
-of the ##add## function.
+Here, the proof is immediate as have ##add Zero[{}] n ≡ n## by definition
+of the ##add## function. Note that this equivalence holds for all ##n##,
+whether it corresponds to an element of ##nat## or not. For instance, it
+can be used to show ##add Zero[{}] true ≡ true##.
 
-Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
+Let us now show that for every ##n## we have ##add n Zero[{}] ≡ n##. Although
 this property looks similar to the previous one, it is not possible to prove
-##∀n (add n Zero ≡ n)## since the equivalence ##add n Zero ≡ n## does not
-hold when ##n## is not a unary natural number. Indeed, the computation of
-##add n Zero## produces a runtime error in this case.
-(* *)
-As a consequence, we need to rely on a form of quantification that only
-ranges over unary natural numbers. This can be done using the dependent
-product type ##(n:Nat) ⇒ (add n Zero ≡ n)##. This property can then be
-proved using induction and case analysis.
-### PML
-let rec addNZero : (n:nat) ⇒ (add n Zero ≡ n) = fun n →
-  match n with
-  | Zero    → 8<
-  | Succ m  → let r = addNZero m in 8<
+##∀n, add n Zero[{}] ≡ n## since the equivalence ##add n Zero[{}] ≡ n## does
+not hold when ##n## is not a unary natural number. Indeed, the computation of
+##add n Zero[{}]## will produces a runtime error in this case. As a
+consequence, we need to rely on a form of quantification that only ranges
+over unary natural numbers. This can be achieved with the type
+##∀n∈nat, add n Zero[{}] ≡ n##, which corresponds to a dependent function.
+This property can then be proved using induction and case analysis.
+### PML "examples/nat.pml"
+val rec addNZero : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ih = addNZero k in {}
 ###
 In the ##Succ m## case, the induction hypothesis (i.e. ##add m Zero ≡ m##)
 is obtained by a recursive call. It is then used to conclude the proof using
@@ -206,10 +225,21 @@ as proofs need to go through a termination checker. Indeed, a looping program
 could be used to prove anything otherwise. The proofs ##addZeroN## and
 ##addNZero## are obviously terminating, and hence valid.
 
+
+(* As a consequence, we may say that we follow the
+//program as proof principle//, rather than the usual //proof as program
+principle//. In particular, proofs can be composed as (and with) programs
+to form proof tactics.
+
+The special term ##8<## (to be pronounced "scissors") can be introduced
+whenever the goal is derivable from the context, using equational reasoning.
+ *)
+
 =<
 
 => A brief history of ||ml|| and value restriction
 
+\label("valrest")
 A soundness issue related to side-effects and call-by-value evaluation
 arose in the seventies with the advent of ML. The problem stems from a
 bad interaction between side-effects and Hindley-Milner polymorphism. It was

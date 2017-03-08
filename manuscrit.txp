@@ -6,39 +6,53 @@ open FormatManuscrit.Cover
 
 let _ = Biblio.init ()
 
-let johndoe = ("IAmA Nobody", "University of Nowhere")
-let alex = ("Alexandre Miquel", "Universidad de la República, Uruguay")
-let bob  = ("Robert Harper", "Carnegie Mellon University, United States")
-
 let usmb = "Université Savoie Mont Blanc"
+
+let alexandre = ("Alexandre Miquel", "Universidad de la República, Uruguay")
+let thierry   = ("Thierry Coquand", "Göteborgs Universitet, Suède")
+
+let christophe = ("Christophe Raffalli", usmb)
+let pierre     = ("Pierre Hyvernat", usmb)
+
+let karim      = ("Karim Nour", usmb)
+let frederic   = ("Frédéric Blanqui", "Inria (Deducteam)")
+
+let title = 
+  [ "Sémantique et Implantation"
+  ; "d'une extension de ML"
+  ; "pour la Preuve de Programmes" ]
+
+
+let johndoe = ("IAmA Nobody", "University of Nowhere")
+
 let cover_data =
   { author    = "Rodolphe Lepigre"
-  ; title     = [ "Sémantique et Implantation"
-                ; "d'une extension de ML"
-                ; "pour la Preuve de Programmes" ]
+  ; title     = title
   ; def_date  = "XX juillet 2017" (* FIXME *)
   ; lab       = "LAMA, " ^ usmb
-  ; advisor   = ("Christophe Raffalli", usmb)
-  ; coadvisor = Some ("Pierre Hyvernat", usmb)
+  ; advisor   = christophe
+  ; coadvisor = Some pierre
   ; jury_pres = johndoe (* FIXME *)
-  ; reviewers = [ bob; alex; johndoe ] (* FIXME *)
-  ; examinors = [ johndoe ] } (* FIXME *)
+  ; reviewers = [ thierry ; alexandre ]
+  ; examinors = [ karim ; frederic ] }
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
-(*
+(* Titre en anglais. *)
+\begin{center}
+\size(10.0){||Semantics and Implementation||}
 
-Idées de titre.
+\size(10.0){||of an Extension of ML for||}
 
-Restriction Sémantique par Valeurs pour la Preuve de Programmes
+\size(10.0){||Proving Programs||}
 
-Sémantique et Implantation d'une extension de ML pour la preuve de programme
+\linesBefore(34)
+\size(6.0){||Rodolphe Lepigre||}
+\end{center}
 
-*)
-
-(* TODO
 (* Remerciements *)
+(* TODO
 \begin{minichap}{Remerciements}
 \Include{Remerciements}
 \end{minichap}
