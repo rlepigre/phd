@@ -163,7 +163,15 @@ constructor. Its presence is required for a reason related to value
 restriction (see \section("valrest")). It would not be necessary if
 ##excl_mid## was not polymorphic in ##a##. Moreover, note that
 ##dneg_elim## can be defined to be exactly ##pierce## thanks to
-subtyping.
+subtyping (see \chapter("subtyping")).
+
+From a computational point of view, manipulating continuations using
+control operators can be understood as cheating. For example
+##excl_mid## (or rather, ##excl_mid {}##) saves the continuation and
+immediately returns a (possibly false) proof of ##neg<a>##. Now, if
+this proof is ever applied to a proof of ##a## (which would result
+in absurdity), the program backtracks and returns the given proof of
+##a##.
 
 =<
 
@@ -173,16 +181,20 @@ The system presented in this thesis is not only a programming language,
 but also a proof assistant focusing on program proving. Its proof mechanism
 relies on equality types of the form ##t ≡ u##, where ##t## and ##u## are
 arbitrary (possibly untyped) terms of the language itself. Such an equality
-types is inhabited by ##{}## (i.e. the record with no fields) if the denoted
-equivalence is true, and it is empty otherwise. In our system, a proof is
-first and foremost a program. For instance, a pattern-matching corresponds
-to a case analysis in a proof, and a recursive call to the use of an
-induction hypothesis.
+type is inhabited by ##{}## (i.e. the record with no fields) if the denoted
+equivalence is true, and it is empty otherwise. Equivalences are managed
+using a partial decision procedure that is guided by the construction of
+programs. An equational context is maintained by the type checker to keep
+track of the equivalences that are assumed to be true during the
+construction of typing proofs. This context is extended whenever a new
+equation is learned (e.g. when a lemma is applied), and equations are
+proved by looking for contradictions (e.g. when two different variants
+are suppose equivalent).
 
-In this section, we will consider simple proof examples on unary natural
-numbers (a.k.a. Peano numbers). Their type is given bellow, together with
-the corresponding addition function defined using recursion on its first
-argument.
+To illustrate the proof mechanism, we will consider simple examples of
+proofs on unary natural number (a.k.a. Peano numbers). Their type is
+given bellow, together with the corresponding addition function defined
+using recursion on its first argument.
 ### PML "examples/nat.pml"
 type rec nat = [Zero ; Succ of nat]
 
@@ -191,8 +203,8 @@ val rec add : nat ⇒ nat ⇒ nat = fun n m →
   | Zero[_] → m
   | Succ[k] → Succ[add k m]
 ###
-As a first example, we will show that ##add Zero n ≡ n## for all ##n##. To
-express this property, we can use the type ##∀n:ι, add Zero[{}] n ≡ n##,
+As a first example, we will show that ##add Zero[{}] n ≡ n## for all ##n##.
+To express this property, we can use the type ##∀n:ι, add Zero[{}] n ≡ n##,
 where ##ι## can though of as the set of all the program values. This
 statement can then be proved as follows.
 ### PML "examples/nat.pml"
@@ -210,27 +222,49 @@ not hold when ##n## is not a unary natural number. Indeed, the computation of
 ##add n Zero[{}]## will produces a runtime error in this case. As a
 consequence, we need to rely on a form of quantification that only ranges
 over unary natural numbers. This can be achieved with the type
-##∀n∈nat, add n Zero[{}] ≡ n##, which corresponds to a dependent function.
-This property can then be proved using induction and case analysis.
+##∀n∈nat, add n Zero[{}] ≡ n##, which corresponds to a (dependent) function
+taking as input a natural number ##n## and returning a proof of
+##add n Zero[{}] ≡ n##. This property can then be proved using induction and
+case analysis as follows.
 ### PML "examples/nat.pml"
 val rec addNZero : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
   case n of
   | Zero[_] → {}
   | Succ[k] → let ih = addNZero k in {}
 ###
-In the ##Succ m## case, the induction hypothesis (i.e. ##add m Zero ≡ m##)
-is obtained by a recursive call. It is then used to conclude the proof using
+In the ##Zero[{}]## case, the proof is immediate by definition of ##add##
+since we know that we have ##add Zero[{}] Zero[{}] ≡ Zero[{}]##. In the
+##Succ[k]## case, the induction hypothesis (i.e. ##add k Zero[{}] ≡ k##) is
+obtained by a recursive call.
+(* FIXME from here. *)
+It is then used to conclude the proof using
 equational reasoning. Note that in our system, programs that are considered
 as proofs need to go through a termination checker. Indeed, a looping program
 could be used to prove anything otherwise. The proofs ##addZeroN## and
 ##addNZero## are obviously terminating, and hence valid.
 
 
-(* As a consequence, we may say that we follow the
+
+
+For instance, calling a function which result
+type includes an equivalence will correspond to using a lemma since this
+equivalence will be added to the equational context.
+
+In our system, a proof is
+first and foremost a program which termination has been established. For instance, pattern-matching corresponds
+to a case analysis in a proof, and a recursive call to the use of an
+induction hypothesis.
+
+(*
+As a consequence, we may say that we follow the
 //program as proof principle//, rather than the usual //proof as program
 principle//. In particular, proofs can be composed as (and with) programs
 to form proof tactics.
+*)
 
+
+
+(*
 The special term ##8<## (to be pronounced "scissors") can be introduced
 whenever the goal is derivable from the context, using equational reasoning.
  *)
@@ -455,13 +489,6 @@ integers.
 (* TODO *)
 
 =<
-
-=> Typing algorithm and undecidability
-
-... (* TODO *)
-
-=<
-
 
 => Main contributions
 
