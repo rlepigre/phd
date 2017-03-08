@@ -482,12 +482,14 @@ module PMLVerbatim : sig
       let open Verbatim in
       lines_to_file lines fn;
       let params = {keywords ; separators ; symbols} in
-      let build_word = handle_word params in
+      let params' = {keywords=[] ; separators ; symbols} in
       let build_line l =
         hspace pad @
         if String.length l > 2 && l.[0] = '/' && l.[1] = '/' then
-          color Color.grey [tT l]
+          let build_word = handle_word params' in
+          color Color.grey (handle_spaces params' build_word l)
         else
+          let build_word = handle_word params in
           handle_spaces params build_word l
       in
       line_per_line D.structure build_line lines

@@ -208,7 +208,7 @@ To express this property, we can use the type ##∀n:ι, add Zero[{}] n ≡ n##,
 where ##ι## can though of as the set of all the program values. This
 statement can then be proved as follows.
 ### PML "examples/nat.pml"
-val addZeroN : ∀n:ι, add Zero[{}] n ≡ n = {}
+val add_z_n : ∀n:ι, add Zero[{}] n ≡ n = {}
 ###
 Here, the proof is immediate as have ##add Zero[{}] n ≡ n## by definition
 of the ##add## function. Note that this equivalence holds for all ##n##,
@@ -216,10 +216,13 @@ whether it corresponds to an element of ##nat## or not. For instance, it
 can be used to show ##add Zero[{}] true ≡ true##.
 
 Let us now show that for every ##n## we have ##add n Zero[{}] ≡ n##. Although
-this property looks similar to the previous one, it is not possible to prove
-##∀n, add n Zero[{}] ≡ n## since the equivalence ##add n Zero[{}] ≡ n## does
-not hold when ##n## is not a unary natural number. Indeed, the computation of
-##add n Zero[{}]## will produces a runtime error in this case. As a
+this property looks similar to ##add_z_n##, the following proof is invalid.
+### PML "examples/nat.pml"
+// val add_n_z : ∀n:ι, add n Zero[{}] ≡ n = {}
+###
+Indeed, the equivalence ##add n Zero[{}] ≡ n## does not hold when ##n##
+is not a unary natural number. In this case, the computation of
+##add n Zero[{}]## will produces a runtime error. As a
 consequence, we need to rely on a form of quantification that only ranges
 over unary natural numbers. This can be achieved with the type
 ##∀n∈nat, add n Zero[{}] ≡ n##, which corresponds to a (dependent) function
@@ -227,25 +230,49 @@ taking as input a natural number ##n## and returning a proof of
 ##add n Zero[{}] ≡ n##. This property can then be proved using induction and
 case analysis as follows.
 ### PML "examples/nat.pml"
-val rec addNZero : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
+val rec add_n_z : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
   case n of
   | Zero[_] → {}
-  | Succ[k] → let ih = addNZero k in {}
+  | Succ[k] → let ih = add_n_z k in {}
 ###
-In the ##Zero[{}]## case, the proof is immediate by definition of ##add##
-since we know that we have ##add Zero[{}] Zero[{}] ≡ Zero[{}]##. In the
-##Succ[k]## case, the induction hypothesis (i.e. ##add k Zero[{}] ≡ k##) is
-obtained by a recursive call.
-(* FIXME from here. *)
-It is then used to conclude the proof using
-equational reasoning. Note that in our system, programs that are considered
-as proofs need to go through a termination checker. Indeed, a looping program
-could be used to prove anything otherwise. The proofs ##addZeroN## and
-##addNZero## are obviously terminating, and hence valid.
+In the case where ##n## is ##Zero[{}]## we need to prove
+##add Zero[{}] Zero[{}]] ≡ Zero[{}]##, which is immediate by definition of
+the ##add## function. In the case where ##n## is ##Succ[k]## we need to show
+##add Succ[k] Zero[{}] ≡ Succ[k]##. By definition of ##add##, this can be
+reduced to ##Succ[add k Zero[{}]] ≡ Succ[k]##. We can then conclude using
+the induction hypothesis (i.e. ##add_n_z k##) with which we learn
+##add k Zero[{}] ≡ k##.
+
+It is important to note that, in our system, a program that is considered
+as a proof needs to go though a termination checker. Indeed, a looping
+program could be used to prove anything otherwise. For example, the following
+proof is rejected.
+### PML "examples/nat.pml"
+// val rec add_n_z_loop : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
+//   let ih = add_n_z_loop n in {}
+###
+It is however easy to see that ##add_z_n## and ##add_n_z## are terminating,
+and hence valid. In the following, we will always implicitly consider that
+the programs considered as proofs have been proved terminating.
 
 
+### PML "examples/nat.pml"
+val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ind_hyp = add_n_s k m in {}
+###
+
+### PML "examples/nat.pml"
+val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
+  case n of
+  | Zero[_] → let lem = add_n_z m in {}
+  | Succ[k] → let ih  = add_comm k m in
+               let lem = add_n_s m k in {}
+###
 
 
+(*
 For instance, calling a function which result
 type includes an equivalence will correspond to using a lemma since this
 equivalence will be added to the equational context.
@@ -255,16 +282,11 @@ first and foremost a program which termination has been established. For instanc
 to a case analysis in a proof, and a recursive call to the use of an
 induction hypothesis.
 
-(*
 As a consequence, we may say that we follow the
 //program as proof principle//, rather than the usual //proof as program
 principle//. In particular, proofs can be composed as (and with) programs
 to form proof tactics.
-*)
 
-
-
-(*
 The special term ##8<## (to be pronounced "scissors") can be introduced
 whenever the goal is derivable from the context, using equational reasoning.
  *)
@@ -413,7 +435,7 @@ problem related to polymorphism.
 
 With value restriction, the expressivity of our dependent products
 is considerably weakened. In particular, it forbids the application of
-##addNZero## to ##add Zero Zero## to obtain a proof of
+##add_n_zero## to ##add Zero Zero## to obtain a proof of
 ##add (add Zero Zero) Zero ≡ add Zero Zero##. Indeed, the term
 ##add Zero Zero## is not a value. As a consequence, value restriction
 breaks the modularity of our proof system, as it relies heavily on dependent
