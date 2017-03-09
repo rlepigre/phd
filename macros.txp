@@ -506,7 +506,7 @@ module PMLVerbatim : sig
 let verbs_OCaml fn lines =
   let open Verbatim in
   lines_to_file lines fn;
-  let extra = ["ref"; "throw"; "callcc"] in
+  let extra = ["throw"; "callcc"] in
   let param_OCaml =
     { param_OCaml with keywords = extra @ param_OCaml.keywords }
   in

@@ -61,7 +61,7 @@ framework implies that programs can be incrementally refined to obtain
 more guarantees. In particular, there is no syntactic distinction
 between programs and proofs in the system. This means that programming
 and proving features can be mixed when constructing proofs or programs.
-For instance, proof can be composed with programs for them to transport
+For instance, proofs can be composed with programs for them to transport
 properties (e.g. addition carrying its commutativity proof). In programs,
 proof mechanisms can be used to eliminate unreachable code.
 
@@ -106,8 +106,8 @@ let silly_ocaml : ('a → 'a) → unit → unit option =
   fun f u → f (Some (f u))
 ###
 In our system, polymorphism is not limited: universal quantification is
-allowed anywhere in types. Our system has thus the full power of System F
-\mcite(["Girard1972" ; "Reynolds1974"]). In particular, the equivalent of
+allowed anywhere in types. Our types thus contain the full power of System
+F \mcite(["Girard1972" ; "Reynolds1974"]). In particular, the equivalent of
 ##silly_ocaml## is accepted by our type-checker.
 ### PML "examples/silly.pml"
 val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
@@ -280,29 +280,27 @@ val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   | Succ[k] → let ih  = add_comm k m in
                let lem = add_n_s m k in {}
 ###
-
-(*
-As a consequence, we may say that we follow the
-//program as proof principle//, rather than the usual //proof as program
-principle//. In particular, proofs can be composed as (and with) programs
-to form proof tactics.
-
-The special term ##8<## (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context, using equational reasoning.
- *)
+Many more examples of proofs (and programs) are provided in \chapter("implem")
+and together with the implementation of the system. Each of them (including
+those in the current chapter) have been automatically checked upon the
+generation of this document. They are thus correct with respect to the
+implementation.
 
 =<
 
-=> A brief history of ||ml|| and value restriction
+=> On ML and value restriction
 
 \label("valrest")
+(* TODO TODO TODO from here TODO TODO TODO *)
 A soundness issue related to side-effects and call-by-value evaluation
 arose in the seventies with the advent of ML. The problem stems from a
 bad interaction between side-effects and Hindley-Milner polymorphism. It was
 first formulated in terms of references \citen("Wright1995")("Section 2").
-To extend ||ml|| with reference, the naive approach consist in providing the
-following three primitive polymorphic procedures (in ||OCaml|| syntax).
+To extend ||ml|| with reference, the naive approach consist in defining
+the following abstract type and polymorphic procedures (in the OCaml syntax).
 ### OCaml
+  type 'a ref
+
   val ref  : 'a -> 'a ref
   val (:=) : 'a ref -> 'a -> unit
   val (!)  : 'a ref -> 'a
@@ -687,3 +685,16 @@ is suggested.
 =<
 
 =<
+
+
+(*
+As a consequence, we may say that we follow the
+//program as proof principle//, rather than the usual //proof as program
+principle//. In particular, proofs can be composed as (and with) programs
+to form proof tactics.
+
+The special term ##8<## (to be pronounced "scissors") can be introduced
+whenever the goal is derivable from the context, using equational reasoning.
+ *)
+
+
