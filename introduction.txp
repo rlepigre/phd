@@ -255,14 +255,24 @@ It is however easy to see that ##add_z_n## and ##add_n_z## are terminating,
 and hence valid. In the following, we will always implicitly consider that
 the programs considered as proofs have been proved terminating.
 
-
+There are two main ways of learning new equations in the system. On the one
+hand, when a term ##t## is matched in a case analysis, a branch can only be
+reached when the corresponding pattern ##C[x]## matches. In this case we
+can extend the equational context with the equivalence ##t ≡ C[x]##. On the
+other hand, it is possible to invoke a lemma by calling the corresponding
+function. In particular, this must be done to use the induction hypothesis
+in proofs by induction like in ##add_z_n## or the following lemma.
 ### PML "examples/nat.pml"
 val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
   case n of
   | Zero[_] → {}
   | Succ[k] → let ind_hyp = add_n_s k m in {}
 ###
-
+In this case, the equation corresponding to the conclusion of the used lemma
+is directly added to the context. Of course, more complex results can be
+obtained by combining more lemmas. For example, the following proves the
+commutativity of addition using a proof by induction with ##add_n_z## and
+##add_n_s##.
 ### PML "examples/nat.pml"
 val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   case n of
@@ -271,17 +281,7 @@ val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
                let lem = add_n_s m k in {}
 ###
 
-
 (*
-For instance, calling a function which result
-type includes an equivalence will correspond to using a lemma since this
-equivalence will be added to the equational context.
-
-In our system, a proof is
-first and foremost a program which termination has been established. For instance, pattern-matching corresponds
-to a case analysis in a proof, and a recursive call to the use of an
-induction hypothesis.
-
 As a consequence, we may say that we follow the
 //program as proof principle//, rather than the usual //proof as program
 principle//. In particular, proofs can be composed as (and with) programs
