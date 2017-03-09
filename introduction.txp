@@ -288,7 +288,7 @@ implementation.
 
 =<
 
-=> On ML and value restriction
+=> A brief history of value restriction
 
 \label("valrest")
 (* TODO TODO TODO from here TODO TODO TODO *)
@@ -416,7 +416,7 @@ cannot happen with value restriction since $\t("μα u")$ is not a value.
 
 =<
 
-=> On the expressivity of dependent products
+=> Dependent functions and relaxed restriction
 
 Several difficulties arise when combining call-by-value evaluation,
 side-effects, dependent products and equality types. Most notably, dependent
@@ -495,22 +495,7 @@ subtle \cite("Lepigre2016").
 
 =<
 
-=> Programming with subtyping
-
-Polymorphism and subtyping are essential for programming in a generic way.
-They lead to programs that are shorter, easier to understand and hence more
-reliable. Although polymorphism is widespread among practical programming
-languages, only limited forms of subtyping are used in practice (e.g.
-OCaml's polymorphic variants or modules). Overall, subtyping is useful for
-both product types (i.e. records or modules) and sum types (i.e. polymorphic
-variants). It provides canonical injections between a type and its subtypes.
-For example, unary natural numbers may be defined as a subtype of unary
-integers.
-(* TODO *)
-
-=<
-
-=> Main contributions
+=> Main results and contributions
 
 The main contribution of this paper is a new approach to value restriction.
 The syntactic restriction on terms is replaced by a semantical restriction
@@ -567,9 +552,20 @@ in an implementation).
 (* TODO *)
 *)
 
+Polymorphism and subtyping are essential for programming in a generic way.
+They lead to programs that are shorter, easier to understand and hence more
+reliable. Although polymorphism is widespread among practical programming
+languages, only limited forms of subtyping are used in practice (e.g.
+OCaml's polymorphic variants or modules). Overall, subtyping is useful for
+both product types (i.e. records or modules) and sum types (i.e. polymorphic
+variants). It provides canonical injections between a type and its subtypes.
+For example, unary natural numbers may be defined as a subtype of unary
+integers.
+(* TODO *)
+
 =<
 
-=> Related work
+=> Related works and similar systems
 
 To our knowledge, combining call-by-value evaluation, side-effects and
 dependent products has never been achieved before. At least not for a

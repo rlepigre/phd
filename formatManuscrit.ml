@@ -493,12 +493,13 @@ module Format (D:DocumentStructure) = struct
              | (_,(Paragraph _))::s  -> flat_children env1 s
              | (k,(Node h as tr))::s ->
                  let env' = h.node_env env1 in
-                 (toc env' (k::path) tr) @ flat_children (h.node_post_env env1 env') s
+                 (toc env' (k::path) tr)
+                 @ flat_children (h.node_post_env env1 env') s
            in
            let numbered = List.mem_assoc "numbered" s.node_tags in
 
            let chi =
-             if numbered || path=[] then
+             if numbered || path = [] then
                flat_children env0 (IntMap.bindings s.children)
              else []
            in
@@ -518,17 +519,54 @@ module Format (D:DocumentStructure) = struct
              let env'= add_features [Opentype.oldStyleFigures] env in
              let fontColor = if level = 1 then Color.red else Color.black in
              let num = boxify_scoped { env' with fontColor }
-               [tT (String.concat "." (List.map (fun x->string_of_int (x+1)) count))] in
+               [tT (String.concat "." (List.map
+                 (fun x->string_of_int (x+1)) count))] in
              let name = boxify_scoped env' s.displayname in
-             let w=List.fold_left (fun w b->let (_,w',_)=box_interval b in w+.w') 0. num in
-             let w'=List.fold_left (fun w b->let (_,w',_)=box_interval b in w+.w') 0. name in
-             let cont=
-               (if numbered then List.map (RawContent.translate (-.w-.spacing) 0.)
-                  (draw_boxes env num) else [])@
-                 (List.map (RawContent.translate (if numbered then 0. else -.w-.spacing) 0.) (draw_boxes env name))@
-                 List.map (RawContent.translate (w'+.(if numbered then spacing else -.w)) 0.)
-                 (draw_boxes env (boxify_scoped (envItalic true env') [tT (string_of_int page)]))
+             let w=List.fold_left (fun w b->
+               let (_,w',_)=box_interval b in w+.w') 0. num in
+             let w'=List.fold_left (fun w b->
+               let (_,w',_)=box_interval b in w+.w') 0. name in
+
+             let numb =
+               if not numbered then [] else
+               let numb = draw_boxes env num in
+               List.map (RawContent.translate (-.w-.spacing) 0.0) numb
              in
+             let text =
+               let text = draw_boxes env name in
+               let pad = if numbered then 0.0 else -.w -. spacing in
+               List.map (RawContent.translate pad 0.0) text
+             in
+             let (wpage, page) =
+               let page = [tT (string_of_int page)] in
+               let page =
+                 draw_boxes env (boxify_scoped (envItalic true env') page)
+               in
+               let (x1,_,x2,_) = RawContent.bounding_box page in
+               let pad = env.normalMeasure +. x1 -. x2 in
+               (x2 -. x1, List.map (RawContent.translate pad 0.0) page)
+             in
+             let (wcont, cont) =
+               let cont = numb @ text in
+               let (x1,_,x2,_) = RawContent.bounding_box cont in
+               let level = float_of_int (level - 1) in
+               let pad = margin +. spacing *. 3.0 *. level in
+               let cont = List.map (RawContent.translate pad 0.0) cont in
+               (x2 -. x1 +. pad, cont)
+             in
+             let line =
+               let p1 = (0.0, 0.0) in
+               let p2 = (env.normalMeasure -. 6.0 -. wcont, 0.0) in
+               let path = [[|RawContent.line p1 p2|]] in
+               let param =
+                 let open RawContent in
+                 let dashPattern = [0.6; 0.4] in
+                 { default_path_param with dashPattern }
+               in
+               let line = [RawContent.Path(param, path)] in
+               List.map (RawContent.translate wcont 0.6) line
+             in
+             let cont = cont @ page @ line in
              let (a,b,c,d)=RawContent.bounding_box cont in
              Marker (BeginLink (Intern labl))::
                Drawing {
@@ -542,11 +580,7 @@ module Format (D:DocumentStructure) = struct
                  drawing_break_badness=0.;
                  drawing_badness=(fun _->0.);
                  drawing_states=[];
-                 drawing_contents=
-                   (fun _->
-                     List.map (RawContent.translate
-                                 (margin+.spacing*.3.*.(float_of_int (level-1)))
-                                  0.) cont)
+                 drawing_contents = (fun _-> cont)
                }::Marker EndLink::(glue 0. 0. 0.)::chi
            )
            else chi
