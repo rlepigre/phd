@@ -67,6 +67,7 @@ proof mechanisms can be used to eliminate unreachable code.
 
 => Writing functional programs
 
+\label("sectprog")
 In this thesis, our first goal is to design a type system for a practical,
 functional programming language. Out of the many possible technical choices,
 we decided to consider a call-by-value language similar to OCaml or SML, as
@@ -74,7 +75,7 @@ they have proved to be highly practical and efficient. Our language provides
 polymorphic variants \cite("Garrigue1998") and SML style records, which are
 convenient for encoding data types. As an example, the type of lists can be
 defined and used as follows.
-### PML "examples/list.pml"
+### PML "examples/demo.pml"
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
@@ -109,7 +110,7 @@ In our system, polymorphism is not limited: universal quantification is
 allowed anywhere in types. Our types thus contain the full power of System
 F \mcite(["Girard1972" ; "Reynolds1974"]). In particular, the equivalent of
 ##silly_ocaml## is accepted by our type-checker.
-### PML "examples/silly.pml"
+### PML "examples/demo.pml"
 val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
   fun f u → f Some[f u]
 ###
@@ -129,7 +130,7 @@ like Lisp's //call/cc// can be used to give a computational interpretation
 to classical logic. On the programming side, they can be used to encode an
 exception mechanism. For example, the following function can be used to
 compute the conjunction of a list of booleans rather efficiently.
-### PML "examples/list.pml"
+### PML "examples/demo.pml"
 val rec conjunction : list<bool> ⇒ bool = fun l → save k →
   case l of
   | Nil[_]  → true
@@ -143,7 +144,7 @@ correspond to logical formulas that are only valid in classical logic.
 For instance, the type of the following programs corresponds to Pierce's
 law, the law of the excluded middle and the principle of double negation
 elimination.
-### PML "examples/classical.pml"
+### PML "examples/demo.pml"
 val pierce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
   fun x → save k → x (fun y → restore k y)
 
@@ -195,7 +196,7 @@ To illustrate the proof mechanism, we will consider simple examples of
 proofs on unary natural number (a.k.a. Peano numbers). Their type is
 given bellow, together with the corresponding addition function defined
 using recursion on its first argument.
-### PML "examples/nat.pml"
+### PML "examples/demo.pml"
 type rec nat = [Zero ; Succ of nat]
 
 val rec add : nat ⇒ nat ⇒ nat = fun n m →
@@ -203,52 +204,52 @@ val rec add : nat ⇒ nat ⇒ nat = fun n m →
   | Zero[_] → m
   | Succ[k] → Succ[add k m]
 ###
-As a first example, we will show that ##add Zero[{}] n ≡ n## for all ##n##.
-To express this property, we can use the type ##∀n:ι, add Zero[{}] n ≡ n##,
+As a first example, we will show that ##add Zero n ≡ n## for all ##n##.
+To express this property, we can use the type ##∀n:ι, add Zero n ≡ n##,
 where ##ι## can though of as the set of all the program values. This
 statement can then be proved as follows.
-### PML "examples/nat.pml"
-val add_z_n : ∀n:ι, add Zero[{}] n ≡ n = {}
+### PML "examples/demo.pml"
+val add_z_n : ∀n:ι, add Zero n ≡ n = {}
 ###
-Here, the proof is immediate as have ##add Zero[{}] n ≡ n## by definition
+Here, the proof is immediate as have ##add Zero n ≡ n## by definition
 of the ##add## function. Note that this equivalence holds for all ##n##,
 whether it corresponds to an element of ##nat## or not. For instance, it
-can be used to show ##add Zero[{}] true ≡ true##.
+can be used to show ##add Zero true ≡ true##.
 
-Let us now show that for every ##n## we have ##add n Zero[{}] ≡ n##. Although
+Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
 this property looks similar to ##add_z_n##, the following proof is invalid.
-### PML "examples/nat.pml"
-// val add_n_z : ∀n:ι, add n Zero[{}] ≡ n = {}
+### PML "examples/demo.pml"
+// val add_n_z : ∀n:ι, add n Zero ≡ n = {}
 ###
-Indeed, the equivalence ##add n Zero[{}] ≡ n## does not hold when ##n##
+Indeed, the equivalence ##add n Zero ≡ n## does not hold when ##n##
 is not a unary natural number. In this case, the computation of
-##add n Zero[{}]## will produces a runtime error. As a
+##add n Zero## will produces a runtime error. As a
 consequence, we need to rely on a form of quantification that only ranges
 over unary natural numbers. This can be achieved with the type
-##∀n∈nat, add n Zero[{}] ≡ n##, which corresponds to a (dependent) function
+##∀n∈nat, add n Zero ≡ n##, which corresponds to a (dependent) function
 taking as input a natural number ##n## and returning a proof of
-##add n Zero[{}] ≡ n##. This property can then be proved using induction and
+##add n Zero ≡ n##. This property can then be proved using induction and
 case analysis as follows.
-### PML "examples/nat.pml"
-val rec add_n_z : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
+### PML "examples/demo.pml"
+val rec add_n_z : ∀n∈nat, add n Zero ≡ n = fun n →
   case n of
   | Zero[_] → {}
   | Succ[k] → let ih = add_n_z k in {}
 ###
-In the case where ##n## is ##Zero[{}]## we need to prove
-##add Zero[{}] Zero[{}]] ≡ Zero[{}]##, which is immediate by definition of
+In the case where ##n## is ##Zero## we need to prove
+##add Zero Zero ≡ Zero##, which is immediate by definition of
 the ##add## function. In the case where ##n## is ##Succ[k]## we need to show
-##add Succ[k] Zero[{}] ≡ Succ[k]##. By definition of ##add##, this can be
-reduced to ##Succ[add k Zero[{}]] ≡ Succ[k]##. We can then conclude using
+##add Succ[k] Zero ≡ Succ[k]##. By definition of ##add##, this can be
+reduced to ##Succ[add k Zero] ≡ Succ[k]##. We can then conclude using
 the induction hypothesis (i.e. ##add_n_z k##) with which we learn
-##add k Zero[{}] ≡ k##.
+##add k Zero ≡ k##.
 
 It is important to note that, in our system, a program that is considered
 as a proof needs to go though a termination checker. Indeed, a looping
 program could be used to prove anything otherwise. For example, the following
 proof is rejected.
-### PML "examples/nat.pml"
-// val rec add_n_z_loop : ∀n∈nat, add n Zero[{}] ≡ n = fun n →
+### PML "examples/demo.pml"
+// val rec add_n_z_loop : ∀n∈nat, add n Zero ≡ n = fun n →
 //   let ih = add_n_z_loop n in {}
 ###
 It is however easy to see that ##add_z_n## and ##add_n_z## are terminating,
@@ -262,7 +263,7 @@ can extend the equational context with the equivalence ##t ≡ C[x]##. On the
 other hand, it is possible to invoke a lemma by calling the corresponding
 function. In particular, this must be done to use the induction hypothesis
 in proofs by induction like in ##add_z_n## or the following lemma.
-### PML "examples/nat.pml"
+### PML "examples/demo.pml"
 val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
   case n of
   | Zero[_] → {}
@@ -273,7 +274,7 @@ is directly added to the context. Of course, more complex results can be
 obtained by combining more lemmas. For example, the following proves the
 commutativity of addition using a proof by induction with ##add_n_z## and
 ##add_n_s##.
-### PML "examples/nat.pml"
+### PML "examples/demo.pml"
 val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   case n of
   | Zero[_] → let lem = add_n_z m in {}
@@ -291,44 +292,49 @@ implementation.
 => A brief history of value restriction
 
 \label("valrest")
-(* TODO TODO TODO from here TODO TODO TODO *)
 A soundness issue related to side-effects and call-by-value evaluation
 arose in the seventies with the advent of ML. The problem stems from a
 bad interaction between side-effects and Hindley-Milner polymorphism. It was
 first formulated in terms of references \citen("Wright1995")("Section 2").
-To extend ||ml|| with reference, the naive approach consist in defining
-the following abstract type and polymorphic procedures (in the OCaml syntax).
+To extend an ML-style language with references, the naive approach consist
+in defining an abstract type ##'a ref## and polymorphic procedures with the
+following signature (given in OCaml syntax).
 ### OCaml
   type 'a ref
 
-  val ref  : 'a -> 'a ref
-  val (:=) : 'a ref -> 'a -> unit
-  val (!)  : 'a ref -> 'a
+  val ref  : 'a → 'a ref
+  val (:=) : 'a ref → 'a → unit
+  val (!)  : 'a ref → 'a
 ###
-However, this leads to trouble when working with references of a polymorphic
-type. The problem is demonstrated by the following example, which is accepted
-by the naive extension of the type system.
+Here, the function ##ref## takes as input a value of some type and creates
+a new reference cell containing an element of the corresponding type. The
+value of a reference can then be updated using the infix operator ##(:=)##
+(to be pronounced "set"), and its value can be obtained using the prefix
+operator ##(!)## (to be pronounced "get").
+
+These immediate additions quickly lead to trouble when working with
+polymorphic references. The problem can be demonstrated by the following
+example, which is accepted by the naive extension of the type system.
 ### OCaml
   let l = ref [] in
   l := [true]; (List.hd !l) + 1
 ###
 On the first line, variable ##l## is given the polymorphic type
 ##'a list ref##, which can be unified both with ##bool list ref## and
-and ##int list ref## on the second line. This is an obvious violation of
-type safety, which is the purpose of a type system.
+##int list ref## on the second line. This is an obvious violation of
+type safety, which is the very purpose of a type system.
 
 To solve the problem, many alternative type systems were designed (e.g.
 \mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
 all introduced a complexity that contrasted with the elegance and simplicity
-of ||ml|| systems (see \citen("Wright1995")("Section 2") and
+of ML systems (see \citen("Wright1995")("Section 2") and
 \citen("Garrigue2004")("Section 2") for a detailed account).
-(* *)
 A simple and elegant solution was finally found by Andrew Wright in the
 nineties. He suggested restricting generalization (i.e. introduction of
 polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]).
 
-In ||ml||, generalization usually happens in expressions of the form
-##let x = u in t##, called let-bindings. The type-checking of such an
+In ML, generalization usually happens in expressions of the form
+"##let x = u in t##", called let-bindings. The type-checking of such an
 expression proceeds by infering the type of the term ##u##, which may
 contain unification variables. The type of ##u## is then generalized by
 introducing universal quantification over the unification variables.
@@ -337,128 +343,114 @@ has the most general type of ##u##. With value restriction, the
 generalization of the type of ##u## only happens if ##u## is a
 syntactic value. Consequently, the example above is rejected since
 ##ref []## is not a value, and hence its infered type ##'_a list ref##
-is only weakly polymorphic. Thus, it cannot be unified with both
-##bool list ref## and ##nat list ref##.
+is only weakly polymorphic (i.e. it can only be unified with exactly one,
+yet unknown type). Thus, it cannot be unified with ##bool list ref## and
+##nat list ref## at the same time.
 
-(* FIXME integrate this shit
-
-As mentioned in the previous section, the languages of the ||ml|| family
-need a restriction on polymorphism to remain type-safe. With the value
-restriction, the typing rule for ||ml|| polymorphism becomes the following.
-$$ \ternaryR{Γ ⊢ v : B}{Γ, x : ∀X₁,...,X_n B ⊢ t : A}{v value}
-    {Γ ⊢ let x = v in t : A} $$
-When the value that is bound by a let-binding is not a value its type is
-not generalized and the following rule applies.
-$$ \binaryR{Γ ⊢ u : B}{Γ, x : B ⊢ t : A}{Γ ⊢ let x = u in t : A} $$
-
-In slightly more expressive type systems like System F, the value
-restriction appears in the typing rule for the introduction of the
-universal quantifier. The ususal typing rule
-$$ \binaryRN{∀_i}{Σ,X;Γ ⊢ t:A}{X ∉ FV(Γ)}{Σ; Γ ⊢ t : ∀X A} $$
-cannot be proved safe (in a call-by-value system with side-effects) if
-$t$ is not a syntactic value. This will also be the case in our system
-when we bring together polymorphism and the \lmcalc.
-
-*)
-
-In this thesis, we consider control structures, which have been shown to
-give a computational interpretation to classical logic by Timothy Griffin
-\cite("Griffin1990"). One way of extending ||ml|| with control structures
-is to introduce the following two primitive polymorphic procedures.
+As mentioned in \section("sectprog"), the system presented in this thesis
+does not include references, but control structures. One way of extending
+ML with control structures is again to introduce an abstract equipped with
+polymorphic operations.
 ### OCaml
-  val callcc : ('a cont -> 'a) -> 'a
-  val throw  : 'a cont -> 'a -> 'b
+  type 'a cont
+
+  val callcc : ('a cont → 'a) → 'a
+  val throw  : 'a cont → 'a → 'b
 ###
 The function ##callcc## corresponds to the control operator //call/cc//,
 which was first introduced in the //Scheme// programming language. When
 called, this function saves the current continuation (i.e. the current
-state of the programs environment) and feeds it to the function it is
+state of the program's environment) and feeds it to the function it is
 given as an argument. The continuation can be restored in the body of
 this function using the ##throw## function.
 
-In 1991, Robert Harper and Mark Lillibridge found a complex program
-breaking the type safety of ||ml|| with //call/cc// \cite("Harper1991").
+As for references, the addition of control structures breaks the type safety
+of ML in the presence of polymorphism. A complex counterexample was first
+discovered by Robert Harper and Mark Lillibridge \cite("Harper1991").
 ### OCaml
-  let c = callcc
-    (fun k -> ((fun x -> x), (fun f -> throw k (f, (fun _ -> ())))))
-  in print_string ((fst c) "Hello world!"); (snd c) (fun x -> x+2)
+  let c = callcc (fun k →
+    ((fun x → x), (fun f → throw k (f, (fun _ → ())))))
+  in print_string ((fst c) "Hello world!"); (snd c) (fun x → x+2)
 ###
-Intuitively, this program saves the continuation and then builds a couple
-##c## containing two functions. The first one is simply the identity
-function. The second one takes a function ##f## as argument, uses
-##throw## to restore the previously saved continuation and replaces the
-two functions by ##f## and a constant function returning the only value
-of type ##unit##. Consequently, the first element of the couple ##c## can
-be used as the identity function as long as the second element of ##c##
-has not been used. If the second element of ##c## is called with a
-function ##g##, then ##g## becomes the first element of ##c## and the
-computation restarts. This leads to a crash since the function
-##fun x -> x+2## is applied to a value of type ##string##.
+Intuitively, the program first saves the continuation and immediately builds
+a couple ##c## containing two functions. The first one is simply the identity
+function. The second one takes a function ##f## as argument and calls
+##throw## to restore the previously saved continuation. It then replaces
+##c## with a couple containing ##f## and a constant function. Consequently,
+the first element of the couple ##c## can be used as the (polymorphic)
+identity function as long as the second element of ##c## has not been used.
+However, when the second element of ##c## is called with a function ##g##,
+then ##g## becomes the first element of ##c## and the computation restarts.
+This is problematic since the function ##fun x → x+2## is then applied to
+a value of type ##string##, which is then fed to an integer addition.
 
-The infered type for ##c## is ##('_a -> '_a) * (('_a -> '_a) -> unit)##
-prior to generalization. This means that without value restriction, the
-last line of the example is type-checked in a context where ##c## has
-the polymorphic type ##('a -> 'a) * (('a -> 'a) -> unit)##. As a
-consequence, the type ##'a -> 'a## can be unified with
-##string -> string## and ##int -> int##. As with references, value
-restriction solves the inconsistency and yields a sound type system. 
-Indeed, ##'_a -> '_a## cannot be unified with ##string -> string## and
-with ##int -> int## at the same time.
+During the type checking of the let-binding, the type that is inferred for
+the couple ##c## (prior to generalisation) is
+##('_a → '_a) * (('_a → '_a) → unit)##.
+As a consequence, if there is no value restriction, the last line of the
+example is type-checked in a context where ##c## has the polymorphic type
+##('a → 'a) * (('a → 'a) → unit)##. In particular, the function type
+##'a → 'a## can be unified with both ##string → string## and ##int → int##.
+As with references, value restriction forbid such unifications.
 
-It is relatively easy to translate the counter example of Robert Harper
-and Mark Lillibridge into our language. Indeed, a term of the form
-##callcc (fun k -> t)## will be translated into $\t("μα t")$ where $t$
-is the translation of ##t## in which every subterm of the form
-##throw k u## has replaced by $\t("[α]u")$.
-In the context of the \lmcalc, the soundness issue arises when evaluating
-$\t("t μα u")$ when $\t("μα u")$ has a polymorphic type. Such a situation
-cannot happen with value restriction since $\t("μα u")$ is not a value.
+Note that it relatively easy to translate the counter example into our
+language. Indeed, terms of the form ##callcc (fun k → t)## are translated
+to ##save k → t## and terms of the form ##throw k u## to ##restore k u##.
+Moreover, as our system contains system F, value restriction does need to
+be stated differently. It appears on the typing rule for the introduction
+of the universal quantifier. In the system, value restriction corresponds
+to only applying this rule to terms that are values.
 
 =<
 
 => Dependent functions and relaxed restriction
 
-Several difficulties arise when combining call-by-value evaluation,
-side-effects, dependent products and equality types. Most notably, dependent
-products need to be restricted to preserve soundness. Indeed, if ##f## has
-type ##(a:A) ⇒ B(a)## and ##t## has type ##A## then we cannot always derive
-that ##f t## has type ##B(t)##. As a consequence, we need to restrict the
-application of dependent functions so that ##f t## is guaranteed to be of
-type ##B(t)##.
-(* *)
-The simplest possible approach consist in only allowing syntactic values as
-argument of dependent functions. This //value restriction// has been
-introduced by Andrew Wright \cite("Wright1994") to solve a similar soundness
-problem related to polymorphism.
+One of the main features of our system is a dependent function type, which
+is essential for building proofs. However, several difficulties arise when
+combining call-by-value evaluation, side-effects and dependent function
+types. Most notably, dependent products need to be restricted to preserve
+soundness. Indeed, if ##f## has type ##∀x∈a, b<x>## and ##t## has type
+##a## then we cannot always derive that ##f t## has type ##b<t>##. As a
+consequence, we need to restrict the application of dependent functions
+so that ##f t## is guaranteed to be of type ##b<t>##. The simplest possible
+approach consist in only allowing syntactic values as argument of dependent
+functions, which is another instance of //value restriction//.
 
-With value restriction, the expressivity of our dependent products
-is considerably weakened. In particular, it forbids the application of
-##add_n_zero## to ##add Zero Zero## to obtain a proof of
+Using value restriction, the expressiveness of our dependent products is
+considerably weakened. For example, it forbids the application of the
+function ##add_n_z## to the term ##add Zero Zero## to obtain a proof of
 ##add (add Zero Zero) Zero ≡ add Zero Zero##. Indeed, the term
 ##add Zero Zero## is not a value. As a consequence, value restriction
-breaks the modularity of our proof system, as it relies heavily on dependent
-products.
+breaks the modularity of our proof system, as it relies heavily on
+dependent products. Even programs are affected by value restriction in a
+similar way. For example, it is possible to define a type for vectors
+(i.e. lists of fixed length) together with their concatenation function
+as follows.
+### PML "examples/demo.pml"
+val rec len : ∀a, list<a> ⇒ nat = fun l →
+  case l of
+  | Nil[_]  → Zero
+  | Cons[c] → Succ[len c.tl]
 
-Regular programs are also affected by value restriction in a similar way.
-For example, it is possible to define a type for vectors (i.e. lists of
-fixed length) together with their concatenation function in the following
-way.
-### PML
-val rec len : ∀A List(A) ⇒ Nat = fun l →
-  match l with
-  | Nil    → Zero
-  | Cons c → Succ (len c.tl)
+type vec<a:ο,s:τ> = ∃l:ι, l∈(list<a> | len l ≡ s)
 
-type Vect(A,n) = ∃l (l:List(A) | len l ≡ n)
+val rec len_total : ∀a, ∀l∈list<a>, ∃v:ι, v ≡ len l = fun l →
+  case l of
+  | Nil[_]  → {}
+  | Cons[c] → let ind = len_total c.tl in {}
 
-val rec concat : ∀A (n:Nat) ⇒ (m:Nat) ⇒ Vect(A,n) ⇒ Vect(A,m) ⇒
-                      Vect(A,add n m) = fun n m ln lm →
-  match n with
-  | Zero    → lm
-  | Succ nn → (match ln with
-               | Nil    → 8<
-               | Cons c → let ls = concat nn m c.tl lm in
-                            Cons {hd = c.hd; tl = ls})
+val rec app : ∀a, ∀n m:ι, vec<a,n> ⇒ vec<a,m> ⇒ vec<a,add n m> =
+  Λa:ο. fun ln lm →
+  case ln of
+  | Nil[_]  → lm
+  | Cons[c] →
+      let lem = len_total c.tl in
+      (case len ln of
+      | Zero[]   → ✂
+      | Succ[p1] →
+          let r = app c.tl lm in
+          let lem = len_total (r : list<a>) in
+          Cons[{hd = c.hd; tl = r}])
 ###
 Here, the symbol ##8<## is used to fill a branch of the program that is
 not accessible. Indeed, if ##n## is not ##Zero## then the list ##ln##

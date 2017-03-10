@@ -540,7 +540,8 @@ module Format (D:DocumentStructure) = struct
              let (wpage, page) =
                let page = [tT (string_of_int page)] in
                let page =
-                 draw_boxes env (boxify_scoped (envItalic true env') page)
+                 let env' = (* envItalic true *) {env' with fontColor} in
+                 draw_boxes env (boxify_scoped env' page)
                in
                let (x1,_,x2,_) = RawContent.bounding_box page in
                let pad = env.normalMeasure +. x1 -. x2 in
@@ -555,13 +556,16 @@ module Format (D:DocumentStructure) = struct
                (x2 -. x1 +. pad, cont)
              in
              let line =
-               let p1 = (0.0, 0.0) in
-               let p2 = (env.normalMeasure -. 6.0 -. wcont, 0.0) in
+               let p2 = (0.0, 0.0) in
+               let p1 = (env.normalMeasure -. 6.0 -. wcont, 0.0) in
                let path = [[|RawContent.line p1 p2|]] in
                let param =
                  let open RawContent in
-                 let dashPattern = [0.6; 0.4] in
-                 { default_path_param with dashPattern }
+                 let (dashPattern, lineWidth) =
+                   if level = 1 then ([0.2; 1.0], 0.2)
+                   else ([0.2; 1.0], 0.2)
+                 in
+                 { default_path_param with dashPattern ; lineWidth }
                in
                let line = [RawContent.Path(param, path)] in
                List.map (RawContent.translate wcont 0.6) line

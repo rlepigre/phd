@@ -465,6 +465,7 @@ module PMLVerbatim : sig
         bB (fun env -> Maths.draw [env] s)
       in
       [ simple_verb "∀"
+      ; simple_verb "Λ"
       ; simple_verb "→"
       ; simple_verb "∃"
       ; simple_verb "≡"
@@ -473,6 +474,8 @@ module PMLVerbatim : sig
       ; simple_verb "μ"
       ; simple_verb "ν"
       ; simple_verb "ι"
+      ; simple_verb "ο"
+      ; simple_verb "τ"
       ; ("<" , langle)
       ; (">" , rangle)
       ; ("8<", scissors)
@@ -506,7 +509,7 @@ module PMLVerbatim : sig
 let verbs_OCaml fn lines =
   let open Verbatim in
   lines_to_file lines fn;
-  let extra = ["throw"; "callcc"] in
+  let extra = [] in (* ["throw"; "callcc"] in *)
   let param_OCaml =
     { param_OCaml with keywords = extra @ param_OCaml.keywords }
   in
