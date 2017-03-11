@@ -102,7 +102,7 @@ module Cover = struct
   
     (* Text ... *)
     let x_text = greyw +. text_pad in
-    let y_text = ref (0.75 *. h4) in
+    let y_text = ref (0.8 *. h4) in
     let text = ref [] in
   
     let add_line ?(off=0.) fsize txt =

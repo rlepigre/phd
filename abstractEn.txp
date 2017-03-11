@@ -1,0 +1,28 @@
+\color(white){...}\linesAfter(8)
+
+\begin{center}
+\size(6.0){||Abstract||}
+\linesAfter(3)
+\end{center}
+We design an ML style programming language with support for proofs of
+programs. The idea is to combine, in a single tool, the flexibility of a
+practical programming language and a great specification power. In other
+words, the system can be used for programming (in the strongly typed,
+functional programming sense) and the level of guarantees met by
+programs can then be increased on a by-need basis, by proving more
+properties (e.g. show that a list is sorted). Such properties can
+be specified thanks to the reflexion of an equivalence relation over the
+terms of the language, into its type system. Another essential component
+is a dependent function type, that can be understood as a form of typed
+quantification. We can thus express properties that range, for examples,
+over all the natural numbers or over all the binary search trees.
+
+To ensure the correctness of the system (logical consistency and runtime
+safety), a theoretical framework based on Krivine's classical realisability
+has been designed. The construction of the model relies on an essential
+property that links the different levels of interpretations of types
+in a novel way. The obtained semantics can be combined with subtyping to
+yield a type system that is suitable for implementation. To account for our
+new connectives, we introduce a ternary relation $t ∈ A ⊂ B$ called pointed
+subtyping. It is interpreted as the implication "if $t$ has type $A$, then
+it also has type $B$"

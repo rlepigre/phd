@@ -32,14 +32,25 @@ let cover_data =
   ; lab       = "LAMA, " ^ usmb
   ; advisor   = christophe
   ; coadvisor = Some pierre
-  ; jury_pres = johndoe (* FIXME *)
+  ; jury_pres = frederic (* FIXME *)
   ; reviewers = [ thierry ; alexandre ]
-  ; examinors = [ karim ; frederic ] }
+  ; examinors = [ karim ; johndoe ; johndoe ] } (* FIXME *)
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
+(* Abstract / Résumé *)
+\Include{AbstractFr}
+
+(* Remerciements *)
+(* TODO
+\begin{minichap}{Remerciements}
+\Include{Remerciements}
+\end{minichap}
+*)
+
 (* Titre en anglais. *)
+\pagesBefore(2)
 \begin{center}
 \size(10.0){||Semantics and Implementation||}
 
@@ -50,16 +61,13 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \linesBefore(34)
 \size(6.0){||Rodolphe Lepigre||}
 \end{center}
+\pagesAfter(2)
 
-(* Remerciements *)
-(* TODO
-\begin{minichap}{Remerciements}
-\Include{Remerciements}
-\end{minichap}
-*)
+(* Abstract / Résumé *)
+\Include{AbstractEn}
 
-(* Table des matières *)
-\begin{minichap}{Table des matières / Table of contents}
+(* Table of contents *)
+\begin{minichap}{Table of contents}
 \TableOfContents
 \end{minichap}
 
@@ -93,10 +101,3 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \begin{minichap}{References}
 \Include{References}
 \end{minichap}
-
-(* TODO
-(* Abstract / Résumé *)
-\begin{minichap}{Résumé / Abstract}
-\Include{Abstract}
-\end{minichap}
-*)

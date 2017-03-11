@@ -1,0 +1,38 @@
+\Caml(
+
+open Diagrams
+
+let epigraph_width = 0.6
+
+module Env_epigraph =
+  struct
+    let do_begin_env () =
+      let node_env env =
+        let margin = env.normalLeftMargin in
+        let measure = env.normalMeasure in
+        { env with par_indent = []
+        ; normalMeasure = epigraph_width *. measure
+        ; normalLeftMargin = margin +. (1. -. epigraph_width) *. measure }
+      in
+      D.structure := newChildAfter !D.structure (Node {empty with node_env});
+      env_stack := (List.map fst (snd !D.structure)) :: !env_stack
+
+    let do_end_env () =
+      let str = follow (top !D.structure) (List.rev (List.hd !env_stack)) in
+      D.structure := up str;
+      env_stack := List.tl !env_stack
+
+end
+
+let whiteline () = <<\diagram(
+  let m,ms = matrix Matrix.([centers 0. (env.normalMeasure);
+    mainNode Node.([innerSep 0.;outerSep 0.;rectangle env])])
+    [[([Node.innerSep 0.001],[]) ; ([Node.innerSep 0.001],[]) ]])>>
+
+let blackline () = <<\diagram(
+  let m,ms = matrix Matrix.([centers 0. (env.normalMeasure);
+    mainNode Node.([innerSep 0.;outerSep 0.;rectangle env;
+    draw;at (0.,0.1 *. env.normalLead)])])
+    [[ ([Node.innerSep 0.001],[]) ; ([Node.innerSep 0.001],[]) ]])>>
+
+)

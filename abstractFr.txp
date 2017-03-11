@@ -1,0 +1,29 @@
+\color(white){...}\linesAfter(7)
+
+\begin{center}
+\size(6.0){||Résumé||}
+\linesAfter(3)
+\end{center}
+On considère un langage de programmation à la ML, supportant la preuve de
+programmes. L'idée est de combiner, au sein d'un même outil, la flexibilité
+d'un véritable langage de programme et un grand pouvoir de spécification.
+Autrement dit, on propose un système que peut être utilisé pour programmer
+de manière usuelle (au sens de la programmation fonctionnelle avec typage
+fort), mais qui autorise l'ajout graduel de nouvelles garanties en prouvant
+des propriétés des programmes (par exemple, montrer qu'une liste est triée).
+De telles propriétés peuvent être spécifiées grâce à la réflexion d'une
+relation d'équivalence sur les termes du langages, au sein de son système
+de types. Un autre composant essentiel est un type de fonction dépendante,
+qui peut être lu comme une forme de quantification typée. On peut donc
+exprimer des propriétés qui s'appliquent, par exemple à tous les entiers
+naturels, ou à tous les arbres binaires de recherche.
+
+Pour s'assurer de la correction du système (cohérence logique et sureté à
+l'exécution), un cadre théorique basé sur la réalisabilité classique de
+Krivine à du être imaginé. La construction de ce modèle se repose sur une
+propriété essentielle, liant les différents niveaux d'interprétation des
+types d'une manière novatrice. La sémantique obtenue peut être combinée
+avec du sous-typage pour former un système propice à l'implantation. Pour
+gérer nos nouveaux connecteurs logiques, on introduit une relation ternaire
+$t ∈ A ⊂ B$, appelée sous-typage pointé. Elle est interprétée comme
+l'implication « si $t$ a le type $A$, alors il a aussi le type $B$ ».

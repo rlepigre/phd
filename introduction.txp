@@ -466,11 +466,45 @@ the case here as ##n## is a variable and ##add m p## is equivalent to
 some value, as witnessed by ##tot_m_q##. The second call to ##add_total##
 is required for a similar reason in the successor case.
 
-(* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO *)
-
 =<
 
-=> Main results and contributions
+=> Call-by-value realisability semantics
+
+One of the main contribution of this thesis is the design of a theoretical
+framework supporting the technical innovations brought by our new language.
+It allows us the ensure the correctness of the system (logical consistency
+and runtime safety), using the techniques provided by Krivine's classical
+realisability. As the language we consider has a call-by-value evaluation
+strategy, our types are interpreted using three sets: a set of values (i.e.
+fully evaluated terms), a set of stacks (i.e. continuations or evaluation
+contexts) and a set of terms. These three levels of interpretation are not
+only linked by orthogonality, but also by a novel property that is essential
+for our construction.
+
+(*
+The obtained semantics can be successfully combined with
+subtyping to yield a type system that is suitable for implementation. To
+account for our new connectives, we introduce a ternary relation
+$t : A \subset B$ called pointed subtyping. It is interpreted as the
+implication ``if $t$ has type $A$, then it also has type $B$''.
+*)
+
+
+
+
+(* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO *)
+
+(*
+As a consequence, we may say that we follow the
+//program as proof principle//, rather than the usual //proof as program
+principle//. In particular, proofs can be composed as (and with) programs
+to form proof tactics.
+
+The special term ##8<## (to be pronounced "scissors") can be introduced
+whenever the goal is derivable from the context, using equational reasoning.
+ *)
+
+
 
 The main contribution of this paper is a new approach to value restriction.
 The syntactic restriction on terms is replaced by a semantical restriction
@@ -568,8 +602,8 @@ rely on a call-by-value presentation which yields a model in three layers
 (values, terms and stacks). Such a technique has already been used to account
 for classical ML-like polymorphism in call-by-value in the work of Guillaume
 Munch-Maccagnoni \cite("Munch2009"). It is here extended to include dependent
-products. Note that our main theorem seems unrelated to lemma 9 in
-Munch-Maccagnoni's work \cite("Munch2009").
+products. Note that our main result (\theorem("main")) seems unrelated to
+Lemma 9 in Munch-Maccagnoni's work \cite("Munch2009").
 
 The most actively developed proof assistants following the Curry-Howard
 correspondence are Coq and Agda \mcite(["CoqTeam2004";"Norell2008"]). The
@@ -609,8 +643,8 @@ classical higher-order logic. However this tool does not seem to be a
 programming language, but rather a specification language coupled with proof
 checking and model checking utilities. It is nonetheless worth mentioning
 that the undecidability of PVS's type system is handled by generating proof
-obligations. Our system will take a different approach and use a
-non-backtracking type-checking and type-inference algorithm.
+obligations. Our system takes a completely different approach and relies
+on a non-backtracking type-checking algorithm.
 
 =<
 
@@ -656,16 +690,3 @@ is suggested.
 =<
 
 =<
-
-
-(*
-As a consequence, we may say that we follow the
-//program as proof principle//, rather than the usual //proof as program
-principle//. In particular, proofs can be composed as (and with) programs
-to form proof tactics.
-
-The special term ##8<## (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context, using equational reasoning.
- *)
-
-
