@@ -393,7 +393,7 @@ example is type-checked in a context where ##c## has the polymorphic type
 ##'a → 'a## can be unified with both ##string → string## and ##int → int##.
 As with references, value restriction forbid such unifications.
 
-Note that it relatively easy to translate the counter example into our
+Note that it is relatively easy to translate the counter example into our
 language. Indeed, terms of the form ##callcc (fun k → t)## are translated
 to ##save k → t## and terms of the form ##throw k u## to ##restore k u##.
 Moreover, as our system contains system F, value restriction does need to
@@ -405,85 +405,68 @@ to only applying this rule to terms that are values.
 
 => Dependent functions and relaxed restriction
 
-One of the main features of our system is a dependent function type, which
-is essential for building proofs. However, several difficulties arise when
-combining call-by-value evaluation, side-effects and dependent function
-types. Most notably, dependent products need to be restricted to preserve
-soundness. Indeed, if ##f## has type ##∀x∈a, b<x>## and ##t## has type
-##a## then we cannot always derive that ##f t## has type ##b<t>##. As a
-consequence, we need to restrict the application of dependent functions
-so that ##f t## is guaranteed to be of type ##b<t>##. The simplest possible
+One of the main features of our system is a dependent function type. It is
+essential for building proofs as it provides a form of typed quantification.
+However, combining call-by-value evaluation, side-effects and dependent
+functions is not straightforward. Indeed, if ##t## is a dependent function
+of type ##∀x∈a, b<x>## and if ##u## has type ##a##, then is it not always
+the case that ##t u## has type ##b<u>##. As a consequence, we need to
+restrict the application of
+dependent functions to make sure that it is type safe. The simplest possible
 approach consist in only allowing syntactic values as argument of dependent
-functions, which is another instance of //value restriction//.
+functions, which is another instance of //value restriction//. It is however
+not satisfactory as it considerably weakens the expressiveness of dependent
+functions. For example, ##add_n_z## cannot be applied to the term
+##add Zero Zero## to prove ##add (add Zero Zero) Zero ≡ add Zero Zero##. In
+other words, value restriction breaks the modularity of our proof system.
 
-Using value restriction, the expressiveness of our dependent products is
-considerably weakened. For example, it forbids the application of the
-function ##add_n_z## to the term ##add Zero Zero## to obtain a proof of
-##add (add Zero Zero) Zero ≡ add Zero Zero##. Indeed, the term
-##add Zero Zero## is not a value. As a consequence, value restriction
-breaks the modularity of our proof system, as it relies heavily on
-dependent products. Even programs are affected by value restriction in a
-similar way. For example, it is possible to define a type for vectors
-(i.e. lists of fixed length) together with their concatenation function
-as follows.
+Surprisingly, our equality types provide a solution to the problem. Indeed,
+they allow us to identify terms having the same observable computational
+behaviour. We can then relax the restriction to terms that are equivalent
+to some value. In other words, we consider that a term ##u## is a value if
+we can find a value ##v## such that ##u ≡ v##. This idea can be applied
+whenever value restriction was previously required. Moreover, the obtained
+system is conservative over the one with the syntactic restriction. Indeed,
+finding a value that is equivalent to a term that is already a value can
+always be achieved using reflexivity. Although this new idea seems simple,
+establishing the soundness of the obtained system is relatively subtle
+\cite("Lepigre2016").
+
+In practice, using a term as a value is not always immediate. For example,
+the system is not able to directly prove that ##add n m## is a value,
+provided that ##n## and ##m## are two natural numbers. It is however
+possible to establish this fact internally as follows.
 ### PML "examples/demo.pml"
-val rec len : ∀a, list<a> ⇒ nat = fun l →
-  case l of
-  | Nil[_]  → Zero
-  | Cons[c] → Succ[len c.tl]
-
-type vec<a:ο,s:τ> = ∃l:ι, l∈(list<a> | len l ≡ s)
-
-val rec len_total : ∀a, ∀l∈list<a>, ∃v:ι, v ≡ len l = fun l →
-  case l of
-  | Nil[_]  → {}
-  | Cons[c] → let ind = len_total c.tl in {}
-
-val rec app : ∀a, ∀n m:ι, vec<a,n> ⇒ vec<a,m> ⇒ vec<a,add n m> =
-  Λa:ο. fun ln lm →
-  case ln of
-  | Nil[_]  → lm
-  | Cons[c] →
-      let lem = len_total c.tl in
-      (case len ln of
-      | Zero[]   → ✂
-      | Succ[p1] →
-          let r = app c.tl lm in
-          let lem = len_total (r : list<a>) in
-          Cons[{hd = c.hd; tl = r}])
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ih = add_total k m in {}
 ###
-Here, the symbol ##8<## is used to fill a branch of the program that is
-not accessible. Indeed, if ##n## is not ##Zero## then the list ##ln##
-cannot be equal to ##Nil## by definition of ##Vect(A,n)## (its length
-must be equal to ##n##). Let us now suppose that we want to produce,
-using ##concat##, a function ##concat3## computing the concatenation of
-three vectors. We would expect to be able to define it in the following
-way.
-### PML
-val concat3 : ∀A (n:Nat) ⇒ (m:Nat) ⇒ (k:Nat) ⇒
-                   List(n) ⇒ List(m) ⇒ List(k) ⇒
-                     List(add (add n m) k) = fun n m k ln lm lk →
-  concat (add n m) k (concat n m ln lm) lk
+Here, ##add_total## proves that for any values ##n## and ##m## in the type
+##nat##, there is some value ##v## such that ##add n m ≡ v##. Note that we
+did not specifically require ##v## to be a natural number. It would be
+possible to ask so using the same proof, but this stronger property is
+usually not necessary in practice. Thanks to ##add_total##, we can give a
+proof of the associativity of our addition function.
+### PML "examples/demo.pml"
+val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
+  fun n m p →
+    let tot_m_q = add_total m p in
+    case n of
+    | Zero[_] → {}
+    | Succ[k] → let tot_p_m = add_total k m in
+                 let ih = add_asso k m p in {}
 ###
-However, this definition is not valid with value restriction since
-##concat## is applied to the non-value argument ##add n m##. This again
-demonstrates that value restruction breaks the modularity of programs
-that are typed using dependent products. As a consequence, we need to
-relax value restriction so that some well-behaved terms can be used as
-arguments for dependent functions.
+Note that the proof require two calls to ##add_total##. The first one is
+used in both the base case and the induction case. It is required so that
+the system can unfold the definition of ##add n (add m p)## according to
+the head constructor of ##n##. As we are in call-by-value, we can only
+reduce the definition of a function when it is applied to values. It is
+the case here as ##n## is a variable and ##add m p## is equivalent to
+some value, as witnessed by ##tot_m_q##. The second call to ##add_total##
+is required for a similar reason in the successor case.
 
-The equality types provide a solution to our expressivity
-problem. The equivalence relation they denote identifies terms (including
-values) with the same observable computational behaviour. Hence, equal
-terms have the same behaviour on every possible input. Consequently, we
-can use a term ##t## as an argument of a dependent function, if an only
-if there is a value ##v## such that we can derive ##t ≡ v##. The same idea
-can be applied whenever value restriction was previously required, and the
-obtained system is conservative over the one with the syntactic
-restriction. Indeed, finding a value equivalent to a term that is already
-a value can always be done using reflexivity. Although our new idea seems
-simple, proving the soundness of the obtained system is surprisingly
-subtle \cite("Lepigre2016").
+(* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO *)
 
 =<
 
