@@ -483,6 +483,7 @@ module PMLVerbatim : sig
       ; simple_verb "ι"
       ; simple_verb "ο"
       ; simple_verb "τ"
+      ; simple_verb "⋯"
       ; ("<" , langle)
       ; (">" , rangle)
       ; ("8<", scissors)

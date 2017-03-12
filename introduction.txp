@@ -477,21 +477,20 @@ are not values in dependent applications. Similarly, the $F^{★}$ language
 \cite("Swamy2011") relies on (partial) let-normal forms to enforce values
 in argument position. Daniel Licata and Robert Harper have defined a notion
 of positively dependent types \cite("Licata2009") which only allow dependency
-over strictly positive types.
-(* *)
-Finally, in language like ATS \cite("Xi2004") and DML \cite("Xi1999")
-dependent types are limited to a specific index language.
+over strictly positive types. Finally, in language like ATS \cite("Xi2004")
+and DML \cite("Xi1999") dependent types are limited to a specific index
+language.
 
 The system that seems the most similar to ours is NuPrl
 \cite("Constable1986"), although it is inconsistent with classical reasoning.
-NuPrl accommodates an observational equivalence $({\sim})$ (Howe's squiggle
-relation \cite("Howe1989")) similar to our $({≡})$ relation. It is partially
+NuPrl accommodates an observational equivalence relation similar to ours
+(Howe's squiggle relation \cite("Howe1989")). It is partially
 reflected in the syntax of the system. Being based on a Kleene style
 realizability model, NuPrl can also be used to reason about untyped terms.
 
-The central part of this paper consists in a classical realizability model
-construction in the style of Jean-Louis Krivine \cite("Krivine2009"). We
-rely on a call-by-value presentation which yields a model in three layers
+The central part of this paper consists in the construction of a classical
+realizability model in the style of Jean-Louis Krivine \cite("Krivine2009").
+We rely on a call-by-value presentation which yields a model in three layers
 (values, terms and stacks). Such a technique has already been used to account
 for classical ML-like polymorphism in call-by-value in the work of Guillaume
 Munch-Maccagnoni \cite("Munch2009"). It is here extended to include dependent

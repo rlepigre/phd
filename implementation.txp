@@ -1,6 +1,9 @@
+\Include{Macros}
+
 \Caml(
   open ProofTree
   open Diagrams
+  open PMLVerbatim
   open Lang
 
   let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
@@ -13,7 +16,6 @@
   let wbox = <$\mathsize{3.}{\wbox}$>
   let bbox = <$\mathsize{3.}{\bbox}$>
 )
-\Include{Macros}
 
 \Configure_math_macro{\v}{ syntax = string; }
 \Configure_math_macro{\t}{ syntax = string; }
@@ -26,54 +28,371 @@
 
 => Implementation and examples \label("implem")
 
-=> Syntax-directed unification
+In this last chapter, we consider examples of programs and proofs that can be
+written and manipulated using our prototype implementation. This restricted
+set of examples is not intended to give an exhaustive view of our language.
+Their only purpose is to demonstrate its expressiveness through a selected
+set of examples that seem interesting to the author. This chapter also
+contains some discussions on possible extensions and improvement on the
+system and its implementation.
 
-With the implementation in mind, it is important for our general typing
-rules to be directed by the syntax. This means that we should be able
-to select which rule to apply by looking at the surface constructor of
-the term we want to type-check. The general typing rules given in
-\figRef("subrules") can all be implemented as a syntax-directed procedure,
-with the exception of the ($⇒_e$) and ($⇒_{e,{∈}}$) rules (which form
-a critical pair). However, this is not really a problem since we can
-choose to apply the ($⇒_{e,{∈}}$) rule whenever possible, and fallback
-to the ($⇒_e$) rule. It is always safe to do so thanks to the following
-lemma.
+=> Encoding of strict product types
 
-\begin{lem}
-If a typing judgment $Ξ ⊢ \t{t u} : \f{B}$ has a typing proof starting
-with the ($⇒_e$) rule, and if the judgment $Ξ ⊢ v≡u$ is provable, then
-$Ξ ⊢ \t{t u} : \f{B}$ also has a typing proof starting with the
-($⇒_{e,{∈}}$) rule.
-\begin{proof}
-\todo(Some "Hopeless ?") (* TODO *)
-\end{proof}
-\end{lem}
+\todo(None) (* TODO *)
 
-=<
-=> Equivalence decision procedure
+### PML "examples/realunit.pml"
+// Usual "unit" type (i.e. empty product).
+def unit : ο = {⋯}
 
-(* TODO *) \todo(None)
+// It is inhabited by the empty record.
+val u : unit = {}
 
-=<
-=> Examples of programs
+// It is in fact inhabited by any record...
+val u_aux : unit = {l = {}}
 
-(* TODO *) \todo(None)
+// We can define a real (one element) « unit » type as follows.
+def real_unit : ο = {} ∈ {⋯}
 
-=<
-=> Examples of proofs
+// It is still inhabited by the empty record.
+val unit : real_unit = {}
 
-(*
-As a consequence, we may say that we follow the
-//program as proof principle//, rather than the usual //proof as program
-principle//. In particular, proofs can be composed as (and with) programs
-to form proof tactics.
+// But any other record is not in this type.
+// val unit_bad : real_unit = {l = {}}
 
-The special term ##8<## (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context, using equational reasoning.
- *)
-
-(* TODO *) \todo(None)
+// In fact we can prove that every value of [real_unit] is equivalent
+// to the empty record [{}].
+val canonical : ∀x∈real_unit, x ≡ {} = fun x → x
+###
 
 =<
+=> Booleans and tautologies
 
+\todo(None) (* TODO *)
+
+### PML "examples/bool.pml"
+// Type of booleans
+def bool : ο = [Fls ; Tru]
+
+// Basic functions.
+val eq : bool ⇒ bool ⇒ bool = fun b1 b2 →
+  case b1 of
+  | Fls[_] → (case b2 of
+               | Tru[] → Fls
+               | Fls[] → Tru)
+  | Tru[_] → (case b2 of
+               | Tru[] → Tru
+               | Fls[] → Fls)
+
+val not : bool ⇒ bool = fun b →
+  case b of
+  | Fls[_] → Tru
+  | Tru[_] → Fls
+
+val or : bool ⇒ bool ⇒ bool = fun b1 b2 →
+  case b1 of
+  | Fls[_] → b2
+  | Tru[_] → Tru
+
+val imp : bool ⇒ bool ⇒ bool = fun b1 b2 →
+  case b1 of
+  | Fls[_] → Tru
+  | Tru[_] → b2
+
+def land<b1:τ,b2:τ> =
+  case b1 of
+  | Fls[_] → Fls
+  | Tru[_] → b2
+
+val and : bool ⇒ bool ⇒ bool = fun b1 b2 →
+  case b1 of
+  | Fls[_] → Fls
+  | Tru[_] → b2
+
+// Proof of the excluded middle
+val excluded_middle : ∀x∈bool, or x (not x) ≡ Tru = fun b →
+  case b of
+  | Fls[_] → {}
+  | Tru[_] → {}
+
+// Equivalence is reflexive.
+val eq_refl : ∀x∈bool, eq x x ≡ Tru = fun b →
+  case b of
+  | Fls[_] → {}
+  | Tru[_] → {}
+
+// Equivalence is commutative.
+val eq_comm : ∀x y∈bool, eq x y ≡ eq y x = fun b1 b2 →
+  case b1 of
+  | Fls[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+  | Tru[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+
+
+val eq_comm2 : ∀x y∈bool, eq (eq x y) (eq y x) ≡ Tru = fun b1 b2 →
+  case b1 of
+  | Fls[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+  | Tru[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+
+// Equivalence is associative.
+val eq_asso : ∀x y z∈bool, eq (eq x y) z ≡ eq x (eq y z) =
+  fun b1 b2 b3 →
+    case b1 of
+    | Fls[_] → (case b2 of
+                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+    | Tru[_] → (case b2 of
+                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+
+val eq_asso2 : ∀x y z∈bool, eq (eq (eq x y) z) (eq x (eq y z)) ≡ Tru =
+  fun b1 b2 b3 →
+    case b1 of
+    | Fls[_] → (case b2 of
+                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+    | Tru[_] → (case b2 of
+                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+###
+
+=<
+=> Proofs on unary natural numbers
+
+\todo(None) (* TODO *)
+
+### PML "examples/unat.pml"
+type rec nat = [ Z ; S of nat ]
+
+val zero : nat = Z[]
+val succ : nat ⇒ nat = fun n → S[n]
+val one  : nat = succ zero
+val two  : nat = succ one
+
+val rec id_nat : nat ⇒ nat = fun n →
+  case n of
+  | Z[] → Z[]
+  | S[p] → succ (id_nat p)
+
+val test : nat = id_nat two
+
+val rec id_nat_id : ∀n∈nat, id_nat n ≡ n = fun m →
+  case m of
+  | Z[] → {}
+  | S[p] → let ind_hyp : id_nat p ≡ p = id_nat_id p in {}
+
+val rec add : nat ⇒ nat ⇒ nat = fun n m →
+  case n of
+  | Z[] → m
+  | S[p] → succ (add p m)
+
+val partial_add_total : ∀x:ι, ∃v:ι, add x ≡ v = {}
+
+val rec strong_add_total : ∀n∈nat, ∀m∈(∃x,x), ∃v:ι, add n m ≡ v = fun n m →
+  case n of
+  | Z[_] → {}
+  | S[p] → let ind_hyp = strong_add_total p m in {}
+
+// FIXME should work
+val rec strong_add_total : ∀m:ι, ∀n∈nat, ∃v:ι, add n m ≡ v = Λm:ι.fun n →
+  case n of
+  | Z[_] → {}
+  | S[p] → let deduce  : add n m ≡ S[add p m] = {} in
+           let ind_hyp : (∃v:ι, add p m ≡ v) = strong_add_total p in {}
+
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp = add_total p m in {}
+
+def addt<x:τ,y:τ> : τ =
+   let lem = add_total x y in add x y
+
+val add_zero_left : ∀z∈nat, add zero z ≡ z = fun n → {}
+
+val rec add_zero1 : ∀z∈nat, add z zero ≡ z = fun k →
+  case k of
+  | Z[] → {}
+  | S[p] →
+    let ind_hyp = (add_zero1 p : add p zero ≡ p) in {}
+
+val rec add_zero2 : ∀n∈nat, add n zero ≡ n = fun n →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp : add p zero ≡ p = add_zero2 p in {}
+
+val rec add_asso : ∀n m q∈nat, add n (add m q) ≡ add (add n m) q =
+  fun n m q →
+    let tot1 = add_total m q in
+    case n of
+    | Z[] → {}
+    | S[p] →
+      let deduce : add n (add m q) ≡ succ (add p (add m q)) = {} in
+      let tot2 = add_total p m in
+      let deduce : add (add n m) q ≡ succ (add (add p m) q) = {} in
+      let ind_hyp = add_asso p m q in
+      {}
+
+val rec add_zero : ∀n∈nat, add n zero ≡ n = fun n →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp = add_zero p in {}
+
+val rec add_succ : ∀n m∈nat, add n S[m] ≡ succ(add n m) = fun n m →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp = add_succ p m in {}
+
+val rec add_succ2 : ∀n m∈nat, add n S[m] ≡ S[add n m] = fun n m →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp : add p S[m] ≡ S[add p m] = add_succ p m in {}
+
+val add_comm : ∀n m∈nat, add n m ≡ add m n = fix fun add_comm n m →
+  case n of
+  | Z[] → let lem = add_zero m in {}
+  | S[p] →
+    let ind_hyp = add_comm p m in
+    let lem = add_succ m p in
+    {}
+
+val mul : nat ⇒ nat ⇒ nat = fix fun mul n m →
+  case n of
+  | Z[] → Z[]
+  | S[p] → add m (mul p m)
+
+val mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fix fun mul_total n m →
+  case n of
+  | Z[] → {}
+  | S[p] →
+   let ind_hyp = mul_total p m in
+   let lem = add_total m (mul p m) in
+   {}
+
+val mul_zero : ∀n∈nat, mul n zero ≡ zero = fix fun mul_zero n →
+  case n of
+  | Z[] → {}
+  | S[p] →
+    let ind_hyp : mul p zero ≡ zero = mul_zero p in
+    let deduce : add zero (mul p zero) ≡ mul n zero = {} in
+    let deduce : add zero (mul p zero) ≡ zero = {} in
+    {}
+
+val mul_zero1 : ∀n∈nat, mul n zero ≡ zero = fix fun mul_zero n →
+  case n of
+  | Z[]  → {}
+  | S[p] → let ind_hyp = mul_zero p in {}
+
+val mul_succ : ∀n m∈nat, mul n S[m] ≡ add (mul n m) n = fix fun mul_succ n m →
+  case n of
+  | Z[]  → {}
+  | S[p] →
+    let deduce : add (mul n m) n ≡ add (add m (mul p m)) n = {} in
+    let ind_hyp : mul p S[m] ≡ add (mul p m) p = mul_succ p m in
+    let total = mul_total p m in
+    let total = add_total m (mul p m) in
+    let deduce : add (add m (mul p m)) n ≡ succ (add (add m (mul p m)) p) =
+      add_succ (add m (mul p m)) p
+    in
+    let deduce : add (add m (mul p m)) n ≡ succ (add m (add (mul p m) p)) =
+      add_asso m (mul p m) p
+    in
+    let deduce : add (add m (mul p m)) n ≡ succ (add m (mul p S[m])) =
+      {}
+    in
+    let total = mul_total p S[m] in
+    let deduce : add (add m (mul p m)) n ≡ add S[m] (mul p S[m]) =
+      {}
+    in
+    let deduce : add (add m (mul p m)) n ≡ mul n S[m] =
+      {}
+    in
+    {}
+
+val mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fix fun mul_comm n m →
+  case n of
+  | Z[]  → let lem = mul_zero m in {}
+  | S[p] →
+     let ind : mul p m ≡ mul m p = mul_comm m p in
+     let lem = mul_succ m p in
+     let tot = mul_total p m in
+     let lem = add_comm (mul p m) m in
+     {}
+###
+
+=<
+=> Lists and their vector subtypes
+
+\todo(None) (* TODO *)
+
+### PML "examples/vec.pml"
+type rec nat = [ Z ; S of nat ]
+
+val zero : nat = Z[]
+val succ : nat ⇒ nat = fun n → S[n]
+
+val rec add : nat ⇒ nat ⇒ nat = fun n m →
+  case n of
+  | Z[] → m
+  | S[p] → succ (add p m)
+
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
+  case n of
+  | Z[] → {}
+  | S[p] → let ind_hyp = add_total p m in {}
+
+type rec list<a:ο> = [ Nil; Cns of { hd : a; tl : list }  ]
+
+val nil : ∀a:ο, list<a> = Nil[]
+val cns : ∀a:ο, a ⇒ list<a> ⇒ list<a> =
+  fun e l → Cns[{ hd = e; tl = l }]
+
+val rec length : ∀a:ο, list<a> ⇒ nat = fun l →
+  case l of
+  | Nil[] → zero
+  | Cns[c] → succ (length c.tl)
+
+val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l = fun l →
+  case l of
+  | Nil[] → {}
+  | Cns[c] → let ind = length_total c.tl in {}
+
+type vec<a:ο,s:τ> = ∃l:ι, l∈(list<a> | length l ≡ s)
+// The fact that s:τ is very important
+// The position of the partenthesis is important
+
+val vnil : ∀a:ο, vec<a,zero> = nil
+
+val vcns : ∀a:ο,∀s:ι, ∀x∈a, vec<a,s> ⇒ vec<a,succ s> =
+   fun y ls → Cns[{hd= y;tl= ls}]
+
+val rec app : ∀a:ο, ∀n1 n2:ι, vec<a,n1> ⇒ vec<a,n2> ⇒ vec<a,add n1 n2> =
+  Λa:ο. fun l1 l2 →
+  case l1 of
+  | Nil[] → l2
+  | Cns[c] →
+      let lem = length_total c.tl in
+      (case length l1 of
+      | Z[] → ✂
+      | S[p1] →
+        let r = app c.tl l2 in
+        let lem = length_total (r : list<a>) in
+        vcns c.hd r)
+
+val app3 : ∀a:ο, ∀n1 n2 n3:ι,
+           vec<a,n1> ⇒ vec<a,n2> ⇒ vec<a,n3> ⇒ vec<a,add n1 (add n2 n3)> =
+    fun l1 l2 l3 →
+      let lem = add_total (length l2) (length l3) in
+      app l1 (app l2 l3)
+###
+
+=<
+=> Case study: sorting algorithm
+
+\todo(None) (* TODO *)
+
+=<
+=> Case study: $λ$-calculus
+
+\todo(None) (* TODO *)
+
+=<
 =<
