@@ -62,6 +62,16 @@ $Ξ ⊢ \t{t u} : \f{B}$ also has a typing proof starting with the
 =<
 => Examples of proofs
 
+(*
+As a consequence, we may say that we follow the
+//program as proof principle//, rather than the usual //proof as program
+principle//. In particular, proofs can be composed as (and with) programs
+to form proof tactics.
+
+The special term ##8<## (to be pronounced "scissors") can be introduced
+whenever the goal is derivable from the context, using equational reasoning.
+ *)
+
 (* TODO *) \todo(None)
 
 =<

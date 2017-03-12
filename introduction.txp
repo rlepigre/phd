@@ -54,7 +54,7 @@ that they cannot be used for proving mathematical formulas.
 The aim of this work is to provide a uniform environment in which
 programs can be designed, specified and proved. The idea is to combine a
 full-fledged, ML-like programming language with an enriched type-system
-allowing the specification of computational behaviours. The system can
+allowing the specification of computational behaviours. This language can
 thus be used as ML for type-safe general programming, or as a proof
 assistant for proving properties of ML programs. The uniformity of the
 framework implies that programs can be incrementally refined to obtain
@@ -115,7 +115,7 @@ val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
   fun f u → f Some[f u]
 ###
 In fact, System F polymorphism is not the only form of quantification that
-is supported in our system. It also provide existential types, which are an
+is supported in our system. It also provides existential types, which are an
 essential first step toward the encoding of a module system supporting a
 notion of abstract interface. Moreover, our system is based on higher-order
 logic, which means that types are not the only objects that can be quantified
@@ -236,13 +236,12 @@ val rec add_n_z : ∀n∈nat, add n Zero ≡ n = fun n →
   | Zero[_] → {}
   | Succ[k] → let ih = add_n_z k in {}
 ###
-In the case where ##n## is ##Zero## we need to prove
-##add Zero Zero ≡ Zero##, which is immediate by definition of
-the ##add## function. In the case where ##n## is ##Succ[k]## we need to show
-##add Succ[k] Zero ≡ Succ[k]##. By definition of ##add##, this can be
-reduced to ##Succ[add k Zero] ≡ Succ[k]##. We can then conclude using
-the induction hypothesis (i.e. ##add_n_z k##) with which we learn
-##add k Zero ≡ k##.
+If ##n## is ##Zero##, then we need to show ##add Zero Zero ≡ Zero##, which
+is immediate by definition of ##add##. In the case where ##n## is ##Succ[k]##
+we need to show ##add Succ[k] Zero ≡ Succ[k]##. By definition of ##add##,
+this can be reduced to ##Succ[add k Zero] ≡ Succ[k]##. We can then use the
+induction hypothesis (i.e. ##add_n_z k##) to learn ##add k Zero ≡ k##, with
+which we can concludes the proof.
 
 It is important to note that, in our system, a program that is considered
 as a proof needs to go though a termination checker. Indeed, a looping
@@ -253,8 +252,8 @@ proof is rejected.
 //   let ih = add_n_z_loop n in {}
 ###
 It is however easy to see that ##add_z_n## and ##add_n_z## are terminating,
-and hence valid. In the following, we will always implicitly consider that
-the programs considered as proofs have been proved terminating.
+and hence valid. In the following, we will always assume that the programs
+used as proofs have been shown terminating.
 
 There are two main ways of learning new equations in the system. On the one
 hand, when a term ##t## is matched in a case analysis, a branch can only be
@@ -327,11 +326,11 @@ type safety, which is the very purpose of a type system.
 To solve the problem, many alternative type systems were designed (e.g.
 \mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
 all introduced a complexity that contrasted with the elegance and simplicity
-of ML systems (see \citen("Wright1995")("Section 2") and
-\citen("Garrigue2004")("Section 2") for a detailed account).
-A simple and elegant solution was finally found by Andrew Wright in the
-nineties. He suggested restricting generalization (i.e. introduction of
-polymorphism) to syntactic values \mcite(["Wright1994";"Wright1995"]).
+of ML systems (for a detailed accounts, see \citen("Wright1995")("Section 2")
+and \citen("Garrigue2004")("Section 2")). A simple and elegant solution was
+finally found by Andrew Wright in the nineties. He suggested restricting
+generalization (i.e. introduction of polymorphism) to syntactic values
+\mcite(["Wright1994";"Wright1995"]).
 
 In ML, generalization usually happens in expressions of the form
 "##let x = u in t##", called let-bindings. The type-checking of such an
@@ -349,8 +348,8 @@ yet unknown type). Thus, it cannot be unified with ##bool list ref## and
 
 As mentioned in \section("sectprog"), the system presented in this thesis
 does not include references, but control structures. One way of extending
-ML with control structures is again to introduce an abstract equipped with
-polymorphic operations.
+ML with control structures is again to introduce an abstract type equipped
+with polymorphic operations.
 ### OCaml
   type 'a cont
 
@@ -444,8 +443,7 @@ val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
 ###
 Here, ##add_total## proves that for any values ##n## and ##m## in the type
 ##nat##, there is some value ##v## such that ##add n m ≡ v##. Note that we
-did not specifically require ##v## to be a natural number. It would be
-possible to ask so using the same proof, but this stronger property is
+did not specifically require ##v## to be a natural number as this is
 usually not necessary in practice. Thanks to ##add_total##, we can give a
 proof of the associativity of our addition function.
 ### PML "examples/demo.pml"
@@ -464,102 +462,8 @@ the head constructor of ##n##. As we are in call-by-value, we can only
 reduce the definition of a function when it is applied to values. It is
 the case here as ##n## is a variable and ##add m p## is equivalent to
 some value, as witnessed by ##tot_m_q##. The second call to ##add_total##
-is required for a similar reason in the successor case.
-
-=<
-
-=> Call-by-value realisability semantics
-
-One of the main contribution of this thesis is the design of a theoretical
-framework supporting the innovating features of our new language. It allows
-us the ensure the correctness of the system (logical consistency and runtime
-safety), using the techniques provided by Krivine's classical realisability.
-As the language we consider has a call-by-value evaluation strategy, our
-types are interpreted using three sets: a set of values (i.e. fully evaluated
-terms), a set of stacks (i.e. continuations or evaluation contexts) and a set
-of terms. These three levels of interpretation are not only linked by
-orthogonality, but also by a novel property that is essential for our
-construction.
-
-(*
-The obtained semantics can be successfully combined with
-subtyping to yield a type system that is suitable for implementation. To
-account for our new connectives, we introduce a ternary relation
-$t : A \subset B$ called pointed subtyping. It is interpreted as the
-implication ``if $t$ has type $A$, then it also has type $B$''.
-*)
-
-
-
-
-(* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO *)
-
-(*
-As a consequence, we may say that we follow the
-//program as proof principle//, rather than the usual //proof as program
-principle//. In particular, proofs can be composed as (and with) programs
-to form proof tactics.
-
-The special term ##8<## (to be pronounced "scissors") can be introduced
-whenever the goal is derivable from the context, using equational reasoning.
- *)
-
-
-
-The main contribution of this paper is a new approach to value restriction.
-The syntactic restriction on terms is replaced by a semantical restriction
-expressed in terms of an observational equivalence relation denoted
-$({≡})$. Although this approach seems simple, building a model to prove
-soundness semantically is surprisingly subtle. Subject reduction is not
-required here, as our model construction implies type safety. Furthermore
-our type system is consistent as a logic.
-
-In this paper, we restrict ourselves to a second order type system but it
-can easily be extended to higher-order. Types are built from two basic sorts
-of objects: propositions (the types themselves) and individuals (untyped
-terms of the language). Terms appear in a restriction operator
-$A \restriction t ≡ u$ and a membership predicate $t ∈ A$. The former is used
-to define the equality types (by taking $A = \top$) and the latter is used
-to encode dependent product.
-$$ Π_{a : A} B := ∀ a (a ∈ A ⇒ B)$$
-Overall, the higher-order version of our system is similar to a Curry-style
-HOL with ML programs as individuals. It does not allow the definition of a
-type which structure depends on a term (e.g. functions with a variable number
-of arguments). Our system can thus be placed between HOL (a.k.a. $F_\omega$)
-and the pure calculus of constructions (a.k.a. $CoC$) in (a Curry-style and
-classical version of) Barendregt's $λ$-cube.
-
-Throughout this paper we build a realizability model à la Krivine
-\cite("Krivine2009") based on a call-by-value abstract machine. As a
-consequence, formulas are interpreted using three layers (values, stacks
-and terms) related via orthogonality. The crucial property for the soundness
-of semantical value restriction is that
-$$ φ^{\bot\bot} ∩ Λ_v = φ $$
-for every set of values $φ$ (closed under $({≡})$). $Λ_v$ denotes the set of
-all values and $φ^\bot$ (resp. $φ^{\bot\bot}$) the set of all stacks (resp.
-terms) that are compatible with every value in $φ$ (resp. stacks in
-$φ^\bot$). To obtain a model satisfying this property, we need to extend our
-programming language with a term $δ_{v,w}$ which reduction depends on the
-observational equivalence of two values $v$ and $w$.
-
-(*
-A model is built using classical
-realizability techniques in which the interpretation of a type $A$ is spread
-among two sets: a set of values $⟦A⟧$ and a set of terms $⟦A⟧^{\bot\bot}$.
-The former contains all values that should have type $A$. For example,
-$⟦nat⟧$ should contain the values of the form ##S[S[...Z[]...]]##. The
-set $⟦A⟧^{\bot\bot}$ is the completion of $⟦A⟧$ with all the terms behaving
-like values of $⟦A⟧$ (in the observational sense).
-(* *)
-To show that the relaxation of the value restriction is sound, we need the
-values of $⟦A⟧^{\bot\bot}$ to also be in $⟦A⟧$. In other words, the
-completion operation should not introduce new values. To obtain this
-property, we need to extend the language with a new, non-computable
-instruction internalizing equivalence. This new instruction is only used to
-build the model, and will not be available to the user (nor will it appear
-in an implementation).
-(* TODO *)
-*)
+is required for a similar reason, but it is only useful in the successor
+case.
 
 =<
 
