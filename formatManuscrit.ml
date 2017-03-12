@@ -524,8 +524,6 @@ module Format (D:DocumentStructure) = struct
              let name = boxify_scoped env' s.displayname in
              let w=List.fold_left (fun w b->
                let (_,w',_)=box_interval b in w+.w') 0. num in
-             let w'=List.fold_left (fun w b->
-               let (_,w',_)=box_interval b in w+.w') 0. name in
 
              let numb =
                if not numbered then [] else

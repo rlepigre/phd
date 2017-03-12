@@ -13,6 +13,13 @@ let rec drop n l =
   | n, []   -> l
   | n, x::l -> drop (n-1) l
 
+let link url c =
+  let link_begin = [bB (fun _->[Marker (BeginLink (Extern url))])] in
+  let link_end   = [bB (fun _->[Marker EndLink])] in
+  link_begin @ c @ link_end
+
+let website url = link url [tT url]
+
 let two_cols ls =
   let l = List.length ls in
   let h = l / 2 + (l mod 2) in

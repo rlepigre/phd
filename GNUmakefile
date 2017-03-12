@@ -16,4 +16,10 @@ clean:
 	rm -f *~
 
 distclean: clean
-	rm -f manuscrit.pdf
+	rm -f manuscrit.pdf manuscrit.ps
+	rm -f examples/*
+	rm -f **/*~
+
+upload: www/index.html
+	lftp -u lepigre,d4i6Fv ftp://ftp.lepigre.fr -e \
+		"mirror -R www www/these; quit"
