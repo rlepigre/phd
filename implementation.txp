@@ -38,30 +38,72 @@ system and its implementation.
 
 => Encoding of strict product types
 
-\todo(None) (* TODO *)
+As discussed in the previous chapter, the most natural semantics for product
+types in presence of subtyping allows for extensible records. In other words,
+it is alway possible to provide more fields than necessary. However, product
+types with a fixed set of fields often arise in practice. For this reason, we
+introduced so-called strict product types, which were used to state our type
+safety theorem (\theorem("fullsafety")). In this section, we will show that
+it is possible to encode strict records into the system, without extending
+it with two different forms of product types.
 
+Let us first consider the "unit" type, corresponding to the empty product.
+In our system, a first attempt at defining such a type would be to use an
+extensible record with no fields. However, as indicated by its name, this
+type contains many more elements that the empty record (written ##{}## in
+our system).
 ### PML "examples/realunit.pml"
-// Usual "unit" type (i.e. empty product).
-def unit : ο = {⋯}
+type wrong_unit = {⋯}
+
+// It is inhabited by the empty record.
+val u : wrong_unit = {}
+
+// And in fact by any record...
+val u_aux : wrong_unit = {l = {}}
+###
+
+To avoid extending the system with strict record types, it is possible to
+use one of the following three encodings for the ##unit## type. They rely
+on the membership type, optionally combined with existential quantification
+and restriction.
+### PML "examples/realunit.pml"
+type unit1 = {} ∈ {⋯}
+type unit2 = ∃x:ι, x ∈ ({⋯} | x ≡ {})
+type unit3 = ∃x:ι, x ∈ {⋯} | x ≡ {}
+###
+Note that these types are all equivalent semantically. In the implementation,
+we chose to use the definition ##unit1## in place of the syntactic sugar
+##{}## (strict product type with no fields). We can thus use the following
+definition for a reasonable ##unit## type.
+### PML "examples/realunit.pml"
+def unit : ο = {}
+// def unit : ο = {} ∈ {⋯}
 
 // It is inhabited by the empty record.
 val u : unit = {}
 
-// It is in fact inhabited by any record...
-val u_aux : unit = {l = {}}
+// But not by any other record.
+// val fail : unit = {l = {}}
+###
+In fact, we can show that every value of ##unit## is equivalent to the
+empty record ##{}## with the following proof.
+### PML "examples/realunit.pml"
+val canonical : ∀x∈unit, x ≡ {} = fun x → {}
+###
 
-// We can define a real (one element) « unit » type as follows.
-def real_unit : ο = {} ∈ {⋯}
+The encoding of strict products is not limited to the unit type. A similar
+encoding can be used for any record type, and it is made accessible in the
+syntax using the strict product type notation. For instance, the type of
+pairs ##pair<a,b>## can be encoded as follows.
+### PML "examples/pair.pml"
+type pair<a,b> = ∃ x y:ι, {fst = x ; snd = y} ∈ {fst : a ; snd : b ⋯}
+// type pair<a,b> = {fst : a ; snd : b}
 
-// It is still inhabited by the empty record.
-val unit : real_unit = {}
+val couple : ∀ a b, a ⇒ b ⇒ pair<a,b> = fun x y →
+  {fst = x ; snd = y}
 
-// But any other record is not in this type.
-// val unit_bad : real_unit = {l = {}}
-
-// In fact we can prove that every value of [real_unit] is equivalent
-// to the empty record [{}].
-val canonical : ∀x∈real_unit, x ≡ {} = fun x → x
+val pi1 : ∀ a b, pair<a,b> ⇒ a = fun p → p.fst
+val pi2 : ∀ a b, pair<a,b> ⇒ b = fun p → p.snd
 ###
 
 =<

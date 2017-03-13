@@ -566,7 +566,8 @@ module Format (D:DocumentStructure) = struct
                  { default_path_param with dashPattern ; lineWidth }
                in
                let line = [RawContent.Path(param, path)] in
-               List.map (RawContent.translate wcont 0.6) line
+               let voff = 0.0 in (* Vertical offset of the line. *)
+               List.map (RawContent.translate wcont voff) line
              in
              let cont = cont @ page @ line in
              let (a,b,c,d)=RawContent.bounding_box cont in
