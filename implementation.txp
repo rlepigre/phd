@@ -76,8 +76,8 @@ we chose to use the definition ##unit1## in place of the syntactic sugar
 ##{}## (strict product type with no fields). We can thus use the following
 definition for a reasonable ##unit## type.
 ### PML "examples/realunit.pml"
-def unit : ο = {}
-// def unit : ο = {} ∈ {⋯}
+def unit : ο = {} ∈ {⋯}
+// def unit : ο = {}
 
 // It is inhabited by the empty record.
 val u : unit = {}
@@ -88,7 +88,7 @@ val u : unit = {}
 In fact, we can show that every value of ##unit## is equivalent to the
 empty record ##{}## with the following proof.
 ### PML "examples/realunit.pml"
-val canonical : ∀x∈unit, x ≡ {} = fun x → {}
+val true_unit : ∀x∈unit, x ≡ {} = fun x → {}
 ###
 
 The encoding of strict products is not limited to the unit type. A similar
@@ -105,57 +105,98 @@ val couple : ∀ a b, a ⇒ b ⇒ pair<a,b> = fun x y →
 val pi1 : ∀ a b, pair<a,b> ⇒ a = fun p → p.fst
 val pi2 : ∀ a b, pair<a,b> ⇒ b = fun p → p.snd
 ###
+As for the unit type, it is possible to show that the elements of a pair
+type are indeed records with exactly two fields ##fst## and ##snd##.
+### PML "examples/pair.pml"
+val true_pair : ∀a b, ∀p∈pair<a,b>, ∃x y:ι, p ≡ {fst = x ; snd = y} =
+  fun p → {}
+###
 
 =<
 => Booleans and tautologies
 
-\todo(None) (* TODO *)
+After defining the (one element) ##unit## type in the previous section,
+we will now consider the (two elements) type of booleans. It can be encoded
+as usual using a polymorphic variant type as follows.
+### PML "examples/bool.pml"
+type bool = [Fls of unit ; Tru of unit]
+// type bool = [Fls ; Tru]
+###
+Note that our variants need to have exactly one argument, which will here
+be ##unit## on both the ##Tru## and ##Fls## constructors. It would be the
+case implicitly if no argument type was provided.
+
+In practice, booleans are often used together with conditional structures.
+In our language, there are several (non-equivalent) ways of defining them.
+A first possibility would be to define a condition function with three
+arguments as follows.
+### PML "examples/bool.pml"
+val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
+  case c of Tru[_] → e1 | Fls[_] → e2
+###
+However, this function leads to both the expressions for the "then" and
+"else" branch to be evaluated, before a choice is made. This is not the
+semantics that is expected in practice, as it would be rather inefficient.
+
+In our language, we can encode the usual "if ... then ... else ..."
+construct using the definition of a term macro ##cond## with three term
+arguments. This is made possible by the higher-order features of our
+language.
+### PML "examples/bool.pml"
+def cond<c:τ, e1:τ, e2:τ> : τ =
+  case c of Tru[_] → e1 | Fls[_] → e2
+###
+Although such a macro remains untyped in the system, we can check that
+can be "typed" as expected by giving the following alternative definition
+of ##cond_fun## (which is actually expended to the exact same definition
+as above).
+### PML "examples/bool.pml"
+val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
+  cond<c, e1, e2>
+###
+Note that in the syntax, the syntactic sugar ##if c then e1 else e2## is
+immediately translated to ##cond<c, e1, e2>## according to the definition
+given above.
+
+Note that the definition of similar macros can be used for definition an
+##and## and an ##or## operator with the expected (lazy) semantics. This
+feature is in fact useful in many ways, we will see in a further section
+that it can even be used to encode proof tactics.
+### PML "examples/bool.pml"
+def land<b1:τ,b2:τ> =
+  case b1 of Tru[_] → b2 | Fls[_] → Fls
+
+def lor<b1:τ,b2:τ> =
+  case b1 of Tru[_] → Tru | Fls[_] → b2
+###
+
+Before going further, we are going to define a set of usual boolean
+operators. We will then consider their prove that they behave as
+they are expected to in the system.
+### PML "examples/bool.pml"
+val not : bool ⇒ bool = fun a →
+  case a of Fls[_] → Tru | Tru[_] → Fls
+
+val or  : bool ⇒ bool ⇒ bool = fun a b → lor <a, b>
+val and : bool ⇒ bool ⇒ bool = fun a b → land<a, b>
+val imp : bool ⇒ bool ⇒ bool = fun a b → lor <b, not a>
+
+val xor : bool ⇒ bool ⇒ bool = fun a b →
+  case a of
+  | Fls[_] → (case b of Fls[_] → Fls | Tru[_] → Tru)
+  | Tru[_] → (case b of Fls[_] → Tru | Tru[_] → Fls)
+
+val eq : bool ⇒ bool ⇒ bool = fun a b → xor a (not b)
+###
+As a first example of proof, we are going to consider the law of the
+excluded middle. It can be stated and proved as follows in the system.
+### PML "examples/bool.pml"
+val excluded_middle : ∀x∈bool, or x (not x) ≡ Tru = fun b →
+  case b of Fls[_] → {} | Tru[_] → {}
+###
+
 
 ### PML "examples/bool.pml"
-// Type of booleans
-def bool : ο = [Fls ; Tru]
-
-// Basic functions.
-val eq : bool ⇒ bool ⇒ bool = fun b1 b2 →
-  case b1 of
-  | Fls[_] → (case b2 of
-               | Tru[] → Fls
-               | Fls[] → Tru)
-  | Tru[_] → (case b2 of
-               | Tru[] → Tru
-               | Fls[] → Fls)
-
-val not : bool ⇒ bool = fun b →
-  case b of
-  | Fls[_] → Tru
-  | Tru[_] → Fls
-
-val or : bool ⇒ bool ⇒ bool = fun b1 b2 →
-  case b1 of
-  | Fls[_] → b2
-  | Tru[_] → Tru
-
-val imp : bool ⇒ bool ⇒ bool = fun b1 b2 →
-  case b1 of
-  | Fls[_] → Tru
-  | Tru[_] → b2
-
-def land<b1:τ,b2:τ> =
-  case b1 of
-  | Fls[_] → Fls
-  | Tru[_] → b2
-
-val and : bool ⇒ bool ⇒ bool = fun b1 b2 →
-  case b1 of
-  | Fls[_] → Fls
-  | Tru[_] → b2
-
-// Proof of the excluded middle
-val excluded_middle : ∀x∈bool, or x (not x) ≡ Tru = fun b →
-  case b of
-  | Fls[_] → {}
-  | Tru[_] → {}
-
 // Equivalence is reflexive.
 val eq_refl : ∀x∈bool, eq x x ≡ Tru = fun b →
   case b of
@@ -165,35 +206,35 @@ val eq_refl : ∀x∈bool, eq x x ≡ Tru = fun b →
 // Equivalence is commutative.
 val eq_comm : ∀x y∈bool, eq x y ≡ eq y x = fun b1 b2 →
   case b1 of
-  | Fls[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
-  | Tru[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+  | Fls[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
+  | Tru[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
 
 
 val eq_comm2 : ∀x y∈bool, eq (eq x y) (eq y x) ≡ Tru = fun b1 b2 →
   case b1 of
-  | Fls[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
-  | Tru[_] → (case b2 of | Tru[_] → {} | Fls[_] → {})
+  | Fls[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
+  | Tru[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
 
 // Equivalence is associative.
 val eq_asso : ∀x y z∈bool, eq (eq x y) z ≡ eq x (eq y z) =
   fun b1 b2 b3 →
     case b1 of
     | Fls[_] → (case b2 of
-                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
     | Tru[_] → (case b2 of
-                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
 
 val eq_asso2 : ∀x y z∈bool, eq (eq (eq x y) z) (eq x (eq y z)) ≡ Tru =
   fun b1 b2 b3 →
     case b1 of
     | Fls[_] → (case b2 of
-                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
     | Tru[_] → (case b2 of
-                 | Tru[_] → (case b3 of | Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of | Tru[_] → {} | Fls[_] → {}))
+                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
+                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
 ###
 
 =<
