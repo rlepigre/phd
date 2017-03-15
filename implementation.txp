@@ -292,36 +292,13 @@ thus it will never be necessary to invoke them. In particular, the user
 will never need to call ##add_zero_n## or ##mul_zero_n## to prove the
 corresponding equivalences.
 
-
+Let us now consider the commutativity of the ##add## function, which is a
+much more interesting example. To obtain this properties, two lemmas are
+required. We need to prove that ##add n Zero ≡ n## for every unary number
+##n##, and that ##add n Succ[m] ≡ Succ[add n m]## for every unary numbers
+##n## and ##m##. These two properties can be obtained easily using a case
+analysis and induction.
 ### PML "examples/unat.pml"
-val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_total k m in {}
-
-val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = mul_total k m in
-               let lem = add_total m (mul k m) in {}
-###
-
-
-
-### PML "examples/unat.pml"
-val rec add_n_zero : ∀n∈nat, add n Zero ≡ n = fun n →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ind_hyp = add_n_zero k in {}
-
-val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
-  fun n m p →
-    let tot_m_p = add_total m p in
-    case n of
-    | Zero[_] → {}
-    | Succ[k] → let tot_k_m = add_total k m in
-                 let ih = add_asso k m p in {}
-
 val rec add_n_zero : ∀n∈nat, add n Zero ≡ n = fun n →
   case n of
   | Zero[_] → {}
@@ -331,46 +308,100 @@ val rec add_succ : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
   case n of
   | Zero[_] → {}
   | Succ[k] → let ih = add_succ k m in {}
-
+###
+A proof of the commutativity of ##add## is then obtained in a similar way,
+but the two previously proved lemmas are used.
+### PML "examples/unat.pml"
 val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   case n of
   | Zero[_] → let lem = add_n_zero m in {}
   | Succ[k] → let ih = add_comm k m in
                let lem = add_succ m k in {}
+###
+Note that in the system, a lemma is used by calling the corresponding
+function. Similarly, using an induction hypothesis corresponds to performing
+a recursive call. A proof can thus only be correct if it terminates on
+every possible input. Otherwise, obviously invalid proofs would be allowed
+by using a "non decreasing induction hypothesis".
 
+When going toward more complex example, it becomes a necessity to establish
+the totality of functions. In other words, it will sometimes be required to
+show that the application of a function to any value produces a value. As an
+example, we will prove the totality of the ##add## function.
+### PML "examples/unat.pml"
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ih = add_total k m in {}
+###
+Using ##add_total## twice, it is then possible to show that addition function
+##add## corresponds to an associative operation.
+### PML "examples/unat.pml"
+val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
+  fun n m p →
+    let tot_m_p = add_total m p in
+    case n of
+    | Zero[_] → {}
+    | Succ[k] → let tot_k_m = add_total k m in
+                 let ih = add_asso k m p in {}
+###
+
+To conclude this section, we will prove the commutativity of the ##mul##
+function. This result requires three intermediate lemmas. First, we need
+to show that ##mul n Zero ≡ Zero## for every unary number ##n## and that
+##mul## is total. It is then necessary to show that
+##mul n Succ[m] ≡ add (mul n m) n## for all ##n## and ##m##. These three
+properties are rather straight-forward to obtain, even if longer proofs
+are harder to read.
+### PML "examples/unat.pml"
 val rec mul_n_zero : ∀n∈nat, mul n Zero ≡ Zero = fun n →
   case n of
   | Zero[_] → {}
   | Succ[k] → let ih = mul_n_zero k in {}
 
+val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fun n m →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ih = mul_total k m in
+               let lem = add_total m (mul k m) in {}
+
 val rec mul_succ : ∀n m∈nat, mul n Succ[m] ≡ add (mul n m) n = fun n m →
   case n of
-  | Zero[_]  → {}
-  | Succ[k] →
-    let deduce : add (mul n m) n ≡ add (add m (mul k m)) n = {} in
-    let ind_hyp : mul k Succ[m] ≡ add (mul k m) k = mul_succ k m in
-    let total = mul_total k m in
-    let total = add_total m (mul k m) in
-    let deduce : add (add m (mul k m)) n ≡ Succ[add (add m (mul k m)) k] =
-      add_succ (add m (mul k m)) k
-    in
-    let deduce : add (add m (mul k m)) n ≡ Succ[add m (add (mul k m) k)] =
-      add_asso m (mul k m) k
-    in
-    let deduce : add (add m (mul k m)) n ≡ Succ[add m (mul k Succ[m])] = {} in
-    let total = mul_total k Succ[m] in
-    let deduce : add (add m (mul k m)) n ≡ add Succ[m] (mul k Succ[m]) = {} in
-    let deduce : add (add m (mul k m)) n ≡ mul n Succ[m] = {} in {}
-
+  | Zero[_] → {}
+  | Succ[k] → let lem = mul_succ k m in
+               let tot = mul_total k m in
+               let tot = add_total m (mul k m) in
+               let lem = add_succ (add m (mul k m)) k in
+               let lem = add_asso m (mul k m) k in
+               let tot = mul_total k Succ[m] in {}
+###
+The commutativity of ##mul## then follows using yet another proof by
+induction, using each of the above lemmas.
+### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
   case n of
   | Zero[_] → let lem = mul_n_zero m in {}
-  | Succ[k] →
-     let ind : mul k m ≡ mul m k = mul_comm m k in
-     let lem = mul_succ m k in
-     let tot = mul_total k m in
-     let lem = add_comm (mul k m) m in {}
+  | Succ[k] → let ih  = mul_comm m k in
+               let lem = mul_succ m k in
+               let tot = mul_total k m in
+               let lem = add_comm (mul k m) m in {}
 ###
+
+One possible way for making a proof more readable is to give type
+annotations. They can be used to specify explicitly the equivalences
+that are being shown when using lemmas, but also for checking that
+some properties can be derived at a given point in the proof. We give
+bellow another version of ##mul_comm## annotated in this way.
+### PML "examples/unat.pml"
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
+  case n of
+  | Zero[_] → let lem = mul_n_zero m in {}
+  | Succ[k] → let ih  = mul_comm m k in
+               let lem = mul_succ m k in
+               let tot = mul_total k m in
+               let lem = add_comm (mul k m) m in {}
+###
+(* TODO add annotations above + explanations. *)
 
 =<
 => Lists and their vector subtypes
