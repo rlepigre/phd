@@ -395,13 +395,21 @@ bellow another version of ##mul_comm## annotated in this way.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
   case n of
-  | Zero[_] → let lem = mul_n_zero m in {}
-  | Succ[k] → let ih  = mul_comm m k in
-               let lem = mul_succ m k in
-               let tot = mul_total k m in
-               let lem = add_comm (mul k m) m in {}
+  | Zero[_] → let hyp : n ≡ Zero = {} in
+               let ded : mul Zero m ≡ Zero = {} in
+               let lem : mul m Zero ≡ Zero = mul_n_zero m in {}
+  | Succ[k] → let hyp : n ≡ Succ[k] = {} in
+               let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
+               let ih  : mul k m ≡ mul m k = mul_comm m k in
+               let lem : mul m Succ[k] ≡ add (mul m k) m =
+                 mul_succ m k
+               in
+               let tot : (∃v:ι, mul k m ≡ v) = mul_total k m in
+               let lem : add (mul k m) m ≡ add m (mul k m) =
+                 add_comm (mul k m) m
+               in {}
 ###
-(* TODO add annotations above + explanations. *)
+(* TODO explanations + potential sugars. *)
 
 =<
 => Lists and their vector subtypes
