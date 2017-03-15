@@ -26,5 +26,5 @@ distclean: clean
 	rm -f **/*~
 
 upload: www/index.html
-	lftp -u lepigre,d4i6Fv ftp://ftp.lepigre.fr -e \
+	lftp -u lepigre ftp://ftp.lepigre.fr -e \
 		"mirror -R www www/these; quit"

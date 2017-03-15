@@ -191,214 +191,185 @@ val eq : bool ⇒ bool ⇒ bool = fun a b → xor a (not b)
 As a first example of proof, we are going to consider the law of the
 excluded middle. It can be stated and proved as follows in the system.
 ### PML "examples/bool.pml"
-val excluded_middle : ∀x∈bool, or x (not x) ≡ Tru = fun b →
+val excl_mid : ∀x∈bool, or x (not x) ≡ Tru = fun b →
   case b of Fls[_] → {} | Tru[_] → {}
 ###
+\begin{rem}
+The law of the excluded middle on booleans is not to be confused with the
+term using control operators that was given in the introduction. Indeed,
+they live in completely different levels of the system.
+\end{rem}
 
-
+As the type of booleans contain only finitely many elements, properties
+can alway be proved by exhaustively listing the different cases. This is
+what was done above for ##excl_mid##, but it was not too tedious as there
+were only two cases. This will not be the case anymore when considering
+properties with more parameters. For example, let us consider the
+reflexivity, commutativity of the ##eq## function.
 ### PML "examples/bool.pml"
-// Equivalence is reflexive.
-val eq_refl : ∀x∈bool, eq x x ≡ Tru = fun b →
-  case b of
-  | Fls[_] → {}
-  | Tru[_] → {}
+val eq_refl : ∀a∈bool, eq a a ≡ Tru = fun a →
+  case a of Fls[_] → {} | Tru[_] → {}
 
-// Equivalence is commutative.
-val eq_comm : ∀x y∈bool, eq x y ≡ eq y x = fun b1 b2 →
-  case b1 of
-  | Fls[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
-  | Tru[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
+val eq_comm : ∀a b∈bool, eq a b ≡ eq b a = fun a b →
+  case a of
+  | Fls[_] → (case b of Tru[_] → {} | Fls[_] → {})
+  | Tru[_] → (case b of Tru[_] → {} | Fls[_] → {})
 
+val eq_asso : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) = fun a b c →
+  case a of
+  | Fls[_] →
+      (case b of
+       | Tru[_] → (case c of Tru[_] → {} | Fls[_] → {})
+       | Fls[_] → (case c of Tru[_] → {} | Fls[_] → {}))
+  | Tru[_] →
+      (case b of
+       | Tru[_] → (case c of Tru[_] → {} | Fls[_] → {})
+       | Fls[_] → (case c of Tru[_] → {} | Fls[_] → {}))
+###
+To simplify the writing of such trivial proofs, it is possible to use
+term macros defined using higher-order definitions. Such macros can then
+be used to prove any tautology with a given number of arguments on
+booleans.
+### PML "examples/bool.pml"
+def auto1<a:τ>           : τ = if a then {} else {}
+def auto2<a:τ, b:τ>      : τ = if a then auto1<b> else auto1<b>
+def auto3<a:τ, b:τ, c:τ> : τ = if a then auto2<b,c> else auto2<b,c>
 
-val eq_comm2 : ∀x y∈bool, eq (eq x y) (eq y x) ≡ Tru = fun b1 b2 →
-  case b1 of
-  | Fls[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
-  | Tru[_] → (case b2 of Tru[_] → {} | Fls[_] → {})
+val eq_refl_auto : ∀a∈bool, eq a a ≡ Tru =
+  fun a → auto1<a>
 
-// Equivalence is associative.
-val eq_asso : ∀x y z∈bool, eq (eq x y) z ≡ eq x (eq y z) =
-  fun b1 b2 b3 →
-    case b1 of
-    | Fls[_] → (case b2 of
-                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
-    | Tru[_] → (case b2 of
-                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
+val eq_comm_auto : ∀a b∈bool, eq a b ≡ eq b a =
+  fun a b → auto2<a,b>
 
-val eq_asso2 : ∀x y z∈bool, eq (eq (eq x y) z) (eq x (eq y z)) ≡ Tru =
-  fun b1 b2 b3 →
-    case b1 of
-    | Fls[_] → (case b2 of
-                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
-    | Tru[_] → (case b2 of
-                 | Tru[_] → (case b3 of Tru[_] → {} | Fls[_] → {})
-                 | Fls[_] → (case b3 of Tru[_] → {} | Fls[_] → {}))
+val eq_asso_auto : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) =
+  fun a b c → auto3<a,b,c>
 ###
 
 =<
-=> Proofs on unary natural numbers
+=> Unary natural numbers and totality
 
-\todo(None) (* TODO *)
-
+It is now time to consider a first example of data type with infinitely
+many elements: unary natural numbers. Their definition was already given
+in \chapter("intro"), together with some simple proofs. Let us start by
+recalling the definition of unary natural numbers, together with their
+addition and multiplication functions.
 ### PML "examples/unat.pml"
-type rec nat = [ Z ; S of nat ]
-
-val zero : nat = Z[]
-val succ : nat ⇒ nat = fun n → S[n]
-val one  : nat = succ zero
-val two  : nat = succ one
-
-val rec id_nat : nat ⇒ nat = fun n →
-  case n of
-  | Z[] → Z[]
-  | S[p] → succ (id_nat p)
-
-val test : nat = id_nat two
-
-val rec id_nat_id : ∀n∈nat, id_nat n ≡ n = fun m →
-  case m of
-  | Z[] → {}
-  | S[p] → let ind_hyp : id_nat p ≡ p = id_nat_id p in {}
+type rec nat = [ Zero ; Succ of nat ]
 
 val rec add : nat ⇒ nat ⇒ nat = fun n m →
   case n of
-  | Z[] → m
-  | S[p] → succ (add p m)
+  | Zero[_] → m
+  | Succ[k] → Succ[add k m]
 
-val partial_add_total : ∀x:ι, ∃v:ι, add x ≡ v = {}
-
-val rec strong_add_total : ∀n∈nat, ∀m∈(∃x,x), ∃v:ι, add n m ≡ v = fun n m →
+val rec mul : nat ⇒ nat ⇒ nat = fun n m →
   case n of
-  | Z[_] → {}
-  | S[p] → let ind_hyp = strong_add_total p m in {}
+  | Zero[_] → Zero
+  | Succ[k] → add m (mul k m)
+###
+As ##add## and ##mul## are defined using recursion on their first argument,
+it is immediate to show ##add Zero n ≡ n## and ##mul Zero n ≡ Zero## for
+every ##n##.
+### PML "examples/unat.pml"
+val add_zero_v : ∀v:ι, add Zero v ≡ v    = {}
+val mul_zero_v : ∀v:ι, mul Zero v ≡ Zero = {}
+###
+Note that these properties are proved by quantifying over every possible
+value ##v##. Whether it is a unary natural number or not is not important
+as ##add Zero v## and ##mul Zero v## can still be unfolded. In fact, the
+##add## function can always be given an arbitrary value as second argument
+as it is never considered in a case analysis.
 
-// FIXME should work
-val rec strong_add_total : ∀m:ι, ∀n∈nat, ∃v:ι, add n m ≡ v = Λm:ι.fun n →
-  case n of
-  | Z[_] → {}
-  | S[p] → let deduce  : add n m ≡ S[add p m] = {} in
-           let ind_hyp : (∃v:ι, add p m ≡ v) = strong_add_total p in {}
+Of course, it is possible to show similar properties by quantifying only
+on natural numbers using dependent functions.
+### PML "examples/unat.pml"
+val add_zero_n : ∀n∈nat, add Zero n ≡ n    = fun _ → {}
+val mul_zero_n : ∀n∈nat, mul Zero n ≡ Zero = fun _ → {}
+###
+However, such definitions will never need to be used in practice since the
+more general ##add_zero_v## and ##mul_zero_v## have trivial proofs. This
+means that they can be obtained immediately by unfolding definitions, and
+thus it will never be necessary to invoke them. In particular, the user
+will never need to call ##add_zero_n## or ##mul_zero_n## to prove the
+corresponding equivalences.
 
+
+### PML "examples/unat.pml"
 val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
   case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp = add_total p m in {}
+  | Zero[_] → {}
+  | Succ[k] → let ih = add_total k m in {}
 
-def addt<x:τ,y:τ> : τ =
-   let lem = add_total x y in add x y
-
-val add_zero_left : ∀z∈nat, add zero z ≡ z = fun n → {}
-
-val rec add_zero1 : ∀z∈nat, add z zero ≡ z = fun k →
-  case k of
-  | Z[] → {}
-  | S[p] →
-    let ind_hyp = (add_zero1 p : add p zero ≡ p) in {}
-
-val rec add_zero2 : ∀n∈nat, add n zero ≡ n = fun n →
+val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fun n m →
   case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp : add p zero ≡ p = add_zero2 p in {}
+  | Zero[_] → {}
+  | Succ[k] → let ih = mul_total k m in
+               let lem = add_total m (mul k m) in {}
+###
 
-val rec add_asso : ∀n m q∈nat, add n (add m q) ≡ add (add n m) q =
-  fun n m q →
-    let tot1 = add_total m q in
+
+
+### PML "examples/unat.pml"
+val rec add_n_zero : ∀n∈nat, add n Zero ≡ n = fun n →
+  case n of
+  | Zero[_] → {}
+  | Succ[k] → let ind_hyp = add_n_zero k in {}
+
+val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
+  fun n m p →
+    let tot_m_p = add_total m p in
     case n of
-    | Z[] → {}
-    | S[p] →
-      let deduce : add n (add m q) ≡ succ (add p (add m q)) = {} in
-      let tot2 = add_total p m in
-      let deduce : add (add n m) q ≡ succ (add (add p m) q) = {} in
-      let ind_hyp = add_asso p m q in
-      {}
+    | Zero[_] → {}
+    | Succ[k] → let tot_k_m = add_total k m in
+                 let ih = add_asso k m p in {}
 
-val rec add_zero : ∀n∈nat, add n zero ≡ n = fun n →
+val rec add_n_zero : ∀n∈nat, add n Zero ≡ n = fun n →
   case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp = add_zero p in {}
+  | Zero[_] → {}
+  | Succ[k] → let ih = add_n_zero k in {}
 
-val rec add_succ : ∀n m∈nat, add n S[m] ≡ succ(add n m) = fun n m →
+val rec add_succ : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
   case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp = add_succ p m in {}
+  | Zero[_] → {}
+  | Succ[k] → let ih = add_succ k m in {}
 
-val rec add_succ2 : ∀n m∈nat, add n S[m] ≡ S[add n m] = fun n m →
+val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp : add p S[m] ≡ S[add p m] = add_succ p m in {}
+  | Zero[_] → let lem = add_n_zero m in {}
+  | Succ[k] → let ih = add_comm k m in
+               let lem = add_succ m k in {}
 
-val add_comm : ∀n m∈nat, add n m ≡ add m n = fix fun add_comm n m →
+val rec mul_n_zero : ∀n∈nat, mul n Zero ≡ Zero = fun n →
   case n of
-  | Z[] → let lem = add_zero m in {}
-  | S[p] →
-    let ind_hyp = add_comm p m in
-    let lem = add_succ m p in
-    {}
+  | Zero[_] → {}
+  | Succ[k] → let ih = mul_n_zero k in {}
 
-val mul : nat ⇒ nat ⇒ nat = fix fun mul n m →
+val rec mul_succ : ∀n m∈nat, mul n Succ[m] ≡ add (mul n m) n = fun n m →
   case n of
-  | Z[] → Z[]
-  | S[p] → add m (mul p m)
-
-val mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fix fun mul_total n m →
-  case n of
-  | Z[] → {}
-  | S[p] →
-   let ind_hyp = mul_total p m in
-   let lem = add_total m (mul p m) in
-   {}
-
-val mul_zero : ∀n∈nat, mul n zero ≡ zero = fix fun mul_zero n →
-  case n of
-  | Z[] → {}
-  | S[p] →
-    let ind_hyp : mul p zero ≡ zero = mul_zero p in
-    let deduce : add zero (mul p zero) ≡ mul n zero = {} in
-    let deduce : add zero (mul p zero) ≡ zero = {} in
-    {}
-
-val mul_zero1 : ∀n∈nat, mul n zero ≡ zero = fix fun mul_zero n →
-  case n of
-  | Z[]  → {}
-  | S[p] → let ind_hyp = mul_zero p in {}
-
-val mul_succ : ∀n m∈nat, mul n S[m] ≡ add (mul n m) n = fix fun mul_succ n m →
-  case n of
-  | Z[]  → {}
-  | S[p] →
-    let deduce : add (mul n m) n ≡ add (add m (mul p m)) n = {} in
-    let ind_hyp : mul p S[m] ≡ add (mul p m) p = mul_succ p m in
-    let total = mul_total p m in
-    let total = add_total m (mul p m) in
-    let deduce : add (add m (mul p m)) n ≡ succ (add (add m (mul p m)) p) =
-      add_succ (add m (mul p m)) p
+  | Zero[_]  → {}
+  | Succ[k] →
+    let deduce : add (mul n m) n ≡ add (add m (mul k m)) n = {} in
+    let ind_hyp : mul k Succ[m] ≡ add (mul k m) k = mul_succ k m in
+    let total = mul_total k m in
+    let total = add_total m (mul k m) in
+    let deduce : add (add m (mul k m)) n ≡ Succ[add (add m (mul k m)) k] =
+      add_succ (add m (mul k m)) k
     in
-    let deduce : add (add m (mul p m)) n ≡ succ (add m (add (mul p m) p)) =
-      add_asso m (mul p m) p
+    let deduce : add (add m (mul k m)) n ≡ Succ[add m (add (mul k m) k)] =
+      add_asso m (mul k m) k
     in
-    let deduce : add (add m (mul p m)) n ≡ succ (add m (mul p S[m])) =
-      {}
-    in
-    let total = mul_total p S[m] in
-    let deduce : add (add m (mul p m)) n ≡ add S[m] (mul p S[m]) =
-      {}
-    in
-    let deduce : add (add m (mul p m)) n ≡ mul n S[m] =
-      {}
-    in
-    {}
+    let deduce : add (add m (mul k m)) n ≡ Succ[add m (mul k Succ[m])] = {} in
+    let total = mul_total k Succ[m] in
+    let deduce : add (add m (mul k m)) n ≡ add Succ[m] (mul k Succ[m]) = {} in
+    let deduce : add (add m (mul k m)) n ≡ mul n Succ[m] = {} in {}
 
-val mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fix fun mul_comm n m →
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
   case n of
-  | Z[]  → let lem = mul_zero m in {}
-  | S[p] →
-     let ind : mul p m ≡ mul m p = mul_comm m p in
-     let lem = mul_succ m p in
-     let tot = mul_total p m in
-     let lem = add_comm (mul p m) m in
-     {}
+  | Zero[_] → let lem = mul_n_zero m in {}
+  | Succ[k] →
+     let ind : mul k m ≡ mul m k = mul_comm m k in
+     let lem = mul_succ m k in
+     let tot = mul_total k m in
+     let lem = add_comm (mul k m) m in {}
 ###
 
 =<
