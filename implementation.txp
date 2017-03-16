@@ -254,7 +254,7 @@ in \chapter("intro"), together with some simple proofs. Let us start by
 recalling the definition of unary natural numbers, together with their
 addition and multiplication functions.
 ### PML "examples/unat.pml"
-type rec nat = [ Zero ; Succ of nat ]
+type rec nat = [Zero ; Succ of nat]
 
 val rec add : nat ⇒ nat ⇒ nat = fun n m →
   case n of
@@ -395,12 +395,10 @@ bellow another version of ##mul_comm## annotated in this way.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
   case n of
-  | Zero[_] → let hyp : n ≡ Zero = {} in
-               let ded : mul Zero m ≡ Zero = {} in
+  | Zero[_] → let ded : mul Zero m ≡ Zero = {} in
                let lem : mul m Zero ≡ Zero = mul_n_zero m in {}
-  | Succ[k] → let hyp : n ≡ Succ[k] = {} in
-               let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
-               let ih  : mul k m ≡ mul m k = mul_comm m k in
+  | Succ[k] → let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
+               let ih  : mul k m ≡ mul m k = mul_comm k m in
                let lem : mul m Succ[k] ≡ add (mul m k) m =
                  mul_succ m k
                in
@@ -409,83 +407,332 @@ val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
                  add_comm (mul k m) m
                in {}
 ###
-(* TODO explanations + potential sugars. *)
+Here, we add type annotations on used lemmas to explicit the properties
+they prove. We also extend the proof with intermediate steps using local
+definitions. They allow us to check that some property can be deduced in
+the current context, while showing more reasoning steps. Note that the
+names chosen for the local definitions is never used, and is thus not
+important. Only the equations that are transparently added to the context
+matter. Using this discipline, the proofs are not only more readable, but
+also easier to write.
+
+Another, more satisfactory way of obtaining more readable proofs is to
+use again the higher-order layer of our system to define "tactics". We
+will here use a ##deduce## tactic to check that some equation holds in
+the current context, and a ##show## tactic to prove a property using
+a given proof. 
+### PML "examples/unat.pml"
+def deduce<f:ο> : τ = ({} : f)
+def show<f:ο, p:τ> : τ = (p : f)
+###
+We can then modify our commutativity proof to obtain the following, which
+is a lot more readable than our original proof. Note that here, we use
+semicolons to put proof steps in sequence. It is encoded as usual using
+a dummy redex.
+### PML "examples/unat.pml"
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
+  case n of
+  | Zero[_] → deduce<mul Zero m ≡ Zero>;
+               show<mul m Zero ≡ Zero, mul_n_zero m>
+  | Succ[k] → deduce<mul Succ[k] m ≡ add m (mul k m)>;
+               show<mul k m ≡ mul m k, mul_comm k m>;
+               show<mul m Succ[k] ≡ add (mul m k) m, mul_succ m k>;
+               show<(∃v:ι, mul k m ≡ v), mul_total k m>;
+               show<add (mul k m) m ≡ add m (mul k m)
+                    , add_comm (mul k m) m>
+###
+We could even introduce syntactic sugar for our tactics into the parser
+of our language to obtain the following, very satisfactory proof.
+### PML
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
+  case n of
+  | Zero[_] → deduce mul Zero m ≡ Zero;
+               show mul m Zero ≡ Zero using mul_n_zero m
+  | Succ[k] → deduce mul Succ[k] m ≡ add m (mul k m);
+               show mul k m ≡ mul m k using mul_comm k m;
+               show mul m Succ[k] ≡ add (mul m k) m
+                 using mul_succ m k;
+               show ∃v:ι, mul k m ≡ v using mul_total k m;
+               show add (mul k m) m ≡ add m (mul k m)
+                 using add_comm (mul k m) m
+###
 
 =<
 => Lists and their vector subtypes
 
-\todo(None) (* TODO *)
+We will now consider the type of lists containing elements of a fixed type,
+given as a parameter. As usual, operations on lists will be polymorphic in
+this parameter.
+### PML "examples/unat.pml"
+type rec list<a:ο> = [Nil ; Cons of {hd : a ; tl : list}]
+###
+According to the above definition, a list is either empty (##Nil##
+constructor), or built using a smaller list and an element (##Cons##
+constructor). Note that the argument of the ##Cons## constructor is
+formed using a product (or record) type with two elements. The label
+##hd## denotes the //head// of the list (i.e. its first element) and
+##tl## denotes its //tail//.
+\begin{rem}
+  The type that is stored under the ##tl## label is ##list## and not
+  ##list<a>## due to the encoding of the "##type rec##" construct. It
+  is formed using a higher-order function which body contains a fixpoint
+  construction over a variable named ##list##.
+\end{rem}
 
-### PML "examples/vec.pml"
-type rec nat = [ Z ; S of nat ]
-
-val zero : nat = Z[]
-val succ : nat ⇒ nat = fun n → S[n]
-
-val rec add : nat ⇒ nat ⇒ nat = fun n m →
-  case n of
-  | Z[] → m
-  | S[p] → succ (add p m)
-
-val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
-  case n of
-  | Z[] → {}
-  | S[p] → let ind_hyp = add_total p m in {}
-
-type rec list<a:ο> = [ Nil; Cns of { hd : a; tl : list }  ]
-
-val nil : ∀a:ο, list<a> = Nil[]
-val cns : ∀a:ο, a ⇒ list<a> ⇒ list<a> =
-  fun e l → Cns[{ hd = e; tl = l }]
-
+As for the natural number, it is possible to define the usual
+functions on lists, including ##exists## or ##rev_append## (see
+\chapter("intro")). Many more functions are given in the standard
+library of the prototype, together with its source code. Here, we
+will only focus on the ##length## function, that will be used for
+encoding vectors. Note that we will also need the fact that the
+##length## function is total.
+### PML "examples/unat.pml"
 val rec length : ∀a:ο, list<a> ⇒ nat = fun l →
   case l of
-  | Nil[] → zero
-  | Cns[c] → succ (length c.tl)
+  | Nil[_]  → Zero
+  | Cons[c] → Succ[length c.tl]
 
 val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l = fun l →
   case l of
-  | Nil[] → {}
-  | Cns[c] → let ind = length_total c.tl in {}
+  | Nil[_]  → {}
+  | Cons[c] → let ind = length_total c.tl in {}
+###
 
-type vec<a:ο,s:τ> = ∃l:ι, l∈(list<a> | length l ≡ s)
-// The fact that s:τ is very important
-// The position of the partenthesis is important
-
-val vnil : ∀a:ο, vec<a,zero> = nil
-
-val vcns : ∀a:ο,∀s:ι, ∀x∈a, vec<a,s> ⇒ vec<a,succ s> =
-   fun y ls → Cns[{hd= y;tl= ls}]
-
-val rec app : ∀a:ο, ∀n1 n2:ι, vec<a,n1> ⇒ vec<a,n2> ⇒ vec<a,add n1 n2> =
-  Λa:ο. fun l1 l2 →
-  case l1 of
-  | Nil[] → l2
-  | Cns[c] →
-      let lem = length_total c.tl in
-      (case length l1 of
-      | Z[] → ✂
-      | S[p1] →
-        let r = app c.tl l2 in
-        let lem = length_total (r : list<a>) in
-        vcns c.hd r)
-
-val app3 : ∀a:ο, ∀n1 n2 n3:ι,
-           vec<a,n1> ⇒ vec<a,n2> ⇒ vec<a,n3> ⇒ vec<a,add n1 (add n2 n3)> =
-    fun l1 l2 l3 →
-      let lem = add_total (length l2) (length l3) in
-      app l1 (app l2 l3)
+In our system, the type of vectors can be defined using a restriction on
+the type of lists. In other words, vectors of length ##s## will be encoded
+as the type containing lists ##l## such that ##length l ≡ s##. The type of
+vectors will hence have two parameters. The former will give the type of
+the elements contained in the vectors and the latter will be the size
+parameter, in the form of a term.
+### PML "examples/unat.pml"
+type vec<a:ο, s:τ> = ∃l:ι, l∈(list<a> | length l ≡ s)
+###
+(* TODO a word on the position of parentheses ? *)
+We can then define a concatenation function ##app## on vector. The produces a vector which length is the sum of the lengths of its two
+arguments. Note that the use the definition of ##app## requires the
+use of the ##length_total## lemma in its definition.
+### PML "examples/unat.pml"
+val rec app : ∀a:ο, ∀m n:ι, vec<a, m> ⇒ vec<a, n> ⇒ vec<a, add m n> =
+  fun l1 l2 → case l1 of Nil[_] → l2 | Cons[c] →
+    let _ = length_total c.tl in
+    let r = app c.tl l2 in
+    Cons[{hd = c.hd; tl = r}]
+###
+We can now define a ternary concatenation function on vectors as follows,
+using two calls to ##app##. To be able to define this function, the
+totality of the ##add## function is required.
+### PML "examples/unat.pml"
+val app3 : ∀a:ο, ∀m n p:ι, vec<a,m> ⇒ vec<a,n> ⇒ vec<a,p>
+                           ⇒ vec<a, add m (add n p)> =
+ fun l1 l2 l3 →
+   let lem = add_total (length l2) (length l3) in
+   app l1 (app l2 l3)
 ###
 
 =<
 => Case study: sorting algorithm
 
-\todo(None) (* TODO *)
+(* TODO *)
+
+### "examples/insert.pml"
+type order<a:ο> = ∃cmp:ι, {
+  cmp : cmp ∈ (a ⇒ a ⇒ bool);
+  tmp : ∀x y∈a, ∃v:ι, v ≡ cmp x y;
+  tra : ∀x y z∈a, (cmp x y ≡ tru ⇒ cmp y z ≡ tru ⇒ cmp x y ≡ tru);
+  tot : ∀x y∈a, or (cmp x y) (cmp y x) ≡ tru
+}
+
+type rec list<a:ο> = μx [ Nil of {}; Cns of { hd : a; tl : list } ]
+
+val nil : ∀a:ο, list<a> = Nil[]
+
+def tl : ι = fun l → case l of | Cns[c] → c.tl
+def hd : ι = fun l → case l of | Cns[c] → c.hd
+
+val cns : ∀a:ο, a ⇒ list<a> ⇒ list<a> = fun e l → Cns[{ hd = e; tl = l }]
+
+val sorted : ∀a:ο, ∀o∈order<a>, ∀l∈list<a>, bool = fix fun sorted o l →
+  case l of
+  | Nil[] → tru
+  | Cns[c1] →
+    let hd = c1.hd in let tl = c1.tl in
+    (case tl of
+    | Nil[] → tru
+    | Cns[c2] →
+       let hd2 = c2.hd in
+       land<(o.cmp) hd hd2, sorted o tl>)
+
+val sorted_total : ∀a:ο, ∀o∈order<a>, ∀l∈list<a>, ∃v:ι, v ≡ sorted o l =
+  fix fun sorted_total o l →
+  case l of
+  | Nil[] → {}
+  | Cns[c1] →
+    let hd = c1.hd in let tl = c1.tl in
+    (case tl of
+    | Nil[] → {}
+    | Cns[c2] →
+       let hd2 = c2.hd in
+       let tl2 = c2.tl in
+       let ind : (∃v:ι, v ≡ sorted o tl) = sorted_total o tl in
+       let lem = o.tmp hd hd2 in
+       (case o.cmp hd hd2 of
+       | Tru[] →
+          let lem : o.cmp hd hd2 ≡ tru = {} in
+          let lem : sorted o l ≡ sorted o tl = {} in
+          {}
+       | Fls[] →
+          let lem : o.cmp hd hd2 ≡ fls = {} in
+          let lem : sorted o l ≡ fls = {} in {}))
+
+
+val rec insert : ∀a:ο, order<a> ⇒ a ⇒ list<a> ⇒ list<a> = fun o x l →
+   case l of
+   | Nil[] → cns x nil
+   | Cns[c1] →
+     let hd = c1.hd in let tl = c1.tl in
+     (case o.cmp x hd of
+     | Tru[] → cns x l
+     | Fls[] → cns hd (insert o x tl))
+
+val rec insert_total :  ∀a:ο, ∀o∈order<a>, ∀x∈a, ∀l∈list<a>, ∃v:ι, insert o x l ≡ v = fun o x l →
+   case l of
+   | Nil[] → {}
+   | Cns[c1] →
+     let hd = c1.hd in let tl = c1.tl in
+     let lem = o.tmp x hd in
+     (case o.cmp x hd of
+     | Tru[] → {}
+     | Fls[] →
+        let lem = insert_total o x tl in
+        {})
+
+val rec isort : ∀a:ο, order<a> ⇒ list<a> ⇒ list<a> = fun o l →
+   case l of
+   | Nil[] → nil
+   | Cns[c1] →
+     let hd = c1.hd in let tl = c1.tl in
+     insert o hd (isort o tl)
+
+val rec isort_total :  ∀a:ο, ∀o∈order<a>, ∀l∈list<a>, ∃v:ι, isort o l ≡ v = fun o l →
+   case l of
+   | Nil[] → {}
+   | Cns[c1] →
+     let hd = c1.hd in let tl = c1.tl in
+     let lem = isort_total o tl in
+     let lem = insert_total o hd (isort o tl) in
+     {}
+
+type slist<a:ο,ord:τ> = ∃l:ι, l∈(list<a> | sorted ord l ≡ tru)
+
+val rec tail_sorted :  ∀a:ο, ∀o∈order<a>, ∀x∈a, ∀l∈list<a>, sorted o (cns x l) ≡ tru ⇒ sorted o l ≡ tru = fun o x l hyp →
+  case l of Nil[] → {}
+          | Cns[c1] →
+            let hd = c1.hd in
+            let lem : (∃v:ι, o.cmp x hd ≡ v) = o.tmp x hd in
+            let lem : (∃v:ι, sorted o l ≡ v) = sorted_total o l in
+            (case o.cmp x hd of Tru[] →  {} | Fls[] → ✂)
+
+
+val rec insert_sorted : ∀a:ο, ∀o∈order<a>, ∀x∈a, ∀l∈slist<a,o>, sorted o (insert o x l) ≡ tru = Λa:ο.fun o x l →
+   let cmp = o.cmp in
+   case l of
+   | Nil[] → {}
+   | Cns[c1] →
+     let hd = c1.hd in let tl = c1.tl in
+     let lem = insert_total o x tl in
+     let lem = o.tmp x hd in
+     (case cmp x hd of
+     | Tru[] →
+         let lem : sorted o tl ≡ tru = tail_sorted o hd tl ({}:sorted o (cns hd tl) ≡ tru)  in
+         {}
+     | Fls[] →
+         let lem : (∃v:ι, v ≡ cmp x hd) = o.tmp x hd in
+         let lem : (∃v:ι, v ≡ cmp hd x) = o.tmp hd x in
+         let lem : cmp hd x ≡ tru = o.tot x hd in
+         (case tl of
+             | Nil[] → {}
+             | Cns[c2] →
+                let hd2 = c2.hd in let tl2 = c2.tl in
+                let lem = insert_total o x tl2 in
+                let lem : (∃v:ι, v ≡ cmp hd hd2) = o.tmp hd hd2 in
+                let lem : (∃v:ι, v ≡ cmp x hd2) = o.tmp x hd2 in
+                (case cmp hd hd2 of Fls[] → ✂ | Tru[] →
+                  let lem : sorted o (insert o x tl) ≡ tru = insert_sorted o x (tl:slist<a,o>) in
+                  (case cmp x hd2 of
+                  | Fls[] →
+                     let lem : (∃v:ι, v ≡ cmp hd2 x) = o.tmp hd2 x in
+                     let lem : (cmp hd2 x) ≡ tru = o.tot x hd2 in
+                     {}
+                  | Tru[] → {}
+                  ))))
+
+val rec isort_sorted : ∀a:ο, ∀o∈order<a>, ∀l∈list<a>, sorted o (isort o l) ≡ tru = Λa:ο.fun o l →
+   let cmp = o.cmp in
+   case l of
+   | Nil[] → {}
+   | Cns[c1] →
+      let hd = c1.hd in let tl = c1.tl in
+      let lem = isort_total o tl in
+      let lem = sorted_total o (isort o tl) in
+      let ind : sorted o (isort o tl) ≡ true = isort_sorted o tl in
+      let lem : (∃v:ι, insert o hd (isort o tl) ≡ v) = insert_total o hd (isort o tl) in
+      let tls : slist<a,o> = isort o tl in
+      let lem : sorted o (insert o hd (isort o tl)) ≡ tru = insert_sorted o hd tls in
+      {}
+###
 
 =<
-=> Case study: $λ$-calculus
+=> Lookup function with an exception
 
-\todo(None) (* TODO *)
+(* TODO *)
+### PML "examples/exceptions.pml"
+include lib.list
+include test.mu
+
+val rec exists : ∀a:ο, (a ⇒ bool) ⇒ list<a> ⇒ bool =
+  fun f l →
+    case l of
+    | Nil[_]  → false
+    | Cons[c] → if f c.hd then true else exists f c.tl
+
+def total<f:ι, a:ο> : ο = ∀x∈a, ∃y:ι, f x ≡ y
+
+val rec exists_total : ∀a:ο, ∀f∈(a ⇒ bool), total<f,a> ⇒ ∀l∈list<a>,
+                         ∃v:ι, exists f l ≡ v =
+  fun f ftot l →
+    case l of
+    | Nil[_]  → {}
+    | Cons[c] →
+        let lem : (∃y:ι, f c.hd ≡ y) = ftot c.hd in
+        if f c.hd then {} else (let lem = exists_total f ftot c.tl in {})
+
+
+val rec find : ∀a:ο, ∀f∈(a ⇒ bool), total<f,a> ⇒ ∀l∈list<a>, neg<(exists f l ≡ false)> ⇒ a =
+  fun f ftot l exc →
+    case l of
+    | Nil[_]  → exc {}
+    | Cons[c] → let hd = c.hd in let tl = c.tl in
+                let lem : (∃v:ι, f hd ≡ v) = ftot hd in
+//                 let exc : neg<exists f tl ≡ false> = exc in //useless !!!
+                if f hd then hd else find f ftot tl exc
+
+val find_opt : ∀a:ο, ∀f∈(a ⇒ bool), total<f,a> ⇒ list<a> ⇒ option<a> =
+  fun f ftot l → save a → Some[find f ftot l (fun _ → restore a none)]
+
+val notNone : ∀a:ο, option<a> ⇒ bool = fun o →
+  case o of None[] → fls | Some[_] → tru
+
+val rec find2 : ∀a:ο, ∀f∈(a ⇒ bool), total<f,a> ⇒ list<list<a>> ⇒ option<a> =
+  fun f ftot ls →
+    case ls of Nil[_]  → none
+             | Cons[c] → let l = c.hd in let tl = c.tl in
+                         save a → Some[find f ftot l (fun _ → restore a (find2 f ftot tl))]
+
+
+//val find_opt2 : ∀a:ο, ∀f∈(a ⇒ bool), total<f,a> ⇒ ∀l∈list<a>, ∃o:ι, option<a> |
+//      imp (exists f l) (notNone o) ≡ tru  =
+//  fun f ftot l → save a → Some[find f ftot l (fun _ → restore a none)]
+###
 
 =<
 =<
