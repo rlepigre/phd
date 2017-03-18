@@ -1276,7 +1276,7 @@ made for other forms of empty types.
 
 The type system described in this chapter does not yet contain all the
 ingredients required for a practical programming language and proof
-system. Indeed, it lacks inductive types and does not allow reccursion.
+system. Indeed, it lacks inductive types and does not allow recursion.
 In this section, we will hint toward the inclusion of these features. To
 this aim, we will rely on the approach described in \cite("Lepigre2017")
 by Christophe Raffalli and the author. In particular, we will extend the
@@ -1284,13 +1284,13 @@ system with typing rules allowing the construction of infinite typing
 and subtyping derivations. We will then rely on a notion of //syntactic
 ordinals// to show that they are well-founded and thus correct.
 
-In the system, ordinal will be handled using another atomic sort, which
+In the system, ordinals will be handled using another atomic sort, which
 will automatically provide us with quantification over ordinals. In our
-types, ordinal will be used to annotate inductive (and coinductive)
+types, ordinals will be used to annotate inductive (and coinductive)
 types with a size information. As a consequence, they will allow us to
 extend our system with sized types \mcite(["Hughes1996"; "Abel2008";
 "Lepigre2017"]). In the semantics, syntactic ordinals will be interpreted
-with actual ordinals.
+using actual ordinals.
 \begin{def}
 We denote $κ$ the sort of //syntactic ordinals//. From now on, we will
 consider that $κ ∈ \cal{S}₀$ (and hence that $κ ∈ \cal{S}$).
@@ -1309,18 +1309,23 @@ let _ =
 )
 \end{center}
 Our syntactic ordinals are formed using variable, the constant $\o{∞}$ and
-a successor symbol $\o{τ+1}$. Ordinal variables will be bound by our
-higher-order quantifiers in formulas and in choice operators. we extend the
-system with the following two sorting rules.
-\begin{center}
-$\axiomR{Σ ⊢ \o{∞} : κ}$
-\hspace(6.0)
-$\unaryR{Σ ⊢ \o{τ} : κ}{Σ ⊢ \o{τ+1} : κ}$
-\end{center}
+a successor symbol $\o{τ+1}$. The set of //raw syntactic ordinals//
+$\cal{O}^{+}$ is formed by extending the $\cal{O}$ with choice operators of
+the form $\o{εθ<τ(t∈A)}$. Note that we need to extend the system with the
+following three sorting rules.
+$$
+  \axiomR{Σ ⊢ \o{∞} : κ}
+  \hspace(6.0)
+  \unaryR{Σ ⊢ \o{τ} : κ}{Σ ⊢ \o{τ+1} : κ}
+$$
+$$
+  \ternaryR{Σ ⊢ τ:κ}{Σ, θ:κ ⊢ t:τ}{Σ, θ:κ ⊢ A : ο}{Σ ⊢ \o{εθ<τ(t∈A)}:κ}
+$$
 \end{def}
 Note that we do not need to include a sorting rule for ordinal variables as
 they are handled like other kinds of variables.
 
+(* TODO TODO TODO *)
 \begin{def}
 We denote $⟦\o{∞}⟧$ the set of all the ordinals smaller or equal to the
 cardinal of the set $⟦ο⟧$. This ordinal will thus be big enough to ensure
@@ -1350,7 +1355,6 @@ $X$ only appears positively in $A$ (i.e. it is in covariant position).
 
 (* TODO *)
 
-(* \o{εθ<τ(t∈A)} *)
 
 (* FIXME semantics *)
 \begin{def}
@@ -1362,6 +1366,55 @@ $$
   \vs{ντX A} = \bigcap_{o < ⟦\o{τ}⟧} ⟦X ↦ A⟧^o(Λ_ι)
 $$
 \end{def}
+
+\Caml(
+let r_mu_r_inf =
+  <$\unaryRN{μ_{r,∞}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ μ∞X B]}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{μ∞X B}}$>
+
+let r_nu_l_inf =
+  <$\unaryRN{ν_{l,∞}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A[X ≔ ν∞X A]} ⊂ \f{B}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{ν∞X A} ⊂ \f{B}}$>
+
+let r_mu_r =
+  <$\binaryRN{μ_r}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ μυX B]}}
+    {γ ⊢ υ < κ}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{μτX B}}$>
+
+let r_nu_l =
+  <$\binaryRN{ν_l}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A[X ≔ νυX A]} ⊂ \f{B}}
+    {γ ⊢ υ < κ}
+    {γ; Ξ ⊢ \t{t} ∈ \f{ντX A} ⊂ \f{B}}$>
+
+let r_mu_l =
+  <$\unaryRN{μ_r}
+    {γ,τ; Ξ ⊢ \t{t} ∈ \f{A[X ≔ μεθ<τ(t∈A[X ≔ μθX A])X A]} ⊂ \f{B}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{μτX A} ⊂ \f{B}}$>
+
+let r_nu_r =
+  <$\unaryRN{ν_l}
+    {γ,τ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ νεθ<τ(t∈B[X ≔ νθX B])X B]}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{ντX B}}$>
+
+let r_fix =
+  <$\binaryRN{Y}
+    {γ; Ξ ⊢ \t{t[x≔λx Y(λr t,x)]} : \f{A⇒B}}
+    {γ; Ξ ⊢ \t{λx Y(λr t,x)} ∈ \f{A⇒B} ⊂ \f("C")}
+    {γ; Ξ ⊢ \t{λx Y(λr t,x)} : \f{C}}$>
+)
+
+$$\id(r_mu_r_inf)$$
+$$\id(r_mu_r)$$
+$$\id(r_mu_l)$$
+$$\id(r_nu_l_inf)$$
+$$\id(r_nu_l)$$
+$$\id(r_nu_r)$$
+$$\id(r_fix)$$
+
 
 =<
 

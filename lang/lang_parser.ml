@@ -16,8 +16,8 @@ let vari ns =
   Earley.alternatives [wildcard; normal]
 
 (* Predifined parsers for all kind of variables and metavariables. *)
-let parser vvari = (vari ["x"; "y"; "z"; "f"; "g"; "h" ; "⋯"])
-let parser vmeta = (vari ["v"; "w"; "r"; "Φ"])
+let parser vvari = (vari ["x"; "y"; "z"; "f"; "g"; "h" ; "r"; "⋯"])
+let parser vmeta = (vari ["v"; "w"; "Φ"])
 let parser tvari = (vari ["a"; "b"; "c"])
 let parser tmeta = (vari ["t"; "u"; "Ω"])
 let parser cmeta = (vari ["E"; "F"])
