@@ -1513,7 +1513,10 @@ exist, then $0$ is chosen and thus the premise of the rule is immediate
 (the context is contradictory). The three rules for handling the greatest
 fixpoint constructor are dual to those for the least fixpoint constructor.
 
-
+As in \cite("Lepigre2017"), local subtyping judgments can be considered
+as //abstract judgments// for building well-founded //circular proofs//.
+We can thus rely on this framework to obtain so-called //generalisation//
+and //induction// rules.
 
 
 
