@@ -163,6 +163,15 @@ let r_memb_r =
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{u ∈ B}}$>
 
+(** Ordinal ordering rules. *)
+let ord1 = <$\unaryR{i ≤ 0}{γ ⊢ \o{τ} ≤_i \o{τ}}$>
+let ord2 = <$\unaryR{γ ⊢ τ ≤_{i+1} υ}{γ ⊢ \o{τ+1} ≤_i \o{υ}}$>
+let ord3 = <$\unaryR{γ ⊢ τ ≤_{i-1} υ}{γ ⊢ \o{τ} ≤_i \o{υ+1}}$>
+let ord4 =
+  <$\unaryR{γ,τ ⊢ \o{τ} ≤_{i-1} \o{υ}}{γ,τ ⊢ \o{εθ<τ(t∈A)} ≤_i \o{υ}}$>
+let ord5 =
+  <$\unaryR{γ ⊢ \o{τ} ≤_i \o{υ}}{γ ⊢ \o{εθ<τ(t∈A)} ≤_i \o{υ}}$>
+
 (** Subtyping rules for induction and coinductive types. *)
 let r_mu_r_inf =
   <$\unaryRN{μ_{r,∞}}
@@ -177,13 +186,13 @@ let r_nu_l_inf =
 let r_mu_r =
   <$\binaryRN{μ_r}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ μυX B]}}
-    {γ ⊢ υ < κ}
+    {γ ⊢ υ < τ}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{μτX B}}$>
 
 let r_nu_l =
   <$\binaryRN{ν_l}
     {γ; Ξ ⊢ \t{t} ∈ \f{A[X ≔ νυX A]} ⊂ \f{B}}
-    {γ ⊢ υ < κ}
+    {γ ⊢ υ < τ}
     {γ; Ξ ⊢ \t{t} ∈ \f{ντX A} ⊂ \f{B}}$>
 
 let r_mu_l =
@@ -246,6 +255,15 @@ let extra_sub_rs env =
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
+let ordering_rs env =
+  let env = env in
+  let rs =
+    [ [ ord1 ; ord2 ; ord3 ]
+    ; [ ord4 ; ord5 ] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
 let typrules () =
   figure_here ~name:"typrules"
     ~caption:[tT "Typing rules for terms and stacks."] (dr typ_rs)
@@ -258,6 +276,11 @@ let extra_subrules () =
   figure_here ~name:"extrasubrules"
     ~caption:[tT "Local subtyping rules for inductive and coinductive types."]
       (dr extra_sub_rs)
+
+let ordering_rules () =
+  figure_here ~name:"orderingrules"
+    ~caption:[tT "Rules of ordinal ordering."] (dr ordering_rs)
+
 )
 
 => Introducing subtyping into the system \label("subtyping")
@@ -1360,34 +1383,60 @@ let _ =
   bnfs
   [ ( << $(\cal{O})$ >>
     , << $τ, υ$ >>
-    , << $\o{θ} \| \o{∞} \| \o{τ+1} $ >>
-    , << $θ ∈ \cal{V}_κ$ >> ) ]
+    , << $\o{θ} \| \o{∞} \| \o{τ+1} \| \o{εθ<τ(t∈A)} $ >>
+    , << $θ ∈ \cal{V}_κ, t ∈ Λ^{+}, A ∈ \cal{F}$ >> ) ]
 )
 \end{center}
-Our syntactic ordinals are formed using variable, the constant $\o{∞}$ and
-a successor symbol $\o{τ+1}$. The set of //raw syntactic ordinals//
-$\cal{O}^{+}$ is formed by extending the $\cal{O}$ with choice operators of
-the form $\o{εθ<τ(t∈A)}$. Note that we need to extend the system with the
-following three sorting rules.
+Our syntactic ordinals are formed using variable, the constant $\o{∞}$, the
+successor symbol and choice operators of the form $\o{εθ<τ(t∈A)}$. Note that
+we need to extend the system with the following three sorting rules.
 $$
   \axiomR{Σ ⊢ \o{∞} : κ}
-  \hspace(6.0)
+  \hspace(3.0)
   \unaryR{Σ ⊢ \o{τ} : κ}{Σ ⊢ \o{τ+1} : κ}
-$$
-$$
+  \hspace(3.0)
   \ternaryR{Σ ⊢ τ:κ}{Σ, θ:κ ⊢ t:τ}{Σ, θ:κ ⊢ A : ο}{Σ ⊢ \o{εθ<τ(t∈A)}:κ}
 $$
 \end{def}
+(*
 Note that we do not need to include a sorting rule for ordinal variables as
 they are handled like other kinds of variables.
+*)
 
-(* TODO TODO TODO *)
+In the model, syntactic ordinals will be interpreted using actual ordinals,
+as is done in \cite("Lepigre2017"). In particular, $∞$ will be interpreted
+by an ordinal that is large enough to ensure the convergence of all
+fixpoints in the semantics of our types.
 \begin{def}
-We denote $⟦\o{∞}⟧$ the set of all the ordinals smaller or equal to the
-cardinal of the set $⟦ο⟧$. This ordinal will thus be big enough to ensure
-the convergence of all fixpoints in the semantics. We will use the notation
-$⟦\cal{O}⟧$ for the ordinal $⟦\o{∞}⟧+ω$.
+Given a syntactic ordinal $τ$, we denote $⟦\o{τ}⟧$ the ordinal corresponding
+to its interpretation. In particular, we define $⟦\o{∞}⟧$ to be the set of
+all the ordinals smaller or equal to the cardinal of the set $⟦ο⟧$. The
+interpretation of the other syntactic ordinals is defined inductively as
+follows.
+\begin{center}
+\diagram(
+let contents =
+  let line s1 s2 = [s1 ; <$ = $> ; s2] in
+  two_cols
+  [ line <$⟦o⟧$>       <$o$>
+  ; line <$⟦\o{τ+1}⟧$> <$⟦\o{τ}⟧+1$>
+  ; line <$⟦\o{εθ<τ(t∈A)}⟧$> <$o \st \t{⟦t[θ≔o]⟧} ∈ \ts{A[θ≔o]}$>
+  ; line <$⟦\o{εθ<τ(t∈A)}⟧$> <$0 \hspace(0.4) otherwise$> ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+          ~vertical_padding:(fun n -> 2.0)
+)
+\end{center}
+We will use the notation $⟦\cal{O}⟧$ for the ordinal $⟦\o{∞}⟧+ω$, which
+is the set of all the ordinals that can be represented in our syntax.
 \end{def}
+\begin{rem}
+As in the previous chapter, the multiple extensions of the language that
+are given in this chapter are not independent. As our syntactic elements
+are all defined mutually inductively, every single modification leads to
+global changes. In particular, the definition of types (and thus of raw
+terms) is affected.
+\end{rem}
 
 We will now extend the syntax of our types with two constructors denoting
 the least or greatest fixpoint of a parametric type. Intuitively, these
@@ -1408,6 +1457,17 @@ $\binaryR{Σ, X:ο ⊢ A : ο}{Σ ⊢ τ : κ}{Σ ⊢ \f{ντX A} : ο}$
 Moreover, we will implicitly assume that in these constructions, the variable
 $X$ only appears positively in $A$ (i.e. it is in covariant position).
 \end{def}
+\Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
+\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
+\begin{def}
+In the semantics, sized inductive and coinductive types are interpreted in
+the usual way, as pre-fixpoints and post-fixpoints respectively.
+$$
+  \vs{μτX A} = \bigcup_{o < ⟦\o{τ}⟧} ⟦X ↦ A⟧^o(\{\v{□}\})
+  \hspace(6.0)
+  \vs{ντX A} = \bigcap_{o < ⟦\o{τ}⟧} ⟦X ↦ A⟧^o(Λ_ι)
+$$
+\end{def}
 
 Before giving the new subtyping rule for handling inductive and coinductive
 type, we need to extend the context of our judgments with a so-called
@@ -1415,12 +1475,22 @@ positivity context.
 \begin{def}
 A //positivity context// is a list of syntactic ordinals assumed to be
 positive. For convenience, we will represent such contexts using
-comma-separated lists of raw syntactic ordinals generated by the
-following ||bnf|| grammar.
-\Caml(let _ = sidenote << $γ ::= ∅ \| {γ, τ} $ >>
-  << $τ ∈ \cal{O}^{+} $ >>)
+comma-separated lists of syntactic ordinals generated by the following
+||bnf|| grammar.
+\Caml(let _ = sidenote << $γ ::= ∅ \| {γ, τ} $ >> << $τ ∈ \cal{O} $ >>)
+We will say that a positivity context $γ$ is valid if the interpretation of
+every syntactic ordinal $τ$ of $γ$ is strictly positive (i.e. $⟦τ⟧ > 0$).
 \end{def}
-\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
+In the system, positivity contexts will be necessary for the derivation of
+ordering judgments on syntactic ordinals. They will be used to make sure
+that fixpoints can be unfolded in subtyping judgments.
+\begin{def}
+An //ordering judgment// is a tuple of a positivity context $γ$, syntactic
+ordinals $τ$ and $υ$ and an integer $i ∈ \bbZ$ denoted $γ ⊢ τ ≤_i υ$. An
+ordering judgment is said to be valid if it can be derived using the
+deduction rules given in \figRef("orderingrules"). Note that we will write
+$γ ⊢ τ < υ$ when $i = 1$.
+\end{def}
 \begin{def}
 We extend our system with the six subtyping rules given in 
 \figRef("extrasubrules"). Note that all the other rules need to be
@@ -1428,18 +1498,28 @@ modified to contain a positivity context. However, there is no
 difficulty in doing so as they only need to transmit this context.
 \end{def}
 
+Intuitively, the ($μ_{r,∞}$) rules allows the unrolling of a least fixpoint
+on the right side of the subtyping relation. This rule can only be applied
+when the limit of the fixpoint has been reached, and it is always the case
+with the ordinal $∞$. When the ordinal is too small to make the fixpoint
+converge, the ($μ_r$) rule can be applied. However, it requires finding an
+ordinal $υ$ that is strictly smaller than the ordinal $τ$ carried by the
+fixpoint. In particular, this ensures that $τ$ was not equal to $0$, and
+thus that the fixpoint can be unrolled. When a least fixpoint appears on
+the left side of a pointed subtyping relation, the ($μ_l$) rule can be
+applied. In this case, a choice operator is used to obtain some ordinal
+such that the left part of the judgment is satisfied. If no such ordinal
+exist, then $0$ is chosen and thus the premise of the rule is immediate
+(the context is contradictory). The three rules for handling the greatest
+fixpoint constructor are dual to those for the least fixpoint constructor.
+
+
+
+
+
 
 (* TODO *)
 
-\begin{def}
-In the semantics, sized inductive and coinductive types are interpreted
-respectively as pre-fixpoints and post-fixpoints.
-$$
-  \vs{μτX A} = \bigcup_{o < ⟦\o{τ}⟧} ⟦X ↦ A⟧^o(\{\v{□}\})
-  \hspace(6.0)
-  \vs{ντX A} = \bigcap_{o < ⟦\o{τ}⟧} ⟦X ↦ A⟧^o(Λ_ι)
-$$
-\end{def}
 
 $$\id(r_fix)$$
 

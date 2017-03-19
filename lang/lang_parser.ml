@@ -33,7 +33,7 @@ let parser fvari = (vari ["χ"])
 let parser ovari = (vari ["X"; "Y"; "Z"])
 let parser stvar = (vari ["s"; "ο"])
 let parser vordi= (vari ["θ"; "η"])
-let parser ometa = (vari ["τ"; "υ"])
+let parser ometa = (vari ["τ"; "υ"; "o"])
 
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
@@ -195,6 +195,7 @@ and        subs =
   | s:subs?[NoSub] '[' t:(vsub tvari  (term TAppl)) ']' -> SubsT(s,t)
   | s:subs?[NoSub] '[' p:(vsub svari  (stac SFull)) ']' -> SubsS(s,p)
   | s:subs?[NoSub] '[' f:(vsub fovari (form FFull)) ']' -> SubsF(s,f)
+  | s:subs?[NoSub] '[' f:(vsub vordi  ordi        ) ']' -> SubsO(s,f)
 
 let term = term TAppl
 let ctxt = ctxt TAppl

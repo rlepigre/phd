@@ -76,6 +76,7 @@ and  subs =
   | SubsT of subs * term vsub          (* σ[a≔t]  *)
   | SubsS of subs * stac vsub          (* σ[α≔π]  *)
   | SubsF of subs * form vsub          (* σ[X≔A]  *)
+  | SubsO of subs * ordi vsub          (* σ[θ≔o]  *)
   | SubsM of vari                      (* σ, ρ    *)
   | NoSub                              (* ∅       *)
 and patt = vari * vari * term

@@ -161,6 +161,7 @@ and  subs2m : subs -> Maths.math list =
   | SubsT(s,e)   -> (subs2m s) @ aux t2m e
   | SubsS(s,e)   -> (subs2m s) @ aux s2m e
   | SubsF(s,e)   -> (subs2m s) @ aux f2m e
+  | SubsO(s,e)   -> (subs2m s) @ aux o2m e
   | NoSub        -> []
   | SubsM(s)     -> vari2m s
 and o2m : ordi -> Maths.math list = function
