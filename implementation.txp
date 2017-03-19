@@ -132,7 +132,7 @@ A first possibility would be to define a condition function with three
 arguments as follows.
 ### PML "examples/bool.pml"
 val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
-  case c of Tru[_] → e1 | Fls[_] → e2
+  case c { Tru[_] → e1 | Fls[_] → e2 }
 ###
 However, this function leads to both the expressions for the "then" and
 "else" branch to be evaluated, before a choice is made. This is not the
@@ -144,7 +144,7 @@ arguments. This is made possible by the higher-order features of our
 language.
 ### PML "examples/bool.pml"
 def cond<c:τ, e1:τ, e2:τ> : τ =
-  case c of Tru[_] → e1 | Fls[_] → e2
+  case c { Tru[_] → e1 | Fls[_] → e2 }
 ###
 Although such a macro remains untyped in the system, we can check that
 can be "typed" as expected by giving the following alternative definition
@@ -154,7 +154,7 @@ as above).
 val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
   cond<c, e1, e2>
 ###
-Note that in the syntax, the syntactic sugar ##if c then e1 else e2## is
+Note that in the syntax, the syntactic sugar ##if c { e1 } else { e2 }## is
 immediately translated to ##cond<c, e1, e2>## according to the definition
 given above.
 
@@ -164,10 +164,10 @@ feature is in fact useful in many ways, we will see in a further section
 that it can even be used to encode proof tactics.
 ### PML "examples/bool.pml"
 def land<b1:τ,b2:τ> =
-  case b1 of Tru[_] → b2 | Fls[_] → Fls
+  case b1 { Tru[_] → b2 | Fls[_] → Fls }
 
 def lor<b1:τ,b2:τ> =
-  case b1 of Tru[_] → Tru | Fls[_] → b2
+  case b1 { Tru[_] → Tru | Fls[_] → b2 }
 ###
 
 Before going further, we are going to define a set of usual boolean
@@ -175,16 +175,17 @@ operators. We will then consider their prove that they behave as
 they are expected to in the system.
 ### PML "examples/bool.pml"
 val not : bool ⇒ bool = fun a →
-  case a of Fls[_] → Tru | Tru[_] → Fls
+  case a { Fls[_] → Tru | Tru[_] → Fls }
 
 val or  : bool ⇒ bool ⇒ bool = fun a b → lor <a, b>
 val and : bool ⇒ bool ⇒ bool = fun a b → land<a, b>
 val imp : bool ⇒ bool ⇒ bool = fun a b → lor <b, not a>
 
 val xor : bool ⇒ bool ⇒ bool = fun a b →
-  case a of
-  | Fls[_] → (case b of Fls[_] → Fls | Tru[_] → Tru)
-  | Tru[_] → (case b of Fls[_] → Tru | Tru[_] → Fls)
+  case a {
+    | Fls[_] → case b { Fls[_] → Fls | Tru[_] → Tru }
+    | Tru[_] → case b { Fls[_] → Tru | Tru[_] → Fls }
+  }
 
 val eq : bool ⇒ bool ⇒ bool = fun a b → xor a (not b)
 ###
@@ -192,7 +193,7 @@ As a first example of proof, we are going to consider the law of the
 excluded middle. It can be stated and proved as follows in the system.
 ### PML "examples/bool.pml"
 val excl_mid : ∀x∈bool, or x (not x) ≡ Tru = fun b →
-  case b of Fls[_] → {} | Tru[_] → {}
+  case b { Fls[_] → {} | Tru[_] → {} }
 ###
 \begin{rem}
 The law of the excluded middle on booleans is not to be confused with the
@@ -208,38 +209,38 @@ properties with more parameters. For example, let us consider the
 reflexivity, commutativity of the ##eq## function.
 ### PML "examples/bool.pml"
 val eq_refl : ∀a∈bool, eq a a ≡ Tru = fun a →
-  case a of Fls[_] → {} | Tru[_] → {}
+  case a { Fls[_] → {} | Tru[_] → {} }
 
 val eq_comm : ∀a b∈bool, eq a b ≡ eq b a = fun a b →
-  case a of
-  | Fls[_] → (case b of Tru[_] → {} | Fls[_] → {})
-  | Tru[_] → (case b of Tru[_] → {} | Fls[_] → {})
+  case a {
+    | Fls[_] → case b { Tru[_] → {} | Fls[_] → {} }
+    | Tru[_] → case b { Tru[_] → {} | Fls[_] → {} }
+  }
 
 val eq_asso : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) = fun a b c →
-  case a of
-  | Fls[_] →
-      (case b of
-       | Tru[_] → (case c of Tru[_] → {} | Fls[_] → {})
-       | Fls[_] → (case c of Tru[_] → {} | Fls[_] → {}))
-  | Tru[_] →
-      (case b of
-       | Tru[_] → (case c of Tru[_] → {} | Fls[_] → {})
-       | Fls[_] → (case c of Tru[_] → {} | Fls[_] → {}))
+  case a {
+    | Fls[_] → case b {
+                  | Tru[_] → case c { Tru[_] → {} | Fls[_] → {} }
+                  | Fls[_] → case c { Tru[_] → {} | Fls[_] → {} }
+                }
+    | Tru[_] → case b {
+                  | Tru[_] → case c { Tru[_] → {} | Fls[_] → {} }
+                  | Fls[_] → case c { Tru[_] → {} | Fls[_] → {} }
+                } 
+  }
 ###
 To simplify the writing of such trivial proofs, it is possible to use
 term macros defined using higher-order definitions. Such macros can then
 be used to prove any tautology with a given number of arguments on
 booleans.
 ### PML "examples/bool.pml"
-def auto1<a:τ>           : τ = if a then {} else {}
-def auto2<a:τ, b:τ>      : τ = if a then auto1<b> else auto1<b>
-def auto3<a:τ, b:τ, c:τ> : τ = if a then auto2<b,c> else auto2<b,c>
+def auto1<a:τ>           : τ = if a { {} } else { {} }
+def auto2<a:τ, b:τ>      : τ = if a { auto1<b> } else { auto1<b> }
+def auto3<a:τ, b:τ, c:τ> : τ = if a { auto2<b,c> } else { auto2<b,c> }
 
-val eq_refl_auto : ∀a∈bool, eq a a ≡ Tru =
-  fun a → auto1<a>
+val eq_refl_auto : ∀a∈bool, eq a a ≡ Tru = fun a → auto1<a>
 
-val eq_comm_auto : ∀a b∈bool, eq a b ≡ eq b a =
-  fun a b → auto2<a,b>
+val eq_comm_auto : ∀a b∈bool, eq a b ≡ eq b a = fun a b → auto2<a,b>
 
 val eq_asso_auto : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) =
   fun a b c → auto3<a,b,c>
@@ -257,14 +258,16 @@ addition and multiplication functions.
 type rec nat = [Zero ; Succ of nat]
 
 val rec add : nat ⇒ nat ⇒ nat = fun n m →
-  case n of
-  | Zero[_] → m
-  | Succ[k] → Succ[add k m]
+  case n {
+    | Zero[_] → m
+    | Succ[k] → Succ[add k m]
+  }
 
 val rec mul : nat ⇒ nat ⇒ nat = fun n m →
-  case n of
-  | Zero[_] → Zero
-  | Succ[k] → add m (mul k m)
+  case n {
+    | Zero[_] → Zero
+    | Succ[k] → add m (mul k m)
+  }
 ###
 As ##add## and ##mul## are defined using recursion on their first argument,
 it is immediate to show ##add Zero n ≡ n## and ##mul Zero n ≡ Zero## for
@@ -300,23 +303,26 @@ required. We need to prove that ##add n Zero ≡ n## for every unary number
 analysis and induction.
 ### PML "examples/unat.pml"
 val rec add_n_zero : ∀n∈nat, add n Zero ≡ n = fun n →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_n_zero k in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = add_n_zero k in {}
+  }
 
 val rec add_succ : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_succ k m in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = add_succ k m in {}
+  }
 ###
 A proof of the commutativity of ##add## is then obtained in a similar way,
 but the two previously proved lemmas are used.
 ### PML "examples/unat.pml"
 val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
-  case n of
-  | Zero[_] → let lem = add_n_zero m in {}
-  | Succ[k] → let ih = add_comm k m in
-               let lem = add_succ m k in {}
+  case n {
+    | Zero[_] → let lem = add_n_zero m in {}
+    | Succ[k] → let ih = add_comm k m in
+                 let lem = add_succ m k in {}
+  }
 ###
 Note that in the system, a lemma is used by calling the corresponding
 function. Similarly, using an induction hypothesis corresponds to performing
@@ -330,9 +336,10 @@ show that the application of a function to any value produces a value. As an
 example, we will prove the totality of the ##add## function.
 ### PML "examples/unat.pml"
 val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_total k m in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = add_total k m in {}
+  }
 ###
 Using ##add_total## twice, it is then possible to show that addition function
 ##add## corresponds to an associative operation.
@@ -340,10 +347,11 @@ Using ##add_total## twice, it is then possible to show that addition function
 val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
   fun n m p →
     let tot_m_p = add_total m p in
-    case n of
-    | Zero[_] → {}
-    | Succ[k] → let tot_k_m = add_total k m in
-                 let ih = add_asso k m p in {}
+    case n {
+      | Zero[_] → {}
+      | Succ[k] → let tot_k_m = add_total k m in
+                   let ih = add_asso k m p in {}
+    }
 ###
 
 To conclude this section, we will prove the commutativity of the ##mul##
@@ -355,38 +363,42 @@ properties are rather straight-forward to obtain, even if longer proofs
 are harder to read.
 ### PML "examples/unat.pml"
 val rec mul_n_zero : ∀n∈nat, mul n Zero ≡ Zero = fun n →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = mul_n_zero k in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = mul_n_zero k in {}
+  }
 
 val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = mul_total k m in
-               let lem = add_total m (mul k m) in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = mul_total k m in
+                 let lem = add_total m (mul k m) in {}
+  }
 
 val rec mul_succ : ∀n m∈nat, mul n Succ[m] ≡ add (mul n m) n =
   fun n m →
-    case n of
-    | Zero[_] → {}
-    | Succ[k] → let lem = mul_succ k m in
-                 let tot = mul_total k m in
-                 let tot = add_total m (mul k m) in
-                 let lem = add_succ (add m (mul k m)) k in
-                 let lem = add_asso m (mul k m) k in
-                 let tot = mul_total k Succ[m] in {}
+    case n {
+      | Zero[_] → {}
+      | Succ[k] → let lem = mul_succ k m in
+                   let tot = mul_total k m in
+                   let tot = add_total m (mul k m) in
+                   let lem = add_succ (add m (mul k m)) k in
+                   let lem = add_asso m (mul k m) k in
+                   let tot = mul_total k Succ[m] in {}
+    }
 ###
 The commutativity of ##mul## then follows using yet another proof by
 induction, using each of the above lemmas.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m →
-    case n of
-    | Zero[_] → let lem = mul_n_zero m in {}
-    | Succ[k] → let ih  = mul_comm m k in
-                 let lem = mul_succ m k in
-                 let tot = mul_total k m in
-                 let lem = add_comm (mul k m) m in {}
+    case n {
+      | Zero[_] → let lem = mul_n_zero m in {}
+      | Succ[k] → let ih  = mul_comm m k in
+                   let lem = mul_succ m k in
+                   let tot = mul_total k m in
+                   let lem = add_comm (mul k m) m in {}
+    }
 ###
 
 One possible way for making a proof more readable is to give type
@@ -397,18 +409,19 @@ bellow another version of ##mul_comm## annotated in this way.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m →
-    case n of
-    | Zero[_] → let ded : mul Zero m ≡ Zero = {} in
-                 let lem : mul m Zero ≡ Zero = mul_n_zero m in {}
-    | Succ[k] → let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
-                 let ih  : mul k m ≡ mul m k = mul_comm k m in
-                 let lem : mul m Succ[k] ≡ add (mul m k) m =
-                   mul_succ m k
-                 in
-                 let tot : (∃v:ι, mul k m ≡ v) = mul_total k m in
-                 let lem : add (mul k m) m ≡ add m (mul k m) =
-                   add_comm (mul k m) m
-                 in {}
+    case n {
+      | Zero[_] → let ded : mul Zero m ≡ Zero = {} in
+                   let lem : mul m Zero ≡ Zero = mul_n_zero m in {}
+      | Succ[k] → let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
+                   let ih  : mul k m ≡ mul m k = mul_comm k m in
+                   let lem : mul m Succ[k] ≡ add (mul m k) m =
+                     mul_succ m k
+                   in
+                   let tot : (∃v:ι, mul k m ≡ v) = mul_total k m in
+                   let lem : add (mul k m) m ≡ add m (mul k m) =
+                     add_comm (mul k m) m
+                   in {}
+    }
 ###
 Here, we add type annotations on used lemmas to explicit the properties
 they prove. We also extend the proof with intermediate steps using local
@@ -421,12 +434,12 @@ also easier to write.
 
 Another, more satisfactory way of obtaining more readable proofs is to
 use again the higher-order layer of our system to define "tactics". We
-will here use a ##deduce## tactic to check that some equation holds in
-the current context, and a ##show## tactic to prove a property using
+will here use a ##t_deduce## tactic to check that some equation holds in
+the current context, and a ##t_show## tactic to prove a property using
 a given proof. 
 ### PML "examples/unat.pml"
-def deduce<f:ο> : τ = ({} : f)
-def show<f:ο, p:τ> : τ = (p : f)
+def t_deduce<f:ο> : τ = ({} : f)
+def t_show<f:ο, p:τ> : τ = (p : f)
 ###
 We can then modify our commutativity proof to obtain the following, which
 is a lot more readable than our original proof. Note that here, we use
@@ -435,31 +448,33 @@ a dummy redex.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m →
-    case n of
-    | Zero[_] → deduce<mul Zero m ≡ Zero>;
-                 show<mul m Zero ≡ Zero, mul_n_zero m>
-    | Succ[k] → deduce<mul Succ[k] m ≡ add m (mul k m)>;
-                 show<mul k m ≡ mul m k, mul_comm k m>;
-                 show<mul m Succ[k] ≡ add (mul m k) m, mul_succ m k>;
-                 show<(∃v:ι, mul k m ≡ v), mul_total k m>;
-                 show<add (mul k m) m ≡ add m (mul k m)
-                      , add_comm (mul k m) m>
+    case n {
+      | Zero[_] → t_deduce<mul Zero m ≡ Zero>;
+                   t_show<mul m Zero ≡ Zero, mul_n_zero m>
+      | Succ[k] → t_deduce<mul Succ[k] m ≡ add m (mul k m)>;
+                   t_show<mul k m ≡ mul m k, mul_comm k m>;
+                   t_show<mul m Succ[k] ≡ add (mul m k) m, mul_succ m k>;
+                   t_show<(∃v:ι, mul k m ≡ v), mul_total k m>;
+                   t_show<add (mul k m) m ≡ add m (mul k m)
+                         , add_comm (mul k m) m>
+    }
 ###
 We could even introduce syntactic sugar for our tactics into the parser
 of our language to obtain the following, very satisfactory proof.
-### PML
+### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m →
-    case n of
-    | Zero[_] → deduce mul Zero m ≡ Zero;
-                 show mul m Zero ≡ Zero using mul_n_zero m
-    | Succ[k] → deduce mul Succ[k] m ≡ add m (mul k m);
-                 show mul k m ≡ mul m k using mul_comm k m;
-                 show mul m Succ[k] ≡ add (mul m k) m
-                   using mul_succ m k;
-                 show ∃v:ι, mul k m ≡ v using mul_total k m;
-                 show add (mul k m) m ≡ add m (mul k m)
-                   using add_comm (mul k m) m
+    case n {
+      | Zero[_] → deduce mul Zero m ≡ Zero;
+                   show mul m Zero ≡ Zero using mul_n_zero m
+      | Succ[k] → deduce mul Succ[k] m ≡ add m (mul k m);
+                   show mul k m ≡ mul m k using mul_comm k m;
+                   show mul m Succ[k] ≡ add (mul m k) m
+                     using mul_succ m k;
+                   show ∃v:ι, mul k m ≡ v using mul_total k m;
+                   show add (mul k m) m ≡ add m (mul k m)
+                     using add_comm (mul k m) m
+    }
 ###
 
 =<
@@ -492,14 +507,15 @@ will only focus on the ##map## and ##length## function, which are
 given bellow.
 ### PML "examples/unat.pml"
 val rec map : ∀a b:ο, (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun f l →
-  case l of
-  | Nil[_]  → Nil
-  | Cons[c] → let hd = f c.hd in
-               let tl = map f c.tl in
-               Cons[{hd = hd ; tl = tl}]
+  case l {
+    | Nil[_]  → Nil
+    | Cons[c] → let hd = f c.hd in
+                 let tl = map f c.tl in
+                 Cons[{hd = hd ; tl = tl}]
+  }
 
 val rec length : ∀a:ο, list<a> ⇒ nat = fun l →
-  case l of Nil[_]  → Zero | Cons[c] → Succ[length c.tl]
+  case l { Nil[_]  → Zero | Cons[c] → Succ[length c.tl] }
 ###
 The ##map## function applies the function it is given as first
 argument to all the elements of the list it is given as second
@@ -516,15 +532,17 @@ def total<f:ι,a:ο> : ο = ∀x∈a, ∃v:ι, f x ≡ v
 val rec map_total : ∀a b:ο, ∀f∈(a ⇒ b), total<f,a>
                     ⇒ ∀l∈list<a>, ∃v:ι, map f l ≡ v =
   fun fn ft ls →
-    case ls of
-    | Nil[_]  → {}
-    | Cons[c] → let lem = ft c.hd in
-                 let ih  = map_total fn ft c.tl in {}
+    case ls {
+      | Nil[_]  → {}
+      | Cons[c] → let lem = ft c.hd in
+                   let ih  = map_total fn ft c.tl in {}
+    }
 
 val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l = fun l →
-  case l of
-  | Nil[_]  → {}
-  | Cons[c] → let ind = length_total c.tl in {}
+  case l {
+    | Nil[_]  → {}
+    | Cons[c] → let ind = length_total c.tl in {}
+  }
 ###
 
 We will now show that two successive uses of ##map## on a list, with two
@@ -546,13 +564,14 @@ val map_map : ∀a b c:ο, ∀f∈(a ⇒ b), ∀g∈(b ⇒ c),
     ∀l∈list<a>, map g (map f l) ≡ map (fun x → g (f x)) l =
   fun f g ftot gtot →
     fix fun map_map ls →
-      case ls of
-      | Nil[]   → {}
-      | Cons[c] → let hd = c.hd in let tl = c.tl in
-                   let tgf = compose_total f g ftot gtot hd in
-                   let lem = ftot hd in
-                   let lem = map_total f ftot tl in
-                   let ind = map_map tl in {}
+      case ls {
+        | Nil[]   → {}
+        | Cons[c] → let hd = c.hd in let tl = c.tl in
+                     let tgf = compose_total f g ftot gtot hd in
+                     let lem = ftot hd in
+                     let lem = map_total f ftot tl in
+                     let ind = map_map tl in {}
+      }
 ###
 Note that the proof by induction starts at the level of the "##fix##"
 keyword, which takes the fixpoint of the functions that immediately
@@ -575,10 +594,10 @@ a vector which length is the sum of the lengths of its two arguments. Note
 that the definition of ##app## requires the use of ##length_total##.
 ### PML "examples/unat.pml"
 val rec app : ∀a:ο, ∀m n:ι, vec<a, m> ⇒ vec<a, n> ⇒ vec<a, add m n> =
-  fun l1 l2 → case l1 of Nil[_] → l2 | Cons[c] →
+  fun l1 l2 → case l1 { Nil[_] → l2 | Cons[c] →
     let _ = length_total c.tl in
     let r = app c.tl l2 in
-    Cons[{hd = c.hd; tl = r}]
+    Cons[{hd = c.hd; tl = r}] }
 ###
 We can now define a ternary concatenation function on vectors as follows,
 using two calls to ##app##. To be able to define this function, the
@@ -630,19 +649,21 @@ and intermediate function ##insert##, inserting an element in a sorted
 list.
 ### PML "examples/unat.pml"
 val rec insert : ∀a:ο, ord<a> ⇒ a ⇒ list<a> ⇒ list<a> = fun o x l →
-   case l of
-   | Nil[_]  → Cons[{hd = x; tl = Nil}]
-   | Cons[c] → let hd = c.hd in let tl = c.tl in
-                if o.cmp x hd then
-                  Cons[{hd = x ; tl = l}]
-                else
-                  let tl = insert o x tl in
-                  Cons[{hd = hd ; tl = tl}]
+   case l {
+     | Nil[_]  → Cons[{hd = x; tl = Nil}]
+     | Cons[c] → let hd = c.hd in let tl = c.tl in
+                  if o.cmp x hd { Cons[{hd = x ; tl = l}] }
+                  else {
+                    let tl = insert o x tl in
+                    Cons[{hd = hd ; tl = tl}]
+                  }
+   }
 
 val rec isort : ∀a:ο, ord<a> ⇒ list<a> ⇒ list<a> = fun o l →
-   case l of
-   | Nil[_]  → Nil
-   | Cons[c] → insert o c.hd (isort o c.tl)
+   case l {
+     | Nil[_]  → Nil
+     | Cons[c] → insert o c.hd (isort o c.tl)
+   }
 ###
 Until the end of this section, our goal will be to show that for any
 ordering relation ##o## and list ##l##, the list ##isort o l##
@@ -653,13 +674,15 @@ be sorted. We hence define a boolean valued program taking as input an
 ordering relation and a list, and indicating whether the list is sorted.
 ### PML "examples/unat.pml"
 val rec sorted : ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>, bool = fun o l →
-  case l of
-  | Nil[_]   → true
-  | Cons[c1] → let hd = c1.hd in let tl = c1.tl in
-                (case tl of
-                 | Nil[_]   → true
-                 | Cons[c2] → let hd2 = c2.hd in
-                               land<(o.cmp) hd hd2, sorted o tl>)
+  case l {
+    | Nil[_]   → true
+    | Cons[c1] → let hd = c1.hd in let tl = c1.tl in
+                  case tl {
+                    | Nil[_]   → true
+                    | Cons[c2] → let hd2 = c2.hd in
+                                   land<(o.cmp) hd hd2, sorted o tl>
+                   }
+  }
 ###
 Most remarkably, we can even define the type of sorted lists using the
 restriction operator. Indeed, sorted lists are lists on which the
@@ -678,20 +701,22 @@ with the following proofs.
 val rec insert_total : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈list<a>,
                        ∃v:ι, insert o x l ≡ v =
   fun o x l →
-    case l of
-    | Nil[_]   → {}
-    | Cons[c1] → let hd = c1.hd in let tl = c1.tl in
-                  let lem = o.tot x hd in
-                  if o.cmp x hd then {}
-                  else let ih = insert_total o x tl in {}
+    case l {
+      | Nil[_]   → {}
+      | Cons[c1] → let hd = c1.hd in let tl = c1.tl in
+                    let lem = o.tot x hd in
+                    if o.cmp x hd { {} }
+                    else { let ih = insert_total o x tl in {} }
+    }
 
 val rec isort_total :  ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>,
                        ∃v:ι, isort o l ≡ v =
   fun o l →
-    case l of
-    | Nil[_]  → {}
-    | Cons[c] → let ih  = isort_total o c.tl in
-                 let lem = insert_total o c.hd (isort o c.tl) in {}
+    case l {
+      | Nil[_]  → {}
+      | Cons[c] → let ih  = isort_total o c.tl in
+                   let lem = insert_total o c.hd (isort o c.tl) in {}
+    }
 ###
 It is then necessary to show that inserting an element in a sorted list
 yields a sorted list. The proof of this lemma is not complicated either,
@@ -701,21 +726,27 @@ matching.
 val rec isorted : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈slist<a,o>,
                   sorted o (insert o x l) ≡ true =
   fun o x l →
-    case l of
-    | Nil[_]   → {}
-    | Cons[c1] → let lem = o.tot x c1.hd in
-                  if o.cmp x c1.hd then {} else
-                  let lem = o.tot c1.hd x in
-                  let lem = o.dis x c1.hd in
-                  (case c1.tl of
-                  | Nil[_]   → {}
-                  | Cons[c2] → let lem = insert_total o x c2.tl in
-                                let lem = o.tot c1.hd c2.hd in
-                                let lem = o.tot x c2.hd in
-                                if o.cmp c1.hd c2.hd then 
-                                  let lem = isorted o x c1.tl in
-                                  if o.cmp x c2.hd then {} else {}
-                                else ✂)
+    case l {
+      | Nil[_]   → {}
+      | Cons[c1] →
+         let lem = o.tot x c1.hd in
+         if o.cmp x c1.hd { {} }
+         else {
+           let lem = o.tot c1.hd x in
+           let lem = o.dis x c1.hd in
+           case c1.tl {
+             | Nil[_]   → {}
+             | Cons[c2] →
+                let lem = insert_total o x c2.tl in
+                let lem = o.tot c1.hd c2.hd in
+                let lem = o.tot x c2.hd in
+                if o.cmp c1.hd c2.hd {
+                  let lem = isorted o x c1.tl in
+                  if o.cmp x c2.hd { {} } else { {} }
+                } else { ✂ }
+           }
+         }
+    }
 ###
 \begin{rem}
 The ##✂## symbol (to be pronounced "scissors") can be used to mark a
@@ -733,11 +764,12 @@ simple proof by induction as follows.
 val rec isort_sorted : ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>,
                        sorted o (isort o l) ≡ true =
   fun o l →
-    case l of
-    | Nil[_]  → {}
-    | Cons[c] → let lem = isort_total o c.tl in
-                 let ind = isort_sorted o c.tl in
-                 let lem = isorted o c.hd (isort o c.tl) in {}
+    case l {
+      | Nil[_]  → {}
+      | Cons[c] → let lem = isort_total o c.tl in
+                   let ind = isort_sorted o c.tl in
+                   let lem = isorted o c.hd (isort o c.tl) in {}
+    }
 ###
 Finally, we can obtain a sorting function which return type indicates
 that the produced list is sorted. As for vectors, the type of sorted
@@ -762,9 +794,10 @@ is looked for is not in the list. To encode this property, we will
 rely on the ##exists## function (given in \chapter("intro")).
 ### PML "examples/unat.pml"
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
-  case l of
-  | Nil[_]  → false
-  | Cons[c] → if pred c.hd then true else exists pred c.tl
+  case l {
+    | Nil[_]  → false
+    | Cons[c] → if pred c.hd { true } else { exists pred c.tl }
+  }
 ###
 
 Our lookup function (named ##find##) can the be defined as follows,
@@ -776,11 +809,12 @@ type neg<a> = a ⇒ bot
 val rec find : ∀a:ο, ∀pred∈(a ⇒ bool), total<pred,a> ⇒
                ∀l∈list<a>, neg<exists pred l ≡ false> ⇒ a =
   fun pred pred_tot l exc →
-    case l of
-    | Nil[_]  → exc {}
-    | Cons[c] → let lem = pred_tot c.hd in
-                 if pred c.hd then c.hd
-                 else find pred pred_tot c.tl exc
+    case l {
+      | Nil[_]  → exc {}
+      | Cons[c] → let lem = pred_tot c.hd in
+                   if pred c.hd { c.hd }
+                   else { find pred pred_tot c.tl exc }
+    }
 ###
 Note that the exception ##exc## can only be called if we are able
 to feed it with a proof that no element of the list satisfy the
@@ -803,11 +837,12 @@ the predicate into a list of lists.
 val rec find_list : ∀a:ο, ∀pred∈(a ⇒ bool), total<pred,a> ⇒
                     list<list<a>> ⇒ option<a> =
   fun pred pred_tot l →
-    case l of
-    | Nil[_]  → none
-    | Cons[c] → save a → some
-                   (find pred pred_tot c.hd (fun _ →
-                      restore a (find_list pred pred_tot c.tl)))
+    case l {
+      | Nil[_]  → none
+      | Cons[c] → save a → some
+                     (find pred pred_tot c.hd (fun _ →
+                        restore a (find_list pred pred_tot c.tl)))
+    }
 ###
 Note that the recursive call of ##find_list## is done inside the
 exception handler provided to ##find##.

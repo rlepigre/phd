@@ -79,14 +79,16 @@ defined and used as follows.
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
-  case l of
-  | Nil[_]  → false
-  | Cons[c] → if pred c.hd then true else exists pred c.tl
+  case l {
+    | Nil[_]  → false
+    | Cons[c] → if pred c.hd { true } else { exists pred c.tl }
+  }
 
 val rec rev_append : ∀a, list<a> ⇒ list<a> ⇒ list<a> = fun l1 l2 →
-  case l1 of
-  | Nil[_]  → l2
-  | Cons[c] → rev_append c.tl Cons[{hd = c.hd; tl = l2}]
+  case l1 {
+    | Nil[_]  → l2
+    | Cons[c] → rev_append c.tl Cons[{hd = c.hd; tl = l2}]
+  }
 ###
 The ##exists## function takes as input a predicate and a list, and it
 returns a boolean indicating whether there is an element satisfying the
@@ -132,9 +134,10 @@ exception mechanism. For example, the following function can be used to
 compute the conjunction of a list of booleans rather efficiently.
 ### PML "examples/demo.pml"
 val rec conjunction : list<bool> ⇒ bool = fun l → save k →
-  case l of
-  | Nil[_]  → true
-  | Cons[c] → if c.hd then conjunction c.tl else restore k false
+  case l {
+    | Nil[_]  → true
+    | Cons[c] → if c.hd { conjunction c.tl } else { restore k false }
+  }
 ###
 Here, the continuation is saved in a variable ##k## and is restored with
 the value ##false## if the boolean ##false## is encountered in the list.
@@ -200,9 +203,7 @@ using recursion on its first argument.
 type rec nat = [Zero ; Succ of nat]
 
 val rec add : nat ⇒ nat ⇒ nat = fun n m →
-  case n of
-  | Zero[_] → m
-  | Succ[k] → Succ[add k m]
+  case n { Zero[_] → m | Succ[k] → Succ[add k m] }
 ###
 As a first example, we will show that ##add Zero n ≡ n## for all ##n##.
 To express this property, we can use the type ##∀n:ι, add Zero n ≡ n##,
@@ -232,9 +233,10 @@ taking as input a natural number ##n## and returning a proof of
 case analysis as follows.
 ### PML "examples/demo.pml"
 val rec add_n_z : ∀n∈nat, add n Zero ≡ n = fun n →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_n_z k in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = add_n_z k in {}
+  }
 ###
 If ##n## is ##Zero##, then we need to show ##add Zero Zero ≡ Zero##, which
 is immediate by definition of ##add##. In the case where ##n## is ##Succ[k]##
@@ -264,9 +266,10 @@ function. In particular, this must be done to use the induction hypothesis
 in proofs by induction like in ##add_z_n## or the following lemma.
 ### PML "examples/demo.pml"
 val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ind_hyp = add_n_s k m in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ind_hyp = add_n_s k m in {}
+  }
 ###
 In this case, the equation corresponding to the conclusion of the used lemma
 is directly added to the context. Of course, more complex results can be
@@ -275,10 +278,11 @@ commutativity of addition using a proof by induction with ##add_n_z## and
 ##add_n_s##.
 ### PML "examples/demo.pml"
 val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
-  case n of
-  | Zero[_] → let lem = add_n_z m in {}
-  | Succ[k] → let ih  = add_comm k m in
-               let lem = add_n_s m k in {}
+  case n {
+    | Zero[_] → let lem = add_n_z m in {}
+    | Succ[k] → let ih  = add_comm k m in
+                 let lem = add_n_s m k in {}
+  }
 ###
 Many more examples of proofs (and programs) are provided in \chapter("implem")
 and together with the implementation of the system. Each of them (including
@@ -437,9 +441,10 @@ provided that ##n## and ##m## are two natural numbers. It is however
 possible to establish this fact internally as follows.
 ### PML "examples/demo.pml"
 val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
-  case n of
-  | Zero[_] → {}
-  | Succ[k] → let ih = add_total k m in {}
+  case n {
+    | Zero[_] → {}
+    | Succ[k] → let ih = add_total k m in {}
+  }
 ###
 Here, ##add_total## proves that for any values ##n## and ##m## in the type
 ##nat##, there is some value ##v## such that ##add n m ≡ v##. Note that we
@@ -450,10 +455,11 @@ proof of the associativity of our addition function.
 val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
   fun n m p →
     let tot_m_q = add_total m p in
-    case n of
-    | Zero[_] → {}
-    | Succ[k] → let tot_p_m = add_total k m in
-                 let ih = add_asso k m p in {}
+    case n {
+      | Zero[_] → {}
+      | Succ[k] → let tot_p_m = add_total k m in
+                   let ih = add_asso k m p in {}
+    }
 ###
 Note that the proof require two calls to ##add_total##. The first one is
 used in both the base case and the induction case. It is required so that
