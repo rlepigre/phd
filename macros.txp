@@ -44,12 +44,13 @@ module type Env =
     val do_end_env : unit -> unit
   end
 
+let my_theorem_counter = "mytheorem"
 let make_theorem : string -> (module Env) = fun name ->
   let module A =
     struct
       let refType = name
-      let counter = name
-      let counterLevel = 1
+      let counter = my_theorem_counter
+      let counterLevel = 3
       let display num = bold [tT (name ^ " " ^ num ^ "."); (tT " ")]
     end
   in (module Make_theorem( A ))
@@ -61,12 +62,12 @@ module Env_thm = (val make_theorem "Theorem")
 module Env_cor = (val make_theorem "Corollary")
 module Env_clm = (val make_theorem "Claim")
 
-let defRef x = <<Definition \generalRef("Definition")(x)>>
-let remRef x = <<Remark \generalRef("Remark")(x)>>
-let lemRef x = <<Lemma \generalRef("Lemma")(x)>>
-let thmRef x = <<Theorem \generalRef("Theorem")(x)>>
-let corRef x = <<Corollary \generalRef("Corollary")(x)>>
-let clmRef x = <<Claim \generalRef("Claim")(x)>>
+let defRef x = <<Definition \generalRef(my_theorem_counter)(x)>>
+let remRef x = <<Remark \generalRef(my_theorem_counter)(x)>>
+let lemRef x = <<Lemma \generalRef(my_theorem_counter)(x)>>
+let thmRef x = <<Theorem \generalRef(my_theorem_counter)(x)>>
+let corRef x = <<Corollary \generalRef(my_theorem_counter)(x)>>
+let clmRef x = <<Claim \generalRef(my_theorem_counter)(x)>>
 let figRef x = <<Figure \generalRef("figure")(x)>>
 
 let definition = defRef
@@ -88,7 +89,7 @@ let chapters l =
   (tT "Chapters ") :: build_list (List.map sectref l)
 
 let theorems l =
-  (tT "Theorems ") :: build_list (List.map (generalRef "Theorem") l)
+  (tT "Theorems ") :: build_list (List.map (generalRef my_theorem_counter) l)
 
 let figRefs l =
   (tT "Figures ") :: build_list (List.map (generalRef "figure") l)
