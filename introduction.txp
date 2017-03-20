@@ -514,7 +514,8 @@ latter on Martin-Löf's dependent type theory \mcite(["Coquand1988";
 provide dependent types, which allow the definition of very expressive
 specifications. Coq and Agda do not directly give a computational
 interpretation to classical logic. Classical reasoning can only be done
-through the definition of axioms such as the law of the excluded middle.
+through a negative translation or the definition of axioms such as the
+law of the excluded middle.
 Moreover, these two languages are logically consistent, and hence their
 type-checkers only allow terminating programs. As termination checking is
 a difficult (and undecidable) problem, many terminating programs are
@@ -585,7 +586,8 @@ to rely on a stratified construction of these relations.
 
 In \chapter("subtyping"), a more practical approach is taken. The system
 is extended with a notion of subtyping, which yields a system that can be
-directly implemented with syntax-directed rules. In particular, our notion
+directly implemented with syntax-directed rules. While remaining compatible
+with the realisability model of \chapter("semValRest"), our notion
 of subtyping is able to handle all the connectives that do not have
 algorithmic contents. This means that quantifiers and equality types are
 only managed by subtyping. At the end of \chapter("subtyping"), we sketch
@@ -595,8 +597,9 @@ general recursion. To this aim, we rely on a work in progress
 
 Finally, \chapter("implem") is dedicated to examples of programs and proofs
 and to discussions on the implementation of the system. The source code of
-the prototype is distributed with this document, and the last version is
-available online (\website("http://lepigre.fr/these/")).
+the prototype is distributed with this document. The latest version of the
+prototype, this document and other attached files are available online
+(\website("http://lepigre.fr/these/")).
 
 =<
 
