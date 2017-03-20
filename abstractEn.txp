@@ -4,6 +4,34 @@
 \size(6.0){||Abstract||}
 \linesAfter(3)
 \end{center}
+In recent years, proof assistant have reached an impressive level of
+maturity. They have led to the certification of complex programs such
+as compilers and operating systems. Yet, using a proof assistant requires
+highly specialised skills and it is very different from standard
+programming.
+
+In order to bridge this gap, we aim at designing an ML-style programming
+language with support for proofs of programs, combining in a single tool
+the flexibility of ML and the fine specification features of a proof
+assistant. In other words, the system should be suitable both for
+programming (in the strongly-typed, functional sense) and for gradually
+increasing the level of guarantees met by programs, on a by-need basis.
+
+We thus define and study a call-by-value language whose type system extends
+higher-order logic with an equality type over untyped programs, a dependent
+function type, classical logic, and subtyping. The combination of
+call-by-value, dependent functions and classical logic is known to raise
+consistency issues. To ensure the correctness of the system (logical
+consistency and runtime safety), we design a theoretical framework based
+on Krivine's classical realisability.
+
+The construction of the model relies on an essential property linking the
+different levels of interpretation of types in a novel way. We finally
+demonstrate the expressive power of our system using our prototype
+implementation, by proving properties of standard programs like the
+map function on lists or the insertion sort.
+
+(*
 We design an ML style programming language with support for proofs of
 programs. The idea is to combine, in a single tool, the flexibility of a
 practical programming language and a great specification power. In other
@@ -26,3 +54,5 @@ yield a type system that is suitable for implementation. To account for our
 new connectives, we introduce a ternary relation $t ∈ A ⊂ B$ called pointed
 subtyping. It is interpreted as the implication
 "if $t$ has type $A$, then $t$ also has type $B$".
+*)
+
