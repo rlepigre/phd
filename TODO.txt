@@ -1,0 +1,10 @@
+- Changer le style de citation "[Garrigue1998]" (Tom)
+- Aligner en mode verbatim (unicode)
+- Ajouter les urls de tous les papiers
+
+
+
+Final checks:
+- Pierce ≔ Peirce
+- "e.i. " ≔ "e.i., "
+- "realiZability" → "realisability" (+ other American stuff)
