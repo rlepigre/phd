@@ -755,7 +755,7 @@ specific to the call-by-value presentation as a stack not only needs to
 store the arguments to functions, but also the functions themselves while
 their arguments are being computed. In call-by-name only the arguments are
 stored in the stack.
-\begin{rem}
+\begin{rem}\label("remsugar")
 We enforce values in constructors, record fields, projections and case
 analysis. This makes the calculus simpler because only $β$-reduction need
 to manipulate the stack. Syntactic sugars such as the following can be

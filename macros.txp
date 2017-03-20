@@ -474,6 +474,7 @@ module PMLVerbatim : sig
       in
       [ simple_verb "∀"
       ; simple_verb "Λ"
+      ; simple_verb "λ"
       ; simple_verb "→"
       ; simple_verb "∃"
       ; simple_verb "≡"

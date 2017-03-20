@@ -1,6 +1,6 @@
 FLAG := -j 4 --verbose 1 -I lang
 
-all: manuscrit.pdf
+all: manuscrit.pdf test
 
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
@@ -9,9 +9,7 @@ manuscrit.pdf: $(SRC)
 
 .PHONY:test
 test:
-	for f in `find examples`; do \
-		pml2 examples/*.pml ; \
-	done
+	for f in `find examples -type f`; do pml2 $$f; done
 
 manuscrit.ps: manuscrit.pdf
 	pdftops $^

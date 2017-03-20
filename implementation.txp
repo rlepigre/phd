@@ -36,6 +36,96 @@ set of examples that seem interesting to the author. This chapter also
 contains some discussions on possible extensions and improvement on the
 system and its implementation.
 
+=> Concrete syntax and syntactic sugars
+
+Although it is conveniently short, the abstract syntax that was used since
+\chapter("calculus") is not suitable for actual programming. Throughout
+this chapter, we will rely on the syntax used by of the prototype
+implementation of the system. Some examples of programs written with this
+concrete syntax were already considered in \chapter("intro"). We will now
+give some elements of the translation from the concrete syntax to the
+abstract syntax.
+\begin{rem}
+Although we will not give the full details, it would be possible to give a
+precise definition of the translation of terms and types between the two
+syntaxes.
+\end{rem}
+
+At the top level of the concrete syntax, there are three different ways of
+defining meta-variable: the definition of an expression of a given sort,
+the definition of a type and the definition of a value. The definition of
+an expression simply amounts to giving a name to some higher-order term
+of our language (i.e., to an element of $\cal{F}$ of an arbitrary sort).
+Examples of such definitions are given bellow.
+### PML "examples/syntax.pml"
+def delta : ι         = λx.x x
+def app<t:τ, u:τ> : τ = t u
+def omega : τ         = app<delta, delta>
+def neg<a:ο> : ο      = a ⇒ ∀x:ο, x
+###
+Note that higher-order definitions can have arguments, which are given in
+angle brackets. Sort annotations are given for the arguments as well as
+for the global (fully applied) expression. For example, the expression
+##app## given above has the sort ##τ→τ→τ##, and to be used as an element
+of sort ##τ## it needs to be provided with two arguments of sort ##τ##
+as in the definition of ##omega##. Of course, any term of sort ##ι## also
+has sort ##τ## and the sort of expression can be inferred most of the
+time (i.e., it does not always have to be provided by the user).
+
+As it is very common to define types (i.e., expressions of sort ##ο##), a
+specific syntax is provided to do so. However, it is completely equivalent
+to using a standard definition as it is only a syntactic sugar. As a
+consequence, the following two definitions of the type of booleans are
+equivalent.
+### PML "examples/syntax.pml"
+type bool = [T ; F] 
+def bool : ο = [T ; F]
+###
+Type definitions can also have arguments, and the ##rec## keyword can be
+used to make a type definition inductive. For example, the type of lists
+can be defined using any of the following, equivalent definitions.
+### PML "examples/syntax.pml"
+def list<a:ο> : ο = μ list [ Nil ; Cons of { hd : a ; tl : list } ]
+type rec list<a:ο> = [ Nil ; Cons of { hd : a ; tl : list } ]
+###
+Note that the name of the constructors are uppercase identifiers, while
+lowercase identifiers are used everywhere else. In particular, constructor
+names and label names are not limited as in the abstract syntax.
+
+Finally, values can be defined and type-checked using the ##val## keyword.
+As for types, the ##rec## keyword can be used and it makes the definition
+recursive. For example, we can define the following functions on lists.
+### PML "examples/syntax.pml"
+val is_empty : ∀a:ο, list<a> ⇒ bool = fun l →
+  case l { Nil[_] → T | Cons[_] → F }
+
+val rec last : ∀a:ο, list<a> ⇒ [None ; Some of a] = fun l →
+  case l {
+    | Nil[_]  → None
+    | Cons[c] → case c.tl {
+                   | Nil[_]  → Some[c.hd]
+                   | Cons[_] → last c.tl
+                 }
+  }
+###
+Note that we use a Rust-like syntax for case analysis: we wrap the patterns
+into curly brackets. This will also be the case for conditionals, but they
+will be introduced later.
+
+Another important remark about our concrete syntax is that we allow terms
+which are not values everywhere, including in records and variants. This
+is in fact translated to the limited abstract syntax as discussed in
+\remark("remsugar"). For example, the term ##Some[c.hd]## in the above
+example is translated to the term ##(λx.Some[x]) c.hd## internally.
+
+In the concrete syntax, $λ$-abstractions and $μ$-abstractions can be
+written using the syntax ##fun x → t## and ##save k → t## respectively.
+Note that $λ$-abstractions can take multiple arguments at once. For
+example, ##fun x y → t## is the same as ##fun x → fun y → t##. A
+continuation (or stack) ##k## can be restored using the syntax
+##restore k t##, which corresponds to named terms in the abstract syntax.
+
+=<
 => Encoding of strict product types
 
 As discussed in the previous chapter, the most natural semantics for product
