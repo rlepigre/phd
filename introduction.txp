@@ -14,7 +14,7 @@
 \begin{epigraph}
   //[In 1949,] as soon as we started programming, we found to our surprise
   that it wasn't as easy to get programs right as we had thought. Debugging
-  had to be discovered. I can remember the exact instant when I realized that
+  had to be discovered. I can remember the exact instant when I realised that
   a large part of my life from then on was going to be spent in finding
   mistakes in my own programs.//
 
@@ -63,7 +63,7 @@ between programs and proofs in the system. This means that programming
 and proving features can be mixed when constructing proofs or programs.
 For instance, proofs can be composed with programs for them to transport
 properties (e.g., addition carrying its commutativity proof). In programs,
-proof mechanisms can be used to eliminate dead code (i.e. portions of a
+proof mechanisms can be used to eliminate dead code (i.e., portions of a
 program that cannot be reached during its execution).
 
 => Writing functional programs
@@ -119,14 +119,14 @@ val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
 ###
 In fact, System F polymorphism is not the only form of quantification that
 is supported in our system. It also provides existential types, which are an
-essential first step toward the encoding of a module system supporting a
+essential first step towards the encoding of a module system supporting a
 notion of abstract interface. Moreover, our system is based on higher-order
 logic, which means that types are not the only objects that can be quantified
 over in types. In particular, we will see that quantifiers can range over
 terms in the next section.
 
-The programming languages of the ML family generally include operations
-generating side-effects, for example references (i.e. mutable variables).
+The programming languages of the ML family generally include effectful
+operations, for example references (i.e., mutable variables).
 Our system is no exception as it provides control operators. As first
 discovered by Timothy G. Griffin \cite("Griffin1990"), control operators
 like Lisp's //call/cc// can be used to give a computational interpretation
@@ -143,9 +143,9 @@ val rec conjunction : list<bool> ⇒ bool = fun l → save k →
 Here, the continuation is saved in a variable ##k## and is restored with
 the value ##false## if the boolean ##false## is encountered in the list.
 
-Our control operators can also be used to define programs which types
+Our control operators can also be used to define programs whose types
 correspond to logical formulas that are only valid in classical logic.
-For instance, the type of the following programs corresponds to Pierce's
+For instance, the type of the following programs corresponds to Peirce's
 law, the law of the excluded middle and the principle of double negation
 elimination.
 ### PML "examples/demo.pml"
@@ -155,11 +155,11 @@ val pierce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
 // Disjoint sum of two types (logical disjunction)
 type either<a,b> = [InL of a ; InR of b]
 
-// Usual definition of the logical negation
+// Usual definition of logical negation
 type neg<a> = a ⇒ ∀x, x
 
 val excl_mid : ∀a, {} ⇒ either<a, neg<a>> =
-  fun _ → save k → InR[fun x → [k] InL[x]]
+  fun _ → save k → InR[fun x → restore k InL[x]]
 
 val dneg_elim : ∀a, neg<neg<a>> ⇒ a = pierce
 ###
@@ -176,7 +176,8 @@ control operators can be understood as cheating. For example
 immediately returns a (possibly false) proof of ##neg<a>##. Now, if
 this proof is ever applied to a proof of ##a## (which would result
 in absurdity), the program backtracks and returns the given proof of
-##a##.
+##a##. This interpretation in terms of cheating seems to be due to
+Peter Selinger according to \id(citen "Wadler2003" "Section 4").
 
 =<
 
@@ -186,15 +187,15 @@ The system presented in this thesis is not only a programming language,
 but also a proof assistant focusing on program proving. Its proof mechanism
 relies on equality types of the form ##t ≡ u##, where ##t## and ##u## are
 arbitrary (possibly untyped) terms of the language itself. Such an equality
-type is inhabited by ##{}## (i.e. the record with no fields) if the denoted
+type is inhabited by ##{}## (i.e., the record with no fields) if the denoted
 equivalence is true, and it is empty otherwise. Equivalences are managed
 using a partial decision procedure that is guided by the construction of
 programs. An equational context is maintained by the type checker to keep
 track of the equivalences that are assumed to be true during the
-construction of typing proofs. This context is extended whenever a new
+construction of proofs. This context is extended whenever a new
 equation is learned (e.g. when a lemma is applied), and equations are
 proved by looking for contradictions (e.g. when two different variants
-are suppose equivalent).
+are supposed equivalent).
 
 To illustrate the proof mechanism, we will consider simple examples of
 proofs on unary natural number (a.k.a. Peano numbers). Their type is
@@ -208,7 +209,7 @@ val rec add : nat ⇒ nat ⇒ nat = fun n m →
 ###
 As a first example, we will show that ##add Zero n ≡ n## for all ##n##.
 To express this property, we can use the type ##∀n:ι, add Zero n ≡ n##,
-where ##ι## can though of as the set of all the program values. This
+where ##ι## can be thought of as the set of all program values. This
 statement can then be proved as follows.
 ### PML "examples/demo.pml"
 val add_z_n : ∀n:ι, add Zero n ≡ n = {}
@@ -243,11 +244,11 @@ If ##n## is ##Zero##, then we need to show ##add Zero Zero ≡ Zero##, which
 is immediate by definition of ##add##. In the case where ##n## is ##Succ[k]##
 we need to show ##add Succ[k] Zero ≡ Succ[k]##. By definition of ##add##,
 this can be reduced to ##Succ[add k Zero] ≡ Succ[k]##. We can then use the
-induction hypothesis (i.e. ##add_n_z k##) to learn ##add k Zero ≡ k##, with
-which we can concludes the proof.
+induction hypothesis (i.e., ##add_n_z k##) to learn ##add k Zero ≡ k##, with
+which we can conclude the proof.
 
 It is important to note that, in our system, a program that is considered
-as a proof needs to go though a termination checker. Indeed, a looping
+as a proof needs to go through a termination checker. Indeed, a looping
 program could be used to prove anything otherwise. For example, the following
 proof is rejected.
 ### PML "examples/demo.pml"
@@ -286,7 +287,7 @@ val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
   }
 ###
 Many more examples of proofs (and programs) are provided in \chapter("implem")
-and together with the implementation of the system. Each of them (including
+and with the implementation of the system. Each of them (including
 those in the current chapter) have been automatically checked upon the
 generation of this document. They are thus correct with respect to the
 implementation.
@@ -299,7 +300,8 @@ implementation.
 A soundness issue related to side-effects and call-by-value evaluation
 arose in the seventies with the advent of ML. The problem stems from a
 bad interaction between side-effects and Hindley-Milner polymorphism. It was
-first formulated in terms of references \citen("Wright1995")("Section 2").
+first formulated in terms of references, as explained in
+\id(citen "Wright1995" "Section 2").
 To extend an ML-style language with references, the naive approach consist
 in defining an abstract type ##'a ref## and polymorphic procedures with the
 following signature (given in OCaml syntax).
@@ -331,23 +333,23 @@ type safety, which is the very purpose of a type system.
 To solve the problem, many alternative type systems were designed (e.g.
 \mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
 all introduced a complexity that contrasted with the elegance and simplicity
-of ML systems (for a detailed accounts, see \citen("Wright1995")("Section 2")
+of ML systems (for a detailed account, see \citen("Wright1995")("Section 2")
 and \citen("Garrigue2004")("Section 2")). A simple and elegant solution was
 finally found by Andrew Wright in the nineties. He suggested restricting
-generalization (i.e. introduction of polymorphism) to syntactic values
+generalisation (i.e., introduction of polymorphism) to syntactic values
 \mcite(["Wright1994";"Wright1995"]).
 
-In ML, generalization usually happens in expressions of the form
+In ML, generalisation usually happens in expressions of the form
 "##let x = u in t##", called let-bindings. The type-checking of such an
-expression proceeds by infering the type of the term ##u##, which may
+expression proceeds by inferring the type of the term ##u##, which may
 contain unification variables. The type of ##u## is then generalized by
-introducing universal quantification over the unification variables.
+universally quantifying over these unification variables.
 Finally, the term ##t## is type-checked under the assumption that ##x##
 has the most general type of ##u##. With value restriction, the
-generalization of the type of ##u## only happens if ##u## is a
+generalisation of the type of ##u## only happens if ##u## is a
 syntactic value. Consequently, the example above is rejected since
-##ref []## is not a value, and hence its infered type ##'_a list ref##
-is only weakly polymorphic (i.e. it can only be unified with exactly one,
+##ref []## is not a value, and hence its inferred type ##'_a list ref##
+is only weakly polymorphic (i.e., it can only be unified with exactly one,
 yet unknown type). Thus, it cannot be unified with ##bool list ref## and
 ##nat list ref## at the same time.
 
@@ -363,7 +365,7 @@ with polymorphic operations.
 ###
 The function ##callcc## corresponds to the control operator //call/cc//,
 which was first introduced in the //Scheme// programming language. When
-called, this function saves the current continuation (i.e. the current
+called, this function saves the current continuation (i.e., the current
 state of the program's environment) and feeds it to the function it is
 given as an argument. The continuation can be restored in the body of
 this function using the ##throw## function.
@@ -377,25 +379,25 @@ discovered by Robert Harper and Mark Lillibridge \cite("Harper1991").
   in print_string ((fst c) "Hello world!"); (snd c) (fun x → x+2)
 ###
 Intuitively, the program first saves the continuation and immediately builds
-a couple ##c## containing two functions. The first one is simply the identity
+a pair ##c## containing two functions. The first one is simply the identity
 function. The second one takes a function ##f## as argument and calls
 ##throw## to restore the previously saved continuation. It then replaces
-##c## with a couple containing ##f## and a constant function. Consequently,
-the first element of the couple ##c## can be used as the (polymorphic)
+##c## with a pair containing ##f## and a constant function. Consequently,
+the first element of the pair ##c## can be used as the (polymorphic)
 identity function as long as the second element of ##c## has not been used.
 However, when the second element of ##c## is called with a function ##g##,
 then ##g## becomes the first element of ##c## and the computation restarts.
 This is problematic since the function ##fun x → x+2## is then applied to
-a value of type ##string##, which is then fed to an integer addition.
+a value of type ##string##, which is thus fed to an integer addition.
 
-During the type checking of the let-binding, the type that is inferred for
-the couple ##c## (prior to generalisation) is
+During type checking of the let-binding, the type that is inferred for
+the pair ##c## (prior to generalisation) is
 ##('_a → '_a) * (('_a → '_a) → unit)##.
 As a consequence, if there is no value restriction, the last line of the
 example is type-checked in a context where ##c## has the polymorphic type
 ##('a → 'a) * (('a → 'a) → unit)##. In particular, the function type
 ##'a → 'a## can be unified with both ##string → string## and ##int → int##.
-As with references, value restriction forbid such unifications.
+As with references, the value restriction forbids such unifications.
 
 Note that it is relatively easy to translate the counter example into our
 language. Indeed, terms of the form ##callcc (fun k → t)## are translated
@@ -414,15 +416,15 @@ essential for building proofs as it provides a form of typed quantification.
 However, combining call-by-value evaluation, side-effects and dependent
 functions is not straightforward. Indeed, if ##t## is a dependent function
 of type ##∀x∈a, b<x>## and if ##u## has type ##a##, then is it not always
-the case that ##t u## has type ##b<u>##. As a consequence, we need to
-restrict the application of
+the case that ##t u## evaluates to a value of type ##b<u>##. As a consequence,
+we need to restrict the application of
 dependent functions to make sure that it is type safe. The simplest possible
-approach consist in only allowing syntactic values as argument of dependent
-functions, which is another instance of //value restriction//. It is however
+approach consists in only allowing syntactic values as arguments of dependent
+functions, which is another instance of the value restriction. It is however
 not satisfactory as it considerably weakens the expressiveness of dependent
 functions. For example, ##add_n_z## cannot be applied to the term
 ##add Zero Zero## to prove ##add (add Zero Zero) Zero ≡ add Zero Zero##. In
-other words, value restriction breaks the modularity of our proof system.
+other words, the value restriction breaks the modularity of our proof system.
 
 Surprisingly, our equality types provide a solution to the problem. Indeed,
 they allow us to identify terms having the same observable computational
@@ -462,7 +464,7 @@ val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
                    let ih = add_asso k m p in {}
     }
 ###
-Note that the proof require two calls to ##add_total##. The first one is
+Note that the proof requires two calls to ##add_total##. The first one is
 used in both the base case and the induction case. It is required so that
 the system can unfold the definition of ##add n (add m p)## according to
 the head constructor of ##n##. As we are in call-by-value, we can only
@@ -474,7 +476,7 @@ case.
 
 =<
 
-=> Related works and similar systems
+=> Related work and similar systems
 
 To our knowledge, combining call-by-value evaluation, side-effects and
 dependent products has never been achieved before. At least not for a
@@ -484,19 +486,19 @@ are not values in dependent applications. Similarly, the $F^{★}$ language
 \cite("Swamy2011") relies on (partial) let-normal forms to enforce values
 in argument position. Daniel Licata and Robert Harper have defined a notion
 of positively dependent types \cite("Licata2009") which only allow dependency
-over strictly positive types. Finally, in language like ATS \cite("Xi2004")
+over strictly positive types. Finally, in languages like ATS \cite("Xi2004")
 and DML \cite("Xi1999") dependent types are limited to a specific index
 language.
 
 The system that seems the most similar to ours is NuPrl
 \cite("Constable1986"), although it is inconsistent with classical reasoning.
 NuPrl accommodates an observational equivalence relation similar to ours
-(Howe's squiggle relation \cite("Howe1989")). It is partially
+(Howe's //squiggle// relation \cite("Howe1989")). It is partially
 reflected in the syntax of the system. Being based on a Kleene style
-realizability model, NuPrl can also be used to reason about untyped terms.
+realisability model, NuPrl can also be used to reason about untyped terms.
 
 The central part of this paper consists in the construction of a classical
-realizability model in the style of Jean-Louis Krivine \cite("Krivine2009").
+realisability model in the style of Jean-Louis Krivine \cite("Krivine2009").
 We rely on a call-by-value presentation which yields a model in three layers
 (values, terms and stacks). Such a technique has already been used to account
 for classical ML-like polymorphism in call-by-value in the work of Guillaume
@@ -522,7 +524,7 @@ makes programming tedious.
 The TRELLYS project \cite("Casinghino2014") aims at providing a language in
 which a consistent core interacts with type-safe dependently-typed
 programming with general recursion. Although the language defined in
-\cite("Casinghino2014") is call-by-value and allows effect, it suffers from
+\cite("Casinghino2014") is call-by-value and effectful, it suffers from
 value restriction like Aura \cite("Jia2008"). The value restriction does not
 appear explicitly but is encoded into a well-formedness judgement appearing
 as the premise of the typing rule for application. Apart from value
@@ -564,7 +566,7 @@ equality type over terms, that is interpreted using the untyped notion of
 equivalence described in \chapter("calculus"). This enables the specification
 of program properties that can then be proved using equational reasoning.
 The adequacy of our type system with respect to its semantics is then proved
-using classical realizability techniques. As our language is call-by-value,
+using classical realisability techniques. As our language is call-by-value,
 the interpretation of types is spread among three sets related by
 orthogonality: a set of values, a set of evaluation contexts and a set of
 terms.
@@ -575,7 +577,7 @@ However, value restriction is required on the arguments of dependent
 functions, which makes them practically useless. \chapter("semValRest")
 provides a solution to this problem by proposing a relaxed restriction
 expressed using observational equivalence. The soundness of this new
-approach is established by constructing a somewhat surprising realizability
+approach is established by constructing a somewhat surprising realisability
 model. It relies on a new instruction, that internalises our notion of
 program equivalence into the reduction relation of our abstract machine.
 For the definition of reduction and equivalence not to be circular, we need

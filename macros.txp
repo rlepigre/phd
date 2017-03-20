@@ -368,10 +368,6 @@ let mcite : string list -> content list = fun l ->
 let cite : string -> content list = fun k ->
   mcite [k]
 
-let dcite : string -> string -> content list = fun k e ->
-  let txt = List.rev (List.tl (List.rev (cite k))) in
-  txt @ [tT ", "] @ (emph [tT e]) @ [tT "]"]
-
 let citen : string -> string -> content list = fun k n ->
   let act l =
     let k = List.hd l in

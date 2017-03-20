@@ -223,8 +223,8 @@ In other words, it will be considered as a parameter of our type system
 and semantics.
 
 Intuitively, an equality type $\f{t≡u}$ will be interpreted as $⊤$
-(i.e. logical truth or the biggest type) if the equivalence $t ≡ u$ holds,
-and as $⊥$ (i.e. logical absurdity or the empty type) otherwise. For
+(i.e., logical truth or the biggest type) if the equivalence $t ≡ u$ holds,
+and as $⊥$ (i.e., logical absurdity or the empty type) otherwise. For
 example, the type $\f{(λx x) λx x ≡ λx x}$ will be inhabited as we have
 $\t{(λx x) λx x} ≡ \t{λx x}$ according to \thmRef("cbvbeta"). However,
 the type $\f{λx x ≡ {}}$ will be empty as $\t{λx x} \nequiv \t{{}}$
@@ -298,8 +298,8 @@ only allow the derivation of static equivalences like $\t{(λx x) {}} ≡
 \t{{}}$, but they cannot be used to show more general properties like
 "$\t{(λx x) v} ≡ \t{v}$ for every value $v$".
 (* *)
-Terms can contain free variables of several sorts: $λ$-variables (i.e. value
-variables), term variables and $μ$-variables (i.e. stack variables). As open
+Terms can contain free variables of several sorts: $λ$-variables (i.e., value
+variables), term variables and $μ$-variables (i.e., stack variables). As open
 terms may appear in types, and in particular in equality types, it is natural
 to allow universal and existential quantification over all three sorts of
 variables. This will enables the specification of properties such as
@@ -356,7 +356,7 @@ However, it is not clear whether that is useful in practice.
 Our type system allows universal and existential quantification over
 several sorts of objects. There are first order quantifiers ranging over
 values, terms and stack, as shown in the previous section. And the system
-also provides second order quantification (i.e. quantification over types),
+also provides second order quantification (i.e., quantification over types),
 which corresponds to System F polymorphism and type abstraction. All of
 these different forms of quantifiers are handled uniformly in the syntax
 and in the semantics thanks to a higher-order formulation.
@@ -383,7 +383,7 @@ $\cal{S}₀$ using the following ||bnf|| grammar.
 The language of sorts only contains constants and an arrow constructor for
 functions. Our "sort system" will in fact be very similar to the simply
 typed $λ$-calculus. In particular, the syntax of our types will contain a
-constructor for building functions (i.e. $λ$-abstraction) and a corresponding
+constructor for building functions (i.e., $λ$-abstraction) and a corresponding
 constructor for application.
 \begin{def}
 We require a countable set $\cal{V}_ο = \{X, Y, Z...\}$ of propositional
@@ -419,7 +419,7 @@ let _ = large_bnfs
 Our types contain values, terms and stacks, as they will correspond to
 types of sort $ι$, $τ$ and $σ$. We then have variables of all sorts,
 abstraction to build types with an arrow sort and application. All the
-remaining constructors are used to build propositions (i.e. actual
+remaining constructors are used to build propositions (i.e., actual
 formulas) which will be given sort $ο$. Note that the quantifiers may
 range over types of any sort. They are hence very general.
 \begin{rem}
@@ -489,7 +489,7 @@ such that:
 \begin{itemize}
 \item for every redex $\f{(χ^s ↦ A)(B)}$ we have
       $\f{(χ^s ↦ A)(B)} \inj \f{A[χ≔B]}$ and
-\item $({\inj})$ is contextually closed (i.e. reduction considers all the
+\item $({\inj})$ is contextually closed (i.e., reduction considers all the
       redexes in a type).
 \end{itemize}
 We denote $({\inj}^{∗})$ its reflexive and transitive closure.
@@ -606,7 +606,7 @@ the latter will also need value restriction.
 The abstract machine presented in \chapter("calculus") is part of a
 //classical realisability// machinery that will be built upon here.
 We aim at obtaining a semantical interpretation of our higher-order
-type system. In particular, a proposition (i.e. a type of sort $ο$)
+type system. In particular, a proposition (i.e., a type of sort $ο$)
 will be interpreted by three sets: a set of values, a set of stacks
 and a set of terms. As always in classical realisability, the model
 is parametrised by a pole, which serves as an exchange point between
@@ -614,7 +614,7 @@ the world of programs and the world of execution contexts, encoded
 as stacks.
 \begin{def}
 Given a reduction relation $R ⊆ (Λ×Π) × (Λ×Π)$, a //pole// is a set
-of processes $\dbot ⊆ Λ×Π$ which is //$R$-saturated// (i.e. closed
+of processes $\dbot ⊆ Λ×Π$ which is //$R$-saturated// (i.e., closed
 under backward reduction). More formally, if we have $q ∈ \dbot$ and
 $p R q$ then $p ∈ \dbot$.
 \end{def}
@@ -1301,7 +1301,7 @@ corresponding case.
 
 \item If the last used rule is ($≡_{τ,ι}$) then the proof is similar to the
   previous case, using the fact that $Φ₁ = Φ₂$ implies $Φ₁^{⊥⊥} = Φ₂^{⊥⊥}$
-  (i.e. \lemma("orthoincl")).
+  (i.e., \lemma("orthoincl")).
 
   \begin{center}
     $ \id(r_eq_ti) $

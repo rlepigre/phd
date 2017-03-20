@@ -490,7 +490,7 @@ According to the above definition, a list is either empty (##Nil##
 constructor), or built using a smaller list and an element (##Cons##
 constructor). Note that the argument of the ##Cons## constructor is
 formed using a product (or record) type with two elements. The label
-##hd## denotes the //head// of the list (i.e. its first element) and
+##hd## denotes the //head// of the list (i.e., its first element) and
 ##tl## denotes its //tail//.
 \begin{rem}
   The type that is stored under the ##tl## label is ##list## and not
@@ -578,7 +578,7 @@ keyword, which takes the fixpoint of the functions that immediately
 follows it. In fact, our "##val rec##" construct is exactly encoded in
 this way.
 
-In our system, it is possible to encode the type of vectors (i.e. lists
+In our system, it is possible to encode the type of vectors (i.e., lists
 of a given length) using a restriction on the type of lists. In other
 words, vectors of length ##s## will be defined as the type of all lists
 ##l## such that ##length l ≡ s##. The type of vectors will hence have

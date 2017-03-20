@@ -400,6 +400,13 @@ let biblio =
   ; year    = "2014"
   ; url     = "http://mypy-lang.org" };
 
+  { key     = "Wadler2003"
+  ; authors = "Philip Wadler"
+  ; title   = "Call-by-value is dual to call-by-name"
+  ; notes   = "SIGPLAN Notices 38(9), 189-201"
+  ; year    = "2003"
+  ; url     = "http://doi.acm.org/10.1145/944746.944723" }
+
   ]
 
 let init () =

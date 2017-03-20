@@ -132,7 +132,7 @@ let derived_rules () =
 
 => A model for a semantical value restriction \label("semValRest")
 
-In this chapter, we consider the encoding of dependent types (i.e. a form
+In this chapter, we consider the encoding of dependent types (i.e., a form
 of typed quantification) into our system. However, the expressiveness of
 such constructs is considerably limited by value restriction. To solve
 this issue we introduce the notion of //semantical value restriction//,
@@ -251,7 +251,7 @@ $$
 \end{lem}
 \begin{rem}
 Note that in the typing rules we consider, the variable bound by the
-dependent type (i.e. $x$ or $a$ respectively) does not appear free in
+dependent type (i.e., $x$ or $a$ respectively) does not appear free in
 the type $A$. In fact, this restriction is not necessary, and we could
 adapt the rules accordingly. However, the considered types would not
 correspond to dependent functions anymore.
@@ -448,7 +448,7 @@ for every stack $π∈Π$, \lemRef("redtosame") tells us that
 $\t{(μα w) F[{}]} ≡ \t{T[{}]}$. As a consequence, it cannot
 be that $\t{(μα w) F[{}]} ≡ \t{F[{}]}$ and thus the type
 $\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$ is equivalent to
-$\f{[C₀ : {}]}$ (i.e. they have the same semantical interpretation).
+$\f{[C₀ : {}]}$ (i.e., they have the same semantical interpretation).
 This means that if we manage to show that $\t{t}$ has type
 $\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$, then we will have a
 contradiction to the type safety as $\t{t}$ reduces to $\v{C₁[{}]}$,
@@ -825,7 +825,7 @@ bellow).
 \begin{center}
 $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
 \end{center}
-In order to give a semantical justification to this rule (i.e. to show
+In order to give a semantical justification to this rule (i.e., to show
 that it is adequate), we need to find a model in which the following
 property holds for every $Φ ∈ ⟦ο⟧$.
 $$ Φ^{⊥⊥} ∩ Λ_ι^{∗} ⊆ Φ $$
@@ -960,7 +960,7 @@ carrying two non-equivalent values.
 \begin{thm}\label("main")
 Let $\dbot ⊆ Λ×Π$ be a non-empty, $↠$-saturated set of processes such that
 for every $p∈\dbot$ we have $p {⇓_{↠}}$. If $Φ ⊆ Λ_ι$ is a set of values
-closed under the equivalence relation $({≡})$ (i.e. for all $v$, $w∈Λ_ι$,
+closed under the equivalence relation $({≡})$ (i.e., for all $v$, $w∈Λ_ι$,
 if $v∈Φ$ and $w≡v$ then $w∈Φ$), then we have the following property.
 $$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
 \begin{proof}
@@ -1011,7 +1011,7 @@ we have ${\p{v∗π}} {⇑_{↠}}$ and thus $\p{v∗π} ∉ \dbot$.
 \end{thm}
 \begin{rem}
 \thmRef("main") only gives us the required property of the model
-for poles of terminating processes (i.e. processes that eventually
+for poles of terminating processes (i.e., processes that eventually
 reduce to a final states). This limitation is not a problem here as
 we will only consider poles having this property.
 \end{rem}
@@ -1264,7 +1264,7 @@ Now that we have proved $({≡})$ to be a congruence, it remains to show that
 it is compatible with $({≡}_{≻})$. To do so, we first need to show that we
 $({≡})$ contains $({≡}_{≻})$
 \begin{thm}\label("fullcompat1")
-For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$ (i.e.
+For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$ (i.e.,
 $({≡}) ⊆ ({≡}_{≻})$).
 \begin{proof}
 Let us suppose that $t ≡ u$. By definition, this means that $t ≡_i u$ for
@@ -1547,7 +1547,7 @@ $p ∈ Λ×Π$ is a process, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does n
 imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number $i ∈ \bbN$.
 \end{rem}
 As shown by the \thmRef("eq_incl"), our $({≡})$ relation is more
-fine-grained (i.e. it discriminates more terms than $({≡}_{↠})$).
+fine-grained (i.e., it discriminates more terms than $({≡}_{↠})$).
 However, its formulation does not really provide more intuition
 on the behaviour of our equivalence relation. Indeed, the definition
 of $({↠})$ still involves $({≡})$, an thus the definition of

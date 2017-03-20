@@ -227,7 +227,7 @@ $({≡}_{≻})$, or (simply) compatible, if it satisfies the following
 conditions.
 \begin{itemize}
 \item For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$
-      (i.e. $({≡}) ⊆ ({≡}_{≻})$).
+      (i.e., $({≡}) ⊆ ({≡}_{≻})$).
 \item Given $t$, $u∈Λ$, if for every stack $π∈Π$ there is a process
       $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
       then $t ≡ u$.
@@ -618,7 +618,7 @@ We will now show that a record $\v{{(li=vi)i∈I}}$ cannot be equivalent to
 a $λ$-abstraction $\v{λx t}$. The most natural approach consists in using
 record projection to obtain a stuck state on the $λ$-abstraction. In other
 words, we can use a stack of the form $\s{[λy y.lk]ε}$ provided that $k∈I$.
-However, this technique does not work with the empty record $\v{{}}$ (i.e.
+However, this technique does not work with the empty record $\v{{}}$ (i.e.,
 when $I = ∅$). In this case, a possible solution is to use a stack of the
 form $\s{v·π}$ where $v$ is a value such that ${\p{t[x≔v]∗π}} {⇓}_{≻}$
 (obviously, $\p{{(li=vi)i∈I} ∗ v·π}$ is stuck). However, there is no
