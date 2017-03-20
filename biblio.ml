@@ -405,7 +405,44 @@ let biblio =
   ; title   = "Call-by-value is dual to call-by-name"
   ; notes   = "SIGPLAN Notices 38(9), 189-201"
   ; year    = "2003"
-  ; url     = "http://doi.acm.org/10.1145/944746.944723" }
+  ; url     = "http://doi.acm.org/10.1145/944746.944723" };
+
+  { key     = "Manoury1992"
+  ; authors = "Pascal Manoury, Michel Parigot and Marianne Simonot"
+  ; title   = "ProPre A Programming Language with Proofs"
+  ; notes   = "Lecture Notes in Computer Science, Volume 624"
+  ; year    = "1992"
+  ; url     = "http://dx.doi.org/10.1007/BFb0013095" };
+
+  { key     = "Chargueraud2010"
+  ; authors = "Arthur Charguéraud"
+  ; title   = "Program verification through characteristic formulae"
+  ; notes   = "In the proceedings of ICFP"
+  ; year    = "2010"
+  ; url     = "http://doi.acm.org/10.1145/1863543.1863590" };
+
+  { key     = "Chargueraud2011"
+  ; authors = "Arthur Charguéraud"
+  ; title   = "Characteristic formulae for the verification of imperative programs"
+  ; notes   = "In the proceedings of ICFP"
+  ; year    = "2011"
+  ; url     = "http://doi.acm.org/10.1145/2034773.2034828" };
+
+  { key     = "Baro2003"
+  ; authors = "Sylvain Baro"
+  ; title   = "Conception et implémentation d'un système d'aide à la "
+              ++ "spécification et à la preuve de programmes ML"
+  ; notes   = "Thèse de l'Université Paris Diderot, France"
+  ; year    = "2003"
+  ; url     = "https://tel.archives-ouvertes.fr/tel-00008416" };
+
+  { key     = "Régis-Gianas2007"
+  ; authors = "Yann Régis-Gianas"
+  ; title   = "Des types aux assertions logiques : preuve automatique ou "
+              ++ "assistée de propriétés sur les programmes fonctionnels"
+  ; notes   = "Thèse de l'Université Paris Diderot, France"
+  ; year    = "2007"
+  ; url     = "https://tel.archives-ouvertes.fr/tel-01238703" }
 
   ]
 

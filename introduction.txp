@@ -515,12 +515,11 @@ provide dependent types, which allow the definition of very expressive
 specifications. Coq and Agda do not directly give a computational
 interpretation to classical logic. Classical reasoning can only be done
 through a negative translation or the definition of axioms such as the
-law of the excluded middle.
-Moreover, these two languages are logically consistent, and hence their
-type-checkers only allow terminating programs. As termination checking is
-a difficult (and undecidable) problem, many terminating programs are
-rejected. Although this is not a problem for formalizing mathematics, this
-makes programming tedious.
+law of the excluded middle. Moreover, these two languages are logically
+consistent, which means that they only accept terminating programs. As
+termination checking is a difficult (and undecidable) problem, many
+terminating programs are rejected. Although this is not a problem for
+formalizing mathematics, this makes programming tedious.
 
 The TRELLYS project \cite("Casinghino2014") aims at providing a language in
 which a consistent core interacts with type-safe dependently-typed
@@ -546,7 +545,29 @@ programming language, but rather a specification language coupled with proof
 checking and model checking utilities. It is nonetheless worth mentioning
 that the undecidability of PVS's type system is handled by generating proof
 obligations. Our system takes a completely different approach and relies
-on a non-backtracking type-checking algorithm.
+on a non-backtracking type-checking algorithm, that is likely to be
+undecidable. We argue, as in \cite("Lepigre2017"), that this is not a
+problem in practice and makes the system simpler to implement.
+
+Several systems have been proposed for proving ML programs. ProPre
+\cite("Manoury1992") relies on a notion of //algorithm//,
+corresponding to equational specification of programs, that is used in
+conjunction with a type system based on intuitionistic logic. Although
+it is possible to use classical logic to prove that a program meets its
+specification, the underlying programming language is not effectful.
+Similarly, the PAF! system implements a logic supporting proofs of
+programs, but it is restricted to a purely functional subset of ML.
+Another approach for reasoning abound purely functional ML programs is
+given in \cite("Régis-Gianas2007"), where Hoare logic is used to specify
+program properties.
+
+Finally, another approach to proving ML programs (including effectful
+ones) consists in compiling a program down to a higher-order formula
+\mcite(["Chargueraud2010" ; "Chargueraud2011"]). Such formulas can
+then be manipulated in an external prover like Coq \cite("CoqTeam2004").
+The user is thus required to master at least two languages, contrary
+to our system in which programming and proving both take place in the
+same language.
 
 =<
 
