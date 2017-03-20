@@ -24,5 +24,5 @@ property that links the different levels of interpretations of types
 in a novel way. The obtained semantics can be combined with subtyping to
 yield a type system that is suitable for implementation. To account for our
 new connectives, we introduce a ternary relation $t ∈ A ⊂ B$ called pointed
-subtyping. It is interpreted as the implication "if $t$ has type $A$, then
-it also has type $B$"
+subtyping. It is interpreted as the implication
+"if $t$ has type $A$, then $t$ also has type $B$".

@@ -53,17 +53,18 @@ that they cannot be used for proving mathematical formulas.
 
 The aim of this work is to provide a uniform environment in which
 programs can be designed, specified and proved. The idea is to combine a
-full-fledged, ML-like programming language with an enriched type-system
+full-fledged, ML-like programming language with an enriched type system
 allowing the specification of computational behaviours. This language can
-thus be used as ML for type-safe general programming, or as a proof
+thus be used as ML for type-safe general programming, and as a proof
 assistant for proving properties of ML programs. The uniformity of the
 framework implies that programs can be incrementally refined to obtain
 more guarantees. In particular, there is no syntactic distinction
 between programs and proofs in the system. This means that programming
 and proving features can be mixed when constructing proofs or programs.
 For instance, proofs can be composed with programs for them to transport
-properties (e.g. addition carrying its commutativity proof). In programs,
-proof mechanisms can be used to eliminate unreachable code.
+properties (e.g., addition carrying its commutativity proof). In programs,
+proof mechanisms can be used to eliminate dead code (i.e. portions of a
+program that cannot be reached during its execution).
 
 => Writing functional programs
 

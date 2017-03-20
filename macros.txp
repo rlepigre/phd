@@ -102,6 +102,10 @@ let tval : Typography.Maths.math list =
   let t env = Maths.glyphs "val" (Maths.change_fonts env env.font)  in
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
+let hyphenate_fr env =
+  let hyphenate = DefaultFormat.hyphenate_dict "hyph-fr.hdict" in
+  {env with hyphenate}
+
 (* Stuff to add side note. *)
 let sidenote text note =
   let environment env = {env with par_indent = []} in

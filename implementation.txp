@@ -553,8 +553,8 @@ that the composition of two total functions is itself total.
 val compose_total : ∀a b c:ο, ∀f∈(a ⇒ b), ∀g∈(b ⇒ c),
     total<f,a> ⇒ total<g,b> ⇒ total<(fun x → g (f x)), a> =
   fun f g ftot gtot a →
-    let lem = ftot a in
-    let lem = gtot (f a) in {}
+    show ∃v:ι, f a ≡ v using ftot a;
+    show ∃w:ι, g (f a) ≡ w using gtot (f a)
 ###
 We can then state and prove our lemma as follows, using a proof by
 induction together with our different totality results.
