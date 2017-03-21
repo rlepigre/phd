@@ -146,28 +146,28 @@ the value ##false## if the boolean ##false## is encountered in the list.
 Our control operators can also be used to define programs whose types
 correspond to logical formulas that are only valid in classical logic.
 For instance, the type of the following programs corresponds to Peirce's
-law, the law of the excluded middle and the principle of double negation
-elimination.
+law, the principle of double negation elimination and the law of the
+excluded middle.
 ### PML "examples/demo.pml"
-val pierce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
+val peirce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
   fun x → save k → x (fun y → restore k y)
-
-// Disjoint sum of two types (logical disjunction)
-type either<a,b> = [InL of a ; InR of b]
 
 // Usual definition of logical negation
 type neg<a> = a ⇒ ∀x, x
 
+val dneg_elim : ∀a, neg<neg<a>> ⇒ a = peirce
+
+// Disjoint sum of two types (logical disjunction)
+type either<a,b> = [InL of a ; InR of b]
+
 val excl_mid : ∀a, {} ⇒ either<a, neg<a>> =
   fun _ → save k → InR[fun x → restore k InL[x]]
-
-val dneg_elim : ∀a, neg<neg<a>> ⇒ a = pierce
 ###
 Note that the definition of ##excl_mid## contains a dummy function
 constructor. Its presence is required for a reason related to value
 restriction (see \section("valrest")). It would not be necessary if
 ##excl_mid## was not polymorphic in ##a##. Moreover, note that
-##dneg_elim## can be defined to be exactly ##pierce## thanks to
+##dneg_elim## can be defined to be exactly ##peirce## thanks to
 subtyping (see \chapter("subtyping")).
 
 From a computational point of view, manipulating continuations using
@@ -189,7 +189,7 @@ relies on equality types of the form ##t ≡ u##, where ##t## and ##u## are
 arbitrary (possibly untyped) terms of the language itself. Such an equality
 type is inhabited by ##{}## (i.e., the record with no fields) if the denoted
 equivalence is true, and it is empty otherwise. Equivalences are managed
-using a partial decision procedure that is guided by the construction of
+using a partial decision procedure that is driven by the construction of
 programs. An equational context is maintained by the type checker to keep
 track of the equivalences that are assumed to be true during the
 construction of proofs. This context is extended whenever a new
@@ -214,10 +214,10 @@ statement can then be proved as follows.
 ### PML "examples/demo.pml"
 val add_z_n : ∀n:ι, add Zero n ≡ n = {}
 ###
-Here, the proof is immediate as have ##add Zero n ≡ n## by definition
-of the ##add## function. Note that this equivalence holds for all ##n##,
-whether it corresponds to an element of ##nat## or not. For instance, it
-can be used to show ##add Zero true ≡ true##.
+Here, the proof is immediate (i.e., ##{}##) as have ##add Zero n ≡ n## by
+definition of the ##add## function. Note that this equivalence holds for
+all ##n##, whether it corresponds to an element of ##nat## or not. For
+instance, it can be used to show ##add Zero true ≡ true##.
 
 Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
 this property looks similar to ##add_z_n##, the following proof is invalid.
@@ -286,8 +286,8 @@ val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
                  let lem = add_n_s m k in {}
   }
 ###
-Many more examples of proofs (and programs) are provided in \chapter("implem")
-and with the implementation of the system. Each of them (including
+Many more examples of proofs and programs are provided in \chapter("implem")
+(and even more with the implementation of the system). Each of them (including
 those in the current chapter) have been automatically checked upon the
 generation of this document. They are thus correct with respect to the
 implementation.
@@ -402,8 +402,8 @@ As with references, the value restriction forbids such unifications.
 Note that it is relatively easy to translate the counter example into our
 language. Indeed, terms of the form ##callcc (fun k → t)## are translated
 to ##save k → t## and terms of the form ##throw k u## to ##restore k u##.
-Moreover, as our system contains system F, value restriction does need to
-be stated differently. It appears on the typing rule for the introduction
+Moreover, as our system contains system F, value restriction needs to be
+stated differently. It appears on the typing rule for the introduction
 of the universal quantifier. In the system, value restriction corresponds
 to only applying this rule to terms that are values.
 
@@ -425,8 +425,9 @@ considerably weakens the expressiveness of dependent functions. For example,
 ##add_n_z## cannot be used to prove
 ##add (add Zero Zero) Zero ≡ add Zero Zero##.
 Indeed, the term ##add Zero Zero## is not a value, which means that it cannot
-be used as the argument of a dependent function. In other words, we could say
-that the value restriction breaks the modularity of our proof system.
+be used as argument of a dependent function. This problem arises very
+often as proofs rely heavily on dependent functions. As a consequence,
+the value restriction breaks the modularity of our proof system.
 
 Surprisingly, our equality types provide a solution to the problem. Indeed,
 they allow us to identify terms having the same observable computational
@@ -492,11 +493,12 @@ and DML \cite("Xi1999") dependent types are limited to a specific index
 language.
 
 The system that seems the most similar to ours is NuPrl
-\cite("Constable1986"), although it is inconsistent with classical reasoning.
-NuPrl accommodates an observational equivalence relation similar to ours
-(Howe's //squiggle// relation \cite("Howe1989")). It is partially
-reflected in the syntax of the system. Being based on a Kleene style
-realisability model, NuPrl can also be used to reason about untyped terms.
+\cite("Constable1986"), although it is inconsistent with classical reasoning
+and not effectful. NuPrl accommodates an observational equivalence relation
+similar to ours (Howe's //squiggle// relation \cite("Howe1989")). It is
+partially reflected in the syntax of the system. Being based on a Kleene
+style realisability model, NuPrl can also be used to reason about untyped
+terms.
 
 The central part of this paper consists in the construction of a classical
 realisability model in the style of Jean-Louis Krivine \cite("Krivine2009").
@@ -504,7 +506,7 @@ We rely on a call-by-value presentation which yields a model in three layers
 (values, terms and stacks). Such a technique has already been used to account
 for classical ML-like polymorphism in call-by-value in the work of Guillaume
 Munch-Maccagnoni \cite("Munch2009"). It is here extended to include dependent
-products. Note that our main result (\theorem("main")) seems unrelated to
+products. Note that our main result (\theorem("main")) is unrelated to
 Lemma 9 in Munch-Maccagnoni's work \cite("Munch2009").
 
 The most actively developed proof assistants following the Curry-Howard
@@ -516,7 +518,8 @@ provide dependent types, which allow the definition of very expressive
 specifications. Coq and Agda do not directly give a computational
 interpretation to classical logic. Classical reasoning can only be done
 through a negative translation or the definition of axioms such as the
-law of the excluded middle. Moreover, these two languages are logically
+law of the excluded middle. In particular, these two languages are not
+effectful. However, they are logically
 consistent, which means that they only accept terminating programs. As
 termination checking is a difficult (and undecidable) problem, many
 terminating programs are rejected. Although this is not a problem for
@@ -547,10 +550,14 @@ classical higher-order logic. However this tool does not seem to be a
 programming language, but rather a specification language coupled with proof
 checking and model checking utilities. It is nonetheless worth mentioning
 that the undecidability of PVS's type system is handled by generating proof
-obligations. Our system takes a completely different approach and relies
-on a non-backtracking type-checking algorithm, that is likely to be
-undecidable. We argue, as in \cite("Lepigre2017"), that this is not a
-problem in practice and makes the system simpler to implement.
+obligations. The Why3 language \cite("Filliâtre2013") similarly relies on
+proof obligations but it embeds programming language (called WhyML)
+corresponding to a restricted subset of ML. Our system takes a completely
+different approach and relies
+on a non-backtracking type-checking algorithm. Although our system is
+likely to be undecidable, we argue as in \cite("Lepigre2017") that this
+seems not to be a problem in practice and allows for a simpler
+implementation of the type system.
 
 Several systems have been proposed for proving ML programs. ProPre
 \cite("Manoury1992") relies on a notion of //algorithms//,
@@ -616,7 +623,7 @@ of subtyping is able to handle all the connectives that do not have
 algorithmic contents. This means that quantifiers and equality types are
 only managed by subtyping. At the end of \chapter("subtyping"), we sketch
 the extension of the system with inductive and coinductive types, and with
-general recursion. To this aim, we rely on a work in progress
+general recursion. To this aim, we rely on a recently submitted paper
 \cite("Lepigre2017").
 
 Finally, \chapter("implem") is dedicated to examples of programs and proofs

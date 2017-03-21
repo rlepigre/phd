@@ -442,7 +442,15 @@ let biblio =
               ++ "assistée de propriétés sur les programmes fonctionnels"
   ; notes   = "Thèse de l'Université Paris Diderot, France"
   ; year    = "2007"
-  ; url     = "https://tel.archives-ouvertes.fr/tel-01238703" }
+  ; url     = "https://tel.archives-ouvertes.fr/tel-01238703" };
+
+  { key     = "Filliâtre2013"
+  ; authors = "Jean-Christophe Filliâtre and Andrei Paskevich"
+  ; title   = "Why3 - Where Programs Meet Provers"
+  ; notes   = "In the proceedings of ESOP, Lecture Notes in Computer Science"
+              ++ ", Volume 7792"
+  ; year    = "2013"
+  ; url     = "http://dx.doi.org/10.1007/978-3-642-37036-6_8" };
 
   ]
 
