@@ -494,24 +494,26 @@ our knowledge, such ideas have only be used (and implemented) in some
 unpublished work of Christophe Raffalli \mcite(["Raffalli1998" ;
 "Raffalli1999"]) and in \cite("Lepigre2017").
 
-(*
-The typing rules being
-syntax-directed, type-checking can only diverge when checking a local
-subtyping judgment. In this case, an error message can be built using
-the last applied typing rule.
+One of the most important idea that make the system practical and
+possible to implement is to only work with syntax-directed typing
+and subtyping rules. This means that only one of our typing rules
+can be applied for each different term constructors. Similarly,
+we have only two subtyping rules per type constructors: one where
+it appears on the left of the inclusion, and one where it appears
+on the right. As type-checking can only diverge in subtyping, an
+error message can be built using the last applied typing rule.
+Moreover, all the undecidability of the system is concentrated into
+the management of unification variables, termination checking and
+equivalence derivation.
 
-As a proof of concept, we implemented a toy programming language
-based on our system. It is called \sysname{} and is available online
-\cite{proto}. Aside from a few subtleties described in Section
-\ref{algorithm}, the implementation is straightforward and remains
-very close to the typing and subtyping rules of Figures
-\ref{typingrules} and \ref{subtypingrules}.
-
-Overall, our system provides a similar user experience to statically
-typed functional language like OCaml or Haskell. In such languages,
-type annotations are also required for advanced features like
-polymorphic recursion.
-*)
+As a proof of concept, we implemented our system in a prototype
+called PML2. The last version of its source code is available
+online (\website("http://lepigre.fr/these/")). Its implementation
+mostly follows the typing and subtyping rules of the system given
+in \chapter("subtyping"). Overall, our system provides a similar
+user experience to statically typed functional language like OCaml
+or Haskell. In such languages, type annotations are also required
+for advanced features like polymorphic recursion.
 
 =<
 => Related work and similar systems
