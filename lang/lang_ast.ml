@@ -35,7 +35,6 @@ and  term =
   | TCtxt of ctxt * term               (* E[t]   *)
   | TProj of valu * vari               (* v.l    *)
   | TIsRe of valu * term               (* R(v,t) *)
-  | TIsFn of valu * term               (* F(v,t) *)
   | TDelt of valu * valu               (* δ(v,w) *)
   | TFixp of term * valu               (* Y(t,v) *)
   | TCase of valu * patt fset          (* [v | C₁[x₁] → t₁ | C₂[x₂] → t₂] *)

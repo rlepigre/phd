@@ -10,6 +10,7 @@ open Lang
 \Configure_math_macro{\t}{ syntax = string; }
 \Configure_math_macro{\s}{ syntax = string; }
 \Configure_math_macro{\p}{ syntax = string; }
+\Configure_math_macro{\subs}{ syntax = string; }
 
 => Observational equivalence of programs \label("obsEquiv")
 
@@ -87,6 +88,28 @@ We can thus conclude using the definition of $t ≡_{≻} u$ with the
 substitution $ρ ∘ ρ₀$ and the stack $π₀$.
 \end{proof}
 \end{thm}
+(*
+Another property that will soon be required is that no value is equivalent
+to every other. In other words, given some value we should always be able
+to find a value such that the two are not equivalent.
+\begin{lem}\label("nottrivial")
+For every value $v ∈ Λ_ι$, there is $w ∈ Λ_ι$ such that $v \nequiv_{≻} w$.
+\begin{proof}
+Let us first suppose that $v ≠ \v{□}$ and that $v ∉ \cal{V}_ι$. In this
+case, we can simply take $w = \v{□}$. Indeed, if we take $ρ = ρ_{id}$
+and $π = \s{[{}]ε}$ then $\p{vρ∗π} = \p{vρ∗[{}]ε} ≻ \p{{}∗vρ·ε} {⇑}_{≻}$
+and $\p{wρ ∗ π} = \p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$.
+(* *)
+Now, if $v = \v{□}$ then we can take $w = \v{{}}$, $ρ = ρ_{id}$ and
+$π = \s{[{}]ε}$ since $\p{vρ ∗ π} = \p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$
+and $\p{wρ∗π} = \p{{}∗[{}]ε} ≻ \p{{}∗{}·ε} {⇑}_{≻}$.
+(* *)
+Finally, if $w = x ∈ \cal{V}_ι$ then we can take $w = \v{{}}$,
+$ρ = \subs{[x≔□]}$ and $π = \s{[{}]ε}$. We can then conclude exactly as
+in the previous case.
+\end{proof}
+\end{lem}
+*)
 
 Another essential property of our equivalence relation is extensionality.
 In other words, it is possible to replace equals by equals at any place
@@ -105,11 +128,23 @@ we can distinguish it from $v₂$ using the stack  $π = \s{[{}]ε}$. Indeed,
 we have $\p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
 $\p{v₂ ∗ [{}]ε} ≻ \p{{} ∗ v₂·ε} {⇑}_{≻}$ since we cannot have $v₂ = \v{□}$.
 In a symmetric way, we can also distinguish $v₁$ and $v₂$ when $v₂ = \v{□}$.
-As a consequence, we can assume that $v₁ ≠ □$ and that $v₂ ≠ \v{□}$ in the
-remaining of the proof.
-(* *)
-By definition, there is a stack $π$ and a substitution $ρ$ such that we
-have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$
+As a consequence, we can now assume that $v₁ ≠ \v{□}$ and that $v₂ ≠ \v{□}$.
+
+Similarly, if $v₁ = x₁ ∈ \cal{V}_ι$ and $v₂ = x₂ ∈ \cal{V}_ι$ then they can
+be easily distinguished with \theorem("substequiv") and a substitution
+replacing $x₁$ and $x₂$ with two non-equivalent values. Now, if we have
+$v₁ = x ∈ \cal{V}_ι$ but $v₂$ is not a variable then we can use the
+substitution $ρ = \subs{[x≔□]}$ and the stack $π = \s{[{}]ε}$ to tell $v₁$
+and $v₂$ apart. Indeed, in this case we have
+$\p{v₁ρ ∗ π} = \p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
+$\p{v₂ρ ∗ π} = \p{v₂ρ ∗ [{}]ε} ≻ \p{{} ∗ v₂ρ · ε} {⇑}_{≻}$. A symmetric
+reasoning can be used in the case where $v₁$ is not a variable and
+$v₂ = x ∈ \cal{V}_ι$. We can thus assume that neither $v₁$ nor $v₂$ is
+a $λ$-variable.
+
+It now remains to handle the general case. By definition, we know that
+there is a stack $π$ and a substitution $ρ$ such that we have
+${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$
 (up to symmetry). As $x$ is bound we can rename it so that
 $\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
 $\t{(t[x≔v₂])ρ} = \t{tρ[x≔v₂ρ]}$. To finish the proof, we need to find
@@ -117,7 +152,10 @@ a stack $π₀$ and a substitution $ρ₀$ such that ${\p{v₁ρ₀ ∗ π₀}} 
 and ${\p{v₂ρ₀ ∗ π₀}} {⇑}_{≻}$ (up to symmetry). We can take
 $π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ since by definition we have
 ${\p{v₁ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₁ρ] ∗ π}} {⇓}_{≻}$ and
-${\p{v₂ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_{≻}$.
+${\p{v₂ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_{≻}$. Note that here,
+it is essential that $\v{v₁ρ}$ and $\v{v₂ρ}$ cannot be equal to $\v{□}$
+or to some $λ$-variable as otherwise the first reduction steps could not
+be taken.
 \end{proof}
 \end{thm}
 \begin{lem}\label("sexttermaux")
@@ -326,11 +364,11 @@ Direct consequence of \lemRef("redequiv") using $p = \p{u∗π}$.
 \end{proof}
 \end{lem}
 
-Based on the reduction rules of our abstract machine, we can derive seven
+Based on the reduction rules of our abstract machine, we can derive six
 immediate equivalences. They correspond to record projection, case
 analysis, unfolding of the fixpoint combinator, elimination of special
-terms of the form $\t{R(v,u)}$ and $\t{F(v,u)}$, and the erasure
-of a projection or a case analysis by the special value $\v{□}$.
+terms of the form $\t{R(v,u)}$, and the erasure of a projection or a
+case analysis by the special value $\v{□}$.
 (* *)
 The corresponding reduction rules do not involve an interaction with the
 stack. In particular, they do not "observe" the stack and they leave it
@@ -352,18 +390,17 @@ be terms. The following equivalences hold.
     let eq2 = eq_cond "[Ck[v]|(Ci[xi] → ti) i∈I]" "tk[xk≔v]" <$k ∈ I$> in
     let eq3 = eq "Y(t,v)"             "t (λx Y(t,x)) v" in
     let eq4 = eq "R({(li=vi)i∈I},u)"   "u" in
-    let eq5 = eq "F(λx t,u)"           "u" in
     let eq6 = eq "□.lk"                "□" in
     let eq7 = eq "[□|(Ci[xi]→ti) i∈I]" "□" in
     tabular_layout 0.8 2.0
     [ [eq1; eq3]
     ; [eq2; eq4]
-    ; [eq5; eq6; eq7] ]
+    ; [eq6; eq7] ]
 )
 \begin{proof}
 For every equivalence $\t{t₁} ≡ \t{t₂}$ that we need to prove, the
-definition of $({≻})$ gives us $\p{t₁∗π} ≻ \p{t₂∗π}$ for every stack
-$π∈Π$. As a consequence, we can use \lemRef("redtosame").
+definition of $({≻})$ gives us $\p{t₁∗π} ≻ \p{t₂∗π}$ for all $π∈Π$.
+As a consequence, we can use \lemRef("redtosame").
 \end{proof}
 \end{thm}
 
@@ -637,10 +674,8 @@ form $\s{v·π}$ where $v$ is a value such that ${\p{t[x≔v]∗π}} {⇓}_{≻}
 (obviously, $\p{{(li=vi)i∈I} ∗ v·π}$ is stuck). However, there is no
 guarantee that such a value $v$ exists. If there is none, then it seem to
 be impossible to distinguish $\v{{}}$ form $\v{λx t}$ without relying on
-a specific term constructor like $\t{R(v,u)}$ or $\t{F(v,u)}$. These terms
-were added to the calculus for this very purpose, and we will also use them
-for distinguishing records or $λ$-abstractions from the special value
-$\v{□}$.
+a specific term constructor like $\t{R(v,u)}$. Terms of this form were added
+to the calculus for this very purpose.
 \begin{thm}\label("nequivlamreco")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and
 $I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$

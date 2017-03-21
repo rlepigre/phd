@@ -47,8 +47,6 @@ let r41 =
   << $\binaryR{Σ ⊢ \t{t} : τ}{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{Y(t,v)} : τ}$ >>
 let r42 =
   << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{R(v,t)} : τ}$ >>
-let r43 =
-  << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \t{t} : τ}{Σ ⊢ \t{F(v,t)} : τ}$ >>
 let r44 =
   << $\binaryR{Σ ⊢ \v{v} : ι}{Σ ⊢ \v{w} : ι}{Σ ⊢ \t{δ(v,w)} : τ}$ >>
 let r51 =
@@ -82,7 +80,7 @@ let rs env =
   (* let env = resize_env 3.4 env in *)
   let rs =
     [ [ r11 ; r12 ; r13 ] ; [ r14 ; r21 ; r22 ] ; [ r23 ; r31 ; r32 ]
-    ; [ r33 ; r41 ; r42 ] ; [ r43 ; r44 ; r51 ] ; [ r52 ; r53 ; r61 ]
+    ; [ r33 ; r41 ]       ; [ r42 ; r44 ; r51 ] ; [ r52 ; r53 ; r61 ]
     ; [ r62 ; r63 ; r71 ] ; [ r72 ; r73 ; r81 ] ; [ r82 ; r91 ; r83 ] ]
   in List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 

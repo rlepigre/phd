@@ -1100,8 +1100,8 @@ and $b≠a$.
     [ line3 "x.lk ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I] ∗ π"
-    ; line4 "R(x,u) ∗ π"
-            "F(x,u) ∗ π"
+    ; line4 "x ∗ [t]π" (* FIXME FIXME FIXME *)
+            "R(x,u) ∗ π"
             "b ∗ π"
             "v ∗ α" ]
 )

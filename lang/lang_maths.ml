@@ -105,10 +105,6 @@ and     t2m : term -> Maths.math list = function
                   let subscript_right = (v2m v) @ (str ",") @ (t2m t) in
                   let n = { n with subscript_right} in
                   [Maths.Ordinary n]
-  | TIsFn(v,t) -> let n = Maths.node (Maths.glyphs "F") in
-                  let subscript_right = (v2m v) @ (str ",") @ (t2m t) in
-                  let n = { n with subscript_right} in
-                  [Maths.Ordinary n]
   | TDelt(v,w) -> let n = Maths.node (Maths.glyphs "δ") in
                   let subscript_right = (v2m v) @ (str ",") @ (v2m w) in
                   let n = { n with subscript_right } in

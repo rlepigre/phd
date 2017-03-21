@@ -586,7 +586,6 @@ let contents =
   ; line t "⟦μα t⟧"               "μα ⟦t⟧"
   ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
-  ; line t "⟦F(v,t)⟧"             "F(⟦v⟧,⟦t⟧)"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
   ; line s "⟦ε⟧"                  "ε"
   ; spec s "⟦εα∈A(t∉A)⟧"          <$ π∈\ss{A} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>

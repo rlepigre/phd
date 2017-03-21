@@ -108,7 +108,6 @@ and        term prio =
   | c:(ctxt TAtom) "<[" t:(term TAppl) "]>"   when prio = TAtom -> TCtxt(c,t)
   | v:(valu VProj) '.' l:label                when prio = TAtom -> TProj(v,l)
   | "R(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsRe(v,t)
-  | "F(" v:(valu VComp) "," t:(term TAppl) ")" when prio = TAtom -> TIsFn(v,t)
   | "δ(" v:(valu VComp) "," w:(valu VComp) ")" when prio = TAtom -> TDelt(v,w)
   | "Y(" t:(term TAppl) "," v:(valu VComp) ")" when prio = TAtom -> TFixp(t,v)
   | '[' v:(valu VComp) '|' ps:(fset patt "|") ']'
