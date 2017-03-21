@@ -8,6 +8,10 @@ open Lang
 
 => Untyped calculus and abstract machine \label("calculus")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this chapter, we introduce the programming language that will be
 considered throughout this thesis. Its operational semantics is expressed
 in terms of an abstract machine, which will allow us to account for
@@ -25,8 +29,8 @@ is a //universal model of computation// \cite("Turing1937").
 (* The language of λ-terms. *)
 \begin{def}\label("deflambda")
 The terms of the $λ$-calculus (or $λ$-terms) are built from a countable
-alphabet of variables (or $λ$-variables) denoted $\cal{V}_ι=\{x,y,z...\}$.
-The set of all the $λ$-terms is denoted $Λ$ and is defined as the language
+alphabet of variables (or $λ$-variables) $\cal{V}_ι=\{x,y,z...\}$. The
+set of all the $λ$-terms is denoted $Λ$ and is defined as the language
 recognised by the following ||bnf|| grammar.
 \Caml(
 let _ = sidenote
@@ -499,11 +503,11 @@ computed, a value faces the stack-frame containing the function. At this
 point the function can be evaluated and the value is stored in the stack,
 ready to be consumed by the function as soon as it evaluates to a
 $λ$-abstraction. A capture-avoiding substitution can then be performed to
-effectively apply the argument to the function. As an example, the process
-$\p("(λx x y) λz z ∗ ε")$ reduces to $\p("y ∗ ε")$ in the following way, and
+effectively apply the argument to the function. As an example,
+$\p("(λx x y) λz z ∗ ε")$ reduces to $\p("y ∗ ε")$ as follows and it
 cannot evaluate further.
 \begin{center}
-\linesBefore(8)
+\linesBefore(7)
 \diagram(
 let _ =
   let line s = [ []; <$≻$>; <$\p(s)$> ] in
@@ -526,10 +530,10 @@ available online (\website("http://lepigre.fr/these/correction.v")).
 \end{rem}
 
 \begin{rem}
-A left-to-right call-by-value machine could be defined in a similar way, but
-the roles of terms and values would be swapped in stacks. Stack frames would
-contain values, terms would be pushed on stacks, and the reduction relation
-would be as follows.
+A left-to-right call-by-value machine can be defined in a similar way by
+swapping the roles of terms and values in stacks (stack frames contain
+values and terms are pushed on the stack). The reduction relation is then
+the following.
 \Caml(
   let _ =
     let line p1 p2 =
@@ -687,7 +691,7 @@ presentation, they would be collapsed in call-by-name.
 \begin{def}
 We require three disjoint, countable sets of variables:
 $\cal{V}_ι = \{x, y, z ...\}$ for $λ$-variables,
-$\cal{V}_σ = \{α, β, γ ...\}$ for $μ$-variables and
+$\cal{V}_σ = \{α, β, γ ...\}$ for $μ$-variables,
 $\cal{V}_τ = \{a, b, c ...\}$ for term variables.
 \end{def}
 As usual, $λ$-variables and $μ$-variables will be bound in terms to
@@ -726,13 +730,13 @@ constructors. Note that they always have exactly one argument in our
 language. Case analysis on variants is performed using the syntax
 $\t("[v | (Ci[xi] → ti) i∈I]")$, in which the pattern $\v("Ci[xi]")$ is
 mapped to the term $t_i$ for all $i$ in $I ⊆_{fin} \bbN$. Similarly,
-values of the form $\v("{(li = vi) i∈I}")$ correspond to records, which
+values like $\v("{(li = vi) i∈I}")$ correspond to records, which
 are tuples with named fields. The projection operation $\t("v.lk")$ can
-be used to access the value with label $l_k$ in the record $v$.
+be used to access the value labelled $l_k$ in a record $v$.
 \begin{rem}
-The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for pattern-matching and the
-syntax $\v("{(li = vi) i∈I}")$ for records are part of our meta-language.
-We only use them as shortcuts to designate arbitrary lists of patterns
+The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for matchings and the syntax
+$\v("{(li = vi) i∈I}")$ for records are part of our meta-language. We
+only use them as shortcuts to designate arbitrary lists of patterns
 or record fields. In the actual syntax, the full list of patterns or
 fields always need to be specified. For example, we would write
 $\t("{l₁ = v₁; l₂ = v₂;}")$ for a record or
