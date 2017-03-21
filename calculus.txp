@@ -230,7 +230,7 @@ $E = \lctxt("λx λy []")$ then $x$ is free in $u$, but it does not
 appear free in $\lterm("E[u]") = \lterm("λx λy x")$.
 \end{rem}
 \begin{def}
-Given a set of evaluation context $C ⊆ [Λ]$, we denote $\cal{R}(C) ⊆ Λ×Λ$
+Given a set of evaluation contexts $C ⊆ [Λ]$, we denote $\cal{R}(C) ⊆ Λ×Λ$
 the $β$-reduction relation induced by $C$. It is defined as the smallest
 relation such that for every $E ∈ C$, for every terms $t ∈ Λ$ and $u ∈ Λ$,
 and for every variable $x ∈ \cal{V}_ι$ we have the following.
@@ -600,7 +600,7 @@ let _ = bnfs
 )
 \end{def}
 Note that terms of the form $\t("[π]t")$ will only be available to the user
-if $π$ is a stack variable. Allowing arbitrary stacks allow us to substitute
+if $π$ is a stack variable. Allowing arbitrary stacks allows us to substitute
 $μ$-variables by stacks during computation. Like with $λ$-variable, we will
 need to be careful and avoid variable capture. However, we will not give
 the full details this time.
@@ -738,7 +738,7 @@ The syntax $\t("[v | (Ci[xi] → ti) i∈I]")$ for matchings and the syntax
 $\v("{(li = vi) i∈I}")$ for records are part of our meta-language. We
 only use them as shortcuts to designate arbitrary lists of patterns
 or record fields. In the actual syntax, the full list of patterns or
-fields always need to be specified. For example, we would write
+fields always needs to be specified. For example, we would write
 $\t("{l₁ = v₁; l₂ = v₂;}")$ for a record or
 $\t("[v | C₁[x₁] → t₁ | C₂[x₂] → t₂]")$ for a case analysis when
 $I = \{1, 2\}$.
