@@ -477,7 +477,43 @@ some value, as witnessed by ##tot_m_q##. The second call to ##add_total##
 is required for a similar reason in the successor case.
 
 =<
+=> Handling undecidability
 
+Typing and subtyping are most likely to be undecidable in our system.
+Indeed, it contains Mitchell's variant of System F \cite("Mitchell1991")
+for which typing and subtyping are both known to be undecidable
+\mcite(["Tiuryn1996" ; "Tiuryn2002" ; "Wells1994" ; "Wells1999" ]).
+Moreover, as argued in \cite("Lepigre2017"), we believe that there are
+no practical, complete semi-algorithms for extensions of System F like
+ours. Instead, we propose an incomplete semi-algorithm that may fail or
+even diverge on a typable program. In practice we almost never meet non
+termination, but even in such an eventuality, the user can always
+interrupt the program to obtain a relevant error message. This design
+choice is a very important distinguishing feature of the system. To
+our knowledge, such ideas have only be used (and implemented) in some
+unpublished work of Christophe Raffalli \mcite(["Raffalli1998" ;
+"Raffalli1999"]) and in \cite("Lepigre2017").
+
+(*
+The typing rules being
+syntax-directed, type-checking can only diverge when checking a local
+subtyping judgment. In this case, an error message can be built using
+the last applied typing rule.
+
+As a proof of concept, we implemented a toy programming language
+based on our system. It is called \sysname{} and is available online
+\cite{proto}. Aside from a few subtleties described in Section
+\ref{algorithm}, the implementation is straightforward and remains
+very close to the typing and subtyping rules of Figures
+\ref{typingrules} and \ref{subtypingrules}.
+
+Overall, our system provides a similar user experience to statically
+typed functional language like OCaml or Haskell. In such languages,
+type annotations are also required for advanced features like
+polymorphic recursion.
+*)
+
+=<
 => Related work and similar systems
 
 To our knowledge, combining call-by-value evaluation, side-effects and
@@ -550,10 +586,10 @@ classical higher-order logic. However this tool does not seem to be a
 programming language, but rather a specification language coupled with proof
 checking and model checking utilities. It is nonetheless worth mentioning
 that the undecidability of PVS's type system is handled by generating proof
-obligations. The Why3 language \cite("Filliâtre2013") similarly relies on
-proof obligations but it embeds programming language (called WhyML)
-corresponding to a restricted subset of ML. Our system takes a completely
-different approach and relies
+obligations. The Why3 language \cite("Filliâtre2013") also relies on
+generated proof obligations but it embeds a programming language (called
+WhyML) corresponding to a very restricted subset of ML. Our system takes
+a completely different approach and relies
 on a non-backtracking type-checking algorithm. Although our system is
 likely to be undecidable, we argue as in \cite("Lepigre2017") that this
 seems not to be a problem in practice and allows for a simpler

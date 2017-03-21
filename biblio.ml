@@ -452,6 +452,50 @@ let biblio =
   ; year    = "2013"
   ; url     = "http://dx.doi.org/10.1007/978-3-642-37036-6_8" };
 
+  { key     = "Tiuryn1996"
+  ; authors = "Jerzy Tiuryn and Pawel Urzyczyn"
+  ; title   = "The Subtyping Problem for Second-Order Types is Undecidable"
+  ; notes   = "Proceedings of LICS"
+  ; year    = "1996"
+  ; url     = "http://dx.doi.org/10.1109/LICS.1996.561306" };
+
+  { key     = "Tiuryn2002"
+  ; authors = "Jerzy Tiuryn and Pawel Urzyczyn"
+  ; title   = "The Subtyping Problem for Second-Order Types is Undecidable"
+  ; notes   = "Information and Computation, Volume 179"
+  ; year    = "2002"
+  ; url     = "http://dx.doi.org/10.1006/inco.2001.2950" };
+
+  { key     = "Wells1994"
+  ; authors = "Joe B. Wells"
+  ; title   = "Typability and Type-Checking in the Second-Order "
+              ++ "lambda-Calculus are Equivalent and Undecidable"
+  ; notes   = "Proceedings of LICS"
+  ; year    = "1994"
+  ; url     = "http://dx.doi.org/10.1006/inco.2001.2950" };
+
+  { key     = "Wells1999"
+  ; authors = "Joe B. Wells"
+  ; title   = "Typability and type checking in System F are equivalent "
+              ++ "and undecidable"
+  ; notes   = "Annals of Pure and Applied Logic, Volume 98"
+  ; year    = "1999"
+  ; url     = "http://dx.doi.org/10.1016/S0168-0072(98)00047-5" };
+
+  { key     = "Raffalli1998"
+  ; authors = "Christophe Raffalli"
+  ; title   = "System F-eta"
+  ; notes   = "Unpublished"
+  ; year    = "1998"
+  ; url     = "http://www.lama.univ-savoie.fr/~raffalli/FTP/Papers/Feta-partial.pdf" };
+
+  { key     = "Raffalli1999"
+  ; authors = "Christophe Raffalli"
+  ; title   = "An optimized complete semi-algorithm for system F-eta"
+  ; notes   = "Unpublished"
+  ; year    = "1999"
+  ; url     = "http://www.lama.univ-savoie.fr/~raffalli/FTP/Papers/Feta-total.pdf" };
+
   ]
 
 let init () =
