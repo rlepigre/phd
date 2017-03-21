@@ -258,7 +258,7 @@ Intuitively, the Church-Rosser property enforces a weak form of determinism.
 Indeed, it implies that a program can only compute one particular result,
 even if it can be attained in several different ways.
 
-In the following, we are going to consider an effectful language, that does
+In the following, we are going to consider an effectful language that does
 not have the Church-Rosser property. As a consequence, we will need to
 restrict ourselves to a deterministic subset of the general $β$-reduction
 relation. If we were to work with a completely non-deterministic reduction
@@ -341,9 +341,9 @@ $$ \lterm("(λy z) ((λx x x) (λx x x))") →_V
    \lterm("(λy z) ((λx x x) (λx x x))") $$
 
 \begin{rem}
-Our reduction relations can be alternatively defined using a deduction rule
-system. A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and
-a conclusion $C$ separated by an horizontal bar.
+Our reduction relations can be alternatively defined using deduction rules.
+A deduction rule is formed using premisses $\{P_i\}_{1≤i≤n}$ and a
+conclusion $C$ separated by an horizontal bar.
 $$ \ternaryR{P₁}{...}{P_n}{C} $$
 The meaning of such a rules is that the conclusion $C$ can be deduced when
 all the premisses $P_i$ are true. In particular, if there is no premise then
@@ -377,7 +377,7 @@ evaluation contexts can be manipulated easily.
 => Call-by-value Krivine machine
 
 In the previous section, we introduced the syntax of the $λ$-calculus and
-the evaluation of $λ$-terms. We will now reformulate these definition in
+the evaluation of $λ$-terms. We will now reformulate these definitions in
 terms of a call-by-value Krivine abstract machine \cite("Krivine2007").
 Our presentation will differ from the original machine, which is
 call-by-name. Although call-by-value Krivine machines have rarely been
@@ -513,10 +513,10 @@ let _ =
 
 \begin{rem}
 It is possible to prove that the abstract machine and its $({≻})$ reduction
-relation indeed implement the $({→}_v)$ evaluation on $λ$-terms. Although it
-is not included here, this result has been formalized by the author using
+relation indeed implement the $({→}_v)$ evaluation on $λ$-terms. Although
+this result is not required here, it has been formalised by the author in
 the //Coq// proof assistant \cite("CoqTeam2004"). The proof sketch is
-distributed with this document (see the file ##correction##.##v##).
+available online (\website("http://lepigre.fr/these/correction.v")).
 \end{rem}
 
 \begin{rem}
@@ -551,7 +551,7 @@ side-effect) refer to modifications made by a program to its environment
 as a byproduct of the computation of its result. For example, a program
 may generate computational effects by writing to a tape, or by modifying
 the value of a global memory cell. In our calculus, the environment of a
-program (i.e., a term) only consists in an evaluation context encoded as
+program (i.e., a term) only consists of an evaluation context encoded as
 a stack. Computational effects can hence be produced if a program is able
 to modify the stack as a whole during its evaluation in the abstract
 machine.
@@ -757,7 +757,7 @@ their arguments are being computed. In call-by-name only the arguments are
 stored in the stack.
 \begin{rem}\label("remsugar")
 We enforce values in constructors, record fields, projections and case
-analysis. This makes the calculus simpler because only $β$-reduction need
+analysis. This makes the calculus simpler because only $β$-reduction needs
 to manipulate the stack. Syntactic sugars such as the following can be
 defined to hide these restrictions.
 \Caml(
@@ -970,8 +970,7 @@ where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that $k ∉ K
             "{(li = vi) i∈I} ∗ v·π"
     ; line2 "[λx t | (Ci[xi] → ti) i∈I] ∗ π"
             "[{(li = vi) i∈I} | (Cj[xj] → tj) j∈J] ∗ π"
-    ; line3 "[Ck[v] | (Ci[xi] → ti) i∈K] ∗ π"
-            "[x |] ∗ π"
+    ; line2 "[Ck[v] | (Ci[xi] → ti) i∈K] ∗ π"
             "{(li = vi) i∈K}.lk ∗ π"
     ; line3 "R(λx t,u) ∗ π"
             "R(Cn[v],u) ∗ π"
@@ -984,7 +983,7 @@ where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that $k ∉ K
 Using a simple case analysis we first rule out the thirteen forms of
 processes that immediately reduce using $({≻})$. As stuck processes are
 neither final nor $δ$-like, we can again rule out two forms of processes.
-We are now left with twenty-two forms of processes, among which seven
+We are now left with twenty-one forms of processes, among which seven
 are not stuck (see the proof of \lemRef("possibilities")). It is easy to
 see that the twelve remaining forms of processes are stuck. Indeed, given
 their structure no reduction rule will ever apply to them, even after a
@@ -993,16 +992,16 @@ substitution.
 \end{lem}
 The proof of \lemRef("remark") has been (partially) checked using OCaml's
 exhaustivity checker for patterns. Indeed, the abstract syntax tree
-corresponding to our language can be encoded in a straightforward way
-into OCaml data types. It is then possible to use pattern matching to
+corresponding to our language can be encoded easily into an OCaml data
+types. It is then possible to use pattern matching to
 enumerate possible forms of processes in such a way that it is neither
 redundant nor incomplete (i.e., that the OCaml compiler does not complain
-with a warning). The OCaml source file used for this purpose is distributed
-with this document (see the file ##classification##.##ml##).
+with a warning). The OCaml source file used for this purpose is available
+online (\website("http://lepigre.fr/these/classification.ml")).
 
 \begin{lem}\label("possibilities")
 A blocked process $p ∈ Λ×Π$ is either stuck, final, $δ$-like, or of one of
-the following forms, where $I ≠ ∅$.
+the following seven forms.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
@@ -1025,27 +1024,23 @@ processes. After ruling out the fifteen forms of stuck processes of
 to show that they are not stuck by finding a substitution $ρ∈\cal{S}$
 unlocking their reduction.
 (* *)
-For a process of the form $\p("x.lk ∗ π")$ we take
-$ρ = \subs("[x ≔ {lk = {}}]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
-(* *)
-For a process of the form $\p("x ∗ v·π")$ we take
-$ρ = \subs("[x ≔ λy y]")$ as $\p("λy y ∗ vρ·πρ") ≻ \p("vρ ∗ πρ")$.
-(* *)
-For a process of the form $\p("[x | (Ci[xi] → ti) i∈I] ∗ π")$ with $I ≠ ∅$
-we take $ρ = \subs("[x ≔ Ck[{}]]")$ such that $k ∈ I$ as we have
-$\p("[Ck[{}] | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("(tiρ)[xi ≔ {}] ∗ πρ")$.
+For a process of the form $\p("x.lk ∗ π")$ we take $ρ = \subs("[x ≔ □]")$
+as $\p("□.lk ∗ πρ") ≻ \p("□ ∗ πρ")$. For processes of the form
+$\p("x ∗ v·π")$ or $\p("[x | (Ci[xi] → ti) i∈I] ∗ π")$ we can also take
+$ρ = \subs("[x ≔ □]")$ since we have $\p("□ ∗ vρ·πρ") ≻ \p("□ ∗ πρ")$ and
+$\p("[□ | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("□ ∗ πρ")$.
 (* *)
 For a process of the form $\p("R(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
 as $\p("R({},uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
 (* *)
 For a process of the form $\p("F(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ λy y]")$
-as $\p("R(λy y,uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
+as $\p("F(λy y,uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
 (* *)
 For a process of the form $\p("a ∗ π")$ we can simply take
 $ρ = \subs("[a ≔ {lk = {}}.lk]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
 For a process of the form $\p("v ∗ α")$ we can take
-$ρ = \subs("[α ≔ [λx x]ε]")$ as $\p("vρ ∗ [λx x]ε") ≻ \p("λx x ∗ vρ·ε")$.
+$ρ = \subs("[α ≔ [{}]ε]")$ as $\p("vρ ∗ [{}]ε") ≻ \p("{} ∗ vρ·ε")$.
 \end{proof}
 \end{lem}
 

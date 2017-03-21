@@ -98,6 +98,7 @@ and     t2m : term -> Maths.math list = function
   | TAppl(t,u) -> (t2m t) @ (str " ") @ (t2m u)
   | TSave(a,t) -> (str "μ") @ (vari2m a) @ (str ".") @ (t2m t)
   | TRest(s,t) -> (str "[") @ (s2m s) @ (str "]") @ (t2m t)
+  (* | TRest(s,t) -> (str "⟨") @ (s2m s) @ (str "⟩") @ (t2m t) *)
   | TCtxt(e,t) -> (c2m e) @ (str "[") @ (t2m t) @ (str "]")
   | TProj(v,l) -> (v2m v) @ (str ".") @ (vari2m l)
   | TIsRe(v,t) -> let n = Maths.node (Maths.glyphs "R") in
@@ -128,6 +129,7 @@ and     s2m : stac -> Maths.math list = function
   | SSema(s)   -> semantic_brackets (s2m s)
   | SPush(v,s) -> bin 2 (Maths.glyphs ".") (v2m v, s2m s)
   | SFram(t,s) -> (str "[") @ (t2m t) @ (str "]") @ (s2m s)
+  (* | SFram(t,s) -> (str "⟨") @ (t2m t) @ (str "⟩") @ (s2m s) *)
   | SGrou(s)   -> (str "(") @ (s2m s) @ (str ")")
   | SSubs(p,s) -> (s2m p) @ (subs2m s)
   | SASub(s,a) -> (subs2m s) @ (str "(") @ (vari2m a) @ (str ")")

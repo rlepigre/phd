@@ -29,14 +29,14 @@ and  stac =
 type proc = term * stac
 
 type sort =
-  | Reduc
-  | Final
-  | Delta
-  | Stuck
-  | Block
+  | Reduc (* Can be reduced.  *)
+  | Final (* Final process.   *)
+  | Delta (* δ-like process.  *)
+  | Stuck (* Stuck process.   *)
+  | Block (* Blocked process. *)
 
 let classify : proc -> sort = function
-  (* Processes that reduces. *)
+  (* 13 forms of processes that reduces. *)
   | (TApp(t,u)         , pi        ) -> Reduc
   | (TVal(v)           , SFrm(t,pi)) -> Reduc
   | (TVal(VAbs(x,t))   , SPsh(v,pi)) -> Reduc
@@ -54,7 +54,7 @@ let classify : proc -> sort = function
   | (TVal(v)           , SEmp      ) -> Final
   (* δ-like. *)
   | (TDel(v,w)         , pi        ) -> Delta
-  (* Stuck. *)
+  (* 14 forms of stuck processes. *)
   | (TPrj(VCns(c,v),l) , pi        ) -> Stuck
   | (TPrj(VAbs(x,t),l) , pi        ) -> Stuck
   | (TVal(VCns(c,v))   , SPsh(w,pi)) -> Stuck
@@ -69,11 +69,10 @@ let classify : proc -> sort = function
   | (TIsF(VRec(m),u)   , pi        ) -> Stuck
   | (TIsF(VCns(c,v),u) , pi        ) -> Stuck
   | (TIsF(VBox,u)      , pi        ) -> Stuck
-  | (TCas(VVar(x),[])  , pi        ) -> Stuck
-  (* Blocked but not stuck. *)
+  (* 7 forms of processes that are blocked, but not stuck. *)
   | (TPrj(VVar(x),l)   , pi        ) -> Block
   | (TVal(VVar(x))     , SPsh(v,pi)) -> Block
-  | (TCas(VVar(x),_::_), pi        ) -> Block
+  | (TCas(VVar(x),l)   , pi        ) -> Block
   | (TVar(a)           , pi        ) -> Block
   | (TIsR(VVar(x),u)   , pi        ) -> Block
   | (TIsF(VVar(x),u)   , pi        ) -> Block
