@@ -37,6 +37,12 @@ A term of the form $\t("λx t")$ is called an abstraction (or
 $λ$-abstractions) and a term of the form $\t("t u")$ is called an
 application.
 \end{def}
+\begin{rem}
+Throughout this thesis, the definition of languages using ||bnf|| grammars
+will implicitly introduce a naming convention for meta-variables. For
+example, the above definition implies that the letters $t$ and $u$ (with a
+possible subscript) will always be used to denote elements of $Λ$.
+\end{rem}
 Intuitively, a $λ$-abstraction $\t("λx t")$ forms a function by binding
 the variable $x$ in the term $t$. This would be denoted $x ↦ t$ in common
 mathematics. Similarly, a term of the form $\t("t u")$ denotes the
@@ -704,7 +710,7 @@ let _ = large_bnfs
     , << $t, u$ >>
     , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
          \| \t("v.lk") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
-         \| \t("R(v,t)") \| \t("F(v,t)") \| \t("δ(v,w)") $ >> )
+         \| \t("R(v,t)") \| \t("δ(v,w)") $ >> )
   ; ( << $(Π)$ >>
     , << $π, ρ$ >>
     , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >> )
@@ -737,16 +743,15 @@ Terms of the form $\t("Y(t,v)")$ denote a fixpoint, which can be used for
 general recursion. They roughly corresponds to OCaml's “##let rec##”
 construct.
 (* *)
-The value $\v("□")$ and terms of form $\t("R(v,t)")$, $\t("F(v,t)")$ or
-$\t("δ(v,w)")$ are only included for technical purposes. In particular,
-they are not intended to be used for programming. The value $\v("□")$
-will be used in the definition of our semantics in
-\chapters(["typeSystem"; "subtyping"]). Terms of the form $\t("R(v,t)")$
-and $\t("F(v,t)")$ will help us to distinguish records and $λ$-abstractions
-from other sorts of values in in our definition of observational
-equivalence in \chapter("obsEquiv"). Finally, terms of the form
-$\t("δ(v,w)")$ will be used to obtain an essential property of our
-realisability model in \chapter("semValRest") (\thmRef("main")).
+The value $\v("□")$ and terms of form $\t("R(v,t)")$ or $\t("δ(v,w)")$ are
+only included for technical purposes. In particular, they are not intended
+to be used for programming. The value $\v("□")$ will be used in the
+definition of our semantics in \chapters(["typeSystem"; "subtyping"]).
+Terms of the form $\t("R(v,t)")$ will help us to distinguish records from
+other sorts of values in in our definition of observational equivalence in
+\chapter("obsEquiv"). Finally, terms of the form $\t("δ(v,w)")$ will be
+used to obtain an essential property of our realisability model in
+\chapter("semValRest") (\thmRef("main")).
 
 A stack can be either the empty stack $\s("ε")$, a stack variable $\s("α")$,
 a value pushed on top of a stack $\s("v·π")$, or a stack frame containing a
@@ -802,12 +807,12 @@ substitution and is defined as $ρ_{id}(χ) = χ$ for all $χ ∈ \cal{V}_ι ∪
 \cal{V}_σ ∪ \cal{V}_τ$.
 \end{def}
 \begin{def}
-For every $ρ ∈ \cal{S}$ we denote $\subs("ρ[x≔v]")$ the substitution formed
-by remapping $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
+For every $ρ ∈ \cal{S}$ we denote $\subs("ρ[x≔v]")$ the substitution
+remapping variable $x ∈ \cal{V}_ι$ to $v ∈ Λ_ι$ in $ρ$. In particular, 
 $(\subs("ρ[x≔v]"))(x) = v$ and $(\subs("ρ[x≔v]"))(χ) = ρ(χ)$ if $χ ≠ x$.
-Similarly, we denote $\subs("ρ[α≔π]")$ the substitution formed by remapping
+Similarly, we denote $\subs("ρ[α≔π]")$ the substitution remapping
 $α ∈ \cal{V}_σ$ to $π ∈ Π$ in $ρ$ and $\subs("ρ[a≔t]")$ the substitution
-formed by remapping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
+remapping $a ∈ \cal{V}_τ$ to $t ∈ Λ$ in $ρ$. In the case where
 $ρ = ρ_{id}$ we will write $\subs("[x≔v]")$, $\subs("[α≔π]")$ and
 $\subs("[a≔t]")$.
 \end{def}
@@ -816,8 +821,14 @@ Let $ρ ∈ \cal{S}$ be a substitution and $ψ$ be a value, term, stack or
 process. We denote $\p("ψρ")$ the value, term, stack or process formed
 by simultaneously substituting (without capture) every variables
 $χ ∈ FV(ψ)$ with $ρ(χ)$ in $ψ$.
-\end{def} (* FIXME precise def ? *)
-(* TODO def of ∘ on substitutions. *)
+\end{def}
+\begin{def}
+Given $ρ₁$, $ρ₂ ∈ \cal{S}$ we denote $ρ₁∘ ρ₂$ the substitution formed by
+composing $ρ₁$ and $ρ₂$. It is defined by taking $(ρ₁∘ ρ₂)(χ) = (ρ₁(χ))ρ₂$
+for all $χ ∈ dom(ρ₁)$ and it coincides with $ρ₂$ on every other variables.
+In particular, if $ψ$ is a value, term, stack or process we will have
+$\p("ψ(ρ₁∘ ρ₂)") = \p("(ψρ₁)ρ₂")$.
+\end{def}
 
 Processes form the internal state of our abstract machine. They are to be
 thought of as a term put in some evaluation context represented using a
@@ -833,18 +844,23 @@ satisfying the following reduction rules.
 \Caml(
   let _ =
     let line p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, []) in
-    let line' p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $k∈I$>>) in
+    let linec p1 p2 =
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $v ∉ \cal{V}_ι ∪ \{\v("□")\}$>>)
+    in
+    let linek p1 p2 =
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $k∈I$>>)
+    in
     reduction_def <<$≻$>>
       [ line  "t u ∗ π"                         "u ∗ [t]π"
-      ; line  "v ∗ [t]π"                        "t ∗ v·π"
+      ; linec "v ∗ [t]π"                        "t ∗ v·π"
       ; line  "λx t ∗ v·π"                      "t[x ≔ v] ∗ π"
       ; line  "μα t ∗ π"                        "t[α ≔ π] ∗ π"
       ; line  "[ξ]t ∗ π"                        "t ∗ ξ"
-      ; line' "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
-      ; line' "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
+      ; linek "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
+      ; linek "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
       ; line  "Y(t,v) ∗ π"                      "t (λx Y(t,x)) v ∗ π"
       ; line  "R({(li = vi) i∈I}, u) ∗ π"       "u ∗ π"
-      ; line  "F(λx t, u) ∗ π"                  "u ∗ π"
+      ; line  "□ ∗ [t]π"                        "□ ∗ π"
       ; line  "□ ∗ v·π"                         "□ ∗ π"
       ; line  "[□ | (Ci[xi] → ti) i∈I] ∗ π"     "□ ∗ π"
       ; line  "□.lk ∗ π"                        "□ ∗ π" ]
@@ -868,22 +884,20 @@ $\p("t ∗ ξ")$. In addition to the reduction rules for $β$-reduction and
 stack manipulation, we provide reduction rules for handling record
 projection, case analysis and recursion using a fixpoint operator.
 
-Two rules are then provided for reducing processes of the form
-$\p("R(v,u) ∗ π")$ and $\p("F(v,u) ∗ π")$ to $\p("u ∗ π")$ when the
-value $v$ is a record or a $λ$-abstraction respectively. Note that if
-$v$ is not a record then no reduction rule apply on processes of the
-form $\p("R(v,u) ∗ π")$. Similarly, if $v$ is not a $λ$-abstraction
-then no reduction rule apply on processes of the form $\p("F(v,u) ∗ π")$.
-These facts will be used in \chapter("obsEquiv") to show that records,
-$λ$-abstractions and other forms of values have a different computational
-behaviour in our abstract machine.
+A rule is then provided for reducing processes of the form
+$\p("R(v,u) ∗ π")$ to $\p("u ∗ π")$ when the value $v$ is a record.
+Note that if $v$ is not a record then no reduction rule apply on
+processes of the form $\p("R(v,u) ∗ π")$. These facts will be used in
+\chapter("obsEquiv") to show that records, $λ$-abstractions and other
+forms of values have a different computational behaviour in our abstract
+machine.
 (* *)
-The last three rules are used to handle the special value
+The last four rules are used to handle the special value
 $\v("□")$. Intuitively, $\v("□")$ may consume the surrounding part of its
-computational environment, when it consists of a value argument, a case
-analysis or a projection. This will be discussed further when defining
-the semantical interpretation of our type system in \chapter("typeSystem")
-and \chapter("subtyping").
+computational environment when it consists of a term in function position,
+a value in argument position, a case analysis or a projection. This will
+be discussed further when defining the semantical interpretation of our
+type system in \chapter("typeSystem") and \chapter("subtyping").
 \begin{rem}
 Our reduction relation $({≻})$ does not provide any way of reducing
 processes of the form $\p("δ(v,w) ∗ π")$. We will give a reduction rule for
@@ -974,18 +988,15 @@ where $n$, $m$, $k ∈ \bbN$ and $I$, $J$, $K ⊆_{fin} \bbN$ such that $k ∉ K
             "{(li = vi) i∈K}.lk ∗ π"
     ; line3 "R(λx t,u) ∗ π"
             "R(Cn[v],u) ∗ π"
-            "R(□,u) ∗ π"
-    ; line3 "F(Cn[v],u) ∗ π"
-            "F({(li = vi) i∈I},u) ∗ π"
-            "F(□,u) ∗ π" ]
+            "R(□,u) ∗ π" ]
 )
 \begin{proof}
 Using a simple case analysis we first rule out the thirteen forms of
 processes that immediately reduce using $({≻})$. As stuck processes are
 neither final nor $δ$-like, we can again rule out two forms of processes.
-We are now left with twenty-one forms of processes, among which seven
+We are now left with eighteen forms of processes, among which seven
 are not stuck (see the proof of \lemRef("possibilities")). It is easy to
-see that the twelve remaining forms of processes are stuck. Indeed, given
+see that the eleven remaining forms of processes are stuck. Indeed, given
 their structure no reduction rule will ever apply to them, even after a
 substitution.
 \end{proof}
@@ -1011,36 +1022,35 @@ the following seven forms.
     [ line3 "x.lk ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I] ∗ π"
-    ; line4 "R(x,u) ∗ π"
-            "F(x,u) ∗ π"
+    ; line4 "x ∗ [t]π"
+            "R(x,u) ∗ π"
             "a ∗ π"
             "v ∗ α" ]
 )
 \begin{proof}
 As for \lemma("remark"), we can rule out the thirteen forms of processes
 that immediately reduce using $({≻})$, final processes and $δ$-like
-processes. After ruling out the fifteen forms of stuck processes of
+processes. After ruling out the eleven forms of stuck processes of
 \lemma("remark") we are left with seven forms of processes. It remains
 to show that they are not stuck by finding a substitution $ρ∈\cal{S}$
 unlocking their reduction.
 (* *)
-For a process of the form $\p("x.lk ∗ π")$ we take $ρ = \subs("[x ≔ □]")$
-as $\p("□.lk ∗ πρ") ≻ \p("□ ∗ πρ")$. For processes of the form
-$\p("x ∗ v·π")$ or $\p("[x | (Ci[xi] → ti) i∈I] ∗ π")$ we can also take
-$ρ = \subs("[x ≔ □]")$ since we have $\p("□ ∗ vρ·πρ") ≻ \p("□ ∗ πρ")$ and
-$\p("[□ | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("□ ∗ πρ")$.
+For processes of the first four forms we can take $ρ = \subs("[x ≔ □]")$
+since we have respectively $\p("□.lk ∗ πρ") ≻ \p("□ ∗ πρ")$,
+$\p("□ ∗ vρ·πρ") ≻ \p("□ ∗ πρ")$,
+$\p("[□ | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("□ ∗ πρ")$ and
+$\p("□ ∗ [tρ]πρ") ≻ \p("□ ∗ πρ")$.
 (* *)
-For a process of the form $\p("R(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ {}]")$
-as $\p("R({},uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
+For a process of the form $\p("R(x,u) ∗ π")$ we take can
+$ρ = \subs("[x ≔ {}]")$ as $\p("R({},uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
 (* *)
-For a process of the form $\p("F(x,u) ∗ π")$ we take $ρ = \subs("[x ≔ λy y]")$
-as $\p("F(λy y,uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
-(* *)
-For a process of the form $\p("a ∗ π")$ we can simply take
+For a process of the form $\p("a ∗ π")$ we can take
 $ρ = \subs("[a ≔ {lk = {}}.lk]")$ as $\p("{lk = {}}.lk ∗ πρ") ≻ \p("{} ∗ πρ")$.
 (* *)
 For a process of the form $\p("v ∗ α")$ we can take
-$ρ = \subs("[α ≔ [{}]ε]")$ as $\p("vρ ∗ [{}]ε") ≻ \p("{} ∗ vρ·ε")$.
+$ρ = \subs("[α ≔ [{}]ε]")$ as we will have
+$\p("vρ ∗ [{}]ε") ≻ \p("{} ∗ vρ·ε")$ if $v ≠ \v("□")$ and
+$\p("vρ ∗ [{}]ε") ≻ \p("□ ∗ ε")$ otherwise.
 \end{proof}
 \end{lem}
 

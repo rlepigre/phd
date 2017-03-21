@@ -312,14 +312,14 @@ requires the use of \lemma("texttyp").
 
 => The limits of value restriction
 
-In languages like ||OCaml||, value restriction is not an issue. Indeed, it
+In languages like OCaml, value restriction is not an issue. Indeed, it
 is only required on the typing rule for polymorphism, and programmers almost
 never notice it as they mostly define functions (which are values). Moreover,
 if a problematic instance of value restriction is encountered, one can always
 use a dummy $λ$-abstraction (or an $η$-expansion) to transform a term into
 a value. A common example of this situation arises when working with
 combinators (e.g. parser combinators) and partial application. As an
-example, let us consider the code bellow (written in ||OCaml|| syntax).
+example, let us consider the code bellow (written in OCaml syntax).
 ### OCaml
 (* type 'a gr                               *)
 (* val any : char gr                        *)

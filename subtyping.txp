@@ -306,10 +306,10 @@ between a type and its subtypes. For example, the natural numbers may be
 defined as a subtype of the integers.
 
 The downside of subtyping is that it is difficult to incorporate in
-complex systems like //Haskell// or ||OCaml||. For example, ||OCaml||
+complex systems like Haskell or OCaml. For example, OCaml
 provides polymorphic variants \cite("Garrigue1998") for which complex
 annotated types are inferred. For instance, one would expect the
-following ||OCaml|| function to be given the type ##[`T | `F] -> [`T | `F]##.
+following OCaml function to be given the type ##[`T | `F] -> [`T | `F]##.
 ### OCaml
   let neg = function
     | `T -> `F
@@ -318,10 +318,10 @@ following ||OCaml|| function to be given the type ##[`T | `F] -> [`T | `F]##.
 Indeed, the variance of the arrow type conveys enough information: ##neg##
 can be applied to elements of any subtype of ##[`T | `F]## (e.g. ##[`T]##)
 and produces elements of any supertype of ##[`T | `F]## (e.g.
-##[`T | `F | `M]##). ||OCaml|| infers the type ##[<`T | `F] -> [>`T | `F]##
+##[`T | `F | `M]##). OCaml infers the type ##[<`T | `F] -> [>`T | `F]##
 in which subtypes and supertypes are explicitly tagged. This is not very
 natural and hides a complex mechanism involving polymorphic type variables.
-More discussion on the limitations of ||OCaml||'s polymorphic variants, can
+More discussion on the limitations of OCaml's polymorphic variants, can
 be found in \cite("Castagna2016"), for example.
 
 In this thesis, we will show that it is possible to design a practical

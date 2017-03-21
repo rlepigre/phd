@@ -18,7 +18,6 @@ and  term =
   | TCas of valu * (cons * term) list
   | TRec of term * valu
   | TIsR of valu * term
-  | TIsF of valu * term
   | TDel of valu * valu
 and  stac =
   | SVar of vari
@@ -36,20 +35,6 @@ type sort =
   | Block (* Blocked process. *)
 
 let classify : proc -> sort = function
-  (* 13 forms of processes that reduces. *)
-  | (TApp(t,u)         , pi        ) -> Reduc
-  | (TVal(v)           , SFrm(t,pi)) -> Reduc
-  | (TVal(VAbs(x,t))   , SPsh(v,pi)) -> Reduc
-  | (TAbs(a,t)         , pi        ) -> Reduc
-  | (TNam(r,t)         , pi        ) -> Reduc
-  | (TPrj(VRec(m),l)   , pi        ) when List.mem_assoc l m -> Reduc
-  | (TCas(VCns(c,v),m) , pi        ) when List.mem_assoc c m -> Reduc
-  | (TRec(t,v)         , pi        ) -> Reduc
-  | (TIsR(VRec(m),u)   , pi        ) -> Reduc
-  | (TIsF(VAbs(x,t),u) , pi        ) -> Reduc
-  | (TVal(VBox)        , SPsh(v,pi)) -> Reduc
-  | (TCas(VBox,m)      , pi        ) -> Reduc
-  | (TPrj(VBox,l)      , pi        ) -> Reduc
   (* Final. *)
   | (TVal(v)           , SEmp      ) -> Final
   (* δ-like. *)
@@ -61,19 +46,30 @@ let classify : proc -> sort = function
   | (TVal(VRec(m))     , SPsh(w,pi)) -> Stuck
   | (TCas(VAbs(x,t),m) , pi        ) -> Stuck
   | (TCas(VRec(m1),m2) , pi        ) -> Stuck
-  | (TPrj(VRec(m),l)   , pi        ) -> Stuck
-  | (TCas(VCns(c,v),m) , pi        ) -> Stuck
+  | (TPrj(VRec(m),l)   , pi        ) when not (List.mem_assoc l m) -> Stuck
+  | (TCas(VCns(c,v),m) , pi        ) when not (List.mem_assoc c m) -> Stuck
   | (TIsR(VAbs(x,t),u) , pi        ) -> Stuck
   | (TIsR(VCns(c,v),u) , pi        ) -> Stuck
   | (TIsR(VBox,u)      , pi        ) -> Stuck
-  | (TIsF(VRec(m),u)   , pi        ) -> Stuck
-  | (TIsF(VCns(c,v),u) , pi        ) -> Stuck
-  | (TIsF(VBox,u)      , pi        ) -> Stuck
   (* 7 forms of processes that are blocked, but not stuck. *)
   | (TPrj(VVar(x),l)   , pi        ) -> Block
   | (TVal(VVar(x))     , SPsh(v,pi)) -> Block
   | (TCas(VVar(x),l)   , pi        ) -> Block
+  | (TVal(VVar(x))     , SFrm(t,pi)) -> Block
   | (TVar(a)           , pi        ) -> Block
   | (TIsR(VVar(x),u)   , pi        ) -> Block
-  | (TIsF(VVar(x),u)   , pi        ) -> Block
   | (TVal(v)           , SVar(a)   ) -> Block
+  (* 13 forms of processes that reduces. *)
+  | (TVal(VBox)        , SFrm(t,pi)) -> Reduc
+  | (TVal(VBox)        , SPsh(v,pi)) -> Reduc
+  | (TCas(VBox,m)      , pi        ) -> Reduc
+  | (TPrj(VBox,l)      , pi        ) -> Reduc
+  | (TApp(t,u)         , pi        ) -> Reduc
+  | (TVal(v)           , SFrm(t,pi)) -> Reduc (* v not Box nor VVar(x) *)
+  | (TVal(VAbs(x,t))   , SPsh(v,pi)) -> Reduc
+  | (TAbs(a,t)         , pi        ) -> Reduc
+  | (TNam(r,t)         , pi        ) -> Reduc
+  | (TPrj(VRec(m),l)   , pi        ) -> Reduc (* l in m *)
+  | (TCas(VCns(c,v),m) , pi        ) -> Reduc (* c in m *)
+  | (TRec(t,v)         , pi        ) -> Reduc
+  | (TIsR(VRec(m),u)   , pi        ) -> Reduc
