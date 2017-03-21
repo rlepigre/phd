@@ -13,8 +13,12 @@ open Lang
 
 => Observational equivalence of programs \label("obsEquiv")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this chapter, we introduce an equivalence relation over
-programs. Two programs will be considered as equivalent if
+programs. Two programs will be considered equivalent if
 and only if they have the same observable behaviour in terms
 of computation. General equational properties will then be
 derived for any equivalence relation satisfying specific
@@ -40,7 +44,7 @@ if it eventually reduces to a final process.
 Let $R ⊆ (Λ×Π)×(Λ×Π)$ be a relation such that for every final
 process $p ∈ Λ×Π$, there is no $q ∈ Λ×Π$ such that $p R q$. We
 say that a process $p ∈ Λ×Π$ converges for the relation $R$,
-and we write $p {⇓}_R$, if there is a final state $q ∈ Λ×Π$
+and we write $p {⇓}_R$, if there is a final process $q ∈ Λ×Π$
 such that $p R^{∗} q$. If $p$ does not converge we say that it
 diverges (for the relation $R$) and we write $p {⇑}_R$.
 \end{def}
@@ -50,12 +54,12 @@ such extensions should not allow final processes to be reduced.
 Indeed, this would go against the intuition that they are the
 evidence of a successfully terminated computation.
 
-The idea now is to relate terms that form converging processes
-against exactly the same stacks for the relation $({≻})$.
-However, the most naive definition for our relation leads to
-free variables being undistinguishable. To avoid this problem,
-we will not only quantify over stacks, but also over
-substitutions.
+The idea now is to relate terms that form converging processes against
+exactly the same stacks (for the relation $({≻})$). However, quantifying
+only over stacks leads to free variables being undistinguishable. To
+avoid this problem, we not only quantify over stacks, but also over
+substitutions. In this way, our equivalence relation will work with both
+closed and open terms.
 \begin{def}
 The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is defined as follows.
 $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
@@ -95,6 +99,15 @@ $\t{t[x≔v₁]} ≡_{≻} \t{t[x≔v₂]}$.
 \begin{proof}
 We are going to prove the contrapositive so we suppose
 $\t{t[x≔v₁]} \nequiv_{≻} \t{t[x≔v₂]}$ and we show $v₁ \nequiv_{≻} v₂$.
+We can assume that $v₁ ≠ v₂$ as otherwise we would immediately get a
+contradiction using the reflexivity of $({≡}_{≻})$. If $v₁ = \v{□}$ then
+we can distinguish it from $v₂$ using the stack  $π = \s{[{}]ε}$. Indeed,
+we have $\p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
+$\p{v₂ ∗ [{}]ε} ≻ \p{{} ∗ v₂·ε} {⇑}_{≻}$ since we cannot have $v₂ = \v{□}$.
+In a symmetric way, we can also distinguish $v₁$ and $v₂$ when $v₂ = \v{□}$.
+As a consequence, we can assume that $v₁ ≠ □$ and that $v₂ ≠ \v{□}$ in the
+remaining of the proof.
+(* *)
 By definition, there is a stack $π$ and a substitution $ρ$ such that we
 have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$
 (up to symmetry). As $x$ is bound we can rename it so that
@@ -307,16 +320,16 @@ By definition of a compatible equivalence.
 \end{lem}
 \begin{lem}\label("redtosame")
 Let $t$, $u∈Λ$ be two terms. If we have $\p{t∗π} ≻^{∗} \p{u∗π}$ for
-every stack $π∈Π$ then $t ≡_{≻} u$.
+every stack $π∈Π$ then $t ≡ u$.
 \begin{proof}
 Direct consequence of \lemRef("redequiv") using $p = \p{u∗π}$.
 \end{proof}
 \end{lem}
 
 Based on the reduction rules of our abstract machine, we can derive seven
-immediate equivalences. They corresponding to record projection, case
-analysis, the unfolding of the fixpoint combinator, the elimination of
-special terms of the form $\t{R(v,u)}$ and $\t{F(v,u)}$, and the erasure
+immediate equivalences. They correspond to record projection, case
+analysis, unfolding of the fixpoint combinator, elimination of special
+terms of the form $\t{R(v,u)}$ and $\t{F(v,u)}$, and the erasure
 of a projection or a case analysis by the special value $\v{□}$.
 (* *)
 The corresponding reduction rules do not involve an interaction with the
@@ -348,7 +361,7 @@ be terms. The following equivalences hold.
     ; [eq5; eq6; eq7] ]
 )
 \begin{proof}
-For every equivalence $\t{t₁} ≡ \t{t₁}$ that we need to prove, the
+For every equivalence $\t{t₁} ≡ \t{t₂}$ that we need to prove, the
 definition of $({≻})$ gives us $\p{t₁∗π} ≻ \p{t₂∗π}$ for every stack
 $π∈Π$. As a consequence, we can use \lemRef("redtosame").
 \end{proof}
@@ -447,8 +460,8 @@ using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 
-We can also remark that saving the stack twice in a row using two
-consecutive $μ$-abstractions leads to saving the same stack twice.
+We can also remark that using two consecutive $μ$-abstractions leads
+to saving the same stack twice.
 We can thus obtain the same computational behaviour by saving the
 stack only once. Similarly, using two named terms in a row is the
 same as using only the later one.
@@ -625,8 +638,8 @@ form $\s{v·π}$ where $v$ is a value such that ${\p{t[x≔v]∗π}} {⇓}_{≻}
 guarantee that such a value $v$ exists. If there is none, then it seem to
 be impossible to distinguish $\v{{}}$ form $\v{λx t}$ without relying on
 a specific term constructor like $\t{R(v,u)}$ or $\t{F(v,u)}$. These terms
-were added to the calculus for this very purpose, and will also use them
-for distinguishing records or $λ$-abstractions with the special value
+were added to the calculus for this very purpose, and we will also use them
+for distinguishing records or $λ$-abstractions from the special value
 $\v{□}$.
 \begin{thm}\label("nequivlamreco")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and
@@ -659,7 +672,7 @@ Similar to \thmRef("nequivlamreco") using the stack $π = \s{[λx R(x,{})]ε}$.
 To conclude this section, we consider two more ways of deriving an
 inequivalence when working with records and variants. Provided that
 two values stored in a given record field or in a constructor are
-not equivalent, it is possible to derive that two records or two
+not equivalent, it is possible to derive that the two records or the two
 variants are not equivalent. We will here need to rely on the third
 property of compatible equivalences, that is recalled bellow as a
 lemma.
@@ -747,7 +760,7 @@ exhibit a substitution $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
 \end{itemize}
 \end{proof}
 \end{thm}
-Similarly, it is possible to show that the special value $\v{v}$ is
+Similarly, it is possible to show that the special value $\v{□}$ is
 only equivalent to itself.
 \begin{thm}\label("canonbox")
 Let $v ∈ Λ_ι$ be a value. We have $\v{□} ≡ \v{v}$ if and only if
@@ -824,7 +837,8 @@ $t ≡ \t{u[y≔x]}$.
 \begin{proof}
 We reason by case on the possible forms of $\v{v}$. Using
 \theorems(["varequiv"; "canonbox"; "nequivlamreco"; "nequivlamcons"])
-we obtain that $\v{v}$ cannot be a $λ$-variable, a record or a variant.
+we obtain that $\v{v}$ cannot be $\v{□}$, a $λ$-variable, a record
+nor a variant.
 Consequently, we know that $v = \v{λy u}$ for some $y ∈ \cal{V}_ι$ and
 $u ∈ Λ$. It only remains to show that we have $\t{t} ≡ \t{u[y≔x]}$.
 As we supposed that $\v{λx t} ≡ v = \v{λy u}$ we can use the
