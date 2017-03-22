@@ -14,15 +14,23 @@ test:
 manuscrit.ps: manuscrit.pdf
 	pdftops $^
 
+manuscrit_short.ps : manuscrit.ps
+	psselect 5- $^ $@
+
+www/manuscrit_lepigre.pdf: manuscrit_short.ps
+	ps2pdf $^ $@
+
 clean:
 	patoline --clean $(FLAG)
 	rm -f *~
 
 distclean: clean
 	rm -f manuscrit.pdf manuscrit.ps
+	rm -f www/manuscrit_lepigre.pdf
 	rm -f examples/*
 	rm -f **/*~
 
-upload: www/index.html
+upload: www/index.html www/manuscrit_lepigre.pdf
+	rm -f www/*~
 	lftp -u lepigre ftp://ftp.lepigre.fr -e \
 		"mirror -R www www/these; quit"

@@ -1727,7 +1727,7 @@ consider the rules that were introduced in this section.
 \item In the case of the ($↪_{l,κ}$) rule, we need to show $t ⊩ \f{γ₀ ↪ A}
   ⊂ \f{B}$. By our second hypothesis, we know that all the ordinals in $γ₀$
   are positive, which means that $\vs{γ₀ ↪ A} = \vs{A}$. We can thus
-  conclude using \theorem("othoincl") and the induction hypothesis.
+  conclude using \theorem("orthoincl") and the induction hypothesis.
   \begin{center}
     $\id(r_ordimpl_l)$
   \end{center}
