@@ -196,39 +196,51 @@ let r_nu_l =
     {γ; Ξ ⊢ \t{t} ∈ \f{ντX A} ⊂ \f{B}}$>
 
 let r_mu_l =
-  <$\unaryRN{μ_r}
+  <$\binaryRN{μ_l}
     {γ,τ; Ξ ⊢ \t{t} ∈ \f{A[X ≔ μεθ<τ(t∈A[X ≔ μθX A])X A]} ⊂ \f{B}}
+    {Ξ ⊢ v ≡ t}
     {γ; Ξ ⊢ \t{t} ∈ \f{μτX A} ⊂ \f{B}}$>
 
 let r_nu_r =
-  <$\unaryRN{ν_l}
+  <$\binaryRN{ν_r}
     {γ,τ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ νεθ<τ(t∈B[X ≔ νθX B])X B]}}
+    {Ξ ⊢ v ≡ t}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{ντX B}}$>
 
 (* Ordinal restriction rules. *)
 let r_ordrest_l =
-  <$\binaryRN{\restriction_l}
+  <$\binaryRN{\restriction_{l,κ}}
     {γ, γ₀; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
     {Ξ ⊢ v ≡ t}
     {γ; Ξ ⊢ \t{t} ∈ \f{A ∧ γ₀} ⊂ \f{B}}$>
 
 let r_ordrest_r =
-  <$\binaryRN{\restriction_r}
+  <$\binaryRN{\restriction_{r,κ}}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
     {γ₀ ⊂ γ}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B ∧ γ₀}}$>
 
 let r_ordimpl_l =
-  <$\binaryRN{\inj_l}
-    {Ξ, u₁ ≡ u₂ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
-    {Ξ ⊢ v ≡ t}
-    {Ξ ⊢ \t{t} ∈ \f{γ₀ ↪ A} ⊂ \f{B}}$>
+  <$\binaryRN{\inj_{l,κ}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {γ₀ ⊆ γ}
+    {γ; Ξ ⊢ \t{t} ∈ \f{γ₀ ↪ A} ⊂ \f{B}}$>
 
 let r_ordimpl_r =
-  <$\binaryRN{\inj_r}
-    {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
-    {Ξ ⊢ u₁ ≡ u₂}
-    {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{γ₀ ↪ B}}$>
+  <$\unaryRN{\inj_{r,κ}}
+    {γ, γ₀; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{γ₀ ↪ B}}$>
+
+(* Rules for propagating ordinal restrictions. *)
+let r_arrow_ord_i =
+  <$\binaryRN{⇒_{i,κ}}{Ξ ⊢ \t{λx t} ∈ \f{A ⇒ B} ⊂ C}
+    {Ξ ⊢ \t{t[x ≔ εx∈A(t∉B)]} : \f{B}}{Ξ ⊢ \t{λx t} : C}$>
+
+let r_sum_ord_e =
+  <$\binaryRN{+_{e,κ}}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
+    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
+      \t{ti[xi ≔ εxi∈Ai(ti∉C)]} : \f{C})_{i∈I}}
+    {Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
 
 (* Fixpoint rule. *)
 let r_fix =
@@ -285,7 +297,10 @@ let extra_sub_ord_rs env =
   let env = env in
   let rs =
     [ [ r_ordrest_l ; r_ordrest_r ]
-    ; [ r_ordimpl_l ; r_ordimpl_r ] ]
+    ; [ r_ordimpl_l ; r_ordimpl_r ]
+    ; [ r_arrow_ord_i ]
+    ; [ r_sum_ord_e ]
+    ; [ r_fix ] ]
   in
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
@@ -314,7 +329,7 @@ let extra_subrules () =
 
 let extra_ord_subrules () =
   figure_here ~name:"extraordsubrules"
-    ~caption:[tT "Local subtyping rules for ordinal restriction and implication."]
+    ~caption:[tT "Typing and subtyping rules for the handling of recursion."]
       (dr extra_sub_ord_rs)
 
 let ordering_rules () =
@@ -1413,6 +1428,8 @@ using actual ordinals.
 We denote $κ$ the sort of //syntactic ordinals//. From now on, we will
 consider that $κ ∈ \cal{S}₀$ (and hence that $κ ∈ \cal{S}$).
 \end{def}
+\Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
+\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
 \begin{def}
 The set of all the syntactic ordinals is generated from a set of ordinal
 variables $\cal{V}_κ = \{θ, η, ζ ...\}$ using the following ||bnf|| grammar.
@@ -1496,8 +1513,6 @@ $\binaryR{Σ, X:ο ⊢ A : ο}{Σ ⊢ τ : κ}{Σ ⊢ \f{ντX A} : ο}$
 Moreover, we will implicitly assume that in these constructions, the variable
 $X$ only appears positively in $A$ (i.e., it is in covariant position).
 \end{def}
-\Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
-\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
 \begin{def}
 In the semantics, sized inductive and coinductive types are interpreted in
 the usual way, as pre-fixpoints and post-fixpoints respectively.
@@ -1552,25 +1567,191 @@ exist, then $0$ is chosen and thus the premise of the rule is immediate
 (the context is contradictory). The three rules for handling the greatest
 fixpoint constructor are dual to those for the least fixpoint constructor.
 
-As in \cite("Lepigre2017"), local subtyping judgments can be considered
-as //abstract judgments// for building well-founded //circular proofs//.
-We can thus rely on this framework to obtain so-called //generalisation//
-and //induction// rules.
-
-
-
 \Caml(let _ = extra_ord_subrules ()) (* NOTE can be moved *)
 
-(* TODO *)
+Now, handling recursion requires providing a typing rule for our fixpoint
+term constructor. However, this is not enough because in practice we will
+need (part of) our positivity contexts to be communicated between part of
+the typing trees to be able to establish that an infinite typing proof is
+well-founded. As a consequence, we also introduce two new type connectives
+that will be used for this purpose. In particular, they will allow us to
+give stronger rules for the typing of $λ$-abstractions and pattern matchings.
+\begin{def}
+We extend the syntax of formulas $\cal{F}$ with two new type constructors
+$\f{A ∧ γ}$ and $\f{γ ↪ A}$ called positivity restriction and positivity
+implication. The former is a variant of our restriction constructor for
+equivalences and the latter denotes an implication (with no algorithmic
+contents) depending on a positivity context. Note that we need to extend
+the system with the following sorting rules.
+\begin{center}
+$\binaryR{Σ ⊢ A : ο}{(Σ ⊢ τ : κ)_{τ∈γ}}{Σ ⊢ \f{A ∧ γ} : ο}$
+\hspace(6.0)
+$\binaryR{Σ ⊢ A : ο}{(Σ ⊢ τ : κ)_{τ∈γ}}{Σ ⊢ \f{γ ↪ A} : ο}$
+\end{center}
+\end{def}
+\begin{def}
+In the semantics, positivity restriction and positivity implication are
+interpreted as follows.
+\begin{center}
+\diagram(
+let contents =
+  let line s1 s2 = [ <$\vs(s1)$> ; <$ = $> ; <$\mathsText(s2)$>] in
+  two_cols
+  [ line "A ∧ γ" <<$\vs{A}$ when $∀τ∈γ, ⟦τ⟧ > 0$>>
+  ; line "γ ↪ A" <<$\vs{A}$ when $∃τ∈γ, ⟦τ⟧ = 0$>>
+  ; line "A ∧ γ" <<$\{\v{□}\}$ otherwise>>
+  ; line "γ ↪ A" <<$Λ_ι$ otherwise>> ]
+let _ = array [`East; `Main; `West; `East; `Main; `West] contents
+          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+          ~vertical_padding:(fun n -> 2.0)
+)
+\end{center}
+\end{def}
+\begin{rem}
+It would be perfectly possible to add an implication connective similar
+to $\f{γ ↪ A}$ but depending on an equivalence instead of a list of
+ordinals. It is in fact included in the implementation of the system.
+\end{rem}
 
+We will now extend our system with a last set of rules typing and local
+subtyping rules for handling recursion. We will then prove that all the
+rules introduced in this section are adequate.
+\begin{def}
+We extend the system with the seven rules of \figRef("extraordsubrules").
+\end{def}
 
-$$\id(r_fix)$$
-
-\begin{thm}\label("uselessadequacy")
-Final adequacy lemma, adding the rules given in this section.
-(* TODO *)
+We can now put everything together and prove yet another adequacy lemma.
+However, we first need to give the interpretation of ordinal ordering
+judgments.
+\begin{lem}\label("ordord")
+If the judgment $γ ⊢ τ₁ ≤_i τ₂$ is derivable and if for every syntactic
+ordinal $τ ∈ γ$ we have $⟦τ⟧ > 0$ then we have the following.
+\begin{itemize}
+\item If $i ≥ 0$ then $⟦τ₁⟧ + i ≤ ⟦τ₂⟧$,
+\item if $i ≤ 0$ then $⟦τ₁⟧ ≤ ⟦τ₂⟧ + i$.
+\end{itemize}
+Here, we use the notation $o+i$ for the $i$-th successor of the ordinal
+$o$. Note that in particular, $γ ⊢ τ₁ < τ₂$ is derivable then we have
+$⟦τ₁⟧ < ⟦τ₂⟧$.
 \begin{proof}
-... (* TODO *)
+A complete proof is given in \id(citen "Lepigre2017" "Lemma 1.10").
+\end{proof}
+\end{lem}
+\begin{thm}\label("uselessadequacy")
+Let $γ$ be a positivity context, $Ξ$ be an equational context, $A$,
+$B ∈ \cal{F}$ be closed types and $t ∈ Λ^{+}$ be a closed raw term.
+If for every syntactic ordinal $τ ∈ γ$ we have $⟦τ⟧ > 0$ and if for
+every equivalence $(\t{t₁},\t{t₂}) ∈ Ξ$ we have $\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$
+then:
+\begin{itemize}
+\item if $γ; Ξ ⊢ t : A$ is valid then we have $t ⊩ A$,
+\item if $γ; Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$ and
+\item if $γ; Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
+\end{itemize}
+\begin{proof}
+The proof proceeds as for \theorem("fulladequacy") with the exception
+of the management of the positivity context. For all the rules that
+were given before the current section, the adaptation is immediate as
+the positivity context is only transmitted. As a consequence, we only
+consider the rules that were introduced in this section.
+\begin{itemize}
+\item In the case of the ($μ_{r,∞}$) rule, we need to show that
+  $t ⊩ \f{A} ⊂ \f{μ∞ X B}$. By induction hypothesis, we know that
+  $t ⊩ \f{A} ⊂ \f{B[X ≔ μ∞ X B]}$ so we can conclude immediately
+  as we know that $\vs{μ∞ X B} = \vs{B[X ≔ μ∞ X B]}$ as the
+  fixpoint has been reached.
+  \begin{center}
+    $\id(r_mu_r_inf)$
+  \end{center}
+
+\item In the case of the ($ν_{r,∞}$) rule, the proof is dual to the
+  ($μ_{r,∞}$) case.
+  \begin{center}
+    $\id(r_nu_l_inf)$
+  \end{center}
+
+\item In the case of the ($μ_r$) rule, we need to show that
+  $t ⊩ \f{A} ⊂ \f{μτ X B}$. According to \lemma("ordord") we
+  have $⟦υ⟧ < ⟦τ⟧$ and thus we have
+  $\vs{B[X ≔ μυ X B]} = \vs{μυ+1 X B} ⊆ \vs{μτ X B}$. We can
+  thus conclude using \lemma("orthoincl") and the induction
+  hypothesis. It is important that $X$ only appears positively
+  in $B$ to obtain the inclusion directly.
+  \begin{center}
+    $\id(r_mu_r)$
+  \end{center}
+
+\item In the case of the ($ν_l$) rule, the proof is dual to the
+  ($μ_r$) case.
+  \begin{center}
+    $\id(r_nu_l)$
+  \end{center}
+
+\item In the case of the ($μ_l$) rule, we need to show that $t ⊩ \f{μτ X A}
+  ⊂ \f{B}$. If we have $⟦τ⟧ = 0$ then we can conclude immediately as in this
+  case $\vs{μτ X A} = \{\v{□}\} ⊆ \vs{B}$ and thus $\ts{μτ X A} ⊆ \ts{B}$ by
+  \lemma("orthoincl"). We can thus suppose that $⟦τ⟧ > 0$ in the following
+  so that we can use the induction hypothesis. Let now suppose that we have
+  $\t{⟦t⟧} ∈ \ts{μτ X A}$ and show $\t{⟦t⟧} ∈ \ts{B}$. By our second
+  hypothesis, we have a value $v$ such that $\t{⟦t⟧} ≡ \v{⟦v⟧}$. As a
+  consequence we can work at the value level thanks to \theorem("main"). We
+  can thus suppose that $\t{⟦v⟧} ∈ \vs{μτ X A}$ and show $\t{⟦v⟧} ∈ \vs{B}$.
+  By definition of $\vs{μτ X A}$ we know that there is an ordinal $o < ⟦τ⟧$
+  such that $v ∈ ⟦X ↦ A⟧^o(\{\v{□}\})$. As a consequence, the choice operator
+  $\o{εθ<τ(v∈A[X ≔ μθX A])} = \o{εθ<τ(t∈A[X ≔ μθX A])}$ is well-defined and
+  thus we have $\t{⟦v⟧} ∈ \vs{A[X ≔ μεθ<τ(t∈A[X ≔ μθX A])X A]}$. We can
+  hence apply the induction hypothesis (again using \theorem("main")) to get
+  $\t{⟦v⟧} ∈ \vs{B}$.
+  \begin{center}
+    $\id(r_mu_l)$
+  \end{center}
+
+\item In the case of the ($ν_r$) rule, the proof is dual to the
+  ($μ_l$) case.
+  \begin{center}
+    $\id(r_nu_r)$
+  \end{center}
+
+\item In the case of the ($\restriction_{l,κ}$) rule, the proof is
+  similar as for ($\restriction_l$) \theorem("fulladequacy").
+  \begin{center}
+    $\id(r_ordrest_l)$
+  \end{center}
+
+\item In the case of the ($\restriction_{r,κ}$) rule, the proof is
+  similar as for ($\restriction_r$) in \theorem("fulladequacy").
+  \begin{center}
+    $\id(r_ordrest_r)$
+  \end{center}
+
+\item In the case of the ($↪_{l,κ}$) rule, we need to show $t ⊩ \f{γ₀ ↪ A}
+  ⊂ \f{B}$. By our second hypothesis, we know that all the ordinals in $γ₀$
+  are positive, which means that $\vs{γ₀ ↪ A} = \vs{A}$. We can thus
+  conclude using \theorem("othoincl") and the induction hypothesis.
+  \begin{center}
+    $\id(r_ordimpl_l)$
+  \end{center}
+
+\item In the case of the ($↪_{r,κ}$) rule, ... (* TODO *)
+  \begin{center}
+    $\id(r_ordimpl_r)$
+  \end{center}
+
+\item In the case of the ($⇒_{i,κ}$) rule, ... (* TODO *)
+  \begin{center}
+    $\id(r_arrow_ord_i)$
+  \end{center}
+
+\item In the case of the ($+_{e,κ}$) rule, ... (* TODO *)
+  \begin{center}
+    $\id(r_sum_ord_e)$
+  \end{center}
+
+\item In the case of the ($Y$) rule, ... (* TODO *)
+  \begin{center}
+    $\id(r_fix)$
+  \end{center}
+\end{itemize}
 \end{proof}
 \end{thm}
 
@@ -1589,6 +1770,13 @@ extend \theorem("uselessadequacy") so that it is proved by ordinal
 induction on the circular proofs, provided that they have been show
 well-founded. We do not go into the details here for lack of time as
 this is still a work in progress.
+
+(*
+As in \cite("Lepigre2017"), local subtyping judgments can be considered
+as //abstract judgments// for building well-founded //circular proofs//.
+We can thus rely on this framework to obtain so-called //generalisation//
+and //induction// rules.
+*)
 
 =<
 
