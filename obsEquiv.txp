@@ -56,11 +56,10 @@ Indeed, this would go against the intuition that they are the
 evidence of a successfully terminated computation.
 
 The idea now is to relate terms that form converging processes against
-exactly the same stacks (for the relation $({≻})$). However, quantifying
-only over stacks leads to free variables being undistinguishable. To
-avoid this problem, we not only quantify over stacks, but also over
-substitutions. In this way, our equivalence relation will work with both
-closed and open terms.
+exactly the same stacks. However, quantifying only over stacks leads to
+free variables being undistinguishable. To avoid this problem, we not
+only quantify over stacks, but also over substitutions. In this way,
+our equivalence relation will work with both closed and open terms.
 \begin{def}
 The relation $({≡}_{≻}) ⊆ {Λ×Λ}$ is defined as follows.
 $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
@@ -73,7 +72,7 @@ Immediate.
 \end{proof}
 \end{lem}
 
-We will now show that our equivalence relation $({≡})_{≻}$ is well-behaved
+We will now show that our equivalence relation $({≡}_{≻})$ is well-behaved
 with respect to substitutions. First, we are going to check that arbitrary
 substitutions preserve equivalence. This property is summarised in the
 following theorem.
@@ -120,42 +119,47 @@ Let $v₁ ∈ Λ_ι$ and $v₂ ∈ Λ_ι$ be values, $t ∈ Λ$ be a term and
 $x ∈ \cal{V}_ι$ be a $λ$-variable. If $v₁ ≡_{≻} v₂$ then
 $\t{t[x≔v₁]} ≡_{≻} \t{t[x≔v₂]}$.
 \begin{proof}
-We are going to prove the contrapositive so we suppose
-$\t{t[x≔v₁]} \nequiv_{≻} \t{t[x≔v₂]}$ and we show $v₁ \nequiv_{≻} v₂$.
-We can assume that $v₁ ≠ v₂$ as otherwise we would immediately get a
-contradiction using the reflexivity of $({≡}_{≻})$. If $v₁ = \v{□}$ then
-we can distinguish it from $v₂$ using the stack  $π = \s{[{}]ε}$. Indeed,
-we have $\p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
-$\p{v₂ ∗ [{}]ε} ≻ \p{{} ∗ v₂·ε} {⇑}_{≻}$ since we cannot have $v₂ = \v{□}$.
-In a symmetric way, we can also distinguish $v₁$ and $v₂$ when $v₂ = \v{□}$.
-As a consequence, we can now assume that $v₁ ≠ \v{□}$ and that $v₂ ≠ \v{□}$.
-
-Similarly, if $v₁ = x₁ ∈ \cal{V}_ι$ and $v₂ = x₂ ∈ \cal{V}_ι$ then they can
-be easily distinguished with \theorem("substequiv") and a substitution
-replacing $x₁$ and $x₂$ with two non-equivalent values. Now, if we have
-$v₁ = x ∈ \cal{V}_ι$ but $v₂$ is not a variable then we can use the
-substitution $ρ = \subs{[x≔□]}$ and the stack $π = \s{[{}]ε}$ to tell $v₁$
-and $v₂$ apart. Indeed, in this case we have
-$\p{v₁ρ ∗ π} = \p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
-$\p{v₂ρ ∗ π} = \p{v₂ρ ∗ [{}]ε} ≻ \p{{} ∗ v₂ρ · ε} {⇑}_{≻}$. A symmetric
-reasoning can be used in the case where $v₁$ is not a variable and
-$v₂ = x ∈ \cal{V}_ι$. We can thus assume that neither $v₁$ nor $v₂$ is
-a $λ$-variable.
-
-It now remains to handle the general case. By definition, we know that
-there is a stack $π$ and a substitution $ρ$ such that we have
-${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$
-(up to symmetry). As $x$ is bound we can rename it so that
-$\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
+We are going to prove the contrapositive so we suppose $\t{t[x≔v₁]}
+\nequiv_{≻} \t{t[x≔v₂]}$ and we show $v₁ \nequiv_{≻} v₂$. Let us first
+assume that neither $v₁$ nor $v₂$ is equal to $\v{□}$ or to a
+$λ$-variables. By definition, we know that there is a stack $π$ and a
+substitution $ρ$ such that we have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and
+${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$ (up to symmetry). As $x$ is bound we
+can rename it so that $\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
 $\t{(t[x≔v₂])ρ} = \t{tρ[x≔v₂ρ]}$. To finish the proof, we need to find
 a stack $π₀$ and a substitution $ρ₀$ such that ${\p{v₁ρ₀ ∗ π₀}} {⇓}_{≻}$
 and ${\p{v₂ρ₀ ∗ π₀}} {⇑}_{≻}$ (up to symmetry). We can take
 $π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ since by definition we have
-${\p{v₁ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₁ρ] ∗ π}} {⇓}_{≻}$ and
-${\p{v₂ρ ∗ [λx tρ]π}} ≻^2 {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_{≻}$. Note that here,
-it is essential that $\v{v₁ρ}$ and $\v{v₂ρ}$ cannot be equal to $\v{□}$
+${\p{v₁ρ ∗ [λx tρ]π}} ≻^{∗} {\p{tρ[x≔v₁ρ] ∗ π}} {⇓}_{≻}$ and
+${\p{v₂ρ ∗ [λx tρ]π}} ≻^{∗} {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_{≻}$. Note that here,
+it is essential that $\v{v₁ρ}$ and $\v{v₂ρ}$ are not equal to $\v{□}$
 or to some $λ$-variable as otherwise the first reduction steps could not
 be taken.
+
+It remains to show that $v₁ \nequiv_{≻} v₂$ in the cases where $v₁$,
+$v₂$ or both are equal to $\v{□}$ or a $λ$-variable. First, we can
+assume that $v₁ ≠ v₂$ as otherwise we would immediately get a contradiction
+with $\t{t[x≔v₁]} \nequiv_{≻} \t{t[x≔v₂]}$ by reflexivity of $({≡}_{≻})$.
+As a consequence, we cannot have $v₁ = v₂ = \v{□}$ or
+$v₁ = v₂ = x ∈ \cal{V}_ι$. Now, if $v₁ = \v{□}$ and $v₂ ∉ \cal{V}_ι$ then
+we can distinguish them using the stack $π = \s{[{}]ε}$. Indeed, we have
+$\p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$ and $\p{v₂∗[{}]ε} ≻ \p{{}∗v₂·ε} {⇑}_{≻}$
+since we cannot have $v₂ = \v{□}$. In a symmetric way, we can also
+distinguish $v₁$ and $v₂$ when $v₂ = \v{□}$ and $v₁ ∉ \cal{V}_ι$. Now,
+if we have $v₁ = \v{□}$ and $v₂ = x ∈ \cal{V}_ι$ then we can tell them
+apart using the substitution $ρ = \subs{[x≔{}]}$ and the stack
+$π = \s{[{}]ε}$. Indeed, we have $\p{v₁ρ∗π} = \p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$
+and $\p{v₂ρ∗π} = \p{{}∗[{}]ε} ≻ \p{{}∗[{}]ε} {⇑}_{≻}$. The same goes if
+$v₁ = x ∈ \cal{V}_ι$ and $v₂ = \v{□}$. Now, if $v₁ = x₁ ∈ \cal{V}_ι$
+and $v₂ = x₂ ∈ \cal{V}_ι$ then they can be easily distinguished with
+\theorem("substequiv") and a substitution replacing $x₁$ and $x₂$ with two
+non-equivalent values. If we have $v₁ = x ∈ \cal{V}_ι$ and $v₂$ is neither
+a variable nor $\v{□}$ then we can use the substitution $ρ = \subs{[x≔□]}$
+and the stack $π = \s{[{}]ε}$ to tell $v₁$ and $v₂$ apart. Indeed, in this
+case we have $\p{v₁ρ ∗ π} = \p{□ ∗ [{}]ε} ≻ \p{□ ∗ ε} {⇓}_{≻}$ and
+$\p{v₂ρ ∗ π} = \p{v₂ρ ∗ [{}]ε} ≻ \p{{} ∗ v₂ρ · ε} {⇑}_{≻}$. A symmetric
+reasoning can be used in the case where $v₁$ is not $\v{□}$ nor a variable
+and $v₂ = x ∈ \cal{V}_ι$.
 \end{proof}
 \end{thm}
 \begin{lem}\label("sexttermaux")
@@ -198,10 +202,10 @@ possibilities.
 \item If $\p{tρ ∗ π} ≻^{∗} \p{a ∗ π₀}$ for some stack $π₀ ∈ Π$ then
   $\p{(tρ ∗ π)[a≔u₁]} ≻^{∗} \p{(a ∗ π₀)[a≔u₁]}$ and
   $\p{(tρ ∗ π)[a≔u₂]} ≻^{∗} \p{(a ∗ π₀)[a≔u₂]}$ by
-  \thmRef("redcompatall"). As a consequence, we assume
+  \thmRef("redcompatall"). We thus assume that
   ${\p{(a ∗ π₀)[a≔u₁]}} {⇓}_{≻}$ and show
-  ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$. We are going to build a sequence of
-  stacks $(π_i)_{i≤n}$, starting with $π₀$, such that
+  ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$. We will build a sequence of
+  stacks $(π_i)_{i≤n}$ starting with $π₀$ and such that
   $\p{(a ∗ πi)[a≔u₁]} ≻^{+} \p{(a ∗ πi+1)[a≔u₁]}$ for all $i<n$. Note
   that the sequence has to be finite since otherwise there would be an
   infinite sequence of reductions from $\p{(a ∗ π₀)[a≔u₁]}$. To define
@@ -210,9 +214,8 @@ possibilities.
   by transitivity and hence ${\p{(u₁ ∗ πi)[a≔u₁]}} {⇓}_{≻}$. According to
   \lemRef("sexttermaux") there are two possibilities for the reduction of
   $\p{u₁ ∗ πi}$. Either $\p{u₁ ∗ πi} ≻^{∗} \p{v ∗ ε}$ for some value
-  $v$ and the sequence ends with $n = i$, or
-  $\p{u₁ ∗ πi} ≻^{∗} \p{a ∗ ξ}$ for some stack $ξ$ and we define
-  $π_{i+1} = ξ$.
+  $v$ and the sequence ends with $n = i$, or $\p{u₁∗πi} ≻^{∗} \p{a∗ξ}$
+  for some stack $ξ$ and in this case we take $π_{i+1} = ξ$.
   
   To end the proof, we will now show ${\p{(a ∗ πi)[a≔u₂]}} {⇓}_{≻}$ for all
   $i ≤ n$. For $i = 0$ this will give us ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$
@@ -407,21 +410,29 @@ To go a little bit further, we can look at the first three rules of $({≻})$,
 which are used to handle $β$-reduction (see \defRef("reduction")). In
 particular, these rules can be composed immediately when a $λ$-abstraction
 is applied to a value. This corresponds exactly to a call-by-value
-$β$-reduction step. Similar reasoning can be used to obtain another
-equivalence involving the value $\v{□}$.
+$β$-reduction step. Similar reasoning can be used to obtain two other
+equivalences involving the special value $\v{□}$.
 \begin{thm}\label("cbvbeta")
-For every $t ∈ Λ$, $v ∈ Λ_ι$ and $x ∈ \cal{V}_ι$ we have
-$\t{(λx t) v} ≡ \t{t[x≔v]}$.
+For every $x ∈ \cal{V}_ι$, $t ∈ Λ$ and $v ∈ Λ_ι$ such that $v ≠ \v{□}$ and
+$v ∉ \cal{V}_ι$ we have $\t{(λx t) v} ≡ \t{t[x≔v]}$.
 \begin{proof}
-As for all $π∈Π$ we have $\p{(λxt) v∗π} ≻ \p{v∗[λxt]π} ≻ \p{λxt∗v·π} ≻
-\p{t[x≔v]∗π}$, we can conclude immediately using \lemRef("redtosame").
+For all $π∈Π$ we have $\p{(λxt) v∗π} ≻ \p{v∗[λxt]π} ≻ \p{λxt∗v·π} ≻
+\p{t[x≔v]∗π}$, we can thus conclude using \lemRef("redtosame"). Note that
+the second reduction step can only be taken because $v$ is not equal to
+$\v{□}$ or to a $λ$-variable.
 \end{proof}
 \end{thm}
 \begin{thm}
-For every value $v ∈ Λ_ι$ we have $\t{□ v} ≡ \t{□}$.
+The equivalence $\t{□ v} ≡ \t{□}$ holds for every value $v ∈ Λ_ι$ that is
+not a $λ$-abstraction. Similarly, the equivalence $\t{t □} ≡ \t{□}$ holds
+for every term $t ∈ Λ$.
 \begin{proof}
-For all $π∈Π$ we have $\p{□ v∗π} ≻ \p{v∗[□]π} ≻ \p{□∗v·π} ≻ \p{□∗π}$, we
-can thus conclude again using \lemRef("redtosame").
+If $v ≠ \v{□}$ then for all $π∈Π$ we have $\p{□ v∗π} ≻ \p{v∗[□]π} ≻
+\p{□∗v·π} ≻ \p{□∗π}$ since $v$ is not a $λ$-variable. If $v = \v{□}$
+then for all $π∈Π$ we have $\p{□ □∗π} ≻ \p{□∗[□]π} ≻ \p{□∗π}$. In
+both cases \lemRef("redtosame") gives us $\t{□ v} ≡ \t{□}$. For all
+$π∈Π$ we have $\p{t □∗π} ≻ \p{□∗[t]π} ≻ \p{□∗π}$ and thus we can also
+use \lemRef("redtosame") to obtain $\t{t □} ≡ \t{□}$.
 \end{proof}
 \end{thm}
 
@@ -436,16 +447,15 @@ particular, we can obtain two equivalences corresponding to call-by-value
 For every $t$, $u ∈ Λ$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$ and
 $β ∉ FV(u)$ we have $\t{t (μα u)} ≡ \t{μβ t u[α≔[t]β]}$.
 \begin{proof}
-Since for every stack $π$ we have
-$\p{t (μα u) ∗ π} ≻ \p{μα u ∗ [t]π} ≻ \p{u[α≔[t]π] ∗ [t]π}$
-and
-$\p{μβ t u[α≔[t]β] ∗ π} ≻ \p{t u[α≔[t]π] ∗ π} ≻ \p{u[α≔[t]π] ∗ [t]π}$
-we can conclude using \lemRef("redequiv").
+Since for every stack $π$ we have $\p{t (μα u) ∗ π} ≻ \p{μα u ∗ [t]π} ≻
+\p{u[α≔[t]π] ∗ [t]π}$ and $\p{μβ t u[α≔[t]β] ∗ π} ≻ \p{t u[α≔[t]π] ∗ π} ≻
+\p{u[α≔[t]π] ∗ [t]π}$ we can conclude using \lemRef("redequiv").
 \end{proof}
 \end{thm}
 \begin{thm}
-For every $t ∈ Λ$, $v ∈ Λ_ι$ and $α$, $β ∈ \cal{V}_σ$ such that $β ∉ FV(t)$
-and $β ∉ FV(v)$ we have $\t{(μα t) v} ≡ \t{μβ t[α≔v·β] v}$.
+For every $t ∈ Λ$, $α$, $β ∈ \cal{V}_σ$ and $v ∈ Λ_ι$ such that
+$β ∉ FV(t) ∪ FV(v)$ and $v ∉ \cal{V}_ι ∪ \{\v{□}\}$ we have
+$\t{(μα t) v} ≡ \t{μβ t[α≔v·β] v}$.
 \begin{proof}
 Since we have
 $\p{(μαt) v∗π} ≻ \p{v∗[μαt]π} ≻ \p{μαt∗v·π} ≻ \p{t[α≔v·π]∗v·π}$
@@ -477,8 +487,9 @@ removed as they will never be considered. The following two theorems will
 hence allow us to discard unnecessary subterms as early as possible, when
 attempting to prove an equivalence.
 \begin{thm}
-For every $t ∈ Λ$, $v ∈ Λ_ι$ and $ξ ∈ Π$ we have
-$\t{([ξ]t) v} ≡ \t{[ξ]t}$.
+For every $t ∈ Λ$, $ξ ∈ Π$ and $v ∈ Λ_ι$ such that
+$v ∉ \cal{V}_ι ∪ \{\v{□}\}$ the equivalence $\t{([ξ]t) v} ≡ \t{[ξ]t}$
+holds.
 \begin{proof}
 Since for every stack $π$ we have
 $\p{([ξ]t) v ∗ π} ≻ \p{v ∗ [[ξ]t]π} ≻ \p{[ξ]t ∗ v·π} ≻ \p{t∗ξ}$
@@ -578,7 +589,7 @@ Let $t$, $u∈Λ$ be two terms. If there is a stack $π ∈Π$ and a
 substitution $ρ∈\cal{S}$ such that ${\p{tρ ∗ π}} {⇓}_{≻}p$ and
 ${\p{uρ ∗ π}} {⇑}_{≻}p$ then $t \nequiv u$.
 \begin{proof}
-By definition of $({≡})$, we have $t \nequiv_{≻} u$. We can thus
+By definition of $({≡}_{≻})$ we have $t \nequiv_{≻} u$. We can thus
 conclude that $t \nequiv u$ using (the contrapositive of)
 \lemRef("equivcounterex_aux").
 \end{proof}
@@ -625,9 +636,7 @@ $\p{{(li = wi) i∈I₂}.lk ∗ ε}$ is stuck.
 \end{thm}
 
 Similarly, we can show that a record and a variant can never be equivalent.
-Indeed, pattern-matching on a record will lead to a stuck state. The same
-argument can also be used to distinguish $λ$-abstractions and the value
-$\v{□}$ from variants.
+Indeed, pattern-matching on a record will lead to a stuck state.
 \begin{thm}\label("consneqrec")
 Let $m ∈ \bbN$ be a natural number, $v ∈ Λ_ι$ be a value and $I$ be a
 finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$. We have
@@ -635,10 +644,10 @@ $\t{Cm[v]} \nequiv \t{{(li = vi) i∈I}}$.
 \begin{proof}
 We can apply \lemRef("stackcounterex") using the stack
 $π = \s{[λy [y|Cm[z]→{}]]ε}$. Indeed, we have ${\p{Cm[v] ∗ π}} {⇓}_{≻}$
-like in the proof of \thmRef("consnequiv"). Moreover, we have
+like in the proof of \thmRef("consnequiv"). Moreover,
 ${\p{{(li = vi) i∈I} ∗ π}} {⇑}_{≻}$ since
 $\p{{(li = vi) i∈I} ∗ π} ≻ \p{λy [y|Cm[z]→{}] ∗ {(li = vi) i∈I} · ε} ≻
-\p{[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε}$ and we know that the process
+\p{[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε}$ and the process
 $\p{[{(li = vi) i∈I} | Cm[z] → {}] ∗ ε}$ is stuck.
 \end{proof}
 \end{thm}
@@ -648,18 +657,9 @@ be a $λ$-variable and $t ∈ Λ$ be a term. We have
 $\t{Cm[v]} \nequiv \t{λx t}$.
 \begin{proof}
 As for \thmRef("consneqrec") we can apply \lemRef("stackcounterex") using
-$π = \s{[λy [y|Cm[z]→{}]]ε}$. Indeed, ${\p{λxt∗π}} {⇑}_{≻}$ since we have
+$π = \s{[λy [y|Cm[z]→{}]]ε}$. Indeed, ${\p{λxt∗π}} {⇑}_{≻}$ since
 $\p{λx t ∗ π} ≻ \p{λy [y|Cm[z]→z] ∗ λx t·ε} ≻ \p{[λx t|Cm[z]→z] ∗ ε}$
 and the process $\p{[λx t|Cm[z]→z] ∗ ε}$ is stuck
-\end{proof}
-\end{thm}
-\begin{thm}\label("nequiboxcons")
-Let $m ∈ \bbN$ be a natural number and $v ∈ Λ_ι$ be a value. We have
-$\t{Cm[v]} \nequiv \t{□}$.
-\begin{proof}
-We can apply \lemRef("stackcounterex") using $π = \s{[λx [x|Cm[z]→{} {}]]ε}$.
-Indeed, ${\p{Cm[v]∗π}} {⇑}_{≻}$ since $\p{Cm[v] ∗ π} ≻^{∗} \p{{}∗{}·ε}$
-which is stuck, and ${\p{□∗π}} {⇓}_{≻}$ as $\p{□ ∗ π} ≻^{∗} \p{□∗ε}$.
 \end{proof}
 \end{thm}
 
@@ -680,27 +680,12 @@ Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and
 $I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$
 for all $i∈I$. We have $\t{λx t} \nequiv \t{{(li = vi) i∈I}}$.
 \begin{proof}
-We can apply \lemRef("stackcounterex") using $π = \s{[λy R(y,{})]ε}$.
+We can use \lemRef("stackcounterex") with $π = \s{[λy R(y,{})]ε}$.
 Indeed, we have ${\p{{(li = vi) i∈I} ∗ π}} {⇓}_{≻}$ as
 $\p{{(li = vi) i∈I} ∗ π} ≻ \p{λy R(y,{}) ∗ {(li = vi) i∈I} · ε} ≻
 \p{R({(li = vi) i∈I},{}) ∗ ε} ≻ \p{{} ∗ ε}$ and ${\p{λx t ∗ π}} {⇑}_{≻}$
 as $\p{λxt ∗ π} ≻ \p{λy R(y,{}) ∗ λx t·ε} ≻ \p{R(λxt,{}) ∗ ε}$ and
 $\p{R(λxt,{}) ∗ ε}$ is stuck.
-\end{proof}
-\end{thm}
-\begin{thm}\label("nequivlambox")
-Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term.
-We have $\t{λx t} \nequiv \t{□}$.
-\begin{proof}
-We proceed exactly as for \thmRef("nequivlamreco"), using the same stack.
-(* TODO check *)
-\end{proof}
-\end{thm}
-\begin{thm}\label("nequivrecobox")
-Let $I ⊆_{fin} \bbN$ be a finite set of indices such that $v_i ∈ Λ_ι$
-for all $i∈I$. We have $\t{{(li = vi) i∈I}} \nequiv \t{□}$.
-\begin{proof}
-Similar to \thmRef("nequivlamreco") using the stack $π = \s{[λx R(x,{})]ε}$.
 \end{proof}
 \end{thm}
 
@@ -757,58 +742,44 @@ The idea now is to characterise the equivalence classes of the
 different forms of values. The results presented here will be
 required in \chapter("typeSystem") to show that the semantics
 of our types is well-formed in some sense. We will first start
-by showing that a $λ$-variable is only equivalent to itself
-among all values.
-\begin{thm}\label("varequiv")
-Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The
-equivalence $x ≡ v$ holds if and only if $v = x$.
-\begin{proof}
-If $v = x$ then we have $v ≡ x$ by reflexivity. It remains to show that
-$x \nequiv v$ for every value $v ≠ x$. In fact, thanks to
-\lemRef("equivcounterex_aux"), it is enough to show $x \nequiv_{≻} v$.
-Moreover, according to \lemRef("substequiv") it is sufficient to
-exhibit $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
-\begin{itemize}
-\item If such that $v = y ∈ \cal{V}_ι$ with $y ≠ x$ then we take
-      $ρ = \subs("[x≔Cm[{}]][y≔Cn[{}]]")$ with $m$, $n∈\bbN$ two
-      distinct natural numbers. In this case we obtain
-      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{Cn[{}]} = \t{yρ}$ with
-      \theorem("consnequiv")
-\item If $v = \v{λy t}$ with $y ∈ \cal{V}_ι$ and $t∈Λ$ then we
-      take $ρ=\subs("[x≔{}]")$ and \thmRef("nequivlamreco") gives us
-      $\t{xρ} = \t{{}} \nequiv_{≻} \t{λy tρ}$.
-\item If $v = \v{Cm[w]}$ with $m ∈ \bbN$ and $w ∈ Λ_ι$ then we take
-      $ρ=\subs("[x≔{}]")$ and we obtain
-      $\t{xρ} = \t{{}} \nequiv_{≻} \t{Cm[vρ]}$ using \thmRef("consneqrec").
-\item If there is a set of indices $I$ such that $v_i ∈ Λ_ι$ for all $i∈I$
-      and $v = \v{{(li = vi) i∈I}}$ then we consider the substitution
-      $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We
-      can then obtain $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{{(li = viρ) i∈I}}$
-      with \thmRef("consneqrec").
-\item If $v = \v{□}$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
-      We can then use \thmRef("nequivrecobox") to show that
-      $\t{xρ} = \t{{}} \nequiv_{≻} \t{□}$.
-\end{itemize}
-\end{proof}
-\end{thm}
-Similarly, it is possible to show that the special value $\v{□}$ is
-only equivalent to itself.
+by showing that $\v{□}$ is only equivalent to itself among all
+values. Similarly, it is possible to show that $λ$-variables
+are only equivalent to themselves.
 \begin{thm}\label("canonbox")
 Let $v ∈ Λ_ι$ be a value. We have $\v{□} ≡ \v{v}$ if and only if
 $\v{v} = \v{□}$.
 \begin{proof}
 If $\v{v} = \v{□}$ then we immediately have $\v{□} ≡ \v{v}$ by
 reflexivity. It remains to show that $\v{□} \nequiv \v{v}$ for
-every value $\v{v} ≠ \v{□}$. According to \theorems(["nequiboxcons";
-"nequivlambox"; "nequivrecobox"]), $\v{v}$ cannot be a variant, a
-$λ$-abstraction nor a record. The only remaining possibility is for
-$\cal{V}$ to be a $λ$-variable. However \theorem("varequiv") tells
-us that a $λ$-variable can only be equivalent to itself.
+every value $\v{v} ≠ \v{□}$. In the case where $v ∉ \cal{V}_ι$
+we can use \lemma("stackcounterex") with the stack $\s{[{}]ε}$
+as we have $\p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$ and $\p{v∗[{}]ε} ≻
+\p{{}∗v·ε} {⇑}_{≻}$. If $v = x ∈ \cal{V}_ι$ then we can use
+\lemma("equivcounterex") with $ρ = \subs{[x≔{}]}$ and $π =
+\s{[{}]ε}$ since $\p{vρ∗π} = \p{{}∗[{}]ε} ≻ \p{{}∗{}·ε} {⇑}_{≻}$
+and $\p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$ as above.
+\end{proof}
+\end{thm}
+\begin{thm}\label("varequiv")
+Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The
+equivalence $x ≡ v$ holds if and only if $v = x$.
+\begin{proof}
+If $v = x$ then we have $v ≡ x$ by reflexivity. It remains to show that
+$x \nequiv v$ for every value $v ≠ x$. In the case where $v = \v{□}$ we
+can conclude immediately using \theorem("canonbox"). If $v = y ∈
+\cal{V}_ι$ then we can use \lemma("equivcounterex") with $ρ =
+\subs("[x≔{}][y≔□]")$ and $π = \s{[{}]ε}$. Indeed, we have
+$\p{xρ∗π} = \p{{}∗[{}]ε} ≻ \p{{}∗{}·ε} {⇑}_{≻}$ and
+$\p{vρ∗π} = \p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$. Finally, if $v ≠ \v{□}$
+and $v ∉ \cal{V}_ι$ then we can use \lemma("equivcounterex")
+with $ρ = \subs("[x≔□]")$ and $π = \s{[{}]ε}$. Indeed,
+$\p{xρ∗π} = \p{□∗[{}]ε} ≻ \p{□∗ε} {⇓}_{≻}$ and
+$\p{vρ∗π} = \p{vρ∗[{}]ε} ≻ \p{{}∗[vρ]ε} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 
 We will now identify the value that are equivalent to a given variant, and
-those that are equivalent to a given record. In both case, the equivalent
+those that are equivalent to a given record. In both cases, the equivalent
 values have the same structure and equivalent subvalues.
 \begin{thm}\label("canoncons")
 Let $m ∈ \bbN$ be a natural number and $v$, $w₀ ∈ Λ_ι$ be values. The
@@ -855,27 +826,24 @@ of the form $\v{{(li = wi) i∈I}}$ with $\v{wi} ≡ \v{vi}$ for all
 $i∈I$. Using \theorems(["varequiv"; "canonbox"; "nequivlamreco";
 "consneqrec"; "reconequiv"]) we obtain $\v{w} = \v{{(li=wi) i∈I}}$
 with $w_i ∈ Λ_ι$ for all $i∈I$. Now, if $v_k \nequiv w_k$ for some
-$k ∈ I$ then we immediately obtain that $\v{{(li = vi) i∈I}}
-\nequiv \v{{(li = wi) i∈I}}$ using \theorem("aux_reco"). As a
+$k ∈ I$ then we immediately get $\v{{(li = vi) i∈I}} \nequiv
+\v{{(li = wi) i∈I}}$ using \theorem("aux_reco"). As a
 consequence, it must be that $v_k ≡ w_k$ for all $k ∈ I$.
 \end{proof}
 \end{thm}
+
+To conclude this chapter, we provide a last theorem establishing that
+$λ$-abstractions can only be equivalent to $λ$-abstractions.
 \begin{thm}\label("canonlambda")
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term and $v ∈ Λ_ι$
-be a value. If the equivalence $\t{λx t} ≡ v$ holds, then there
-are $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t{λy u}$ and
-$t ≡ \t{u[y≔x]}$.
+be a value. If the equivalence $\t{λx t} ≡ v$ holds, then there must
+be $y ∈ \cal{V}_ι$ and $u ∈ Λ$ such that $v = \t{λy u}$.
 \begin{proof}
 We reason by case on the possible forms of $\v{v}$. Using
 \theorems(["varequiv"; "canonbox"; "nequivlamreco"; "nequivlamcons"])
 we obtain that $\v{v}$ cannot be $\v{□}$, a $λ$-variable, a record
-nor a variant.
-Consequently, we know that $v = \v{λy u}$ for some $y ∈ \cal{V}_ι$ and
-$u ∈ Λ$. It only remains to show that we have $\t{t} ≡ \t{u[y≔x]}$.
-As we supposed that $\v{λx t} ≡ v = \v{λy u}$ we can use the
-extensionality of $({≡})$ to obtain $\t{(λx t) x} ≡ \t{(λy u) x}$.
-Now, if we apply \theorem("cbvbeta") on both side of this equivalence
-we finally obtain $\t{t} ≡ \t{u[y≔x]}$ by transitivity.
+nor a variant. The only remaining possibility is that $v = \v{λy u}$
+for some $y ∈ \cal{V}_ι$ and $u ∈ Λ$.
 \end{proof}
 \end{thm}
 

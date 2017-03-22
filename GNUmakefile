@@ -1,6 +1,6 @@
 FLAG := -j 4 --verbose 1 -I lang
 
-all: manuscrit.pdf test
+all: manuscrit.pdf
 
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
