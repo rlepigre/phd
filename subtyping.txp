@@ -205,6 +205,32 @@ let r_nu_r =
     {γ,τ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ νεθ<τ(t∈B[X ≔ νθX B])X B]}}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{ντX B}}$>
 
+(* Ordinal restriction rules. *)
+let r_ordrest_l =
+  <$\binaryRN{\restriction_l}
+    {γ, γ₀; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {Ξ ⊢ v ≡ t}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A ∧ γ₀} ⊂ \f{B}}$>
+
+let r_ordrest_r =
+  <$\binaryRN{\restriction_r}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {γ₀ ⊂ γ}
+    {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B ∧ γ₀}}$>
+
+let r_ordimpl_l =
+  <$\binaryRN{\inj_l}
+    {Ξ, u₁ ≡ u₂ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {Ξ ⊢ v ≡ t}
+    {Ξ ⊢ \t{t} ∈ \f{γ₀ ↪ A} ⊂ \f{B}}$>
+
+let r_ordimpl_r =
+  <$\binaryRN{\inj_r}
+    {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B}}
+    {Ξ ⊢ u₁ ≡ u₂}
+    {Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{γ₀ ↪ B}}$>
+
+(* Fixpoint rule. *)
 let r_fix =
   <$\binaryRN{Y}
     {γ; Ξ ⊢ \t{t[x≔λx Y(λr t,x)]} : \f{A⇒B}}
@@ -255,6 +281,15 @@ let extra_sub_rs env =
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
+let extra_sub_ord_rs env =
+  let env = env in
+  let rs =
+    [ [ r_ordrest_l ; r_ordrest_r ]
+    ; [ r_ordimpl_l ; r_ordimpl_r ] ]
+  in
+  let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
+  List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
+
 let ordering_rs env =
   let env = env in
   let rs =
@@ -276,6 +311,11 @@ let extra_subrules () =
   figure_here ~name:"extrasubrules"
     ~caption:[tT "Local subtyping rules for inductive and coinductive types."]
       (dr extra_sub_rs)
+
+let extra_ord_subrules () =
+  figure_here ~name:"extraordsubrules"
+    ~caption:[tT "Local subtyping rules for ordinal restriction and implication."]
+      (dr extra_sub_ord_rs)
 
 let ordering_rules () =
   figure_here ~name:"orderingrules"
@@ -1519,12 +1559,36 @@ and //induction// rules.
 
 
 
+\Caml(let _ = extra_ord_subrules ()) (* NOTE can be moved *)
 
 (* TODO *)
 
 
 $$\id(r_fix)$$
 
+\begin{thm}\label("uselessadequacy")
+Final adequacy lemma, adding the rules given in this section.
+(* TODO *)
+\begin{proof}
+... (* TODO *)
+\end{proof}
+\end{thm}
+
+Even with all the new rules introduced in this section, the system still
+not quite ready to be usable. In fact, a notion of circular proofs and
+an associated notion of well-foundedness needs to be introduced in the
+system. To do so, we need to extend our notion of typing and subtyping
+judgments for them to have (optional) ordinal parameters. It would then
+be possible to apply the framework defined in \id(citen "Lepigre2017"
+"Section 3") to obtain circular proofs. This can be done rather easily
+as the syntax used for ordinals is exactly the same, and the system
+presented in the paper requires a very similar construction.
+
+After obtaining a notion of circular proofs, it would be possible to
+extend \theorem("uselessadequacy") so that it is proved by ordinal
+induction on the circular proofs, provided that they have been show
+well-founded. We do not go into the details here for lack of time as
+this is still a work in progress.
 
 =<
 

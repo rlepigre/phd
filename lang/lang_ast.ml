@@ -102,9 +102,12 @@ and form =
   | FGFix of vari * ordi option * form (* νX A    *)
   | FMemb of term * form               (* t∈A     *)
   | FRest of form option * equa        (* A | t≡u *)
+  | FImpl of equa * form               (* p ↪ A   *)
   | FASub of subs * vari               (* ρ(χ)   *)
   | FWitn of vari * vari option * term * bool * form
-and equa = term * term
+and equa =
+  | Eq of term * term
+  | Or of vari
 
 (* Smart constructor for multiple application of terms. *)
 let tappl = List.fold_left (fun t u -> TAppl(t,u))

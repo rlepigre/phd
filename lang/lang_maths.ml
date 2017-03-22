@@ -240,13 +240,24 @@ and f2m : form -> Maths.math list = function
                       let n = [Maths.Ordinary {n with subscript_right}] in
                       n @ (vari2m x) @ (str ".") @ (f2m a)
   | FMemb(t,a)     -> bin' 3 "∈" (t2m t, f2m a)
-  | FRest(a,(t,u)) -> let eq = bin' 2 "≡" (t2m t, t2m u) in
+  | FRest(a,Eq(t,u)) -> let eq = bin' 2 "≡" (t2m t, t2m u) in
                       begin
                         match a with
                         | None   -> eq
                         | Some a -> let sep = MathFonts.euler "↾" 248 in
                                     bin 2 sep (f2m a, eq)
                       end
+  | FRest(a,Or(g))  -> let sep = MathFonts.euler "↾" 248 in
+                       begin
+                         match a with
+                         | None   -> assert false
+                         | Some a -> bin 2 sep (f2m a, vari2m g)
+                       end
+  | FImpl(Eq(t,u),a)-> let eq = bin' 2 "≡" (t2m t, t2m u) in
+                       let sep = MathFonts.euler "↪" 245 in
+                       bin 2 sep (eq, f2m a)
+  | FImpl(Or(g),a)  -> let sep = MathFonts.euler "↪" 245 in
+                       bin 2 sep (vari2m g, f2m a)
   | FASub(s,x)      -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
   | FWitn(x,so,t,m,b) ->
                       let n = Maths.node (Maths.glyphs "ε") in

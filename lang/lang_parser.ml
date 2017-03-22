@@ -38,6 +38,8 @@ let parser ometa = (vari ["τ"; "υ"; "o"])
 let parser qvari  = ovari | fvari | tvari | vvari
 let parser fovari = fvari | ovari
 
+let parser posvari = (vari ["γ"])
+
 let blank = EarleyStr.blank_regexp ''[ ]*''
 
 (* Generic parsing function with exception handling. *)
@@ -151,7 +153,7 @@ and        ordi =
                 -> OWitn(x,o,t,a)
 and        form prio =
   | t:(term TAppl) u:{"≡" u:(term TAppl)}?$   when prio = FAtom ->
-      (match u with None -> FTerm(t) | Some u -> FRest(None,(t,u)))
+      (match u with None -> FTerm(t) | Some u -> FRest(None,Eq (t,u)))
   | s:(stac SFull)                            when prio = FAtom -> FStac(s)
   | a:fmeta                                   when prio = FAtom -> FMeta(a)
   | x:qvari s:{"^" stvar}?                    when prio = FAtom -> FVari(x,s)
@@ -180,13 +182,16 @@ and        form prio =
   | t:(term TAppl) "∈" a:(form FAtom)$        when prio = FAtom -> FMemb(t,a)
   | a:(form FAtom) e:{"∧" e:equa}?$           when prio = FInte ->
       (match e with None -> a | Some e -> FRest(Some a,e))
+  | e:equa "↪" a:(form FAtom)                 when prio = FAtom -> FImpl(e,a)
   | s:subs '(' x:qvari ')'                    when prio = FAtom -> FASub(s,x)
   | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
       m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'
       when prio = FAtom -> FWitn(x,s,t,m,b)
 and ffield = l:label ':' a:(form FFull)$
 and fpatt  = c:const ':' a:(form FFull)$
-and equa   = t:(term TAppl) "≡" u:(term TAppl) (* $ Bug "Aρ | u₁ρ≡u₂ρ" *)
+and equa   =
+  | t:(term TAppl) "≡" u:(term TAppl) -> Eq(t,u)
+  | x:posvari                         -> Or(x)
 and        subs =
   | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)
   | s:subsm                                             -> SubsM(s)
