@@ -261,7 +261,7 @@ a function which input type is an equivalence. As a consequence, we need
 a form of context to store the set of program equivalences that are
 assumed to be true during a proof.
 \begin{def}
-An equational context $Ξ ⊆ \cal{P}(Λ × Λ)$ is a finite set of couples
+An equational context $Ξ ⊆ \cal{P}(Λ × Λ)$ is a finite set of pairs
 of terms denoting hypothetical equivalences. For convenience, equational
 contexts we will represented using lists generated using the following
 ||bnf|| grammar.
@@ -309,7 +309,7 @@ terms or stacks regardless of their types.
 \end{rem}
 \begin{rem}
 It is not clear whether quantification over stacks has a practical use. We
-only include it as it fits well in the framework with no extra cost.
+only include it as it fits well in the framework at no extra cost.
 \end{rem}
 
 Quantifying over all the (closed) values or terms is not always enough.
@@ -414,7 +414,7 @@ let _ = large_bnfs
 )
 \end{center}
 \end{def}
-Our types contain values, terms and stacks, as they will correspond to
+Our syntax contain values, terms and stacks, as they will correspond to
 types of sort $ι$, $τ$ and $σ$. We then have variables of all sorts,
 abstraction to build types with an arrow sort and application. All the
 remaining constructors are used to build propositions (i.e., actual
@@ -539,7 +539,7 @@ a context, the order in which they appear is thus irrelevant.
 
 The full context of typing judgments will be built using a typing context
 and an equational context. As these contexts may contain types and hence
-free variables, we need to define a notions of well-formedness for these
+free variables, we need to define a notion of well-formedness for these
 two forms of contexts.
 \begin{def}
 Given a sorting context $Σ$, we say that a typing context $Γ$ is well-formed
@@ -585,18 +585,18 @@ The typing rules of our system, and hence our typing derivations, only
 involve well-formed judgments. In particular, a typing rule can only be
 applied if all the involved judgments are well-formed.
 \begin{rem}
-Note that the $∀_i$ rule cannot apply if the variable $χ$ appears in the
-contexts $Γ$ and $Ξ$ nor in $t$. This would prevent the conclusion
-judgment to be well-formed.
+Note that the $∀_i$ rule cannot apply if $χ$ appears in the contexts $Γ$
+and $Ξ$ or in $t$. This would prevent the conclusion judgment to be
+well-formed.
 \end{rem}
 
 As our system is call-by-value and has effect, the $∀_i$ rule needs value
 restriction to remain sound. In our formalism, this means that the $∀_i$
-rule applies to value judgments. The $∈_i$ rule requires value restriction
-as well, as otherwise the system cannot be proved sound. As the $∈_i$ rule
-will be involved in the derivation of the typing rule for the elimination
-of the dependent function type at the begining of \chapter("semValRest"),
-the latter will also need value restriction.
+rule only applies to value judgments. The $∈_i$ rule requires value
+restriction as well, as otherwise the system cannot be proved sound. As
+the $∈_i$ rule will be involved in the derivation of the typing rule for
+the elimination of the dependent function type at the begining of
+\chapter("semValRest"), the latter will also need value restriction.
 
 =<
 => Call-by-value realisability semantics
@@ -620,6 +620,7 @@ It is important to note that in the remaining of this chapter, we
 will consider, if not otherwise specified, a fixed (but arbitrary)
 pole $\dbot$.
 
+(* FIXME "as an example" pas très clair selon Pierre (example de π, t) *)
 The notion of //orthogonality// is central in Krivine's classical
 realisability. In this framework a type is interpreted (or realised) by
 programs computing corresponding values. This interpretation is spread

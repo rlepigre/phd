@@ -763,30 +763,28 @@ among all values.
 Let $x ∈ \cal{V}_ι$ be a $λ$-variable and $v ∈ Λ_ι$ be a value. The
 equivalence $x ≡ v$ holds if and only if $v = x$.
 \begin{proof}
-If $v = x$ then we immediately have $v ≡ x$ by reflexivity. It remains
-to show that $x \nequiv v$ for every value $v ≠ x$. In fact, thanks to
+If $v = x$ then we have $v ≡ x$ by reflexivity. It remains to show that
+$x \nequiv v$ for every value $v ≠ x$. In fact, thanks to
 \lemRef("equivcounterex_aux"), it is enough to show $x \nequiv_{≻} v$.
 Moreover, according to \lemRef("substequiv") it is sufficient to
-exhibit a substitution $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
+exhibit $ρ$ such that $\t{xρ} \nequiv_{≻} \t{vρ}$.
 \begin{itemize}
-\item If there is $λ$-variable $y ∈ \cal{V}_ι$ such that $v = y$ and $y ≠ x$
-      then we consider the substitution $ρ = \subs("[x≔Cm[{}]][y≔Cn[{}]]")$
-      where $m$, $n ∈ \bbN$ are two distinct natural numbers. We have
-      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{Cn[{}]} = \t{yρ}$
-      according to \thmRef("consnequiv").
-\item If there is a $λ$-variable $y ∈ \cal{V}_ι$ and a term $t∈Λ$ such that
-      $v = \v{λy t}$ then we consider $ρ=\subs("[x≔{}]")$. We have
-      $\t{xρ} = \t{{}} \nequiv_{≻} \t{λy tρ}$ according to
-      \thmRef("nequivlamreco").
-\item If there is a natural number $m ∈ \bbN$ and a value $w ∈ Λ_ι$ such
-      that $v = \v{Cm[w]}$ then we consider $ρ=\subs("[x≔{}]")$. We have
-      $\t{xρ} = \t{{}} \nequiv_{≻} \t{Cm[vρ]}$ according to
-      \thmRef("consneqrec").
+\item If such that $v = y ∈ \cal{V}_ι$ with $y ≠ x$ then we take
+      $ρ = \subs("[x≔Cm[{}]][y≔Cn[{}]]")$ with $m$, $n∈\bbN$ two
+      distinct natural numbers. In this case we obtain
+      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{Cn[{}]} = \t{yρ}$ with
+      \theorem("consnequiv")
+\item If $v = \v{λy t}$ with $y ∈ \cal{V}_ι$ and $t∈Λ$ then we
+      take $ρ=\subs("[x≔{}]")$ and \thmRef("nequivlamreco") gives us
+      $\t{xρ} = \t{{}} \nequiv_{≻} \t{λy tρ}$.
+\item If $v = \v{Cm[w]}$ with $m ∈ \bbN$ and $w ∈ Λ_ι$ then we take
+      $ρ=\subs("[x≔{}]")$ and we obtain
+      $\t{xρ} = \t{{}} \nequiv_{≻} \t{Cm[vρ]}$ using \thmRef("consneqrec").
 \item If there is a set of indices $I$ such that $v_i ∈ Λ_ι$ for all $i∈I$
       and $v = \v{{(li = vi) i∈I}}$ then we consider the substitution
-      $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We have
-      $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{{(li = viρ) i∈I}}$
-      according to \thmRef("consneqrec").
+      $ρ=\subs("[x≔Cm[{}]]")$ where $m ∈ \bbN$ is a natural number. We
+      can then obtain $\t{xρ} = \t{Cm[{}]} \nequiv_{≻} \t{{(li = viρ) i∈I}}$
+      with \thmRef("consneqrec").
 \item If $v = \v{□}$ then we consider the substitution $ρ=\subs("[x≔{}]")$.
       We can then use \thmRef("nequivrecobox") to show that
       $\t{xρ} = \t{{}} \nequiv_{≻} \t{□}$.
