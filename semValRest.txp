@@ -132,6 +132,10 @@ let derived_rules () =
 
 => A model for a semantical value restriction \label("semValRest")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this chapter, we consider the encoding of dependent types (i.e., a form
 of typed quantification) into our system. However, the expressiveness of
 such constructs is considerably limited by value restriction. To solve

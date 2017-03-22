@@ -198,6 +198,10 @@ let typrules () =
 
 => Types and realisability semantics \label("typeSystem")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this chapter, we present a new type system which distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
 of equational properties over programs, which can then be proved using
@@ -451,6 +455,8 @@ traverse the structure of values, terms and stacks to save the sort of the
 free variables in the context. Note that the first rule on the sixth line is
 also used for value, term and stack variables.
 
+\Caml(let _ = sortrules ())\linesAfter(1)
+
 As an example $\f{λx x ⇒ {}}$ is not well-formed as the type at the left
 of the arrow does not have sort $ο$ (it has sort $ι$ or $τ$). However,
 $\f{(X ↦ [C₀:{} | C₁ : X])([C₂:{} | C₃:{}])}$ is a well-formed type of
@@ -474,8 +480,6 @@ $$
     }
   }
 $$
-
-\Caml(let _ = sortrules ())\linesAfter(1)
 
 As types contain the $λ$-calculus, we need to consider their reduction and
 normalisation. First we define the notion of $β$-reduction in a type.

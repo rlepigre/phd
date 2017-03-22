@@ -28,6 +28,10 @@
 
 => Implementation and examples \label("implem")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this last chapter, we consider examples of programs and proofs that can be
 written and manipulated using our prototype implementation. This restricted
 set of examples is not intended to give an exhaustive view of our language.
@@ -58,19 +62,20 @@ an expression simply amounts to giving a name to some higher-order term
 of our language (i.e., to an element of $\cal{F}$ of an arbitrary sort).
 Examples of such definitions are given bellow.
 ### PML "examples/syntax.pml"
-def delta : ι         = λx.x x
-def app<t:τ, u:τ> : τ = t u
-def omega : τ         = app<delta, delta>
-def neg<a:ο> : ο      = a ⇒ ∀x:ο, x
+def delta : ι          = λx.x x
+def rapp<t:τ, u:τ> : τ = u t
+def omega : τ          = rapp<delta, delta>
+def neg<a:ο> : ο       = a ⇒ ∀x:ο, x
 ###
 Note that higher-order definitions can have arguments, which are given in
 angle brackets. Sort annotations are given for the arguments as well as
 for the global (fully applied) expression. For example, the expression
-##app## given above has the sort ##τ→τ→τ##, and to be used as an element
-of sort ##τ## it needs to be provided with two arguments of sort ##τ##
-as in the definition of ##omega##. Of course, any term of sort ##ι## also
-has sort ##τ## and the sort of expression can be inferred most of the
-time (i.e., it does not always have to be provided by the user).
+##rapp## (reversed application) given above has the sort ##τ→τ→τ##, and
+to be used as an element of sort ##τ## it needs to be provided with two
+arguments of sort ##τ## as in the definition of ##omega##. Of course, any
+term of sort ##ι## also has sort ##τ## and the sort of expression can be
+inferred most of the time (i.e., it does not always have to be provided
+by the user).
 
 As it is very common to define types (i.e., expressions of sort ##ο##), a
 specific syntax is provided to do so. However, it is completely equivalent

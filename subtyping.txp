@@ -340,6 +340,10 @@ let ordering_rules () =
 
 => Introducing subtyping into the system \label("subtyping")
 
+\begin{center}
+\linesBefore(10)
+\end{center}
+(* *)
 In this chapter, we reformulate the definition of our system to account for
 subtyping. The main idea is to transform the typing rules that do not have
 algorithmic contents into subtyping rules. For instance, quantifiers,
