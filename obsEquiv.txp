@@ -282,12 +282,11 @@ conditions.
 \item Given $t$, $u∈Λ$, if for every stack $π∈Π$ there is a process
       $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
       then $t ≡ u$.
-\item Given $t₁$, $t₂∈Λ$ with $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$, if there is $u∈Λ$
-      such that for all $v∈Λ_ι$ and $π∈Π$ we have
-      $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
-      $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$,
-      and if $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some $v₁$, $v₂∈Λ_ι$,
-      then we have $v₁ ≡ v₂$.
+\item Let $t₁$, $t₂$ be arbitrary terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$.
+      If there is $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+      $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$, then
+      $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ implies $v₁ ≡ v₂$ for all $v₁$,
+      $v₂∈Λ_ι$.
 \end{itemize}
 \end{def}
 Note that the second and third conditions require the equivalence to
@@ -694,6 +693,7 @@ Let $x ∈ \cal{V}_ι$ be a $λ$-variable, $t ∈ Λ$ be a term.
 We have $\t{λx t} \nequiv \t{□}$.
 \begin{proof}
 We proceed exactly as for \thmRef("nequivlamreco"), using the same stack.
+(* TODO check *)
 \end{proof}
 \end{thm}
 \begin{thm}\label("nequivrecobox")
@@ -712,12 +712,10 @@ variants are not equivalent. We will here need to rely on the third
 property of compatible equivalences, that is recalled bellow as a
 lemma.
 \begin{lem}\label("compatprop3")
-Let $t₁$, $t₂∈Λ$ be terms with $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$. If there
-is $u∈Λ$ such that for all $v∈Λ_ι$ and $π∈Π$ we have
-$\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
-$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$, and if
-$\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some $v₁$, $v₂∈Λ_ι$,
-then we have $v₁ ≡ v₂$.
+Let $t₁$, $t₂$ be two arbitrary terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$.
+If there is $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$, then
+$\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ implies $v₁ ≡ v₂$ for all $v₁$, $v₂∈Λ_ι$.
 \begin{proof}
 By definition of a compatible equivalence.
 \end{proof}
