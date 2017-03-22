@@ -219,20 +219,21 @@ Note that here, the equivalence symbol is part of the syntax and does not
 refer to a specific equivalence relation.
 (* *)
 An equivalence relation $({≡})$ will however be used for the semantical
-interpretation of equality types. We will require that it is extensional
-and compatible with $({≡}_{≻})$, but it will remain otherwise unspecified.
+interpretation of equality types. We will require that it is a congruence
+(\definition("defcongruence")) and compatible with $({≡}_{≻})$
+(\definition("defcompat")), but it will remain otherwise unspecified.
 In other words, it will be considered as a parameter of our type system
 and semantics.
 
 Intuitively, an equality type $\f{t≡u}$ will be interpreted as $⊤$
 (i.e., logical truth or the biggest type) if the equivalence $t ≡ u$ holds,
-and as $⊥$ (i.e., logical absurdity or the empty type) otherwise. For
-example, the type $\f{(λx x) λx x ≡ λx x}$ will be inhabited as we have
-$\t{(λx x) λx x} ≡ \t{λx x}$ according to \thmRef("cbvbeta"). However,
-the type $\f{λx x ≡ {}}$ will be empty as $\t{λx x} \nequiv \t{{}}$
-according to \thmRef("nequivlamreco"). Of course, a compatible equivalence
-relation is likely to be undecidable. Indeed, such equivalence relations
-are similar to $({≡}_{≻})$, which is itself undecidable.
+and as $⊥$ (i.e., logical absurdity or the smallest type) otherwise. For
+example, the type $\f{(λx x) λx x ≡ λx x}$ will be equivalent to $⊤$ as we
+have $\t{(λx x) λx x} ≡ \t{λx x}$ according to \thmRef("cbvbeta"). However,
+the type $\f{λx x ≡ {}}$ will be equivalent to $⊥$ as $\t{λx x} \nequiv
+\t{{}}$ according to \thmRef("nequivlamreco"). Of course, a compatible
+equivalence relation is likely to be undecidable. Indeed, such equivalence
+relations are similar to $({≡}_{≻})$, which is itself undecidable.
 \begin{thm}
 Given $t$, $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
 $t \nequiv_{≻} u$.
@@ -275,10 +276,11 @@ contexts we will represented using lists generated using the following
 During the construction of a proof, the equational context grows with new
 hypotheses and equivalences need to be proved eventually. As mentioned
 previously, we rely on a partial decision procedure that is supposed
-correct, but remains otherwise unspecified. The implementation of such a
-decision procedure is discussed in \chapter("implem"). Although we cannot
-hope for completeness, we will argue that our implementation is a good
-enough approximation in practice.
+correct, but remains otherwise unspecified. Such a decision procedure
+has been successfully implemented to work with our prototype language
+(\website("http://lepigre.fr/these/")). Although we cannot hope for
+completeness, we will argue that it is a good enough approximation of
+our equivalent relation in practice.
 \begin{def}
 Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
 //realises// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
@@ -305,10 +307,10 @@ variables), term variables and $μ$-variables (i.e., stack variables). As open
 terms may appear in types, and in particular in equality types, it is natural
 to allow universal and existential quantification over all three sorts of
 variables. This will enables the specification of properties such as
-$\f{∀y (λx x) y ≡ y}$ or $\f{∀x ∀y x ≡ y ⇒ C[x] ≡ C[y]}$ inside the
+$\f{∀y (λx x) y ≡ y}$ or $\f{∀x ∀y x ≡ y ⇒ Ck[x] ≡ Ck[y]}$ inside the
 system.
 \begin{rem}
-The forms of quantification described here range over all (closed) value,
+The forms of quantification described here range over all (closed) values,
 terms or stacks regardless of their types.
 \end{rem}
 \begin{rem}

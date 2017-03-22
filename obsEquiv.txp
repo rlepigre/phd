@@ -247,7 +247,7 @@ The purpose of the theorems given in the previous section was to show
 that $({≡}_{≻})$ is a form of congruence. This property will be
 essential to the construction of our realisability model and semantics
 in the following chapter.
-\begin{def}
+\begin{def}\label("defcongruence")
 An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be a congruence if
 it satisfies the following conditions.
 \begin{itemize}
@@ -275,7 +275,7 @@ congruence and that it is compatible with $({≡}_{≻})$ in some sense. Of
 course, this property will hold for $({≡}_{≻})$ itself, but we will
 eventually need to use a different, compatible equivalence relation
 starting from \chapter("semValRest").
-\begin{def}
+\begin{def}\label("defcompat")
 An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be compatible with
 $({≡}_{≻})$, or (simply) compatible, if it satisfies the following
 conditions.
