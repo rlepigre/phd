@@ -458,7 +458,7 @@ traverse the structure of values, terms and stacks to save the sort of the
 free variables in the context. Note that the first rule on the sixth line is
 also used for value, term and stack variables.
 
-\Caml(let _ = sortrules ())\linesAfter(1)
+\Caml(let _ = sortrules ())
 
 As an example $\f{λx x ⇒ {}}$ is not well-formed as the type at the left
 of the arrow does not have sort $ο$ (it has sort $ι$ or $τ$). However,
@@ -500,10 +500,9 @@ such that:
 We denote $({\inj}^{∗})$ its reflexive and transitive closure.
 \end{def}
 \begin{rem}
-The reduction relation $({\inj})$ should not be confused with the
+The $({\inj})$ relation should not be confused with the
 call-by-value reduction relation of our abstract machine. In
-particular, it cannot be used to evaluate terms in the sense of
-our abstract machine.
+particular, it cannot be used to evaluate terms.
 \end{rem}
 
 \begin{thm}
@@ -541,8 +540,7 @@ To be able to assign types to terms containing free variables we will need
 our typing judgments to carry a form of context. It will provide us with a
 way of assuming a type for each of the free variables of the typed term.
 They will include $λ$-variable and $μ$-variable but no term variables.
-Indeed, term variables will not be allowed in the terms considered in
-typing judgments.
+\Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{def}
 A //typing context// is a finite map $Γ$ over $\cal{V}_ι ∪ \cal{V}_σ$ such
 that $Γ(x) ∈ \cal{F}$ for all $x ∈ dom(Γ) ∩ \cal{V}_ι$ and $Γ(α) ∈ \cal{F}$
@@ -589,11 +587,11 @@ only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$.
 \end{def}
 
 We can now give the typing rules of our system, which will involve
-both value and term judgments. Moreover, some of our rules have a
-premise of the form $Ξ ⊢ t ≡ u$. They can only be applied if our
-(yet unspecified) equivalence decision procedure is successful in
-proving that $t$ is equivalent to $u$ in the equational context
-$Ξ$ (see the first section of this chapter).
+both value and term judgments. Moreover, rules having a premise of
+the form $Ξ ⊢ t ≡ u$ can only be applied if our (yet unspecified)
+equivalence decision procedure is able to show that $t$ is equivalent
+to $u$ in the equational context $Ξ$ (see the first section of this
+chapter).
 \begin{def}
 A value or term judgment is said to be valid if it can be derived using the
 typing rules of \figRef("typerules").
@@ -665,7 +663,6 @@ $$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p{v ∗ π} ∈ \dbot\} $$
 For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows.
 $$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p{t ∗ π} ∈ \dbot\} $$
 \end{def}
-\Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{rem}
 In the usual presentation of Krivine's classical realisability, the
 interpretation of types can contain open values, terms and stacks.
@@ -843,16 +840,17 @@ let _ =
   [ line "Φ"               <$ Φ $>
   ; line "(χ^s ↦ A)"       <$ Φ ↦ \vs{A[χ≔Φ]} $>
   ; line "A(B)"            <$ ⟦A⟧(⟦B⟧) $>
-  ; line "A ⇒ B"           <$ \{\v{λx t} \| ∀v∈\vs{A},
+  ; line "A ⇒ B"           <$ \{\v{λx t} \| ∀v∈{\vs{A} ∖ \{\v{□}\}},
                                  \t{t[x≔v]} ∈ \ts{B}\} ∪ \{\v{□}\} $>
   ; line "t ∈ A"           <$ \{\v{v} ∈ \vs{A} \|
                                  \v{v} ≡ \t{t}\} ∪ \{\v{□}\} $>
   ; line "A ∧ t ≡ u"       <$ \{\v{v} ∈ \vs{A} \|
                                  \t{t} ≡ \t{u}\} ∪ \{\v{□}\} $>
+                                 (* FIXME deux cas *)
   ; line "{(li : Ai) i∈I}" <$ \{\v{{(li = vi) i∈I}} \| ∀i∈I,
-                                 \v{vi}∈\vs{Ai}\} ∪ \{\v{□}\} $>
-  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v{Ci[v]} \| v∈\vs{Ai}\}
-                                 ∪ \{\v{□}\} $>
+                                 \v{vi}∈{\vs{Ai} ∖ \{\v{□}\}}\} ∪ \{\v{□}\} $>
+  ; line "[(Ci : Ai) i∈I]" <$ \bigcup_{i∈I} \{\v{Ci[v]} \|
+                                 v∈{\vs{Ai} ∖ \{\v{□}\}}\} ∪ \{\v{□}\} $>
   ; line "∀χ^s A"          <$ \biginter_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $>
   ; line "∃χ^s A"          <$ \bigcup_{Φ∈⟦s⟧} \vs{A[χ≔Φ]} $> ]
 )
@@ -887,13 +885,19 @@ proof of each case.
   consequence, we only have to consider values that are equivalent to
   a $λ$-abstraction of $\vs{Aρ⇒Bρ}$. Let us take $\v{λx t} ∈ \vs{Aρ⇒Bρ}$
   and a value $w ∈ Λ_ι^{∗}$ such that $\v{λx t} ≡ \v{w}$. According to
-  \thmRef("canonlambda") we have $w = \v{λx u}$ for some $u ∈ Λ$ (up to
-  renaming of variable $x$) and $t ≡ u$. To prove $\v{λx u} ∈ \vs{Aρ⇒Bρ}$
-  we take $v ∈ \vs{Aρ}$ and show $\t{u[x≔v]} ∈ \ts{Bρ}$. Since $\v{λxt} ∈
-  \vs{Aρ⇒Bρ}$ we know that we have $\t{t[x≔v]} ∈ \ts{Bρ}$. We can thus
-  conclude with \thmRef("poleext") as $({≡})$ is congruence.
+  \thmRef("canonlambda") we have $w = \v{λy u}$ for some $y ∈ \cal{V}_ι$
+  and $u ∈ Λ$. To show that $\v{λy u} ∈ \vs{Aρ ⇒ Bρ}$ we take a value
+  $v ∈ \vs{Aρ} ∖ \{\v{□}\}$ and we show $\t{u[y≔v]} ∈ \ts{Bρ}$. Since
+  $\v{λx t} ∈ \vs{Aρ ⇒ Bρ}$ we know that $\t{t[x≔v]} ∈ \ts{Bρ}$ and
+  thus it is enough to show $\t{u[y≔v]} ≡ \t{t[x≔v]}$ according to
+  \thmRef("poleext"). Now, since $\v{λx t} ≡ \v{λy u}$ and $({≡})$ is a
+  congruence (\definition("defcongruence")) we have
+  $\t{(λx t) v} ≡ \t{(λy u) v}$. Moreover, since $({≡})$ is a compatible
+  equivalence relation (\definition("defcompat")) then we can use
+  \lemma("cbvbeta") to obtain $\t{(λx t) v} ≡ \t{t[x≔v]}$ and
+  $\t{(λy u) v} ≡ \t{u[y≔v]}$ since we know that $v ≠ \v{□}$ and $v$ is
+  closed. We can thus conclude using the transitivity of $({≡})$.
 
-  \linesBefore(1) (* FIXME hack *)
   \begin{center}
     $ \binaryR{Σ ⊢ A : ο}{Σ ⊢ B : ο}{Σ ⊢ \f{A ⇒ B} : ο} $
   \end{center}
@@ -908,8 +912,8 @@ proof of each case.
   records. Let us take $\v{{(li=vi)i∈I}} ∈ Φ$ and a value $w ∈ Λ_ι^{∗}$ such
   that $\v{{(li=vi)i∈I}} ≡ w$ and show that $w ∈ Φ$. According to
   \thmRef("canonrecord"), $w$ must be of the form $\v{{(li=wi)i∈I}}$ with
-  $\v{vi} ≡ \v{wi}$ for all $i∈I$. We can thus conclude since we know that
-  $\vs{Aiρ}$ is closed under $({≡})$.
+  $\v{vi} ≡ \v{wi}$ for all $i∈I$. We can thus conclude since $\vs{Aiρ}$
+  is closed under $({≡})$.
 
   \begin{center}
     $ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li : Ai) i∈I}} : ο} $
@@ -922,9 +926,8 @@ proof of each case.
   show that all of its components are themselves closed under $({≡})$.
   In particular, it is the case for $\{\v{□}\}$ according to
   \theorem("canonbox"). Let us now take $i∈I$ and show that
-  $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\}$ is closed under $({≡})$. This is an
-  immediate consequence of \thmRef("canoncons") since $\vs{Aiρ}$ is
-  closed under $({≡})$.
+  $\{\v{Ci[v]} \| v ∈ \vs{Aiρ}\}$ is closed under $({≡})$. This follows
+  from \thmRef("canoncons") since $\vs{Aiρ}$ is closed under $({≡})$.
 
   \begin{center}
     $ \unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{[(Ci : Ai) i∈I]} : ο} $
