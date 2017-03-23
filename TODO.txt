@@ -9,3 +9,4 @@ Final checks:
 - Pierce ≔ Peirce
 - "e.i. " ≔ "e.i., "
 - "realiZability" → "realisability" (+ other American stuff)
+- Minimiser les "⋯ to show that we have ⋯"
