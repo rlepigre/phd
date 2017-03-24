@@ -70,8 +70,8 @@ let r_exists_i =
    {Σ \sp Γ;Ξ ⊢ \t{t} : \f{∃χ^s A}}$>
 
 let r_exists_e =
-  <$\binaryRN{∃_e}{Σ, x:ι \sp Γ,x:\f{A[χ≔B]};Ξ ⊢ \t{t} : \f{C}}
-   {Σ ⊢ B : s}{Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
+  <$\unaryRN{∃_e}{Σ, x:ι, χ:s \sp Γ,x:\f{A};Ξ ⊢ \t{t} : \f{C}}
+   {Σ, x:ι \sp Γ,x:\f{∃χ^s A};Ξ ⊢ \t{t} : \f{C}}$>
 
 let r_memb_i =
   <$\binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : A}{Ξ⊢t≡v}
@@ -1104,10 +1104,10 @@ there is a blocked process $q∈Λ×Π$ such that $p ≻^{∗} q$ and either
       $\v{v[a≔t]} \nequiv_j \v{w[a≔t]}$ for some $j < k$.
 \end{itemize}
 \begin{proof}
-If $p$ is non-terminating then $\p{p[a≔t]}$ is also non-terminating
-according to \lemRef("redstable"). As this contradicts the fact that
-${\p{p[a≔t]}} {⇓}_k$, there must be a blocked process $q∈Λ×Π$ such
-that $p ≻^{∗} q$ since $({≻}) ⊆ ({↠}_k)$. Using \thmRef("redcompatall"),
+If $p$ is non-terminating then so is $\p{p[a≔t]}$ according to
+\lemRef("redstable"). Since $({≻}) ⊆ ({↠}_k)$ this contradicts
+${\p{p[a≔t]}} {⇓}_k$ and thus there must be a blocked process
+$q∈Λ×Π$ such that $p ≻^{∗} q$. Using \thmRef("redcompatall")
 we obtain $\p{p[a≔t]} ≻^{∗} \p{q[a≔t]}$, which tells us that
 ${\p{q[a≔t]}} {⇓}_k$. This means that $q$ cannot be stuck, as
 otherwise $q[a≔t]$ would also be stuck by \lemRef("redstable") and
@@ -1118,8 +1118,8 @@ and $π∈Π$. Since ${\p{δ(vρ,wρ)∗π}} {⇓}_k$ there must be $j < k$
 (and thus $k≠0$) such that $\v{vρ} \nequiv_j \v{wρ}$, otherwise
 we would obtain a contradiction.
 (* *)
-According to \lemRef("possibilities"), it remains to rule out the
-possibility of $q$ having one of the following forms, where $b≠a$.
+According to \lemRef("possibilities") it remains to rule the
+following forms for $q$, where $b≠a$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
@@ -1144,15 +1144,16 @@ Let $u₁$, $u₂$, $t∈Λ$ be three terms and $a∈\cal{V}_τ$ be a term
 variable. For all $k ∈ \bbN$, if $\t{u₁} ≡_k \t{u₂}$ then
 $\t{t[a≔u₁]} ≡_k \t{t[a≔u₂]}$.
 \begin{proof}
-We take $k ∈ \bbN$, suppose that $\t{u₁} ≡_k \t{u₂}$ and show that
-$\t{t[a≔u₁]} ≡_k \t{t[a≔u₂]}$. By definition, we need to take $π∈Π$
-and $ρ∈\cal{S}$, and show the following.
+We do a proof by induction on $k$. If $k = 0$ then this property
+exactly corresponds to \theorem("base_extterm"). Let us now take
+$k > 0$, suppose $\t{u₁} ≡_k \t{u₂}$ and show $\t{t[a≔u₁]} ≡_k
+\t{t[a≔u₂]}$. By definition, we need to take $π∈Π$, $ρ∈\cal{S}$
+and show the following.
 $$ {{\p{(t[a≔u₁])ρ∗π}} {⇓}_k} ⇔ {{\p{(t[a≔u₂])ρ∗π}} {⇓}_k} $$
-As we are free to rename the variable $a$, we may assume
-$\t{(t[a≔u₁])ρ} = \t{tρ[a≔u₁ρ]}$,
-$\t{(t[a≔u₂])ρ} = \t{tρ[a≔u₂ρ]}$ and $a∉FV_σ(π)$.
-By symmetry, we can thus assume that we have ${\p{tρ[a≔u₁ρ]∗π}} {⇓}_k$
-and show ${\p{tρ[a≔u₂ρ]∗π}} {⇓}_k$.
+Since $a$ is bound we are free to rename it so we may assume
+$\t{(t[a≔u₁])ρ} = \t{tρ[a≔u₁ρ]}$, $\t{(t[a≔u₂])ρ} = \t{tρ[a≔u₂ρ]}$
+and $a∉FV_τ(π) ∪ FV_τ(t₁) ∪ FV_τ(t₂)$. By symmetry, we can thus
+suppose ${\p{tρ[a≔u₁ρ]∗π}} {⇓}_k$ and show ${\p{tρ[a≔u₂ρ]∗π}} {⇓}_k$.
 
 We will now build a sequence $(t_i,π_i,l_i)_{i ∈ I}$ defined in such
 a way that for all $i∈I$ we have
@@ -1165,10 +1166,6 @@ As a consequence, our sequence has a finite number $n+1$ of elements
 (for some $n∈\bbN$), and we can denote it $(t_i,π_i,l_i)_{i ≤ n}$.
 To show that $(l_i)_{i ≤ n}$ has a strictly increasing subsequence,
 we will ensure that it does not have three equal consecutive values.
-(*
-More formally, if $0 < i < n$ and $l_{i-1} = l_i$ then we will ask
-that $l_{i+1} > l_i$.
-*)
 
 To define $(t₀,π₀,l₀)$ we consider the reduction of the process
 $\p{tρ∗π}$. Since we have
@@ -1182,7 +1179,7 @@ $\p{(tρ∗π)[a≔u₁ρ]} ↠_k^{∗} \p{t₀[a≔u₁ρ]∗π₀[a≔u₁ρ]}
 in $l₀ = j$ steps.
 
 To define $(t_{i+1},π_{i+1},l_{i+1})$ we consider the process
-$\p{ti[a≔u₁ρ]∗πi}$. By construction we know that
+$\p{ti∗πi}$. By construction we know that
 $\p{tρ[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in $l_i$ steps.
 According to \lemRef("aposs"), $\p{ti∗πi}$ can only be of three
 different shapes.
@@ -1190,8 +1187,8 @@ different shapes.
 \item If $\p{ti∗πi} = \p{v∗ε}$ for some $v∈Λ_ι$ then the
       sequence ends with $n = i$.
 \item If $\t{ti} = a$ then we consider the process $\p{ti[a≔u₁ρ]∗πi}$.
-      By construction we know ${\p{(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]}} {⇓}_k$, and
-      thus \lemRef("aposs") gives us a blocked process $p$ such that
+      By construction we know ${\p{(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]}} {⇓}_k$ and
+      \lemRef("aposs") gives us a blocked process $p$ such that
       $\p{ti[a≔u₁ρ]∗πi} ≻^j p$. By \thmRef("redcompatall")
       $\p{(ti[a≔u₁ρ]∗πi)[a≔u₁ρ]} ≻^j \p{p[a≔u₁ρ]}$, and hence
       $\p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k^{∗} \p{p[a≔u₁ρ]}$ in $j$ steps.
@@ -1211,12 +1208,13 @@ different shapes.
       we have $\p{ti[a≔u₁ρ]∗πi} = \p{δ(v[a≔u₁ρ],w[a≔u₁ρ])∗πi} ↠_k
       \p{v[a≔u₁ρ]∗πi}$ by definition. Moreover,
       $\p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]} ↠_k \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$
-      by (an extension of) \thmRef("redcompatall"). Since
+      by definition of $({↠}_k)$. Since
       $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{ti[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in $l_i$ steps
       we get that $\p{t[a≔u₁ρ]∗π} ↠_k^{∗} \p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}$ in
       $l_i+1$ steps, and hence we have
       $\p{(v[a≔u₁ρ]∗πi)[a≔u₁ρ]} = {\p{v[a≔u₁ρ]∗πi[a≔u₁ρ]}} {⇓}_k$.
 
+      (* FIXME probably useless (two steps in one) *)
       We now consider the reduction of the process $\p{v[a≔u₁ρ]∗πi}$.
       According to \lemRef("aposs") there is a blocked process $p$ such
       that $\p{v[a≔u₁ρ]∗πi} ≻^j p$. Using \thmRef("redcompatall") we
@@ -1290,15 +1288,12 @@ Combination of \thmRef("fullsubstequiv"), \thmRef("fullextval") and
 \end{thm}
 
 Now that we have proved $({≡})$ to be a congruence, it remains to show that
-it is compatible with $({≡}_{≻})$. To do so, we first need to show that we
-$({≡})$ contains $({≡}_{≻})$
+it is compatible with $({≡}_{≻})$. Intuitively, this will provide us with
+sufficient conditions for proving equivalences based on \chapter("obsEquiv").
 \begin{thm}\label("fullcompat1")
-For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$ (i.e.,
-$({≡}) ⊆ ({≡}_{≻})$).
+For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$.
 \begin{proof}
-Let us suppose that $t ≡ u$. By definition, this means that $t ≡_i u$ for
-all $i ∈ \bbN$. In particular we have $t ≡₀ u$. We can thus conclude since
-$({≡}₀) = ({≡}_{≻})$.
+Immediate by definition.
 \end{proof}
 \end{thm}
 
@@ -1362,8 +1357,9 @@ we can now extend our type system with the typing rule that we aimed for.
 \begin{center}
 $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
 \end{center}
-We can thus extend the adequacy lemma (\thmRef("stack_adequacy")), provided
-that our pole $\dbot$ satisfies the properties given in \thmRef("main").
+We can thus extend the adequacy lemma provided that our pole $\dbot$
+contains only terminating processes and that $\p{□∗ε} ∈ \dbot$ (i.e.,
+requirements of \thmRef("main")).
 \begin{thm}\label("full_adequacy")
 Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
 context and $A ∈ \cal{F}$ be a type. Let $ρ$ be a valuation over $Σ$ such
@@ -1371,17 +1367,26 @@ that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 \begin{itemize}
 \item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t{tρ} ∈ \ts{Aρ}$.
 \item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s{πρ} ∈ \ss{Aρ}$.
-\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then
+      $\v{vρ} ∈ {\vs{Aρ} ∖ \{\v{□}\}}$.
 \end{itemize}
 \begin{proof}
-As for \thmRef("adequacy") (and \thmRef("stack_adequacy")), the proof is
+As for \theorems(["adequacy" ; "stack_adequacy"]), the proof is
 done by induction of the derivation of the typing judgments. For all the
 rules of \figRef("typerules") and the rules for typing stacks given in
 \thmRef("stack_adequacy") the proof does not change. We only have to be
-concerned with our new ($↓$) rule. We need to show $\v{vρ} ∈ \vs{Aρ}$,
-knowing that $\v{vρ} ∈ \ts{Aρ}$ by induction hypothesis. We can thus
-conclude since we know that every value of $\ts{Aρ}$ is also in
-$\vs{Aρ}$ thanks to \thmRef("main").
+concerned with our new ($↓$) rule. We need to show $\v{vρ} ∈ {\vs{Aρ} ∖
+\{\v{□}\}}$, knowing that $\v{vρ} ∈ \ts{Aρ}$ by induction hypothesis.
+According to \theorem("main"), every value of $\ts{Aρ}$ is also in
+$\vs{Aρ}$. As a consequence, it only remains to show $\v{vρ} ≠ \v{□}$.
+In the case where $v$ is a $λ$-abstraction, a variant or a record this
+is immediate. If $v = x ∈ \cal{V}_ι$ then this is also immediate since
+by definition $\v{ρ(x)} ≠ \v{□}$ for all $x ∈ dom(ρ)$. Finally, it cannot
+be that $v = \v{□}$ since it cannot be introduced by any of our typing
+rules. In particular, it cannot be brought into focus by rules handling
+equivalence as this would require replacing a term or a value that was
+equivalent to $\v{□}$. However, $\v{□}$ is only equivalent to itself
+according to \theorem("canonbox").
 \end{proof}
 \end{thm}
 
@@ -1437,8 +1442,9 @@ let p =
 $\id(p)$
 \end{center}
 \end{proofTree}
+\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 
-The full set of our new rule is displayed in \figRef("derivedrules").
+The full set of our new rules is displayed in \figRef("derivedrules").
 Note that some rules, like ($⇒_e$) for example, remain unchanged.
 All the modified rules but ($∀_{i,τ}$) and ($∈_{i,τ}$) can be
 derived immediately as demonstrated above. The rules ($∀_{i,τ}$) and
@@ -1462,12 +1468,22 @@ let p =
 $\id(p)$
 \end{center}
 \end{proofTree}
-\Caml(let _ = derived_rules ()) (* NOTE can be moved. *)
 
 With our new set of typing rules, it is very easy to derive introduction
 and elimination rules for the dependent product type. Using the ($∈_{i,τ}$)
 rule, semantical value restriction is immediately propagated to the
 elimination rules of the dependent product type.
+\begin{center}
+$ \unaryRN{Π_ι}{Σ,x:ι \sp Γ,x:\f{x∈A};Ξ ⊢ t : \f{B[a≔x]}}
+    {Σ \sp Γ;Ξ ⊢ \t{λx t} : \f{Π_(a∈A) B}} $
+\end{center}
+\linesAfter(2)
+
+\begin{center}
+$ \ternaryRN{Π_e}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{Π_(a∈A) B}}
+    {Σ \sp Γ;Ξ ⊢ \t{u} : \f{A}}{Ξ ⊢ u ≡ v}
+    {Σ \sp Γ;Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
+\end{center}
 \begin{proofTree}
 \Caml(
 let p =
@@ -1481,16 +1497,20 @@ let p =
   unary  ~name:<$⇒_i$> <$Σ, a:τ \sp Γ;Ξ ⊢ \t{λx t} : \f{a∈A ⇒ B}$>;
   ax     ~name:<$⊤$>   <$Ξ ⊢ \t{λx t} ≡ \v{λx t}$>;
   binary ~name:<$∀_i$> <$Σ \sp Γ;Ξ ⊢ \t{λx t} : \f{∀a(a∈A ⇒ B)}$>;
+  unary  ~name:<$Def$> <$Σ \sp Γ;Ξ ⊢ \t{λx t} : \f{Π_(a∈A) B}$>;
   display_proof ()
 )
 \begin{center}
 $\id(p)$
 \end{center}
 \end{proofTree}
+\linesAfter(4)
+
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                  <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀a(a∈A ⇒ B)}$>;
+  hyp                  <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{Π_(a∈A) B}$>;
+  unary  ~name:<$Def$> <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{∀a(a∈A ⇒ B)}$>;
   unary  ~name:<$∀_e$> <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{u∈A ⇒ B[a≔u]}$>;
   hyp                  <$Σ \sp Γ;Ξ ⊢ \t{u} : \f{A}$>;
   hyp                  <$Ξ ⊢ u ≡ v$>;
@@ -1506,7 +1526,7 @@ $\id(p)$
 \begin{rem}
 Dually, it is possible to encode a form of dependent pair type using
 existential quantification and product types. As for the dependent
-function type, the membership predicate is used to bridge the world
+functions, the membership predicate is used to bridge the world
 of terms and the world of types.
 $$
   \f{Σ_(x∈A) B} ≔ \f{∃x {l₁:x∈A; l₂:B}}
@@ -1547,7 +1567,7 @@ $$ ({≡}_{↠}) = \{(t,u) \| ∀π∈Π, ∀ρ∈\cal{S},
      {{\p{tρ∗π}} {⇓}_{↠}} ⇔ {{\p{uρ∗π}} {⇓}_{↠}} \} $$
 \end{def}
 \begin{lem}
-The relation $({≡}_{↠}) ⊆ Λ×Λ$ is and equivalence relation.
+The relation $({≡}_{↠}) ⊆ Λ×Λ$ is an equivalence relation.
 \begin{proof}
 Immediate.
 \end{proof}
@@ -1571,9 +1591,11 @@ ${\p{uρ₀∗π₀}} {⇓}_{↠}$.
 \begin{rem}
 The converse implication is not true in general, that is we do not
 have $({≡}) ⊇ ({≡}_{↠})$. A counter-example is given by the terms
-$t = \t{δ(λx x, {})}$ and $u = \t{λx x}$. More generally, if
-$p ∈ Λ×Π$ is a process, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$ does not
-imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number $i ∈ \bbN$.
+$t = \t{δ(λx x, {})}$ and $u = \t{λx x}$ since $t ≡_{↠} u$ but
+$t \nequiv_{≻} u$ (and thus $t \nequiv u$). More generally, if
+$p$, $q ∈ Λ×Π$ are processes, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$
+does not imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number
+$i ∈ \bbN$.
 \end{rem}
 As shown by the \thmRef("eq_incl"), our $({≡})$ relation is more
 fine-grained (i.e., it discriminates more terms than $({≡}_{↠})$).
@@ -1590,6 +1612,27 @@ Indeed, $δ$-like terms are only provided in the system for obtaining
 a well-behaved semantics. In particular, we do not want to expose them
 to the users of our implementation. It is thus enough for $({≡})$ to
 be compatible with $({≡}_{≻})$.
+
+\begin{def}
+Allowing the user to work with and reason about terms containing $δ$-like
+terms would not be such a bad idea as it could allow the encoding of
+mathematical objects into pure $λ$-term. In particular, it would be
+interesting to investigate the possibility of using the following
+alternative reduction rules for $δ$-like processes.
+\Caml(
+  let _ =
+    let line p1 p2 c =
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $\id(c)$>>)
+    in
+    reduction_def <<$↠$>>
+      [ line  "δ(v,w) ∗ π" "C₀[{}] ∗ π" <$v \nequiv w$>
+      ; line  "δ(v,w) ∗ π" "C₁[{}] ∗ π" <$v ≡  w$> ]
+)
+They would allow the definition of non-computable functions in our
+language by giving complete access to our equivalence relation.
+This would allow, for example, the definition of functions like
+$\t{λx λy δ(x,y)}$ (i.e., a general equality function).
+\end{def}
 
 =<
 
