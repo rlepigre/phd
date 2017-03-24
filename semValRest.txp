@@ -18,6 +18,7 @@
 \Configure_math_macro{\s}{ syntax = string; }
 \Configure_math_macro{\p}{ syntax = string; }
 \Configure_math_macro{\f}{ syntax = string; }
+\Configure_math_macro{\subs}{ syntax = string; }
 \Configure_math_macro{\vs}{ syntax = string; }
 \Configure_math_macro{\ss}{ syntax = string; }
 \Configure_math_macro{\ts}{ syntax = string; }
@@ -1060,24 +1061,34 @@ substitution $ρ ∘ ρ₀$ and the stack $π₀$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("fullextval")
-Let $v$, $w∈Λ_ι$ be values, $t∈Λ$ be a term and $x∈\cal{V}_ι$ be a
-$λ$-variable. If $v ≡ w$ then we have $\t{t[x≔v]} ≡ \t{t[x≔w]}$.
+Let $v₁$, $v₂∈Λ_ι$ be values, $t∈Λ$ be a term and $x∈\cal{V}_ι$ be a
+$λ$-variable. If $v₁ ≡ v₂$ then we have $\t{t[x≔v₁]} ≡ \t{t[x≔v₂]}$.
 \begin{proof}
-We are going to prove the contrapositive so we suppose
-$\t{t[x≔v]} \nequiv \t{t[x≔w]}$ and show $v \nequiv w$.
-By definition there is $i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that
-${\p{(t[x≔v])ρ ∗ π}} {⇓}_i$ and ${\p{(t[x≔w])ρ ∗ π}} {⇑}_i$
-(up to symmetry). Since we are free to rename $x$, we may assume
-that we have $\p{(t[x≔v])ρ ∗ π} = \p{tρ[x≔vρ] ∗ π}$ and
-$\p{(t[x≔w])ρ ∗ π} = \p{tρ[x≔wρ] ∗ π}$. We thus suppose that
-${\p{tρ[x≔vρ] ∗ π}} {⇓}_i$ and that ${\p{tρ[x≔wρ] ∗ π}} {⇑}_i$.
-To show $v \nequiv w$ we need to find $i₀∈\bbN$, $π₀∈Π$ and
-$ρ₀∈\cal{S}$ such that ${\p{vρ₀ ∗ π}₀} {⇓}_{i₀}$ and
-${\p{wρ₀ ∗ π₀}} {⇑}_{i₀}$ (up to symmetry). We can take $i₀ = i$,
-$π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ as
-${\p{vρ₀ ∗ [λx tρ]π} ↠ \p{tρ[x≔vρ] ∗ π}}_i$ and
-${\p{wρ₀ ∗ [λx tρ]π} ↠ \p{tρ[x≔wρ] ∗ π}}_i$. By hypothesis,
-the first of these processes converges while the second diverges.
+We are going to prove the contrapositive so we suppose $\t{t[x≔v₁]}
+\nequiv \t{t[x≔v₂]}$ and we show $v₁ \nequiv v₂$. Let us first assume
+that neither $v₁$ nor $v₂$ is equal to $\v{□}$ or to a $λ$-variables.
+By definition, we know that there $i ∈ \bbN$, $π∈Π$ and $ρ∈\cal{S}$
+such that we have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_i$ and
+${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_i$ (up to symmetry). As $x$ is bound we
+can rename it so that $\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
+$\t{(t[x≔v₂])ρ} = \t{tρ[x≔v₂ρ]}$. To finish the proof, we need to find
+$i₀ ∈ \bbN$, $π₀∈Π$ and $ρ₀∈\cal{S}$ such that ${\p{v₁ρ₀ ∗ π₀}} {⇓}_{i₀}$
+and ${\p{v₂ρ₀ ∗ π₀}} {⇑}_{i₀}$ (up to symmetry). We can take $i₀ = i$,
+$π₀ = \s{[λx tρ]π}$ and $ρ₀ = ρ$ since by definition we have
+${\p{v₁ρ ∗ [λx tρ]π}} ↠_i^{∗} {\p{tρ[x≔v₁ρ] ∗ π}} {⇓}_i$ and
+${\p{v₂ρ ∗ [λx tρ]π}} ↠_i^{∗} {\p{tρ[x≔v₂ρ] ∗ π}} {⇑}_i$. Note that here,
+it is essential that $\v{v₁ρ}$ and $\v{v₂ρ}$ are not equal to $\v{□}$
+or to some $λ$-variable as otherwise the first reduction steps could not
+be taken.
+
+It remains to show that $v₁ \nequiv v₂$ in the cases where $v₁$,
+$v₂$ or both are equal to $\v{□}$ or a $λ$-variable. First, we can
+assume that $v₁ ≠ v₂$ as otherwise we would immediately get a
+contradiction with $\t{t[x≔v₁]} \nequiv \t{t[x≔v₂]}$ by reflexivity
+of $({≡})$. As a consequence, we cannot have $v₁ = v₂ = \v{□}$ or
+$v₁ = v₂ = x ∈ \cal{V}_ι$. Now, in all the other cases we must have
+$v₁ \nequiv_{≻} v₂$ according to \theorems(["canonbox" ; "varequiv"])
+so we get $v₁ \nequiv v₂$.
 \end{proof}
 \end{thm}
 
