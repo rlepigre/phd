@@ -444,6 +444,47 @@ let scissors : math list =
   )]
 
 (* PML verbatim environments. *)
+module OCamlVerbatim : sig
+    val verbs_MyOCaml : string option -> string list -> unit
+    val verbatim : string -> content list
+  end = struct
+    let pad = 2.0
+
+    let keywords =
+      [ "type" ; "val" ; "def" ; "fun" ; "if" ; "then" ; "else"
+      ; "let" ; "in" ; "rec" ; "match" ; "case" ; "with" ; "of"
+      ; "function" ]
+
+    let separators = ["("; ")"; "["; "]"]
+
+    let symbols  =
+      let simple_verb : string -> string * content =
+         fun s -> (s, Verbatim.symbol s)
+      in
+      [ simple_verb "→" ]
+
+    let verbs_MyOCaml fn lines =
+      let open Verbatim in
+      lines_to_file lines fn;
+      let params = {keywords ; separators ; symbols} in
+      let params' = {keywords=[] ; separators ; symbols} in
+      let build_line l =
+        hspace pad @
+        if String.length l > 2 && l.[0] = '(' && l.[1] = '*' then
+          let build_word = handle_word params' in
+          color Color.grey (handle_spaces params' build_word l)
+        else
+          let build_word = handle_word params in
+          handle_spaces params build_word l
+      in
+      line_per_line D.structure build_line lines
+  
+    let verbatim =
+      let open Verbatim in
+      verb_text (handle_word {keywords = []; separators; symbols})
+  end
+
+(* PML verbatim environments. *)
 module PMLVerbatim : sig
     val verbs_PML : string option -> string list -> unit
     val verbatim : string -> content list

@@ -1,7 +1,10 @@
+\Include{Macros}
+
 \Caml(
   open ProofTree
   open Diagrams
   open Lang
+  open OCamlVerbatim
 
   let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
 
@@ -13,7 +16,6 @@
   let wbox = <$\mathsize{3.}{\wbox}$>
   let bbox = <$\mathsize{3.}{\bbox}$>
 )
-\Include{Macros}
 
 \Configure_math_macro{\v}{ syntax = string; }
 \Configure_math_macro{\t}{ syntax = string; }
@@ -355,7 +357,7 @@ subtyping.
 There is no denying that polymorphism and type abstraction are essential
 features for programming in a generic way. They lead to programs that are
 shorter, more modular, easier to understand and hence more reliable.
-Although subtyping also provides similar perspectives, it is considerably
+Although subtyping provides similar perspectives, it is considerably
 less widespread among programming languages. Practical languages only rely
 on limited forms of subtyping for their module system \cite("MacQueen1984"),
 or for the use of polymorphic variants \cite("Garrigue1998"). Overall,
@@ -368,16 +370,14 @@ The downside of subtyping is that it is difficult to incorporate in
 complex systems like Haskell or OCaml. For example, OCaml
 provides polymorphic variants \cite("Garrigue1998") for which complex
 annotated types are inferred. For instance, one would expect the
-following OCaml function to be given the type ##[`T | `F] -> [`T | `F]##.
+following OCaml function to be given the type ##[`T | `F] → [`T | `F]##.
 ### OCaml
-  let neg = function
-    | `T -> `F
-    | `F -> `T
+  let neg = function `T → `F | `F → `T
 ###
 Indeed, the variance of the arrow type conveys enough information: ##neg##
 can be applied to elements of any subtype of ##[`T | `F]## (e.g. ##[`T]##)
 and produces elements of any supertype of ##[`T | `F]## (e.g.
-##[`T | `F | `M]##). OCaml infers the type ##[<`T | `F] -> [>`T | `F]##
+##[`T | `F | `M]##). OCaml infers the type ##[<`T | `F] → [>`T | `F]##
 in which subtypes and supertypes are explicitly tagged. This is not very
 natural and hides a complex mechanism involving polymorphic type variables.
 More discussion on the limitations of OCaml's polymorphic variants, can
@@ -408,7 +408,7 @@ of type $A$ can be chosen. We can then take $\v{εx∈A(x∉B)} ∈ A ⊂ B$ as
 a definition of $A ⊂ B$.
 \begin{rem}
 Of course, for the choice operator $\v{εx∈A(t∉B)}$ to be well-defined
-we will need the interpretation of every type to non-empty. It is the
+we will need the interpretation of every type to be non-empty. It is the
 case in \cite("Lepigre2017") as the model is based on Girard's
 reducibility candidates \mcite(["Girard1972"; "Girard1989"]). Here,
 we will use the special value $\v{□}$ as it is contained in the
@@ -441,10 +441,9 @@ associated to each type contain at least the empty stack $\s{ε}$.
 The use of choice operators and the elimination of typing contexts
 will plays an essential role in the definition of our type system.
 Indeed, they will allow us to handle quantifiers using our local
-subtyping relation. This will allow us to work with syntax-directed
+subtyping relation only. This will allow us to work with syntax-directed
 typing rules, and most of the work will be done using subtyping.
-
-Choice operators will also be used for the handling of quantifiers.
+(* *)
 We will thus introduce two new type constructors $\f{εX(t∈A)}$ and
 $\f{εX(t∉A)}$ corresponding to choice operators for picking a type
 satisfying the denoted properties. For example, $\f{εX(t∉B)}$ is a
