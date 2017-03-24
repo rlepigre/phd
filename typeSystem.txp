@@ -1046,8 +1046,8 @@ as \definition("equationalrealise") for typing contexts.
 Let $Σ$ be a sorting context, $ρ$ be a valuation over $Σ$ and $Γ$ be a
 typing context such that $Σ ⊢ Γ$ is derivable. We say that $ρ$ realises
 $Γ$ and we write $ρ ⊩ Γ$ if for every $x ∈ dom(Γ) ∩ \cal{V}_ι$ we have
-$ρ(x) ∈ ⟦(Γ(x))ρ⟧$ and for every $α ∈ dom(Γ) ∩ \cal{V}_σ$ we have
-$ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
+$ρ(x) ∈ {⟦(Γ(x))ρ⟧ ∖ \{\v{□}\}}$ and for every $α ∈ dom(Γ) ∩ \cal{V}_σ$
+we have $ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
 \end{def}
 \begin{thm}\label("adequacy")
 Let $Σ$ be a sorting context, $Γ$ be a typing context, $Ξ$ be an equational
@@ -1057,7 +1057,7 @@ that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 \item If $t$ is a term such that $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then
   $\t{tρ} ∈ \ts{Aρ}$.
 \item If $v$ is a value such that $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable,
-  then $\v{vρ} ∈ \vs{Aρ}$.
+  then $\v{vρ} ∈ {\vs{Aρ} ∖ \{\v{□}\}}$.
 \end{itemize}
 \begin{proof}
 We proceed by induction on the derivation of the judgment
@@ -1067,7 +1067,7 @@ deduction rules are recalled bellow the proof of the
 corresponding case.
 \begin{itemize}
 \item In the case of ($Ax$), we immediately have $\v{xρ} = \v{ρ(x)} ∈
-  \vs{Aρ}$ since $ρ ⊩ Γ, x:A$.
+  {\vs{Aρ} ∖ \{\v{□}\}}$ since $ρ ⊩ Γ, x:A$.
 
   \begin{center}
     $ \id(r_ax) $
@@ -1081,12 +1081,13 @@ corresponding case.
     $ \id(r_up) $
   \end{center}
 
-\item If the last used rule is ($⇒_i$) then we need to show that $\t{(λx t)ρ}
-  ∈ \vs{(A ⇒ B)ρ}$. As we are free to rename $x$, we can assume that
-  $\t{(λx t)ρ} = \t{λx tρ}$ and thus our goal rewrites as $\t{λx tρ} ∈
-  \vs{Aρ ⇒ Bρ}$. By definition, we need to take a value $v ∈ \vs{Aρ}$ and
-  show that we have $\t{(tρ)[x ≔ v]} ∈ \ts{Bρ}$. We can conclude by induction
-  hypothesis using the valuation $\subs("ρ[x ≔ v]")$.
+\item If the last used rule is ($⇒_i$) then we need to show $\t{(λx t)ρ}
+  ∈ {\vs{(A ⇒ B)ρ} ∖ \{\v{□}\}}$. As we are free to rename $x$ we can assume
+  $\t{(λx t)ρ} = \t{λx tρ}$ and our goal hence rewrites as $\t{λx tρ} ∈
+  \vs{Aρ⇒Bρ}$. By definition, we need to take $v ∈ {\vs{Aρ} ∖ \{\v{□}\}}$ and
+  prove $\t{(tρ)[x ≔ v]} ∈ \ts{Bρ}$. We can thus conclude by induction
+  hypothesis using the valuation $\subs("ρ[x ≔ v]")$ since we know that
+  $v ≠ \v{□}$.
 
   \begin{center}
     $ \id(r_arrow_i) $
@@ -1097,19 +1098,21 @@ corresponding case.
   ∈ \dbot$. Since $\p{tρ uρ ∗ π} ≻ \p{uρ ∗ [tρ]π}$ and $\dbot$ is saturated,
   it is enough to show $\p{uρ ∗ [tρ]π} ∈ \dbot$. As $\t{uρ} ∈ \ts{Aρ}$ by
   induction hypothesis, it only remains to show $\s{[tρ]π} ∈ \ss{Aρ}$. Let
-  us take $\v{v} ∈ \vs{Aρ}$ and show that $\p{v ∗ [tρ]π} ∈ \dbot$. Since
-  $\p{v ∗ [tρ]π} ≻ \p{tρ ∗ v·π}$ and $\dbot$ is saturated, it is enough to
-  show $\p{tρ ∗ v·π} ∈  \dbot$. By induction hypothesis $\t{tρ} ∈
-  \ts{Aρ⇒Bρ}$, hence it only remains to show that we have $\s{v·π} ∈
-  \ss{Aρ ⇒ Bρ}$. Let us now take a value $\v{w} ∈ \vs{Aρ⇒Bρ}$ and show
-  $\p{w ∗ v·π} ∈ \dbot$. If $w = \v{□}$ then we have $\p{□ ∗ v·π} ≻
-  \p{□ ∗ π}$ and it is enough to show $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is
-  saturated. Since $π ∈ \ss{Bρ}$ we only have to show that $\v{□} ∈ \vs{Bρ}$
-  which is immediate since $\vs{Bρ} ∈ ⟦ο⟧$. If $w = \v{λx f}$ then we have
-  $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and as $\dbot$ is saturated, it is
-  enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$. Since $\s{π} ∈ \ss{Bρ}$ it
+  us take $\v{v} ∈ \vs{Aρ}$ and show that $\p{v ∗ [tρ]π} ∈ \dbot$. If $v =
+  \v{□}$ then we have $\p{□∗[tρ]π} ≻ \p{□∗π}$ so it is enough to show
+  $\p{□∗π} ∈ \dbot$ since $\dbot$ is saturated. This is immediate as
+  $\v{□} ∈ \vs{Bρ}$. Now, if $v ≠ \v{□}$ then we have $\p{v ∗ [tρ]π} ≻
+  \p{tρ ∗ v·π}$ and since $\dbot$ is saturated, it is enough to show
+  $\p{tρ ∗ v·π} ∈  \dbot$. By induction hypothesis $\t{tρ} ∈ \ts{Aρ⇒Bρ}$,
+  hence it only remains to show that we have $\s{v·π} ∈ \ss{Aρ ⇒ Bρ}$. Let
+  us now take $\v{w} ∈ \vs{Aρ⇒Bρ}$ and show $\p{w ∗ v·π} ∈ \dbot$. If $w =
+  \v{□}$ then we have $\p{□ ∗ v·π} ≻ \p{□ ∗ π}$ and it is again enough that
+  $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is saturated. If $w = \v{λx f}$ then we
+  have $\p{λx f ∗ v·π} ≻ \p{f[x ≔ v] ∗ π}$ and as $\dbot$ is saturated, it
+  is enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$. Since $\s{π} ∈ \ss{Bρ}$ it
   only remains to show $\t{f[x ≔ v]} ∈ \ts{Bρ}$, but this is true by
-  definition of $\vs{Aρ ⇒ Bρ}$ since $\v{v} ∈ \vs{Aρ}$.
+  definition of $\vs{Aρ ⇒ Bρ}$ since $\v{v} ∈ \vs{Aρ}$ and we have
+  $v ≠ \v{□}$.
 
   \begin{center}
     $ \id(r_arrow_e) $
@@ -1131,21 +1134,21 @@ corresponding case.
   = \t{[ρ(α)]tρ} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$ and show
   $\p{[ρ(α)]tρ ∗ π} ∈ \dbot$. Since $\p{[ρ(α)]tρ ∗ π} ≻ \p{tρ ∗ ρ(α)}$ and
   $\dbot$ is saturated, it is enough to show $\p{tρ ∗ ρ(α)} ∈ \dbot$. By
-  induction hypothesis, we know that $\t{tρ} ∈ \ts{Aρ}$, hence we only need
-  to show that $\s{ρ(α)}∈\ss{Aρ}$. This is immediate as we have
-  $ρ ⊩ Γ,α:A^⊥$.
+  induction hypothesis we know $\t{tρ} ∈ \ts{Aρ}$ and hence we only need
+  to show $\s{ρ(α)}∈\ss{Aρ}$. This is immediate since $ρ ⊩ Γ,α:A^⊥$.
 
   \begin{center}
     $ \id(r_name) $
   \end{center}
 
 \item If the last used rule is ($∀_i$) then we need to show $\v{vρ} ∈
-  \vs{(∀χ^s A)ρ}$. As we are free to rename $χ$, this amounts to showing
-  $\v{vρ} ∈ \vs{∀χ^s Aρ} = \bigcap_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$. Hence it is
-  enough to take $\f{Φ} ∈ ⟦s⟧$ and show $\v{vρ} ∈ \vs{Aρ[χ ≔ Φ]}$. Note that
-  $\v{vρ} = \v{vρ[χ ≔ Φ]}$ as $\f{χ}$ cannot appear in $\v{v}$ as otherwise
-  the conclusion judgment would not be well-formed. We can thus conclude by
-  induction hypothesis using the valuation $\subs("ρ[χ ≔ Φ]")$.
+  {\vs{(∀χ^s A)ρ} ∖ \{\v{□}\}}$. As we are free to rename $χ$ we can show
+  $\v{vρ} ∈ {\vs{∀χ^s Aρ} ∖ \{\v{□}\}} = {{\bigcap_{\f{Φ}∈⟦s⟧}
+  \vs{Aρ[χ ≔ Φ]}} ∖ \{\v{□}\}}$. Hence we take $\f{Φ} ∈ ⟦s⟧$ and show
+  $\v{vρ} ∈ {\vs{Aρ[χ ≔ Φ]} ∖ \{\v{□}\}}$. We have $\v{vρ} = \v{vρ[χ≔Φ]}$
+  since $\f{χ}$ cannot appear in $\v{v}$ as otherwise the conclusion
+  judgment would not be well-formed. We can thus conclude by induction
+  hypothesis using the valuation $\subs("ρ[χ ≔ Φ]")$.
 
   \begin{center}
     $ \id(r_forall_i) $
@@ -1178,14 +1181,13 @@ corresponding case.
     $ \id(r_exists_i) $
   \end{center}
 
-\item If the last used rule is ($∃_e$) then we need to show
-  $\t{tρ} ∈ \ts{Cρ}$. Since we are free to rename $χ$ we have
-  $\v{ρ(x)} ∈ \vs{(∃χ^s A)ρ} = \vs{∃χ^s Aρ}$ using the fact that
-  $ρ ⊩ Γ, x:\f{∃χ^s A}$. By definition, the means that we have
-  $\v{ρ(x)} ∈ \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and thus there
-  must be some $\f{Φ} ∈ ⟦s⟧$ such that $\v{ρ(x)} ∈ \vs{Aρ[χ≔Φ]}$.
-  We can hence conclude using the induction hypothesis with the
-  valuation $ρ[χ≔Φ]$.
+\item If the last used rule is ($∃_e$) then we need to show $\t{tρ} ∈
+  \ts{Cρ}$. Since we are free to rename $χ$ we have $\v{ρ(x)} ∈
+  {\vs{(∃χ^s A)ρ} ∖ \{\v{□}\}} = {\vs{∃χ^s Aρ} ∖ \{\v{□}\}}$ using
+  $ρ ⊩ Γ, x:\f{∃χ^s A}$. By definition, the means that $\v{ρ(x)} ∈
+  \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and thus there must be $\f{Φ} ∈ ⟦s⟧$
+  such that $\v{ρ(x)} ∈ \vs{Aρ[χ≔Φ]}$. We can hence conclude using the
+  induction hypothesis with the valuation $ρ[χ≔Φ]$.
  
   \begin{center}
     $ \id(r_exists_e) $
@@ -1193,77 +1195,73 @@ corresponding case.
 
 \item If the last used rule is ($∈_e$) then we need to show $\t{uρ} ∈
   \ts{Cρ}$. To apply the induction hypothesis, we need to check that
-  $\v{ρ(x)} ∈ \vs{Aρ}$ and that $\v{ρ(x)} ≡ \t{tρ}$, provided that we have
-  $\v{xρ} ∈ \vs{(t∈A)ρ}$. By definition $\vs{(t∈A)ρ} = \vs{tρ∈Aρ} =
-  \{v∈\vs{Aρ} \st v ≡ \t{tρ}\}$ so we indeed have $\v{ρ(x)} ∈ \vs{Aρ}$ and
-  $\v{ρ(x)} ≡ \t{tρ}$.
+  $\v{ρ(x)} ∈ {\vs{Aρ} ∖ \{\v{□}\}}$ and that $\v{ρ(x)} ≡ \t{tρ}$,
+  provided $\v{ρ(x)} ∈ {\vs{tρ∈Aρ} ∖ \{\v{□}\}}$. By definition
+  $\vs{tρ∈Aρ} = \{v∈\vs{Aρ} \st v ≡ \t{tρ}\} ∪ \{\v{□}\}$ so
+  we must indeed have $\v{ρ(x)} ∈ \vs{Aρ}$ and $\v{ρ(x)} ≡ \t{tρ}$
+  since $v ≠ \v{□}$.
 
   \begin{center}
     $ \id(r_memb_e) $
   \end{center}
 
-\item In the case of ($∈_i$) we need to show that
-  $\v{vρ} ∈ \vs{(v ∈ A)ρ} = \{w ∈ \vs{Aρ} \| w ≡ vρ\}$. By
-  induction hypothesis we have $\v{vρ} ∈ \vs{Aρ}$ so we only
-  need to show that $\t{vρ} ≡ \t{vρ}$, which follows from
-  the reflexivity of $({≡})$.
+\item In the case of ($∈_i$) we need to show that $\v{vρ} ∈ {\vs{vρ∈Aρ}
+  ∖ \{\v{□}\}}$. By induction hypothesis we have $\v{vρ} ∈ {\vs{Aρ} ∖
+  \{\v{□}\}}$ so we only have to prove $\t{vρ} ≡ \t{vρ}$, which follows
+  from the reflexivity of $({≡})$.
 
   \begin{center}
     $ \id(r_memb_i) $
   \end{center}
 
-\item If the last used rule is ($↾_i$) then we need to show
-  $\t{tρ} ∈ \ts{(A ∧ u₁≡u₂)ρ}$. Using the right premise
-  we know that $\t{u₁ρ} ≡ \t{u₂ρ}$, and hence
-  $\vs{Aρ ∧ u₁ρ ≡ u₂ρ} = \vs{Aρ}$ by definition. Consequently
-  we have $\ts{Aρ ∧ u₁ρ ≡ u₂ρ} = \ts{Aρ}$ by
-  \lemRef("orthoincl"), and hence we can conclude since
+\item If the last used rule is ($↾_i$) then we need to show $\t{tρ} ∈
+  \ts{Aρ ∧ u₁ρ≡u₂ρ}$. Using the right premise we know that $\t{u₁ρ} ≡
+  \t{u₂ρ}$ and hence $\vs{Aρ ∧ u₁ρ ≡ u₂ρ} = \vs{Aρ}$ by definition.
+  Consequently we have $\ts{Aρ ∧ u₁ρ ≡ u₂ρ} = \ts{Aρ}$ by
+  \lemRef("orthoincl") and hence we can conclude since
   $\t{tρ} ∈ \ts{Aρ}$ by induction hypothesis.
 
   \begin{center}
     $ \id(r_rest_i) $
   \end{center}
 
-\item If the last used rule is ($↾_e$) then we need to show
-  $\t{tρ} ∈ \ts{Cρ}$. To be able to apply the induction hypothesis,
-  we only have to show $ρ(x) ∈ \vs{Aρ}$ and $u₁ρ ≡ u₂ρ$ under the
-  assumption that $ρ(x) ∈ \vs{Aρ ∧ u₁ρ ≡ u₂ρ} ≠ ∅$. This immediately
-  follows from the definition of $\vs{Aρ ∧ u₁ρ ≡ u₂ρ}$ since it
-  contains $ρ(x)$.
+\item If the last used rule is ($↾_e$) then we need to show $\t{tρ} ∈
+  \ts{Cρ}$. To be able to apply the induction hypothesis, we only have
+  to show $ρ(x) ∈ {\vs{Aρ} ∖ \{\v{□}\}}$ and $u₁ρ ≡ u₂ρ$ under the
+  assumption that $ρ(x) ∈ {\vs{Aρ ∧ u₁ρ ≡ u₂ρ} ∖ \{\v{□}\}} ≠ ∅$. This
+  immediately follows from the definition of $\vs{Aρ ∧ u₁ρ ≡ u₂ρ}$
+  since it contains $\v{ρ(x)}$ and $\v{ρ(x)} ≠ \v{□}$.
 
   \begin{center}
     $ \id(r_rest_e) $
   \end{center}
 
 \item If the last used rule is ($×_i$) then we need to show
-  $\v{{(li = vi) i∈I}ρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. By definition it
-  is enough to show that $\v{viρ} ∈ \vs{Aiρ}$ for all index $i$ in
-  $I$. This exactly corresponds to the induction hypotheses.
+  $\v{{(li = viρ) i∈I}} ∈ {\vs{{(li : Aiρ) i∈I}} ∖ \{\v{□}\}}$.
+  By definition it is enough to show that $\v{viρ} ∈ {\vs{Aiρ} ∖
+  \{\v{□}\}}$ for all $i ∈ I$. This exactly corresponds to the
+  induction hypotheses.
 
   \begin{center}
     $ \id(r_prod_i) $
   \end{center}
 
-\item If the last used rule is ($×_e$) then we need to show that
+\item If the last used rule is ($×_e$) then we need to show
   $\t{(v.lk)ρ} = \t{vρ.lk} ∈ \ts{Akρ}$. Let us take $π ∈ \ss{Akρ}$ and
-  show that $\p{vρ.lk ∗ π} ∈ \dbot$. By induction hypothesis we know that
-  $\v{vρ} ∈ \vs{{(li : Ai) i∈I}ρ}$. If $\v{vρ} = \v{□}$ then we have
-  $\p{□.lk ∗ π} ≻ \p{□ ∗ π}$ and thus it is enough to show $\v{□} ∈
-  \vs{Akρ}$ as $\dbot$ is saturated and $π ∈ \ss{Akρ}$. This is immediate
-  since $\vs{Akρ} ∈ ⟦ο⟧$. If $\v{vρ} = \v{{(li = vi) i∈I}}$ then we have
-  $\p{{(li = viρ) i∈I}.lk ∗ π} ≻ \p{vkρ ∗ π}$ and it is enough to show
-  $\p{vkρ ∗ π} ∈ \dbot$ as $\dbot$ is saturated. Since $π ∈ \ss{Akρ}$ we
-  only have to show that $\v{vkρ} ∈ \ts{Akρ}$. We can hence conclude using
-  \lemma("orthosimple") as we have $\v{vkρ} ∈ \vs{Akρ}$ by definition.
+  show $\p{vρ.lk ∗ π} ∈ \dbot$. By induction hypothesis we know that
+  $\v{vρ} ∈ {\vs{{(li : Ai) i∈I}ρ} ∖ \{\v{□}\}}$ and thus $\v{vρ} =
+  \v{{(li = vi) i∈I}}$ with $\v{vi} ∈ {\vs{Ai} ∖ \{\v{□}\}}$ for all
+  $i ∈ I$. Since $\p{{(li = viρ) i∈I}.lk ∗ π} ≻ \p{vkρ ∗ π}$ and $\dbot$
+  is saturated, it is enough to show $\p{vkρ ∗ π} ∈ \dbot$. This is
+  immediate since $π ∈ \ss{Akρ}$ and $\v{vkρ} ∈ {\vs{Akρ} ∖ \{\v{□}\}}$.
 
   \begin{center}
     $ \id(r_prod_e) $
   \end{center}
 
-\item If the last used rule is ($+_i$) then we need to show
-  $\t{(Ck[v])ρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$. By definition,
-  it is enough to show that $\v{vρ} ∈ \vs{Akρ}$ since
-  $\t{(Ck[v])ρ} = \v{Ck[vρ]}$ and $k ∈ I$. This is
+\item If the last used rule is ($+_i$) then we need to show $\t{Ck[vρ]}
+  ∈ {\vs{[(Ci : Aiρ) i∈I]} ∖ \{\v{□}\}}$. By definition, it is enough to
+  show that $\v{vρ} ∈ {\vs{Akρ} ∖ \{\v{□}\}}$ since $k ∈ I$. This is
   exactly the induction hypothesis.
 
   \begin{center}
@@ -1271,43 +1269,39 @@ corresponding case.
   \end{center}
 
 \item If the last used rule is ($+_e$) then we need to show
-  $\t{[v | (Ci[xi] → ti) i∈I]ρ} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$
-  and show that $\p{[vρ | (Ci[xi] → tiρ) i∈I] ∗ π} ∈ \dbot$. We know that
-  $\v{vρ} ∈ \vs{[(Ci : Ai) i∈I]ρ}$ by induction hypothesis.
-  If we have $\v{vρ} = \v{□}$ then it must be that
-  $\p{[□ | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{□ ∗ π}$ and thus it is enough to
-  show that $\v{□} ∈ \vs{Bρ}$ as $\dbot$ is
-  saturated and $π ∈ \ss{Bρ}$. This is immediate since $\vs{Bρ} ∈ ⟦ο⟧$.
-  If $\v{vρ} = \v{Ck[w]}$ for some $k∈I$ then, by definition, we have
+  $\t{[v | (Ci[xi] → ti) i∈I]ρ} ∈ \ts{Bρ}$. As we are free to rename
+  $\v{xi}$ for all $i ∈ I$ our goal rewrites as
+  $\t{[vρ | (Ci[xi] → tiρ) i∈I]} ∈ \ts{Bρ}$. Let us take $π ∈ \ss{Bρ}$
+  and show $\p{[vρ | (Ci[xi] → tiρ) i∈I] ∗ π} ∈ \dbot$. By the first
+  induction hypothesis $\v{vρ} ∈ {\vs{[(Ci : Aiρ) i∈I]} ∖ \{\v{□}\}}$ so
+  it must be that $\v{vρ} = \v{Ck[w]}$ for some $k∈I$ and $w ∈ {\vs{Akρ}
+  ∖ \{\v{□}\}}$. As $\dbot$ is saturated and
   $\p{[Ck[w] | (Ci[xi] → tiρ) i∈I] ∗ π} ≻ \p{tkρ[xk≔w] ∗ π}$
-  and thus it is enough to show that $\p{tkρ[xk≔w] ∗ π} ∈ \dbot$ as
-  $\dbot$ is saturated. Since $π ∈ \ss{Bρ}$ we only have to show that
-  $\t{tkρ[xk≔w]} ∈ \ts{Bρ}$. Note that neither $\f{B}$, $\f{Ak}$ nor $\v{v}$
-  may contain the variable $\v{xk}$ as otherwise some judgment would not
-  be well-formed. As a consequence, we have $\vs{Bρ[xk≔w]} = \vs{Bρ}$,
-  $\vs{Akρ[xk≔w]} = \vs{Akρ}$ and $\v{vρ[xk≔w]} = \v{vρ}$. To be able to
-  conclude using the induction hypothesis, we need to show that the
-  valuation $\subs("ρ[xk≔w]")$ realises $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As we
-  know that $ρ$ realises $Γ, Ξ$ and as $\v{ρ(xk)} ∈ \vs{Akρ[xk≔w]} =
-  \vs{Akρ}$ it only remains to show
-  $\v{vρ[xk≔w]} = \v{vρ} ≡ \t{Ck[w]} = \t{Ck[ρ(xk)]}$,
-  which is true by hypothesis.
+  it is enough to show $\p{tkρ[xk≔w] ∗ π} ∈ \dbot$. Consequently, we only
+  have to show that $\t{tkρ[xk≔w]} ∈ \ts{Bρ}$ since $π ∈ \ss{Bρ}$.
+  Note that neither $\f{B}$, $\f{Ak}$ nor $\v{v}$ may contain the
+  variable $\v{xk}$ as otherwise some judgment would not be well-formed.
+  As a consequence, we have $\vs{Bρ[xk≔w]} = \vs{Bρ}$, $\vs{Akρ[xk≔w]} =
+  \vs{Akρ}$ and $\v{vρ[xk≔w]} = \v{vρ}$. To be able to conclude using the
+  induction hypothesis, we need to show that the valuation
+  $\subs("ρ[xk≔w]")$ realises $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As $ρ$ realises
+  $Γ; Ξ$ and as $w ∈ {\vs{Akρ} ∖ \{\v{□}\}}$ it only remains to show
+  $\v{vρ} ≡ \t{Ck[w]}$, which follows from the reflexivity of $({≡})$.
  
   \begin{center}
     $ \id(r_sum_e) $
   \end{center}
 
 \item If the last used rule is ($≡_{ι,ι}$) then we need to show
-  $\t{(v[x≔w₂])ρ} ∈ \vs{(A[x≔w₂])ρ}$. As we are free to rename
-  $x$ we may assume that it does not appear in $dom(ρ)$, and our
-  goal rewrites as $\t{vρ[x≔w₂ρ]} ∈ \vs{Aρ[x≔w₂ρ]}$. According
-  to our second premise we have $\t{w₁ρ} ≡ \t{w₂ρ}$ and
-  thus we get $\vs{Aρ[x≔w₂ρ]} = \vs{Aρ[x≔w₁ρ]}$ using
-  \lemma("vexttyp") and $\t{vρ[x≔w₂ρ]} ≡ \t{vρ[x≔w₁ρ]}$ using
-  the fact that $({≡})$ is a congruence. Now, since we know that
+  $\t{(v[x≔w₂])ρ} ∈ {\vs{(A[x≔w₂])ρ} ∖ \{\v{□}\}}$. As we are free to
+  rename $x$ our goal rewrites as $\t{vρ[x≔w₂ρ]} ∈ {\vs{Aρ[x≔w₂ρ]} ∖
+  \{\v{□}\}}$. According to our second premise we have $\t{w₁ρ} ≡
+  \t{w₂ρ}$ and thus \lemma("vexttyp") gives us $\vs{Aρ[x≔w₂ρ]} =
+  \vs{Aρ[x≔w₁ρ]}$. We also obtain $\t{vρ[x≔w₂ρ]} ≡ \t{vρ[x≔w₁ρ]}$
+  using the fact that $({≡})$ is a congruence. Now, since we know that
   $\vs{Aρ[x≔w₁ρ]}$ is closed under $({≡})$, it only remains to
-  show that we have $\t{vρ[x≔w₁ρ]} ∈ \vs{Aρ[x≔w₁ρ]}$. To be able
-  to conclude by induction hypothesis, we need to
+  show that we have $\t{vρ[x≔w₁ρ]} ∈ {\vs{Aρ[x≔w₁ρ]} ∖ \{\v{□}\}}$.
+  To be able to conclude by induction hypothesis, we need to
   show that $ρ ⊩ Γ[x≔w₁]$. As we know that $ρ ⊩ Γ[x≔w₂]$ we only
   need to show that for every type $B$ appearing in $Γ$ we have
   $\vs{(B[x≔w₁])ρ} = \vs{(B[x≔w₂])ρ}$. As we are again free to
@@ -1346,6 +1340,7 @@ corresponding case.
 \end{proof}
 \end{thm}
 
+(* FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME *)
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that closed, typed terms normalise using a pole containing
