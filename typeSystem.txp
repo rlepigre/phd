@@ -1340,7 +1340,6 @@ corresponding case.
 \end{proof}
 \end{thm}
 
-(* FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME *)
 Thanks to adequacy (\thmRef("adequacy")), it is possible to prove properties
 of our language and type system by choosing appropriate poles. For instance,
 we can easily check that closed, typed terms normalise using a pole containing
@@ -1348,9 +1347,9 @@ only processes reducing to a final state. Note that here, we need to fix the
 parameters of the system. We will consider $({≡})$ to be $({≡}_{≻})$ and $R$
 to be $({≻})$ in the following theorem.
 \begin{thm}\label("basicnorm")
-Every closed, typed term normalises. More precisely, for every term $t∈Λ^{∗}$
-such that $⊢ t : A$ is derivable in the system, there is $v∈Λ_ι^{∗}$ such that
-$\p{t∗π} ≻^{∗} \p{v∗ε}$.
+Every closed, typed term normalises. More precisely, for all $t∈Λ^{∗}$
+such that $⊢ t : A$ is derivable there is $v ∈ {Λ_ι^{∗} ∖ \{\v{□}\}}$
+such that $\p{t∗π} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
 We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$ which is
 trivially saturated. We will first check that it is also $≡_{≻}$-extensional.
@@ -1365,8 +1364,9 @@ substitution $ρ_{id}$ to obtain $\t{t} ∈ \ts{A}$. By definition, this means
 that $\p{t ∗ ξ} ∈ \dbot$ for every stack $ξ ∈ \ss{A}$. In particular, we
 have $\p{t ∗ ε} ∈ \dbot$ as we trivially have $ε ∈ \ss{A}$. This exactly
 means that there is a value $v∈Λ_ι$ such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$. It
-remains to show that $v$ is closed, but this is trivial as none of our
-reduction rules can introduce a free variable.
+remains to show that $v$ is closed and different from $\v{□}$. This is
+immediate as none of our reduction rules may introduce $\v{□}$ or a free
+variable, and a closed typable term contain neither.
 \end{proof}
 \end{thm}
 
@@ -1461,18 +1461,17 @@ Semantically, we will interpret stack judgments in a similar way as
 value and term judgments. The new adequacy lemma will then involve the
 three forms of judgments.
 \begin{lem}\label("push")
-Let $A$, $B∈\cal{F}$ be two closed types such that $⊢ A : ο$ and $⊢ B : ο$.
-If $v ∈ \vs{A}$ and $π ∈ \ss{B}$ then $\s{v·π} ∈ \ss{A⇒B}$.
+Let $A$, $B∈\cal{F}$ be two types such that $⊢ A : ο$ and $⊢ B : ο$.
+If $v ∈ {\vs{A} ∖ \{\v{□}\}}$ and $π ∈ \ss{B}$ then $\s{v·π} ∈ \ss{A⇒B}$.
 \begin{proof}
 Let us take a value $w ∈ \vs{A⇒B}$ and show that $\p{w ∗ v·π} ∈ \dbot$. If
 $w = \v{□}$ then we have $\p{□ ∗ v·π} ≻ \p{□ ∗ π}$ and thus it is enough to
 show that $\p{□ ∗ π} ∈ \dbot$ since $\dbot$ is saturated. This is immediate
-since $π ∈ \ss{B}$ and $\v{□} ∈ \vs{B}$ since $\vs{B} ∈ ⟦ο⟧$ according to
-\theorem("sortsem"). If $w = \v{λx t}$ then we have $\p{λx t ∗ v·π} ≻
-\p{t[x≔v] ∗ π}$ and thus it is enough to show that $\p{t[x≔v] ∗ π} ∈ \dbot$
-since $\dbot$ is saturated. As $π ∈ \ss{B}$ this amounts to showing that
+as $π ∈ \ss{B}$ and $\v{□} ∈ \vs{B}$. If $w = \v{λx t}$ then since $\dbot$
+is saturated and $\p{λx t ∗ v·π} ≻ \p{t[x≔v] ∗ π}$ it is enough to show
+$\p{t[x≔v] ∗ π} ∈ \dbot$. As $π ∈ \ss{B}$ this amounts to showing that
 $\t{t[x≔v]} ∈ \ts{B}$, but this follows by definition of $\vs{A⇒B}$ as
-$v ∈ \vs{A}$.
+$v ∈ {\vs{A} ∖ \{\v{□}\}}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("stack_adequacy")
@@ -1482,7 +1481,8 @@ that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 \begin{itemize}
 \item If $Σ \sp Γ ; Ξ ⊢ t:A$ is derivable, then $\t{tρ} ∈ \ts{Aρ}$.
 \item If $Σ \sp Γ ; Ξ ⊢ π:A^⊥$ is derivable, then $\s{πρ} ∈ \ss{Aρ}$.
-\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ \vs{Aρ}$.
+\item If $Σ \sp Γ ; Ξ ⊢_\tval v:A$ is derivable, then $\v{vρ} ∈ {\vs{Aρ} ∖
+      \{\v{□}\}}$.
 \end{itemize}
 \begin{proof}
 As for \thmRef("adequacy"), the proof is done by induction of the derivation
@@ -1491,12 +1491,11 @@ of the typing judgments. For all the rules of \figRef("typerules") but
 new cases are displayed bellow.
 \begin{itemize}
 \item If the last used rule is ($[\wc]$) then we need to show
-  $\t{([π]t)ρ} = \t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take
-  $ξ ∈ \ss{Bρ}$ and show $\p{[πρ]tρ ∗ π} ∈ \dbot$. Since
-  $\p{[πρ]tρ ∗ π} ≻ \p{tρ ∗ πρ}$ and $\dbot$ is saturated, it
-  is enough to show $\p{tρ ∗ πρ} ∈ \dbot$. This is immediate
-  since, by induction hypothesis, we have $\t{tρ} ∈ \ts{Aρ}$
-  and $\s{πρ} ∈ \ss{Aρ}$.
+  $\t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take $ξ ∈ \ss{Bρ}$ and show
+  $\p{[πρ]tρ ∗ π} ∈ \dbot$. Since $\p{[πρ]tρ ∗ π} ≻ \p{tρ ∗ πρ}$
+  and $\dbot$ is saturated, it is enough to show $\p{tρ ∗ πρ} ∈
+  \dbot$. This is immediate since $\t{tρ} ∈ \ts{Aρ}$ by induction
+  hypothesis and $\s{πρ} ∈ \ss{Aρ}$.
 
   \begin{center}
     $ \id(r_name') $
@@ -1511,22 +1510,26 @@ new cases are displayed bellow.
 
 \item If the last used rule is ($\wc·\wc$) then we need to show
   $\s{vρ·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from \lemRef("push")
-  since we have $vρ ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by
-  induction hypothesis.
+  since we have $vρ ∈ {\vs{Aρ} ∖ \{\v{□}\}}$ and $\s{πρ} ∈ \ss{Bρ}$
+  by induction hypothesis.
 
   \begin{center}
     $ \id(r_push) $
   \end{center}
 
 \item If the last used rule is ($[\wc]\wc$) then we need to show
-  $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and
-  show $\p{v ∗ [tρ]πρ} ∈ \dbot$. Since we know that
-  $\p{v ∗ [tρ]πρ} ≻ \p{tρ ∗ v·πρ}$ and $\dbot$ is saturated,
-  it is enough to show $\p{tρ ∗ v·πρ} ∈ \dbot$. By induction
-  hypothesis, we have $\t{tρ} ∈ \ts{Aρ⇒Bρ}$ so it is enough
-  to show $\s{v·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from
-  \lemRef("push") since $v ∈ \vs{Aρ}$ and $\s{πρ} ∈ \ss{Bρ}$
-  by induction hypothesis.
+  $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and show
+  $\p{v ∗ [tρ]πρ} ∈ \dbot$. If $v = \v{□}$ then we have 
+  $\p{□ ∗ [tρ]πρ} ≻ \p{□ ∗ πρ}$ and since $\dbot$ is saturated it
+  is enough to show $\p{□ ∗ πρ} ∈ \dbot$. This is immediate as
+  $\v{□} ∈ \vs{Bρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by induction hypothesis.
+  We can now suppose that $v ≠ \v{□}$ and thus $v ∈ {\vs{Aρ} ∖
+  \{\v{□}\}}$. As $\dbot$ is saturated and $\p{v ∗ [tρ]πρ} ≻
+  \p{tρ ∗ v·πρ}$ it is enough to show $\p{tρ ∗ v·πρ} ∈ \dbot$.
+  By induction hypothesis we know $\t{tρ} ∈ \ts{Aρ⇒Bρ}$ and thus
+  it is enough to show $\s{v·πρ} ∈ \ss{Aρ⇒Bρ}$. This follows from
+  \lemRef("push") since we have $v ∈ {\vs{Aρ} ∖ \{\v{□}\}}$ and
+  $\s{πρ} ∈ \ss{Bρ}$.
 
   \begin{center}
     $ \id(r_fram) $
