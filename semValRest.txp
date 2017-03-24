@@ -5,6 +5,8 @@
 
   let sp = <$\mcolor(white){:}|\mcolor(white){:}$>
 
+  let vset = <$ Λ_ι^{∗} $>
+
   let vs a = <$ ⟦\f(a)⟧ $>
   let ss a = <$ ⟦\f(a)⟧^⊥ $>
   let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
@@ -165,22 +167,36 @@ Of course, we do not need to give additional sorting rules since
 $\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars.
 However, we can use consider the following typing rules to work
 with dependent functions more easily.
-$$
+\begin{center}
+$
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
   {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}
-$$
-$$
+$
+\end{center}
+\linesAfter(2) (* FIXME hack *)
+
+\begin{center}
+$
 \unaryRN{Π_{τ,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[a≔x]}
   {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(a∈A) B}}
-$$
-$$
+$
+\end{center}
+
+\linesBefore(2) (* FIXME hack *)
+\begin{center}
+$
 \binaryRN{Π_{ι,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(x∈A) B}}
   {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[x≔v]}}
-$$
-$$
+$
+\end{center}
+
+\linesBefore(2) (* FIXME hack *)
+\begin{center}
+$
 \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
   {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}
-$$
+$
+\end{center}
 Note that both elimination rules require the value restriction on
 their second premise. In other words, dependent functions can only
 be applied to values. The four new typing rules can immediately be
@@ -366,13 +382,18 @@ $ \unaryRN{∈_{i,⊥}}{Σ \sp Γ,Ξ ⊢ t : A} {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}
 In this system, the following (unrestricted) typing rule for the
 elimination of the dependent function type can be derived (see the
 typing derivation bellow the rule).
-$$
+\begin{center}
+$
   \binaryRN{Π_{e,⊥}}
     {Σ \sp Γ,Ξ ⊢ t : \f{Π_(a∈A) B}}
     {Σ \sp Γ,Ξ ⊢ u : \f{A}}
     {Σ \sp Γ,Ξ ⊢ \t{t u} : \f{B[a≔u]}}
-$$
-$$
+$
+\end{center}
+\linesAfter(4) (* FIXME hack *)
+
+\begin{center}
+$
 \proofTree{
  \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}}{
    \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{u∈A ⇒ B[a≔u]}}{
@@ -385,19 +406,25 @@ $$
   }
  }
 }
-$$
+$
+\end{center}
 
 For convenience, we will also introduce a strong application rule that
 can also be derived directly using ($∈_{i,⊥}$). This typing rule will be
 used to keep track of the argument used for a function, while typing the
 function itself.
-$$
+\begin{center}
+$
   \binaryRN{⇒_{e,{∈},⊥}}
     {Σ \sp Γ;Σ ⊢ t : \f{u∈A⇒B}}
     {Σ \sp Γ;Σ ⊢ u : A}
     {Σ \sp Γ;Σ ⊢ \t{t u} : B}
-$$
-$$
+$
+\end{center}
+
+\linesBefore(3) (* FIXME hack *)
+\begin{center}
+$
 \proofTree{
  \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B}}{
    \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{u∈A ⇒ B}}
@@ -407,49 +434,56 @@ $$
   }
  }
 }
-$$
+$
+\end{center}
 
 We will now build a counter-example to the consistency of the system
 extended with the ($∈_{i,⊥}$) rule for the membership predicate. We
 will construct a typable term that reduces to a value that does not
-belong to the expected type. We consider the term
-$t = \t{(λf(λ_v (f F[{}])) (f T[{}])) μα w}$
-in which $v$ and $w$ are defined as follows.
+belong to the expected type. We consider the term $\t{t u}$ defined
+thanks to the following subterms.
 \begin{center}
 \diagram(
 let _ =
   let line s1 s2 = [ <$\t(s1)$> ; <$=$>; <$\t(s2)$> ] in
+  let empty = [ [] ; [] ; [] ] in
   array [`East ; `East ; `West]
-  [ line "v" "λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]"
-  ; line "w" "λx [x | F[_] → T[{}] | T[_] → [α]λ_ F[{}]]" ]
+  [ empty
+  ; line "t" "λf(λ_v (f F[{}])) (f T[{}])"
+  ; line "v" "λy [y | F[_] → C₁[{}] | T[_] → C₀[{}]]"
+  ; line "u" "μα λx [x | F[_] → T[{}] | T[_] → [α]λ_ F[{}]]"
+  ; empty ]
 )
 \end{center}
-In many reduction steps, we have $\p{t∗ε} ≻^{∗} \p{C₁[{}]∗ε}$. To
-obtain our counter-example, we will show that $\t{t}$ has type
-$\f{[C₀:{} | C₁:{} ∧ (μα v) F[{}] ≡ F[{}]]}$. As we have
+In many reduction steps, we have $\p{t u∗ε} ≻^{∗} \p{C₁[{}]∗ε}$. To
+obtain our counter-example, we will show that $\t{t u}$ has type
+$\f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]}$. For every stack $π∈Π$ we
+have the following reduction sequence.
 \begin{center}
 \linesBefore(6)
 \diagram(
 let _ =
   let full s1 s2 = [ <$\p(s1)$> ; <$≻$> ; <$\p(s2)$> ] in
   let line s = [ [] ; <$≻$> ; <$\p(s)$> ] in
+  let empty = [ [] ; [] ; [] ] in
   array [`East ; `East ; `West]
-  [ full "(μα w) F[{}] ∗ π"
-         "F[{}] ∗ [μα w] π"
-  ; line "μα w ∗ F[{}]·π"
-  ; line "w[α≔F[{}]·π] ∗ F[{}]·π"
+  [ empty
+  ; full "u F[{}] ∗ π"
+         "F[{}] ∗ [u] π"
+  ; line "u ∗ F[{}]·π"
+  ; line "λx [x | F[_] → T[{}] | T[_] → [F[{}]·π]λ_ F[{}]] ∗ F[{}]·π"
   ; line "[F[{}] | F[_] → T[{}] | T[_] → [F[{}]·π]λ_ F[{}]] ∗ π"
-  ; line "T[{}] ∗ π" ]
+  ; line "T[{}] ∗ π"
+  ; empty ]
 )
 \end{center}
-for every stack $π∈Π$, \lemRef("redtosame") tells us that
-$\t{(μα w) F[{}]} ≡ \t{T[{}]}$. As a consequence, it cannot
-be that $\t{(μα w) F[{}]} ≡ \t{F[{}]}$ and thus the type
-$\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$ is equivalent to
-$\f{[C₀ : {}]}$ (i.e., they have the same semantical interpretation).
-This means that if we manage to show that $\t{t}$ has type
-$\f{[C₀:{} | C₁:{} ∧ (μα w) F[{}] ≡ F[{}]]}$, then we will have a
-contradiction to the type safety as $\t{t}$ reduces to $\v{C₁[{}]}$,
+As a consequence, \lemRef("redtosame") tells us that $\t{u F[{}]} ≡
+\t{T[{}]}$. As a consequence, it cannot be that $\t{u F[{}]} ≡ \t{F[{}]}$
+and thus the type $\f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]}$ is equivalent
+to $\f{[C₀ : {}]}$ (i.e., they have the same semantical interpretation).
+This means that if we manage to show that $\t{t u}$ has type
+$\f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]}$, then we will have a
+contradiction to the type safety as $\t{t u}$ reduces to $\v{C₁[{}]}$,
 which is not contained in $\vs{[C₀ : {}]}$.
 
 In the typing derivation displayed bellow, the type $\f{B}$ is
@@ -457,63 +491,11 @@ defined as $\f{[T:{}|F:{}]}$, the type $\f{C}$ is defined as
 $\f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]}$, the context $Γ₁$ is
 defined as $f : \f{B⇒B}$, the context $Γ₂$ is defined as
 $f:\f{B⇒B}, y:\f{B}, y≡\t{f F[{}]}$ and $Γ₃$ is defined as
-$α:\f{B⇒B}^⊥,x:B$.
+$α:\f{B⇒B}^⊥,x:B$. Note that the proof is split into three pieces
+so that it may fit in one page. The first two pieces, labeled $p₁$
+and $p₂$ respectively, should be plugged in the main part of the
+proof (i.e., the third piece) at corresponding premises.
 \begin{env}(scale 0.84)
-\begin{proofTree}
-\Caml(
-let p =
-  let leaf = ax in
-  leaf   ~name:<$p₁$> <$ Γ₁ ⊢_\tval \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
-  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
-
-
-  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
-  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
-
-  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
-  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{F[{}]} : \f{B}$>;
-  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{F[{}]} : \f{B}$>;
-
-  binary  ~name:<$⇒_e$>
-    <$ Γ₁ ⊢ \t{f F[{}]} : \f{B} $>;
-
-
-  binary ~name:<$⇒_{e,{∈},⊥}$> <$ Γ₁ ⊢ \t{v (f F[{}])} : \f{C} $>;
-  unary  ~name:<$⇒_i$> <$ Γ₁ ⊢_\tval \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
-  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
-
-
-  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
-  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
-
-  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
-  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{T[{}]} : \f{B}$>;
-  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{T[{}]} : \f{B}$>;
-
-  binary  ~name:<$⇒_e$>
-    <$ Γ₁ ⊢ \t{f T[{}]} : \f{B} $>;
-
-
-  binary ~name:<$⇒_e$>
-    <$ f:\f{B⇒B} ⊢ \t{(λ_ v (f F[{}])) (f T[{}])}
-       : \f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]} $>;
-  unary  ~name:<$Π_{τ,i}$>
-    <$ ⊢_\tval \t{λf (λ_ v (f F[{}])) (f T[{}])}
-       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
-  unary  ~name:<$↑$>
-    <$ ⊢ \t{λf (λ_ v (f F[{}])) (f T[{}])}
-       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
-
-  leaf    ~name:<$p₂$>
-    <$ ⊢ \t{u} : \f{B⇒B} $>;
-
-  binary ~name:<$Π_{e,⊥}$>
-    <$ ⊢ \t{(λf (λ_ v (f F[{}])) (f T[{}])) u}
-       : \f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]} $>;
-  display_proof ()
-)
-$$ \id(p) $$
-\end{proofTree}
 \begin{proofTree}
 \Caml(
 let p =
@@ -576,22 +558,76 @@ let p =
 )
 $$ \id(p) $$
 \end{proofTree}
+\begin{proofTree}
+\Caml(
+let p =
+  let leaf = ax in
+  leaf   ~name:<$p₁$> <$ Γ₁ ⊢_\tval \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
+  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{v} : \f{(f F[{}])∈B ⇒ C} $>;
+
+
+  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
+  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
+
+  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
+  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{F[{}]} : \f{B}$>;
+  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{F[{}]} : \f{B}$>;
+
+  binary  ~name:<$⇒_e$>
+    <$ Γ₁ ⊢ \t{f F[{}]} : \f{B} $>;
+
+
+  binary ~name:<$⇒_{e,{∈},⊥}$> <$ Γ₁ ⊢ \t{v (f F[{}])} : \f{C} $>;
+  unary  ~name:<$⇒_i$> <$ Γ₁ ⊢_\tval \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
+  unary  ~name:<$↑$> <$ Γ₁ ⊢ \t{λ_ v (f F[{}])} : \f{B ⇒ C} $>;
+
+
+  ax      ~name:<$Ax$>  <$ Γ₁ ⊢_\tval \t{f} : \f{B⇒B}$>;
+  unary   ~name:<$↑$>   <$ Γ₁ ⊢ \t{f} : \f{B⇒B}$>;
+
+  ax      ~name:<$×_i$>  <$ Γ₁ ⊢_\tval \t{{}} : \f{{}}$>;
+  unary   ~name:<$+_i$>  <$ Γ₁ ⊢_\tval \t{T[{}]} : \f{B}$>;
+  unary   ~name:<$↑$>    <$ Γ₁ ⊢ \t{T[{}]} : \f{B}$>;
+
+  binary  ~name:<$⇒_e$>
+    <$ Γ₁ ⊢ \t{f T[{}]} : \f{B} $>;
+
+
+  binary ~name:<$⇒_e$>
+    <$ f:\f{B⇒B} ⊢ \t{(λ_ v (f F[{}])) (f T[{}])}
+       : \f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]} $>;
+  unary  ~name:<$Π_{τ,i}$>
+    <$ ⊢_\tval \t{λf (λ_ v (f F[{}])) (f T[{}])}
+       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
+  unary  ~name:<$↑$>
+    <$ ⊢ \t{λf (λ_ v (f F[{}])) (f T[{}])}
+       : \f{Π_(a∈B⇒B) [C₀:{} | C₁:{} ∧ a F[{}] ≡ F[{}]]} $>;
+
+  leaf    ~name:<$p₂$>
+    <$ ⊢ \t{u} : \f{B⇒B} $>;
+
+  binary ~name:<$Π_{e,⊥}$>
+    <$ ⊢ \t{(λf (λ_ v (f F[{}])) (f T[{}])) u}
+       : \f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]} $>;
+  display_proof ()
+)
+$$ \id(p) $$
+\end{proofTree}
 \end{env}
 
-We can thus conclude that the typing rule without value restriction for
-the membership type is unsound. As a consequence, there is no hope
-of encoding an unrestricted elimination rule for the dependent function
-type into our system. Indeed, only the membership types are able to link
-the world of terms and the world of types thanks to their semantics.
-
-The limitation imposed by the value restriction on the dependent
-products leads to an expressivity problem. Indeed, it completely
-forbids the composition of dependent functions, which is very usual
-in practice. In \chapter("implem"), we will consider interesting
-examples of programs that could not be accepted under the usual
-syntactic restriction. For them to be accepted in our system, we
-need another criterion that accepts more programs, while still being
-sound.
+As we have shown that the unrestricted introduction rule for the membership
+type is unsound, there is no hope of encoding an unrestricted elimination
+rule for the dependent function type into our system. Indeed, only the
+membership types are able to link the world of terms and the world of types
+thanks to their semantics. The limitation imposed by the value restriction
+on dependent functions leads to an expressiveness problem. Indeed, it
+completely forbids the composition of dependent functions which is very
+common in practice (especially for building proofs). In \chapter("implem")
+we will consider several examples including proofs on the natural numbers
+and the concatenation of vectors (i.e., lists of fixed length) which could
+not be accepted under the usual syntactic restriction. For such examples
+to work in our system, we need another criterion accepting more programs,
+while still preserving soundness.
 
 =<
 
@@ -599,9 +635,9 @@ sound.
 
 As discussed in the previous section, value restriction is an issue in
 the presence of the membership type (and thus the dependent function
-type). To solve the related expressivity problem, the author introduced
-the notion of //semantical value restriction// \cite("Lepigre2016").
-The main idea is to relax the restriction to allow terms "behaving like",
+type). To solve the related expressiveness problem, the author introduced
+the notion of //semantical value restriction// \cite("Lepigre2016"). The
+main idea is to relax the restriction to allow terms "behaving like values",
 and not syntactic values only. Thanks to our notion of observational
 equivalence, this property can be expressed easily in the syntax. Indeed,
 we will substitute a typing rule like
@@ -609,14 +645,15 @@ we will substitute a typing rule like
 $ \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
     {Σ \sp Γ;Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}} $
 \end{center}
-with the following, where value restriction is replaced with an additional
-premise.
+with the following rule, where the restriction to values on the second
+premise is replaced by a third premise involving equivalence.
 \begin{center}
 $ \ternaryR{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}{Σ \sp Γ ; Ξ ⊢ u : A}
       {Ξ ⊢ u ≡ v}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}} $
 \end{center}
 This third premise requires the term $u$ to be equivalent to some value
-$v$. Of course, $u$ does not have to be a value itself.
+$v$. Of course, it is perfectly possible for $u$ not to be a syntactic
+value itself.
 
 \begin{rem}
 Semantical value restriction is a strict relaxation of value restriction.
@@ -631,18 +668,18 @@ rule.
 \begin{center}
 $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
 \end{center}
-Note that it should not be mistaken with our (${↑}$) rule, which premise
-is a value judgment and which conclusion is a term judgment. Our new
-(${↓}$) rule allows us to transform a term judgment into a value judgment,
-provided that the considered term is a value. The (${≡}_{τ,τ}$) rule can
-then be used to obtain a proof of $Σ \sp Γ ; Ξ ⊢ v : A$ from
-$Σ \sp Γ ; Ξ ⊢ t : A$, provided $Ξ ⊢ t ≡ v$ can be proved. We can, for
-example, derive a relaxed version of the membership introduction typing
-rule.
+It should not be confused with our (${↑}$) rule, which premise is a value
+judgment and which conclusion is a term judgment. Our new (${↓}$) rule
+allows us to transform a term judgment into a value judgment, provided
+that the considered term is a value. The (${≡}_{τ,τ}$) rule can then be
+used to obtain a proof of $Σ \sp Γ ; Ξ ⊢ v : A$ from a proof of
+$Σ \sp Γ ; Ξ ⊢ t : A$, provided that $Ξ ⊢ t ≡ v$ can be proved. This
+technique can be used, for example, to derive a relaxed version of the
+membership introduction typing rule.
 \begin{lem}\label("derivmem")
 The following typing rule is derivable in our system extended with (${↓}$).
 \begin{center}
-$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Σ ⊢ \t{t} : \f{A}}
+$ \binaryRN{∈_{i,τ}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{A}}
     {Ξ ⊢ \t{t} ≡ \t{v}}{Σ \sp Γ;Ξ ⊢ \t{t} : \f{t∈A}} $
 \end{center}
 \begin{proof}
@@ -667,9 +704,9 @@ $\id(p)$
 \linesAfter(0) (* FIXME hack *)
 \end{proof}
 \end{lem}
-We can then immediately derive a relaxed version of the elimination rule of
-the dependent function type. Again, an additional premise with an equivalence
-to a value is required.
+We can then derive a relaxed version of the elimination rule for the
+dependent function type. Again, it requires proving that a term is
+equivalence to some value.
 \begin{lem}
 The following typing rule is derivable in our system extended with (${↓}$).
 \begin{center}
@@ -684,7 +721,7 @@ extended with the ($∈_{i,τ}$) rule.
 \Caml(
 let p =
   hyp                       <$Σ \sp Γ;Σ ⊢ \t{t} : \f{Π_(a∈A) B}$>;
-  unary                     <$Σ \sp Γ;Σ ⊢ \t{t} : \f{∀a (a∈A ⇒ B)}$>;
+  unary   ~name:<$Def$>     <$Σ \sp Γ;Σ ⊢ \t{t} : \f{∀a (a∈A ⇒ B)}$>;
   unary   ~name:<$∀_e$>     <$Σ \sp Γ;Σ ⊢ \t{t} : \f{u∈A ⇒ B[a≔u]}$>;
   hyp                       <$Σ \sp Γ;Σ ⊢ \t{u} : \f{A}$>;
   hyp                       <$Ξ ⊢ \t{u} ≡ \t{v}$>;
@@ -727,15 +764,15 @@ the following derivation.
 \begin{proofTree}
 \Caml(
 let p =
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t{t} : \f{u∈A ⇒ B}$>;
-  hyp                       <$Σ \sp Γ;Σ ⊢ \t{u} : \f{A}$>;
+  hyp                       <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{u∈A ⇒ B}$>;
+  hyp                       <$Σ \sp Γ;Ξ ⊢ \t{u} : \f{A}$>;
   hyp                       <$Ξ ⊢ \t{u} ≡ \t{v}$>;
-  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Σ ⊢ \t{u} : \f{u∈A}$>;
+  binary  ~name:<$∈_{i,τ}$> <$Σ \sp Γ;Ξ ⊢ \t{u} : \f{u∈A}$>;
   binary  ~name:<$⇒_e$>     <$Σ \sp Γ;Ξ ⊢ \t{t u} : B$>;
   display_proof ()
 )
 \begin{center}
-$$\id(p)$$
+$\id(p)$
 \end{center}
 \end{proofTree}
 \linesAfter(0) (* FIXME hack *)
@@ -754,24 +791,24 @@ $\fit{
 Without such a rule, it would be impossible to preserve the equivalences of
 the form $t ≡ \t{Ci[xi]}$ in the premises. We would only know that
 $x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of linking
-$x$ to the term $t$. The derivation of the ($+_{e,τ}$) rule is given bellow.
+$x$ to $t$. The derivation of ($+_{e,τ}$) is given bellow. Note that we will
+omit the sorting contexts for the proof to be more concise. We will also use
+the notation $Δ$ for the context $Γ,x:\f{[(Ci : Ai) i∈I]}$.
 \Caml(
 let subp = <$
   \proofTree{
     \unaryN{≡_{τ,τ}}{
-      Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, x≡t; x ≡ \t{Ci[xi]} ⊢ t_i : B
+      Δ, x_i:A_i; Ξ, x≡t; x ≡ \t{Ci[xi]} ⊢ t_i : B
     }{
-      \unaryN{Wk}{Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, x≡t; t ≡ \t{Ci[xi]} ⊢ t_i : B}{
-        \hyp{Σ, x_i:ι \sp Γ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B}
+      \unaryN{Wk}{Δ, x_i:A_i; Ξ, x≡t; t ≡ \t{Ci[xi]} ⊢ t_i : B}{
+        \hyp{Δ, x_i:A_i; Ξ, t ≡ \t{Ci[xi]} ⊢ t_i : B}
       }
     }
   } $>
 
 let dummy = <$
   \proofTree{
-    \unaryN{Ax}{
-      Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}
-    }{
+    \unaryN{Ax}{Δ;Ξ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}}{
       \hyp{\mcolor(white){1 \over 1}} (* FIXME hack *)
     }
   } $>
@@ -782,23 +819,23 @@ let p =
   hyp <$\id(dummy)$>;
   (*
   ax       ~name:<$Ax$> (* FIXME hack, floating in the air *)
-    <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}$>;
+    <$Δ \sp Ξ,x≡t ⊢_\tval x:\f{[(Ci : Ai) i∈I]}$>;
   *)
   hyp <$[\id(subp)]_{i∈I}$>;
   binary   ~name:<$+_e$>
-    <$Σ \sp Γ,x:\f{[(Ci : Ai) i∈I]};Σ,x≡t ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
+    <$Δ;Ξ,x≡t ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
   unary    ~name:<$∈_e$>
-    <$Σ \sp Γ,x:\f{t∈[(Ci : Ai) i∈I]};Σ ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
+    <$Δ;Ξ ⊢ \t{[x|(Ci[xi]→ti) i∈I]}:B$>;
   unary    ~name:<$⇒_i$>
-    <$Σ \sp Γ;Σ ⊢_\tval \t{λx [x | (Ci[xi] → ti) i∈I]} :
+    <$Γ;Ξ ⊢_\tval \t{λx [x | (Ci[xi] → ti) i∈I]} :
         \f{t∈[(Ci : Ai) i∈I] ⇒ B}$>;
   unary    ~name:<$↑$>
-    <$Σ \sp Γ;Σ ⊢ \t{λx [x | (Ci[xi] → ti) i∈I]} :
+    <$Γ;Ξ ⊢ \t{λx [x | (Ci[xi] → ti) i∈I]} :
         \f{t∈[(Ci : Ai) i∈I] ⇒ B}$>;
-  hyp                       <$Σ \sp Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}$>;
+  hyp                       <$Γ;Ξ ⊢ \t{t} : \f{[(Ci : Ai) i∈I]}$>;
   hyp                       <$Ξ ⊢ \t{t} ≡ \t{v}$>;
   ternary  ~name:<$⇒_{e,{∈},τ}$>
-    <$Σ \sp Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B$>;
+    <$Γ;Ξ ⊢ \t{(λx [x | (Ci[xi] → ti) i∈I]) t} : B$>;
   display_proof ()
 )
 \begin{center}
@@ -810,8 +847,8 @@ Of course, the derivation of all the new typing rules introduced in this
 section is conditioned to the soundness of semantical value restriction.
 As a consequence, we need to adapt our model so that the ($↓$) rule is
 adequate. As we will see in the next sections, the required modifications
-are highly non-trivial and require a modification of our notions of
-reduction and equivalence.
+are highly non-trivial and require changing our notions of reduction and
+equivalence.
 
 =<
 
@@ -835,40 +872,47 @@ reduction relation then there is a pole $\dbot$ and a set of values
 $Φ ∈ ⟦ο⟧$ such that $Φ^{⊥⊥} ∩ Λ_ι^{∗}$ contains strictly more values
 that $Φ$.
 \begin{proof}
+(* FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME *)
 Let us consider the pole $\dbot = \{p ∈ Λ×Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$
-and show that the set $Φ = \{v∈Λ_ι \| v ≡_{≻} \v{λx Ω}\}$ is suitable. As
-we have $Λ_ι ⊆ Λ_ι^{⊥⊥}$ by \lemRef("orthosimple"), it is enough to show
-that $Φ^⊥ = Λ_ι^⊥$ since in this case we get $Λ_ι ⊆ Φ^{⊥⊥} = Λ_ι^{⊥⊥}$. Of
-course, there are many values that are in $Λ_ι$, but not in $Φ$. For example,
-we have $\v{{}} ∈ Λ_ι$ but $\v{{}} \nequiv_{≻} \v{λxΩ}$ according to
-\thmRef("nequivlamreco"). Since $Φ ⊆ Λ_ι$ we must have $Φ^⊥ ⊇ Λ_ι^⊥$ by
-\lemRef("orthoinclstack"), so it only remains to show that $Φ^⊥ ⊆ Λ_ι^⊥$.
-Let us take a stack $π ∈ Φ^⊥$. By definition, we know $\p{w∗π} ∈ \dbot$
-for every value $w ≡_{≻} \v{λxΩ}$. Let us now take a value $v∈Λ_ι$ and
-show that $\p{v∗π} ∈ \dbot$. We will now perform a case analysis on the
-form of $π$.
+and show that the set $Φ = \{v∈\vset \| v ≡_{≻} \v{λx Ω}\} ∪ \{\v{□}\}$
+is suitable. As we have $\vset ⊆ \vset^{⊥⊥}$ by \lemRef("orthosimple")
+it is enough to show $Φ^⊥ = \vset^⊥$ since in this case we get
+$\vset ⊆ Φ^{⊥⊥} = \vset^{⊥⊥}$. Of course, there are many values that
+are in $\vset$, but not in $Φ$. For example, we have $\v{{}} ∈ \vset$ but
+$\v{{}} \nequiv_{≻} \v{λxΩ}$ according to \thmRef("nequivlamreco").
+
+Since $Φ ⊆ \vset$ we must have $Φ^⊥ ⊇ \vset^⊥$ by \lemRef("orthoinclstack"),
+so it only remains to show that $Φ^⊥ ⊆ \vset^⊥$. Let us take a stack
+$π ∈ Φ^⊥$. By definition, we know $\p{w∗π} ∈ \dbot$ for all $w ∈ Φ$. Let us
+take a value $v₀ ∈ \vset$ and show that $\p{v₀∗π} ∈ \dbot$. If $v₀ = \v{□}$
+then this is immediate since $\v{□} ∈ Φ$ so we can assume $v₀ ≠ \v{□}$. We
+reason by case on the form of the stack $π$.
 \begin{itemize}
-\item If $π = ε$, then $\p{v∗π} ∈ \dbot$ by definition of $\dbot$.
+\item If $π = ε$, then $\p{v₀∗π} ∈ \dbot$ by definition of $\dbot$.
 \item If $π = α$ for some $α∈\cal{V}_σ$ then it cannot be that $π ∈ Φ^⊥$.
       If it were the case, we would have $\p{λxΩ ∗ α} ∈ \dbot$, which
       cannot be true since this process is blocked.
-\item If $π = \s{v₀·ξ}$ for some value $v₀ ∈ Λ_ι$ and stack $ξ ∈ Π$ then
+\item If $π = \s{w·ξ}$ for some value $w ∈ Λ_ι$ and stack $ξ ∈ Π$ then
       it cannot be that $π ∈ Φ^⊥$. If it were the case, we would have
-      $\p{λxΩ ∗ v₀·ξ} ≻ \p{Ω ∗ ξ} ∈ \dbot$, which cannot be true since
+      $\p{λxΩ ∗ w·ξ} ≻ \p{Ω ∗ ξ} ∈ \dbot$, which cannot be true since
       this process is non-terminating.
 \item If $π = \s{[t]ξ}$ for some term $t ∈ Λ$ and stack $ξ ∈ Π$ then we
-      consider the reduction of the process $\p{t ∗ z·ξ}$, where
+      consider the reduction of the process $\p{t ∗ z·ξ}$ where
       $z∈\cal{V}_ι$ is a fresh $λ$-variable. We know that $\p{t∗z·ξ}$
       cannot be non-terminating, as otherwise
       $\p{(t∗z·ξ)[z≔λxΩ]} = \p{t∗λxΩ·ξ}$ would also be non-terminating
       according to \lemRef("redstable"). This would contradict
       $\s{[t]ξ} ∈ Φ^⊥$ since we have $\p{λxΩ∗[t]ξ} ≻ \p{t∗λxΩ·ξ}$.
       Consequently, there is $q ∈ Λ×Π$ such that $\p{z∗[t]ξ} ≻ \p{q}$.
-      We now reason by case analysis following \lemRef("possibilities"). If
-      $q$ is final, then $\p{q[z≔v]}$ is also final by
+      We now reason by case analysis following \lemRef("possibilities").
+      If $q$ is final, then $\p{q[z≔v]}$ is also final by
       \lemRef("redstable"), and thus $\p{v∗[t]ξ} ∈ \dbot$. In all the
-      other cases, $\p{q[z≔λxΩ]}$ is either still blocked, or
-      non-terminating, which contradicts the fact that $\s{[t]ξ} ∈ Φ^⊥$.
+      other cases but $\p{z∗[t₀]π₀}$ the process $\p{q[z≔λxΩ]}$ is either
+      still blocked or non-terminating, which contradicts the fact that
+      $\s{[t]ξ} ∈ Φ^⊥$. In the last case we can iterate the proof in
+      a similar way as for \theorem("base_extterm"). In the case where
+      also get that $\p{λx Ω ∗ [t]ξ} ∈ \dbot$ since this process is
+      non-terminating.
 \end{itemize}
 \end{proof}
 \end{thm}
@@ -919,11 +963,10 @@ $$
 $$
 \end{def}
 \begin{rem}
-Obviously $({↠}_i) ⊆ ({↠}_{i+1})$ and $({≡}_{i+1}) ⊆ ({≡}_i)$. As a
-consequence the construction of $({↠}_i)_{i∈\bbN}$ and $({≡}_i)_{i∈\bbN}$
-converges. In fact $({↠})$ and $({≡})$ form a fixpoint at ordinal $ω$.
-Surprisingly, this property will not be explicitly required in the
-following.
+We have $({↠}_i) ⊆ ({↠}_{i+1})$ and $({≡}_{i+1}) ⊆ ({≡}_i)$. Consequently,
+the construction of $({↠}_i)_{i∈\bbN}$ and $({≡}_i)_{i∈\bbN}$ converges.
+In fact, $({↠})$ and $({≡})$ form a fixpoint at ordinal $ω$. Surprisingly,
+this property will not be explicitly required in the following.
 \end{rem}
 \begin{lem}
 The relation $({≡})$ is an equivalence relation.
@@ -956,55 +999,33 @@ for: an extension of $({≻})$ with a reduction rule for $δ$-like terms
 carrying two non-equivalent values.
 
 \begin{thm}\label("main")
-Let $\dbot ⊆ Λ×Π$ be a non-empty, $↠$-saturated set of processes such that
-for every $p∈\dbot$ we have $p {⇓_{↠}}$. If $Φ ⊆ Λ_ι$ is a set of values
-closed under the equivalence relation $({≡})$ (i.e., for all $v$, $w∈Λ_ι$,
-if $v∈Φ$ and $w≡v$ then $w∈Φ$), then we have the following property.
+Let $\dbot ⊆ Λ×Π$ be $↠$-saturated set of processes such that for every
+$p∈\dbot$ we have $p {⇓_{↠}}$ and $\p{□∗ε} ∈ \dbot$. If $Φ ∈ ⟦ο⟧$ then
+we have the following property.
 $$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
 \begin{proof}
 We need to show that for every value $v∈Φ^{⊥⊥}$ we also have $v∈Φ$. We
 are going to show the contrapositive, so let us assume $v∉Φ$ and show
 $v∉Φ^{⊥⊥}$. By definition, we need to find a stack $π∈Φ^⊥$ such that
-$\p{v∗π}∉\dbot$. We will take $π=\s{[λxδ(x,v)][[π₀]t₀]ε}$ with
-$\p{t₀∗π₀} ∈ \dbot$ and show that it is suitable. We first need to show
-that $π∈Φ^⊥$ so we take $w∈Φ$ and we show that $\p{w∗π}∈\dbot$. By
-definition, we have
-\begin{center}
-\linesBefore(7)
-\diagram(
-let _ =
-  let fst s1 s2 = [ <$\p(s1)$>; <$↠$>; <$\p(s2)$> ] in
-  let line s = [ []; <$↠$>; <$\p(s)$> ] in
-  let last s = [ []; <$↠$>; s ] in
-  array [`East ; `East ; `West]
-  [ fst  "w∗[λxδ(x,v)][[π₀]t₀]ε"
-         "λxδ(x,v)∗w·[[π₀]t₀]ε"
-  ; line "δ(w,v)∗[[π₀]t₀]ε"
-  ; line "w∗[[π₀]t₀]ε"
-  ; line "[π₀]t₀∗w·ε"
-  ; last <$\p{t₀∗π₀} ∈ \dbot$> ]
-)
-\linesAfter(2)
-\end{center}
-as $v ≡ w$ since $v∉Φ$, $w∈Φ$ and $Φ$ is closed under $({≡})$. We can
-thus conclude using the fact that $\dbot$ is $↠$-saturated. It now
-remains to show that $\p{v∗π₀}∉\dbot$. As we have
-\begin{center}
-\linesBefore(4)
-\diagram(
-let _ =
-  let fst s1 s2 = [ <$\p(s1)$>; <$↠$>; <$\p(s2)$> ] in
-  let line s = [ []; <$↠$>; <$\p(s)$> ] in
-  array [`East ; `East ; `West]
-  [ fst  "v∗[λxδ(x,v)][[π₀]t₀]ε"
-         "λxδ(x,v)∗v·[[π₀]t₀]ε"
-  ; line "δ(v,v)∗[[π₀]t₀]ε" ]
-)
-\linesAfter(2)
-\end{center}
-and $\p{δ(v,v)∗[[π₀]t₀]ε}$ is blocked (since $v ≡ v$ by reflexivity)
-we have ${\p{δ(v,v)∗[[π₀]t₀]ε}} {⇑_{↠}}$. As a consequence we have
-we have ${\p{v∗π}} {⇑_{↠}}$ and thus $\p{v∗π} ∉ \dbot$.
+$\p{v∗π}∉\dbot$. We will take $π=\s{[λxδ(x,v)][□]ε}$ and show that it
+is suitable. We first need to prove that $π∈Φ^⊥$ so we take $w∈Φ$ and
+we show $\p{w∗π}∈\dbot$. If $w = \v{□}$ then $\p{□∗π} ↠ \p{□∗[□]ε} ↠
+\p{□∗ε} ∈ \dbot$ and we can thus conclude since $\dbot$ is
+$↠$-saturated. Otherwise, if $w ≠ \v{□}$ then we have the following.
+$$
+  \p{w∗π} ↠ \p{λxδ(x,v)∗w·[□]ε} ↠ \p{δ(w,v)∗[□]ε} ↠ \p{w∗[□]ε}
+    ↠ \p{□∗w·ε} ↠ \p{□∗ε} ∈ \dbot
+$$
+Note that we have $v \nequiv w$ since $v ∉ Φ$ and $Φ$ is closed under
+$({≡})$. We can thus conclude using again the fact that $\dbot$ is
+$↠$-saturated. It now remains to show that $\p{v∗π₀}∉\dbot$. It cannot
+be that $v = \v{□}$ since we assumed $v ∉ Φ$. As a consequence, we have
+the following.
+$$
+  \p{v∗π} ↠ \p{λxδ(x,v)∗v·[□]ε} ↠ \p{δ(v,v)∗[□]ε} {⇑}_{↠}
+$$
+Here, $\p{δ(v,v)∗[□]ε}$ is blocked since $v ≡ v$ by reflexivity of
+$({≡})$ and thus $\p{v∗π} ∉ \dbot$.
 \end{proof}
 \end{thm}
 \begin{rem}
@@ -1082,23 +1103,22 @@ otherwise $q[a≔t]$ would also be stuck by \lemRef("redstable") and
 this would contradict ${\p{q[a≔t]}} {⇓}_k$.
 (* *)
 Let us now suppose that $p = \p{δ(v,w)∗π}$ for some $v$, $w∈Λ_ι$
-and $π∈Π$. Since ${\p{δ(vρ,wρ)∗π}} {⇓}_k$ there must be $i < k$
+and $π∈Π$. Since ${\p{δ(vρ,wρ)∗π}} {⇓}_k$ there must be $j < k$
 (and thus $k≠0$) such that $\v{vρ} \nequiv_j \v{wρ}$, otherwise
 we would obtain a contradiction.
 (* *)
 According to \lemRef("possibilities"), it remains to rule out the
-possibility of $q$ having one of the following forms, where $I≠∅$
-and $b≠a$.
+possibility of $q$ having one of the following forms, where $b≠a$.
 \Caml(
   let _ =
     let line = List.map (fun pr -> <<$\p(pr)$>>) in
     let line3 p1 p2 p3    = line [p1; p2; p3] in
     let line4 p1 p2 p3 p4 = line [p1; p2; p3; p4] in
-    tabular_layout 0.6 2.0
+    tabular_layout 0.8 2.0
     [ line3 "x.lk ∗ π"
             "x ∗ v·π"
             "[x | (Ci[xi] → ti) i∈I] ∗ π"
-    ; line4 "x ∗ [t]π" (* FIXME FIXME FIXME *)
+    ; line4 "x ∗ [t]π"
             "R(x,u) ∗ π"
             "b ∗ π"
             "v ∗ α" ]
@@ -1282,7 +1302,7 @@ By symmetry, we may assume ${\p{tρ₀∗π₀}} {⇓}_{i₀}$ and show
 ${\p{uρ₀∗π₀}} {⇓}_{i₀}$. By hypothesis, we know that there is $p₀ ∈ Λ×Π$
 such that $\p{t∗π₀} ≻^{∗} p₀$ and $\p{u∗π₀} ≻^{∗} p₀$. Now, using
 \thmRef("redcompatall") we obtain $\p{tρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ and
-$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$. Note that we may assume that $\s{π₀ρ₀}$
+$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$. Note that we may assume that $\s{π₀ρ₀} = \s{π₀}$
 since we are free to rename the variables bound by $ρ₀$ in $\t{tρ₀}$ and
 $\t{uρ₀}$. We can hence deduce that ${\p{p₀ρ₀}} {⇓}_{i₀}$ as otherwise
 we could not have ${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Now, since 
