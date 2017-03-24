@@ -520,11 +520,18 @@ let verbs_OCaml fn lines =
   let open Verbatim in
   lines_to_file lines fn;
   let extra = [] in (* ["throw"; "callcc"] in *)
-  let param_OCaml =
-    { param_OCaml with keywords = extra @ param_OCaml.keywords }
+  let keywords = extra @ param_OCaml.keywords in
+  let param_OCaml = { param_OCaml with keywords } in
+  let param_OCaml' = { param_OCaml with keywords = [] } in
+  let build_line l =
+    hspace 2.0 @
+    if String.length l > 2 && l.[0] = '(' && l.[1] = '*' then
+      let build_word = handle_word param_OCaml' in
+      color Color.grey (handle_spaces param_OCaml' build_word l)
+    else
+      let build_word = handle_word param_OCaml in
+      handle_spaces param_OCaml build_word l
   in
-  let build_word = handle_word param_OCaml in
-  let build_line l = hspace 2.0 @ handle_spaces param_OCaml build_word l in
   line_per_line D.structure build_line lines
 
 let lmcalc =

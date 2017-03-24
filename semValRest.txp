@@ -163,11 +163,8 @@ $$
 \end{def}
 Of course, we do not need to give additional sorting rules since
 $\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars.
-However, note that nothing prevents the variable that is quantified
-over to appear in the type $\f{A}$.
-
-To work with our dependent function types more easily, we can consider
-the following introduction and elimination rules.
+However, we can use consider the following typing rules to work
+with dependent functions more easily.
 $$
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
   {Σ \sp Γ ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}
@@ -184,19 +181,19 @@ $$
 \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
   {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}
 $$
-Note that both elimination rules require value restriction on the
-side of the argument. In other words, dependent functions can only
+Note that both elimination rules require value restriction on their
+second premise. In other words, dependent functions can only
 be applied to values. The four new typing rules can immediately be
-used to extend the type system as they are all derivable. In
-particular, this means that we do not have to extend our adequacy
-lemma (\thmRef("adequacy")).
+used to extend the type system as they are derivable. Hence, we
+do not have to extend our adequacy lemma (\thmRef("adequacy") or
+\thmRef("stack_adequacy")).
 \begin{lem}
 The typing rules for the dependent function types are derivable.
 \begin{proof}
 The derivations for each of the new rules is given below.
 $$
 \proofTree{
-  \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}{
+  \unaryN{Def}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(y∈A) B}}{
   \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{∀y (y∈A ⇒ B)}}{
   \unaryN{⇒_i}{Σ, y:ι \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{y∈A ⇒ B}}{
   \unaryN{∈_e}{Σ, y:ι, x:ι \sp Γ, x : \f{y∈A}; Ξ ⊢ t : B}{
@@ -209,7 +206,7 @@ $$
 $$
 $$
 \proofTree{
-  \unary{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(a∈A) B}}{
+  \unaryN{Def}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{Π_(a∈A) B}}{
   \unaryN{∀_i}{Σ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{∀a (a∈A ⇒ B)}}{
   \unaryN{⇒_i}{Σ, a:τ \sp Γ; Ξ ⊢_\tval \v{λx t} : \f{a∈A ⇒ B}}{
   \unaryN{∈_e}{Σ, a:τ, x:ι \sp Γ, x : \f{a∈A}; Ξ ⊢ t : B}{
@@ -224,7 +221,7 @@ $$
 \proofTree{
  \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[x≔v]}}{
    \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{v∈A ⇒ B[x≔v]}}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀x (x∈A ⇒ B)}}{
+   \unaryN{Def}{Σ \sp Γ ; Ξ ⊢ t : \f{∀x (x∈A ⇒ B)}}{
      \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(x∈A) B}}
    }}
  }{
@@ -239,7 +236,7 @@ $$
 \proofTree{
  \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}{
    \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{v∈A ⇒ B[a≔v]}}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
+   \unaryN{Def}{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
      \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
    }}
  }{
@@ -266,22 +263,22 @@ respect to the semantics. Indeed, their interpretation is similar to
 the arrow type as it contains functions, but the type of their body
 depends on the value of the input.
 \begin{lem}
-If $A$, $B ∈ \cal{F}$ are types such that the sorting judgments $⊢ A : ο$
-and $x : ι ⊢ B : ο$ are derivable then we have the following.
+If $A$, $B ∈ \cal{F}$ are types such that $⊢ A : ο$ and $x : ι ⊢ B : ο$
+are derivable then we have the following.
 $$
-  \vs{Π_(x∈A) B} = \{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}
-                   ∪ \{\v{□}\}
+  \vs{Π_(x∈A) B} = \{\v{λx t} \| ∀v∈{\vs{A} ∖ \{\v{□}\}},
+                      \t{t[x≔v]} ∈ \ts{B[x≔v]}\} ∪ \{\v{□}\}
 $$
 Similarly, if $a : τ ⊢ B : ο$ is derivable then we have the following.
 $$
-  \vs{Π_(a∈A) B} = \{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[a≔v]}\}
-                   ∪ \{\v{□}\}
+  \vs{Π_(a∈A) B} = \{\v{λx t} \| ∀v∈{\vs{A} ∖ \{\v{□}\}},
+                      \t{t[x≔v]} ∈ \ts{B[a≔v]}\} ∪ \{\v{□}\}
 $$
 \begin{proof}
 The proof is done using simple equational reasoning starting from the
 definition of $\vs{∀x (x∈A ⇒ B)}$ and $\vs{∀a (a∈A ⇒ B)}$ respectively.
 \begin{center}
-\begin{env}(scale 0.94)
+\begin{env}(scale 0.90)
 \diagram(
 let _ =
   let first e1 e2 = [ e1; <$=$>; e2 ] in
@@ -293,22 +290,18 @@ let _ =
   ; line <$\biginter_{Φ∈⟦ι⟧}
       (* FIXME hack *)
       {\vs{Φ∈A ⇒ B[x≔Φ]}^{\mcolor(white){⊥⊥}} \mcolor(white){,}}$>
-  ; line <$\biginter_{Φ∈⟦ι⟧} (\{\v{λx t} \| ∀v∈\vs{Φ∈A},
-      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\})$>
-  ; line <$\biginter_{Φ∈⟦ι⟧} \{\v{λx t} \| ∀v∈\vs{Φ∈A},
+  ; line <$\biginter_{Φ∈⟦ι⟧} \{\v{λx t} \| ∀v∈{\vs{Φ∈A} ∖ \{\v{□}\}},
       \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
-  ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\vs{Φ∈A},
+  ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈{\{w ∈ \vs{A} \| w ≡ Φ\} ∖ \{\v{□}\}},
       \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
-  ; line <$\{\v{λx t} \| ∀Φ∈⟦ι⟧, ∀v∈\{w ∈ \vs{A} \| w ≡ Φ\},
-      \t{t[x≔v]} ∈ \ts{B[x≔Φ]}\} ∪ \{\v{□}\}$>
-  ; line <$\{\v{λx t} \| ∀v∈\vs{A}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}
+  ; line <$\{\v{λx t} \| ∀v∈{\vs{A} ∖ \{\v{□}\}}, \t{t[x≔v]} ∈ \ts{B[x≔v]}\}
       ∪ \{\v{□}\}$>
   ; empty ]
 )
 \end{env}
 \end{center}
-The proof is very similar when we quantify over term variables, but it
-requires the use of \lemma("texttyp").
+The proof for $\vs{∀a (a∈A ⇒ B)}$ is similar but it requires
+\lemma("texttyp").
 \end{proof}
 \end{lem}
 
