@@ -138,7 +138,7 @@ let derived_rules () =
 (* *)
 In this chapter, we consider the encoding of dependent types (i.e., a form
 of typed quantification) into our system. However, the expressiveness of
-such constructs is considerably limited by value restriction. To solve
+such constructs is considerably limited by the value restriction. To solve
 this issue we introduce the notion of //semantical value restriction//,
 which allows the system to accept many more programs. Obtaining a model
 justifying //semantical value restriction// will require us to change our
@@ -181,8 +181,8 @@ $$
 \binaryRN{Π_{τ,e}}{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
   {Σ \sp Γ ; Ξ ⊢_\tval v : A}{Σ \sp Γ ; Ξ ⊢ \t{t v} : \f{B[a≔v]}}
 $$
-Note that both elimination rules require value restriction on their
-second premise. In other words, dependent functions can only
+Note that both elimination rules require the value restriction on
+their second premise. In other words, dependent functions can only
 be applied to values. The four new typing rules can immediately be
 used to extend the type system as they are derivable. Hence, we
 do not have to extend our adequacy lemma (\thmRef("adequacy") or
@@ -307,15 +307,15 @@ The proof for $\vs{∀a (a∈A ⇒ B)}$ is similar but it requires
 
 =<
 
-=> The limits of value restriction
+=> The limits of the value restriction
 
-In languages like OCaml, value restriction is not an issue. Indeed, it
-is only required on the typing rule for polymorphism, and programmers almost
-never notice it as they mostly define functions (which are values). Moreover,
-if a problematic instance of value restriction is encountered, one can always
-use a dummy $λ$-abstraction (or an $η$-expansion) to transform a term into
-a value. A common example of this situation arises when working with
-combinators (e.g. parser combinators) and partial application. As an
+In languages like OCaml, the value restriction is not so problematic. Indeed,
+it is only required on the typing rule for polymorphism, and programmers
+almost never notice it as they mostly define functions (which are values).
+Moreover, if an instance of the value restriction is encountered, one can
+always use a dummy $λ$-abstraction (or an $η$-expansion) to transform a term
+into a value. A common example of this situation arises when working with
+combinators (e.g., parser combinators) and partial application. As an
 example, let us consider the code bellow (written in OCaml syntax).
 ### OCaml
 (* type 'a gr                               *)
@@ -337,28 +337,29 @@ this new combinator to be as generic as possible, so that it can be applied
 to any parser, with any return type. However, the combinator ##mono##
 defined above is only weakly polymorphic. This means that we will only be
 able to apply it to parsers of one fixed (but yet unknown) type. Of course,
-##seq any## is not a value, and value restriction applies. To solve this
-lack of generality, one need to rely on an $η$-expansion as in ##poly##,
-which has the expected type ##'a parser -> (char, 'a) parser##.
+##seq any## is not a value, and the value restriction applies. To solve
+this lack of generality, one need to rely on an $η$-expansion as in
+##poly##, which has the expected type ##'a parser -> (char, 'a) parser##.
 
 As the definition of ##seq## is probably something like
 ##fun p1 p2 -> body##, the value restriction is actually not required in
 ##mono##. Indeed, the evaluation of ##seq any## would instantly reduce to
 a value (without any side-effect) in one $β$-reduction. This means that
 ##seq any## could actually be considered a value. However, as discussed
-in the introduction, value restriction is a very simple and elegant way
-to ensure the soundness of the type system. For this reason, the
-limitations discussed here are certainly not enough of a problem to
-motivate the design and implementation of a more complex criterion.
+in \chapter("intro"), the value restriction is a very simple and elegant
+way to ensure the soundness of the type system. For this reason, the
+limitations discussed here do not pose a big enough problem to motivate
+the design of a more complex criterion in usual ML-like languages.
 
-In our system, value restriction is not only required on the introduction
-rule for the universal quantifier, but also on the introduction rule for
+In our system, however, the value restriction is not only required on
+the introduction rule for the universal quantifier, but also on the
+introduction rule for
 the membership predicate. As it is used to derive the ($Π_{ι,e}$) and
-($Π_{τ,e}$) rules, value restriction is enforced on the argument of
-dependent functions. This restriction is indeed necessary as an
-unrestricted ($∈_i$) rule breaks the consistency (and the type safety) of
-our system. To support this claim, we will consider the system in which
-($∈_i$) has been replaced by the following (unrestricted) typing rule.
+($Π_{τ,e}$) rules, the value restriction is enforced on the argument of
+dependent functions. It is indeed necessary as an unrestricted ($∈_i$)
+rule breaks the consistency (and the type safety) of our system. To
+support this claim, we will consider the system in which ($∈_i$) has
+been replaced by the following (unrestricted) typing rule.
 \begin{center}
 $ \unaryRN{∈_{i,⊥}}{Σ \sp Γ,Ξ ⊢ t : A} {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}$
 \end{center}
@@ -375,7 +376,7 @@ $$
 \proofTree{
  \binaryN{⇒_e}{Σ \sp Γ ; Ξ ⊢ \t{t u} : \f{B[a≔u]}}{
    \unaryN{∀_e}{Σ \sp Γ ; Ξ ⊢ t : \f{u∈A ⇒ B[a≔u]}}{
-   \unary{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
+   \unaryN{Def}{Σ \sp Γ ; Ξ ⊢ t : \f{∀a (a∈A ⇒ B)}}{
      \hyp{Σ \sp Γ ; Ξ ⊢ t : \f{Π_(a∈A) B}}
    }}
  }{
@@ -386,7 +387,7 @@ $$
 }
 $$
 
-For convenience, we will also introduced a strong application rule that
+For convenience, we will also introduce a strong application rule that
 can also be derived directly using ($∈_{i,⊥}$). This typing rule will be
 used to keep track of the argument used for a function, while typing the
 function itself.
@@ -409,9 +410,9 @@ $$
 $$
 
 We will now build a counter-example to the consistency of the system
-without the value restriction on the introduction of the membership
-predicate. We will provide a typable term that that reduces to a value
-that is not in its type. We consider the term
+extended with the ($∈_{i,⊥}$) rule for the membership predicate. We
+will construct a typable term that reduces to a value that does not
+belong to the expected type. We consider the term
 $t = \t{(λf(λ_v (f F[{}])) (f T[{}])) μα w}$
 in which $v$ and $w$ are defined as follows.
 \begin{center}
