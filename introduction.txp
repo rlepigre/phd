@@ -193,8 +193,8 @@ using a partial decision procedure that is driven by the construction of
 programs. An equational context is maintained by the type checker to keep
 track of the equivalences that are assumed to be true during the
 construction of proofs. This context is extended whenever a new
-equation is learned (e.g. when a lemma is applied), and equations are
-proved by looking for contradictions (e.g. when two different variants
+equation is learned (e.g., when a lemma is applied), and equations are
+proved by looking for contradictions (e.g., when two different variants
 are supposed equivalent).
 
 To illustrate the proof mechanism, we will consider simple examples of
