@@ -88,6 +88,9 @@ let rec build_list l =
 let chapters l =
   (tT "Chapters ") :: build_list (List.map sectref l)
 
+let lemmas l =
+  (tT "Lemmas ") :: build_list (List.map (generalRef my_theorem_counter) l)
+
 let theorems l =
   (tT "Theorems ") :: build_list (List.map (generalRef my_theorem_counter) l)
 

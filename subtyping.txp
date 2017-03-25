@@ -847,15 +847,15 @@ We consider the last rules used in the proof.
 \item In the case of the ($μ$) rule, we need to show that $\t{μαt} ⊩ A$,
   which is the same as $\t{μα⟦t⟧} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$
   and show $\p{μα⟦t⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is $({↠})$-saturated,
-  it is enough to show $\p{⟦t⟧[α≔π] ∗ π} = \p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$.
-  consequently, we need to show that $\t{⟦t[α≔π]⟧} ∈ \ts{A}$ since we
-  know that $π ∈ \ss{A}$. Let us now suppose that there is a stack
-  $\s{ξ} ∈ \ss{A}$ such that $\t{⟦t[α≔ξ]⟧} ∉ \ts{A}$. In this case we
-  can suppose that we have $\t{⟦εα∈A(t∉A)⟧} = ξ$ and this gives a
-  contradiction. Indeed, the induction hypothesis tells us that
-  $\t{⟦t[α≔εα∈A(t∉A)]⟧} ∈ \ts{A}$. As a consequence, we have
-  $\t{⟦t[α≔ξ]⟧} ∈ \ts{A}$ for all $ξ ∈ \ss{A}$. In particular, this is
-  true for $ξ = π$.
+  it is enough to show $\p{⟦t⟧[α≔π] ∗ π} = \p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$ and
+  as $π ∈ \ss{A}$ we only need to show $\t{⟦t[α≔π]⟧} ∈ \ts{A}$.
+  (* *)
+  Let us now suppose that there is a stack $\s{ξ} ∈ \ss{A}$ such that
+  $\t{⟦t[α≔ξ]⟧} ∉ \ts{A}$. In this case we can assume that we have
+  $ξ = \t{⟦εα∈A(t∉A)⟧}$ but this contradicts the induction hypothesis
+  which tells us that $\t{⟦t[α≔εα∈A(t∉A)]⟧} ∈ \ts{A}$. As a consequence,
+  we have $\t{⟦t[α≔ξ]⟧} ∈ \ts{A}$ for all $ξ ∈ \ss{A}$. In particular,
+  this is true for $ξ = π$.
   \begin{center}
     $\id(r_mu)$
   \end{center}
@@ -863,9 +863,9 @@ We consider the last rules used in the proof.
 \item In the case of the ($[\wc]$) rule, we need to show that $\t{[π]u}
   ⊩ B$, which is the same as $\t{[⟦π⟧]⟦u⟧} ∈ \ts{B}$. We thus take
   $ξ ∈ \ss{B}$ and show that $\p{[⟦π⟧]⟦u⟧ ∗ ξ} ∈ \dbot$. As $\dbot$ is
-  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ ⟦π⟧} ∈ \dbot$. This
-  is immediate since our two induction hypotheses give respectively
-  $\t{⟦u⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈ \ss{A}$.
+  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ ⟦π⟧} ∈ \dbot$ but
+  this is immediate since we have $\t{⟦u⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈
+  \ss{A}$ by induction hypothesis.
   \begin{center}
     $\id(r_name)$
   \end{center}
@@ -873,44 +873,53 @@ We consider the last rules used in the proof.
 \item In the case of the ($Ax^⊥$) rule, we need to show that
   $\s{εα∈A(t∉A)} ⊩ B$, which is the same as $\s{⟦εα∈A(t∉A)⟧} ∈ \ss{B}$.
   By induction hypothesis, we know that $\t{εx∈B(x∉A)}⊩B⊂A$ and thus we
-  can apply \lemma("subtypingincl") to obtain $\vs{B} ⊆ \vs{A}$.
-  According to \lemma("orthoinclstack") this means that $\ss{A} ⊆ \ss{B}$
-  and thus it is enough to show that $\s{⟦εα∈A(t∉A)⟧} ∈ \ss{A}$. This
-  is immediate since $\s{⟦εα∈A(t∉A)⟧}$ is either equal to some stack
-  $π ∈ \ss{A}$ or to $\s{ε}$. In this second case, we can also conclude
-  since $\s{ε} ∈ \ss{A}$ follows from the fact that $\dbot$ only contains
-  processes reducing to a final state.
+  can apply \lemma("subtypingincl") to get $\vs{B} ⊆ \vs{A}$. Using
+  \lemma("orthoinclstack") we then obtain $\ss{A} ⊆ \ss{B}$ and thus
+  it is enough to show $\s{⟦εα∈A(t∉A)⟧} ∈ \ss{A}$. We now reason by
+  case on the definition of $\s{⟦εα∈A(t∉A)⟧}$. It is either defined
+  to be a stack in $π ∈ \ss{A}$ (with some properties) in which case
+  we can conclude immediately, or it is defined to be the stack
+  $\s{[□]ε}$. In this second case we take a value $v ∈ \vs{A}$ and
+  we show $\p{v∗[□]ε} ∈ \dbot$. If $v = \v{□}$ then we have
+  $\p{□∗[□]ε} ↠ \p{□∗ε}$ and otherwise we have $\p{v∗[□]ε} ↠
+  \p{□∗v·ε} ↠ \p{□∗ε}$. In both cases we can conclude since
+  $\dbot$ is $({↠})$-saturated and we have $\p{□∗ε} ∈ \dbot$.
   \begin{center}
     $\id(r_ax_bot)$
   \end{center}
 
 \item In the case of the ($\wc·\wc$) rule, we need to show that
-  $\s{v·π} ⊩ C$, which is the same as $\s{⟦v⟧·⟦π⟧} ∈ \ss{C}$. According to
-  the third induction hypothesis, combined with \lemma("subtypingincl")
-  and \lemma("orthoinclstack"), we have $\ss{A⇒B} ⊆ \ss{C}$. As a
-  consequence, it is enough for us to show $\s{⟦v⟧·⟦π⟧} ∈ \ss{A⇒B}$.
-  We thus take a value $\v{w} ∈ \vs{A⇒B}$ and we show that
-  $\p{w ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$. If $\v{w} = \v{□}$ then it is enough to
-  show that $\p{□ ∗ ⟦π⟧} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated.
-  This is immediate since $\s{⟦π⟧} ∈ \ss{B}$ by the second
-  induction hypothesis and $\v{□} ∈ \vs{B}$ as $\vs{B} ∈ ⟦ο⟧$.
-  If $\v{w} = \v{λx f}$ then it is enough to show that
-  $\p{f[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$ as $({↠})$-saturated. Using the
-  second induction hypothesis, we only need to show that
-  $\t{f[x≔⟦v⟧]} ∈ \ts{B}$. This follows from the definition of
-  $\vs{A⇒B}$ since we know that $\v{⟦v⟧} ∈ \vs{A}$ using the first
-  induction hypothesis.
+  $\s{v·π} ⊩ C$, which is the same as $\s{⟦v⟧·⟦π⟧} ∈ \ss{C}$.
+  Thanks to \lemmas(["orthoinclstack" ; "subtypingincl"]) and the
+  third induction hypothesis we know that $\ss{A⇒B} ⊆ \ss{C}$. It
+  is hence enough to show $\s{⟦v⟧·⟦π⟧} ∈ \ss{A⇒B}$, so we take
+  $\v{w} ∈ \vs{A⇒B}$ and show $\p{w ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$.
+  If $\v{w} = \v{□}$ then it is enough to show $\p{□ ∗ ⟦π⟧} ∈ \dbot$
+  as $\dbot$ is $({↠})$-saturated. This is immediate since
+  $\s{⟦π⟧} ∈ \ss{B}$ by the second induction hypothesis and
+  $\v{□} ∈ \vs{B}$. If $\v{w} = \v{λx f}$ then it is enough to show
+  that $\p{f[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$ as $({↠})$-saturated. Using the
+  second induction hypothesis, we only need to show $\t{f[x≔⟦v⟧]} ∈
+  \ts{B}$. As $\v{⟦v⟧} ∈ \ts{A}$ and $\v{⟦v⟧} ≠ \v{□}$ by our first
+  induction hypothesis conclude by definition of $\vs{A⇒B}$ using
+  \theorem("main").
   \begin{center}
     $\id(r_push)$
   \end{center}
 
 \item In the case of the ($[\wc]\wc$) rule, we need to show that
-  $\s{[t]π} ⊩ A$, which is the same as $\s{⟦[t]π⟧} ∈ \ss{A}$. We thus
-  take a value $v ∈ \vs{A}$ and we show that $\p{v ∗ [⟦t⟧]⟦π⟧} ∈ \dbot$.
-  As $\dbot$ is $({↠})$-saturated, it is enough to show $\p{⟦t⟧ ∗ v·⟦π⟧}
-  ∈ \dbot$. Using the first induction hypothesis we have $\t{⟦t⟧} ∈
-  \ts{A⇒B}$. As a consequence, we only need to show $\s{v·⟦π⟧} ∈
-  \ss{A⇒B}$. This can be done as in the proof of the previous case.
+  $\s{[t]π} ⊩ A$, which is the same as $\s{[⟦t⟧]⟦π⟧} ∈ \ss{A}$.
+  We thus take $v ∈ \vs{A}$ and show $\p{v ∗ [⟦t⟧]⟦π⟧} ∈ \dbot$.
+  If $v = \v{□}$ we have $\p{□∗[⟦t⟧]⟦π⟧} ↠ \p{□∗⟦π⟧}$ and since
+  $\dbot$ is $({↠})$-saturated we only need to show $\p{□∗⟦π⟧} ∈
+  \dbot$. This is immediate as $\s{⟦π⟧} ∈ \ss{B}$ by our second
+  induction hypothesis and $\v{□} ∈ \vs{B}$. If $\v{v} ≠ \v{□}$
+  then we have $\p{v∗[⟦t⟧]⟦π⟧} ↠ \p{⟦t⟧ ∗ v·⟦π⟧}$ and since
+  $\dbot$ is $({↠})$-saturated, it is enough to show
+  $\p{⟦t⟧ ∗ v·⟦π⟧} ∈ \dbot$. By the first induction hypothesis
+  we have $\t{⟦t⟧} ∈ \ts{A⇒B}$ so we only need to show
+  $\s{v·⟦π⟧} ∈ \ss{A⇒B}$. This can be done as in the proof of the
+  previous case.
   \begin{center}
     $\id(r_fram)$
   \end{center}
@@ -918,13 +927,12 @@ We consider the last rules used in the proof.
 \item In the case of the ($×_e$) rule, we need to show that $\t{v.lk} ⊩ A$,
   which is the same as $\t{⟦v⟧.lk} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$ and
   show that $\p{⟦v⟧.lk ∗ π} ∈ \dbot$. By induction hypothesis, we know that
-  $\v{⟦v⟧} ∈ \ts{{lk:A;⋯}}$. Moreover, using \theorem("main") this gives us
-  $\v{⟦v⟧} ∈ \vs{{lk:A;⋯}}$. If $\v{⟦v⟧} = \v{□}$ then it is enough to show
-  that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated. This is
-  immediate since $π ∈ \ss{A}$ and $\v{□} ∈ \vs{A}$ as $\vs{A} ∈ ⟦ο⟧$.
-  If $\v{⟦v⟧} = \v{{(li = wi) i∈I}}$ with $k ∈ I$ then it is enough to show
-  $\p{wk ∗ π} ∈ \dbot$ as $\dbot$ is $({↠})$-saturated. This is immediate
-  since $\v{wk} ∈ \vs{A}$ by definition of $\vs{{lk:A;⋯}}$ and $π ∈ \ss{A}$.
+  $\v{⟦v⟧} ∈ \ts{{lk:A;⋯}}$ and that $\v{⟦v⟧} ≠ \v{□}$. Moreover, using
+  \theorem("main") we obtain $\v{⟦v⟧} ∈ \vs{{lk:A;⋯}}$ and thus
+  $\v{⟦v⟧} = \v{{(li = wi) i∈I}}$ with $k ∈ I$ and $\v{vk} ∈ \vs{A}$.
+  As a consequence we only need to prove $\p{wk ∗ π} ∈ \dbot$ since $\dbot$
+  is $({↠})$-saturated. This is immediate as $\v{wk} ∈ \vs{A}$ and
+  $π ∈ \ss{A}$.
   \begin{center}
     $\id(r_prod_e)$
   \end{center}
@@ -932,8 +940,8 @@ We consider the last rules used in the proof.
 \item In the case of the ($×_i$) rule, we need to show $\t{{(li = vi) i∈I}}
   ⊩ C$. Using the first induction hypothesis, it is enough to show that
   $\t{{(li = ⟦vi⟧) i∈I}} ∈ \vs{{(li : Ai) i∈I}}$. By definition, we need to
-  show that $\v{⟦vi⟧} ∈ \vs{Ai}$ for all $i ∈ I$. This follows from the
-  induction hypotheses and \theorem("main").
+  show that $\v{⟦vi⟧} ∈ {\vs{Ai} ∖ \{\v{□}\}}$ for all $i ∈ I$. This
+  follows by \theorem("main") using the induction hypotheses.
   \begin{center}
     $\id(r_prod_i)$
   \end{center}
