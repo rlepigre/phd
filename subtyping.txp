@@ -31,14 +31,17 @@
 \Caml(
 let r_arrow_i =
   <$\binaryRN{⇒_i}{Ξ ⊢ \t{λx t} ∈ \f{A ⇒ B} ⊂ C}
-    {Ξ ⊢ \t{t[x ≔ εx∈A(t∉B)]} : \f{B}}{Ξ ⊢ \t{λx t} : C}$>
+    {Ξ, \v{εx∈A(t∉B)} ≠ \v{□} ⊢ \t{t[x ≔ εx∈A(t∉B)]} : \f{B}}
+    {Ξ ⊢ \t{λx t} : C}$>
 
 let r_arrow_e =
   <$\binaryRN{⇒_e}{Ξ ⊢ \t{t} : \f{A ⇒ B}}
     {Ξ ⊢ \t{u} : \f{A}}{Ξ ⊢ \t{t u} : \f{B}}$>
 
 let r_ax =
-  <$\unaryRN{Ax}{Ξ ⊢ ε_{x∈A}(t∉B) ∈ A ⊂ C}{Ξ ⊢ ε_{x∈A}(t∉B) : C}$>
+  <$\binaryRN{Ax}{Ξ ⊢ \v{εx∈A(t∉B)} ∈ A ⊂ C}
+    {Ξ ⊢ \v{εx∈A(t∉B)} ≠ □}
+    {Ξ ⊢ \v{εx∈A(t∉B)} : C}$>
 
 let r_arrow_ee =
   <$\ternaryRN{⇒_{e,{∈}}}{Ξ ⊢ \t{t} : \f{u∈A ⇒ B}}
@@ -71,7 +74,7 @@ let r_equiv =
 
 let r_sum_e =
   <$\binaryRN{+_e}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
-    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai({} ∉ v ≡ Ci[xi])]} ⊢
+    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
       \t{ti[xi ≔ εxi∈Ai(ti∉C)]} : \f{C})_{i∈I}}
     {Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
 
@@ -89,8 +92,9 @@ let r_ax_gen =
   <$\unaryRN{Gen}{Ξ ⊢ A ⊂ B}{Ξ ⊢ \t{t} : A ⊂ B}$>
 
 let r_arrow =
-  <$\ternaryRN{⇒}{Ξ ⊢ \t{εx∈A₂(t x∉B₂)} ∈ \f{A₂} ⊂ \f{A₁}}
-    {Ξ ⊢ \t{t εx∈A₂(t x∉B₂)} ∈ \f{B₁} ⊂ \f{B₂}}
+  <$\ternaryRN{{⇒} \hspace(1.0) \mathsize(4.0){w = \v{εx∈A₂(t x∉B₂)}}}
+    {Ξ, w ≠ \v{□} ⊢ w ∈ \f{A₂} ⊂ \f{A₁}}
+    {Ξ, w ≠ \v{□} ⊢ \t{t w} ∈ \f{B₁} ⊂ \f{B₂}}
     {Ξ ⊢ t ≡ v}
     {Ξ ⊢ \t{t} ∈ \f{A₁ ⇒ B₁} ⊂ \f{A₂ ⇒ B₂}}$>
 
@@ -254,8 +258,9 @@ let r_fix =
 let typ_rs env =
   let env = resize_env 3.5 env in
   let rs =
-    [ [ r_arrow_i ; r_arrow_e ]
-    ; [ r_ax ; r_arrow_ee ]
+    [ [ r_arrow_i ]
+    ; [ r_ax ]
+    ; [ r_arrow_e ; r_arrow_ee ]
     ; [ r_mu ; r_name ; r_ax_bot ]
     ; [ r_push ; r_fram ]
     ; [ r_prod_e ; r_prod_i ]
@@ -579,14 +584,29 @@ notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v{εx∈A(x∉B)}$.
 \end{def}
 
 To keep track of the special value $\v{□}$ in our judgments, we will
-use inequivalences of the form $v \nequiv \v{□}$. They will be defined
-in terms of an usual equivalence, so we do not need to extend our
+use inequivalences of the form $v ≠ \v{□}$. They will be defined in
+terms of an usual equivalence, so we do not need to extend our
 definitions formally.
 \begin{def}
-Given a closed value $v ∈ Λ_ι^{∗}$ we will use the notation $v \nequiv
-\v{□}$ for the syntactic equivalence $\t{(λx {}) v} ≡ \t{{}}$ in
-equational contexts.
+Given a closed value $v ∈ Λ_ι^{∗}$ we will use the notation $v ≠ \v{□}$
+for the syntactic equivalence $\t{(λx {}) v} ≡ \t{{}}$ in equational
+contexts.
 \end{def}
+As show by the following lemma, this notation provides the right
+intuition as it agrees with the semantics.
+\begin{lem}
+Given a closed value $v ∈ Λ_ι^{∗}$ we have $\t{(λx {}) v} ≡ \t{{}}$
+if and only if $v ≠ \v{□}$.
+\begin{proof}
+Let us first assume that $v ≠ \v{□}$ and show $\t{(λx {}) v} ≡ \t{{}}$.
+Since $v$ is closed, it cannot be a $λ$-variable and so we can conclude
+immediately using \theorem("cbvbeta"). For the other direction we show
+the contrapositive so we assume $v = \v{□}$ and we show $\t{(λx {}) v}
+\nequiv \t{{}}$. According to \theorem("boxbetared") we have
+$\t{(λx {}) □} ≡ \t{□}$ and so it is enough to show
+$\v{□} \nequiv \v{{}}$. This follows from \theorem("canonbox").
+\end{proof}
+\end{lem}
 
 \begin{def}
 A general typing judgment, general stack judgment or pointed subtyping
@@ -599,7 +619,6 @@ is unable to prove a premise of the form $Ξ ⊢ v ≡ t$ in a local
 subtyping rule, one can always fallback to the ($Gen$) rule.
 
 \Caml(let _ = typrules ()) (* NOTE can be moved *)
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 =<
 => Semantics of subtyping
@@ -608,26 +627,29 @@ We will now adapt our model to work with our new typing and subtyping
 rules. The main problem that we need to solve is the interpretation of
 raw terms, values and stacks. In particular, we need to provide an
 interpretation to our choice operators. In \cite("Lepigre2017"), the
-choice operator $\v{εx∈A(t∉B)}$ is interpreted using a $v ∈ \vs{A}$
+choice operator $\v{εx∈A(t∉B)}$ is interpreted using a value $v ∈ \vs{A}$
 such that $\t{t[x≔v]}$ is in the semantics of $B$. In the case where
 no such value exists, an arbitrary member of $\vs{A}$ is chosen. Here,
 a crucial point is that the set $\vs{A}$ should not be empty. It is
 the case here as by construction we have $\v{□} ∈ \vs{A}$ for every
 proposition $A$. This special value $\v{□}$ will thus be understood
 as an undefined value witness.
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 \begin{lem}\label("noboxred")
 Let $p ∈ Λ×Π$ be a process such that $\v{□} ∉ p$. If there is $q ∈ Λ×Π$
 such that $p ↠ q$ then $\v{□} ∉ q$.
 \begin{proof}
-Most of the reduction rules of $({↠})$ only build a new process by moving
-around pieces of syntax appearing in $p$. As a consequence, such a rule
-cannot make $\v{□}$ appear, if it was not already present in the process
-being reduced. All the remaining rules are related to binders, and
-obviously if $t$, $v$ and $π$ do not contain $\v{□}$, then neither
-$\f{t[x≔v]}$ nor $\f{t[α≔π]}$ do.
+Most reduction rules of $({↠})$ only build a new process using components
+of the process $p$ being evaluated. Hence, they cannot make $\v{□}$ appear
+it was not already present in $p$. The remaining rules are related to
+binders, and obviously if $t$, $v$ and $π$ do not contain $\v{□}$, then
+neither do $\f{t[x≔v]}$ or $\f{t[α≔π]}$.
 \end{proof}
 \end{lem}
+Similarly, if a variable does not appear in a process then it cannot appear
+during reduction. In particular, the evaluation of a closed process never
+produces an open process.
 
 In the semantics, raw values, raw terms and raw stacks will be interpreted
 using values, terms and stacks with the same structure. The underlying

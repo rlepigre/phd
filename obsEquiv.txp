@@ -422,9 +422,9 @@ the second reduction step can only be taken because $v$ is not equal to
 $\v{□}$ or to a $λ$-variable.
 \end{proof}
 \end{thm}
-\begin{thm}
+\begin{thm}\label("boxbetared")
 The equivalence $\t{□ v} ≡ \t{□}$ holds for every value $v ∈ Λ_ι$ that is
-not a $λ$-abstraction. Similarly, the equivalence $\t{t □} ≡ \t{□}$ holds
+not a $λ$-variable. Similarly, the equivalence $\t{t □} ≡ \t{□}$ holds
 for every term $t ∈ Λ$.
 \begin{proof}
 If $v ≠ \v{□}$ then for all $π∈Π$ we have $\p{□ v∗π} ≻ \p{v∗[□]π} ≻
