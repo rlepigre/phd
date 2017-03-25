@@ -436,13 +436,14 @@ Obviously, the same trick can be used for $μ$-variables and
 $μ$-abstractions. As for choice operators for values, choice
 operators for stack will need to always be well-defined. As
 a consequence, we will need to make sure that the set of stacks
-associated to each type contain at least the empty stack $\s{ε}$.
+associated to each type contain at least one element.
 
 The use of choice operators and the elimination of typing contexts
 will plays an essential role in the definition of our type system.
 Indeed, they will allow us to handle quantifiers using our local
-subtyping relation only. This will allow us to work with syntax-directed
-typing rules, and most of the work will be done using subtyping.
+subtyping relation only. As a consequence, we will work with
+syntax-directed typing rules and most of the work will be done
+using subtyping.
 (* *)
 We will thus introduce two new type constructors $\f{εX(t∈A)}$ and
 $\f{εX(t∉A)}$ corresponding to choice operators for picking a type
@@ -471,20 +472,19 @@ $$
   \hspace(4.0)
   \f{{l₁ : ∀X A; l₂ : ∀X B}} ⊂ \f{∀X {l₁ : A; l₂ : B}}
 $$
-can be easily derived. Consequently, our type system mostly
-contains typing and subtyping rules that are syntax-directed.
-In particular, we do not have a transitivity rule for subtyping
-and this is a good thing since such a rule cannot be implemented.
-Indeed, it would require the system to guess an intermediate
-type. Transitivity is generally admissible in subtyping systems.
+can be easily obtained thanks to our syntax-directed subtyping rules.
+In particular, they do not include a transitivity, and this is a good
+thing since such a rule could not be implemented. Indeed, it would
+require the system to guess an intermediate type.
+(* *)
+Transitivity is generally admissible in subtyping systems.
 In our system however, it is an open problem whether a form of
 transitivity is admissible. However, type annotations of the form
 $((t : A) : B) : C$ can always be used to decompose a proof of
 $t : C$ into proofs of $t : A$, $t ∈ A ⊂ B$ and $t ∈ B ⊂ C$. Such
-annotations are required in the implementations of systems having
-an admissible transitivity rule as well. Indeed, applying a
-transitivity rule without annotations would require the algorithm
-to guess the intermediate types $A$ and $C$.
+annotations are also required in the implementations of systems
+having a transitivity rule. Indeed, without annotations the system
+would need to guess the intermediate types $A$ and $B$.
 
 =<
 => Typing and subtyping rules
@@ -532,9 +532,9 @@ $
 $
 \end{center}
 It is important to note that the variable $x$ (resp. $α$) should not
-be bound in $A$ in both rules. Moreover, thanks to the sorting rules
-no other variable than $x$ (resp. $α$) may be bound in $t$. These
-restrictions are required for the definition of our semantics.
+be bound in $A$. Moreover, thanks to the sorting rules no other
+variable than $x$ (resp. $α$) may be bound in $t$. These restrictions
+are required for the definition of our semantics.
 \end{def}
 \begin{def}
 We will refer to values, terms and stacks that may contain value
@@ -555,9 +555,8 @@ they cannot have additional record fields. One solution to this problem
 would be to amend the semantics of product types. Instead, we will keep our
 original, //strict// product type, and introduce another //extensible//
 product type.
-\Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{def}
-We extend the syntax of formulas $\cal{F}$ with an //extensible product
+The syntax of formulas $\cal{F}$ is extended with an //extensible product
 type// constructors $\f{{(li : Ai) i∈I ; ⋯}}$. Our system again requires
 a new sorting rule.
 \begin{center}
@@ -568,7 +567,6 @@ $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li:Ai)i∈I;⋯}} : ο}$
 
 We will now give the new typing and subtyping rules of our system, which
 will contains three (and in fact four) new forms of judgments.
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 \begin{def}
 A //general typing judgment// is a triple of an equational context
 $Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
@@ -579,15 +577,29 @@ of an equational context $Ξ$, a raw term $t∈Λ^{+}$ and two formulas
 $A$, $B ∈ \cal{F}$ that is denoted $Ξ ⊢ t ∈ A ⊂ B$. We will use the
 notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v{εx∈A(x∉B)}$.
 \end{def}
+
+To keep track of the special value $\v{□}$ in our judgments, we will
+use inequivalences of the form $v \nequiv \v{□}$. They will be defined
+in terms of an usual equivalence, so we do not need to extend our
+definitions formally.
 \begin{def}
-A general typing judgment, a general stack judgment or a pointed
-subtyping judgment is said to be correct if it is derivable using
-the rules of \figRefs(["typrules" ; "subrules"]).
+Given a closed value $v ∈ Λ_ι^{∗}$ we will use the notation $v \nequiv
+\v{□}$ for the syntactic equivalence $\t{(λx {}) v} ≡ \t{{}}$ in
+equational contexts.
+\end{def}
+
+\begin{def}
+A general typing judgment, general stack judgment or pointed subtyping
+judgment is said to be valid if it can be derived using the rules of
+\figRefs(["typrules" ; "subrules"]).
 \end{def}
 There is nothing too surprising about our new typing rules. Note
 however that, in the case where our equivalence decision procedure
 is unable to prove a premise of the form $Ξ ⊢ v ≡ t$ in a local
 subtyping rule, one can always fallback to the ($Gen$) rule.
+
+\Caml(let _ = typrules ()) (* NOTE can be moved *)
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 =<
 => Semantics of subtyping
