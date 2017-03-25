@@ -40,7 +40,7 @@ let r_arrow_e =
 
 let r_ax =
   <$\binaryRN{Ax}{Ξ ⊢ \v{εx∈A(t∉B)} ∈ A ⊂ C}
-    {Ξ ⊢ \v{εx∈A(t∉B)} ≠ □}
+    {Ξ ⊢ \v{εx∈A(t∉B)} ≠ \v{□}}
     {Ξ ⊢ \v{εx∈A(t∉B)} : C}$>
 
 let r_arrow_ee =
@@ -594,7 +594,7 @@ contexts.
 \end{def}
 As show by the following lemma, this notation provides the right
 intuition as it agrees with the semantics.
-\begin{lem}
+\begin{lem}\label("specialequiv")
 Given a closed value $v ∈ Λ_ι^{∗}$ we have $\t{(λx {}) v} ≡ \t{{}}$
 if and only if $v ≠ \v{□}$.
 \begin{proof}
@@ -765,14 +765,14 @@ the proof of $Ξ ⊢ π : ¬A$ and the proof of $Ξ ⊢ t ∈ A ⊆ B$ respectiv
 We consider the last rules used in the proof.
 \begin{itemize}
 \item In the case of the ($⇒_i$) rule, we need to show that $\t{λx t}⊩C$.
-  Using the first induction hypothesis, it is enough to show $\t{λx t} ⊩
-  \f{A ⇒ B}$. Let us now suppose that there is a value $v ∈ \vs{A}$ such
-  that $\t{⟦t[x≔v]⟧} ∉ \ts{B}$. In this case we can suppose that we have
-  $\t{⟦εx∈A(x∉B)⟧} = v$ and this gives a contradiction as, according to
-  our second induction hypothesis, we have $\t{⟦t[x≔εx∈A(t∉B)]⟧} ∈ \ts{B}$.
-  As a consequence, we have $\t{⟦t[x≔v]⟧} ∈ \ts{B}$ for all $v ∈ \vs{A}$,
-  which exactly means that $\v{⟦λx t⟧} ∈ \vs{A⇒B}$. We can thus conclude
-  using \theorem("orthosimple").
+  According to the first induction hypothesis, it is enough to show
+  $\t{λx t} ⊩ \f{A ⇒ B}$. Let us now suppose that there is a value
+  $v ∈ {\vs{A} ∖ \{\v{□}\}}$ such that $\t{⟦t[x≔v]⟧} ∉ \ts{B}$. In this
+  case we get a contradiction with our induction hypothesis since we must
+  have $\t{⟦εx∈A(x∉B)⟧} ≠ \v{□}$ and $\t{⟦t[x≔εx∈A(x∉B)]⟧} ∉ \ts{B}$. As
+  a consequence, we know that $\t{⟦t[x≔v]⟧} ∈ \ts{B}$ for all
+  $v ∈ {\vs{A} ∖ \{\v{□}\}}$, which exactly means that $\v{⟦λx t⟧} ∈
+  \vs{A⇒B}$. We can thus conclude using \theorem("orthosimple").
   \begin{center}
     $\id(r_arrow_i)$
   \end{center}
@@ -780,31 +780,40 @@ We consider the last rules used in the proof.
 \item In the case of the ($⇒_e$) rule, we need to show that $\t{t u} ⊩ B$,
   which is the same as $\t{⟦t⟧ ⟦u⟧} ∈ \ts{B}$. We thus take $π ∈ \ss{B}$
   and we show that $\p{⟦t⟧ ⟦u⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is
-  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$.
-  Since $⟦u⟧ ∈ \ts{A}$ by the second induction hypothesis, we will prove
+  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$. As
+  $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis, we will prove
   that $\s{[⟦t⟧]π} ∈ \ss{A}$. We thus take $v ∈ \vs{A}$ and show that we
-  have $\p{v ∗ [⟦t⟧]π} ∈ \dbot$. Again, since $\dbot$ is $({↠})$-saturated
-  it is enough to show that $\p{⟦t⟧ ∗ v·π} ∈ \dbot$. As $⟦t⟧ ∈ \ts{A ⇒ B}$
-  according to the first induction hypothesis, we only have to show that
-  $\s{v·π} ∈ \ts{A⇒B}$ so we take $\v{w} ∈ \vs{A⇒B}$ and show that
-  $\p{w ∗ v·π} ∈ \dbot$. If $w = \v{□}$ then we have $\p{□∗v·π} ↠ \p{□∗π}$
-  and it is enough to show $\p{□∗π}∈\dbot$ as $\dbot$ is $({↠})$-saturated.
-  Since $π ∈ \ss{B}$ we only have to show that $\v{□} ∈ \vs{B}$ which is
-  immediate since $\vs{B} ∈ ⟦ο⟧$. If $w = \v{λx f}$ then we have
-  $\p{λx f ∗ v·π} ↠ \p{f[x ≔ v] ∗ π}$ and it is enough to show
-  $\p{f[x ≔ v] ∗ π} ∈ \dbot$ since $\dbot$ is $({↠})$-saturated. Since 
-  $\s{π} ∈ \ss{B}$ it only remains to show $\t{f[x ≔ v]} ∈ \ts{B}$, but
-  this is true by definition of $\vs{A ⇒ B}$ since $\v{v} ∈ \vs{A}$.
+  have $\p{v ∗ [⟦t⟧]π} ∈ \dbot$.
+  (* *)
+  If $v = \v{□}$ then we have $\p{□ ∗ [⟦t⟧]π} ↠ \p{□ ∗ π}$ and since
+  $\dbot$ is $({↠})$-saturated it is enough to show $\p{□∗π} ∈ \dbot$,
+  which is immediate since $π ∈ \ss{B}$ and $\v{□} ∈ \vs{B}$.
+  (* *)
+  Now, if $v ≠ \v{□}$ then $\p{v ∗ [⟦t⟧]π} ↠ \p{⟦t⟧ ∗ v·π}$ and as $\dbot$
+  is $({↠})$-saturated it is enough to show $\p{⟦t⟧ ∗ v·π} ∈ \dbot$. Since
+  $⟦t⟧ ∈ \ts{A ⇒ B}$ according to the first induction hypothesis, we only
+  have to show that $\s{v·π} ∈ \ts{A⇒B}$ so we take $\v{w} ∈ \vs{A⇒B}$ and
+  show that $\p{w ∗ v·π} ∈ \dbot$.
+  (* *)
+  If $w = \v{□}$ then $\p{□∗v·π} ↠ \p{□∗π}$ and it is enough to show
+  $\p{□∗π}∈\dbot$ as $\dbot$ is $({↠})$-saturated. This is immediate
+  since $π ∈ \ss{B}$ and $\v{□} ∈ \vs{B}$.
+  (* *)
+  If $w = \v{λx f}$ then $\p{λx f ∗ v·π} ↠ \p{f[x ≔ v] ∗ π}$ and it
+  is enough to show $\p{f[x ≔ v] ∗ π} ∈ \dbot$ since $\dbot$ is
+  $({↠})$-saturated. As $\s{π} ∈ \ss{B}$ it only remains to show
+  $\t{f[x ≔ v]} ∈ \ts{B}$, but this is true by definition of
+  $\vs{A ⇒ B}$ since $\v{v} ∈ {\vs{A} ∖ \{\v{□}\}}$.
   \begin{center}
     $\id(r_arrow_e)$
   \end{center}
 
-\item In the case of the ($Ax$) rule, we need to show that
-  $\t{εx∈A(t∉B)} ⊩ C$. Using the induction hypothesis, it is enough
-  to show $\t{εx∈A(t∉B)} ⊩ A$. Moreover, according to \lemma("orthosimple")
-  we only need to prove $\v{⟦εx∈A(t∉B)⟧} ∈ \vs{A}$. This is immediate
-  since $\t{⟦εx∈A(t∉B)⟧}$ is either equal to some $v ∈ \vs{A}$ or to
-  $\v{□}$ (and $\v{□} ∈ \vs{A}$ since $\vs{A} ∈ ⟦ο⟧$).
+\item In the case of the ($Ax$) rule, we need to $\t{εx∈A(t∉B)} ⊩ C$. Using
+  the induction hypothesis, it is enough to show $\t{εx∈A(t∉B)} ⊩ A$.
+  Moreover, according to \lemma("orthosimple") we only need to prove
+  $\v{⟦εx∈A(t∉B)⟧} ∈ \vs{A}$, which follows by definition since
+  $\v{□} ∈ \vs{A}$. Moreover, we obtain $\v{⟦εx∈A(t∉B)⟧} ≠ \v{□}$
+  using the right premise with \lemma("specialequiv").
   \begin{center}
     $\id(r_ax)$
   \end{center}
@@ -815,19 +824,21 @@ We consider the last rules used in the proof.
   $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ [⟦t⟧]π} ∈ \dbot$. Now,
   as our pole is $({≡})$-extensional and we know that $\t{⟦u⟧} ≡ \t{⟦v⟧}$
   for a value $v$, it is enough to show that $\p{⟦v⟧ ∗ [⟦t⟧]π} ∈ \dbot$.
-  Again, as $\dbot$ is $({↠})$-saturated, it is enough to show
-  $\p{⟦t⟧ ∗ ⟦v⟧·π} ∈ \dbot$. Since we know that $⟦t⟧ ∈ \ts{u∈A ⇒ B}$ by
-  our first induction hypothesis, we only need to show
-  $\s{⟦v⟧·π} ∈ \ss{u∈A ⇒ B}$. We thus take a value $\v{w} ∈ \vs{u∈A ⇒ B}$
-  and show that $\p{w ∗ ⟦v⟧·π} ∈ \dbot$. If $\v{w} = \v{□}$ then we can
-  conclude as for the ($⇒_e$) rule. If $\v{w} = \v{λx f}$ then we can
-  again take a reduction step and show that $\p{f[x≔⟦v⟧] ∗ π} ∈ \dbot$,
-  for which it is enough to show that $\t{f[x≔⟦v⟧]} ∈ \vs{B}$. To conclude
-  using the definition of $\vs{u∈A ⇒ B}$, we need to show that $\t{⟦v⟧} ∈
-  \vs{u∈A}$. As we have $\t{⟦u⟧} ≡ \t{⟦v⟧}$, we only need to show that
-  that $\t{⟦v⟧} ∈ \vs{A}$. Using \theorem("main") it is enough to show that
-  $\t{⟦v⟧} ∈ \ts{A}$. This follows from \theorem("poleext") since
-  $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis and we know that
+  (* *)
+  If $\v{⟦v⟧} = \v{□}$ then we can conclude as for the ($⇒_e$) rule and
+  otherwise we can show $\p{⟦t⟧ ∗ ⟦v⟧·π} ∈ \dbot$ as $\dbot$ is
+  $({↠})$-saturated. As $⟦t⟧ ∈ \ts{u∈A ⇒ B}$ by our first induction
+  hypothesis, we only need to show $\s{⟦v⟧·π} ∈ \ss{u∈A ⇒ B}$. We thus
+  take a value $\v{w} ∈ \vs{u∈A ⇒ B}$ and show $\p{w ∗ ⟦v⟧·π} ∈ \dbot$.
+  If $\v{w} = \v{□}$ then we can conclude as for the ($⇒_e$) rule. If
+  $\v{w} = \v{λx f}$ then we can again take a reduction step and show
+  that $\p{f[x≔⟦v⟧] ∗ π} ∈ \dbot$, for which it is enough to show
+  $\t{f[x≔⟦v⟧]} ∈ \vs{B}$. To conclude using the definition of
+  $\vs{u∈A ⇒ B}$ we need to show $\t{⟦v⟧} ∈ {\vs{u∈A} ∖ \{\v{□}\}}$.
+  Since we have $\t{⟦v⟧} ≠ \v{□}$ and $\t{⟦u⟧} ≡ \t{⟦v⟧}$ we only need
+  to show $\t{⟦v⟧} ∈ \vs{A}$. Using \theorem("main") it is enough to
+  show $\t{⟦v⟧} ∈ \ts{A}$, which follows from \theorem("poleext") as
+  $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis since
   $\t{⟦u⟧} ≡ \t{⟦v⟧}$.
   \begin{center}
     $\id(r_arrow_ee)$
