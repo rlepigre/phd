@@ -54,7 +54,7 @@ let r_ax_bot =
   <$\unaryRN{Ax^⊥}{Ξ ⊢ B ⊂ A}{Ξ ⊢ \s{εα∈A(t∉A)} : ¬B}$>
 
 let r_push =
-  <$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ \f{A⇒B} ⊂ C}
+  <$\ternaryRN{\wc·\wc}{Ξ ⊢ v : A}{Ξ ⊢ π : ¬B}{Ξ ⊢ C ⊂ \f{A⇒B}}
     {Ξ ⊢ \s{v·π} : ¬C}$>
 
 let r_fram =
@@ -71,7 +71,7 @@ let r_equiv =
 
 let r_sum_e =
   <$\binaryRN{+_e}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
-    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
+    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai({} ∉ v ≡ Ci[xi])]} ⊢
       \t{ti[xi ≔ εxi∈Ai(ti∉C)]} : \f{C})_{i∈I}}
     {Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
 
@@ -450,15 +450,15 @@ satisfying the denoted properties. For example, $\f{εX(t∉B)}$ is a
 type such that the term $t$ does not have type $\f{B[X≔εX(t∉B)]}$.
 Intuitively, $\f{εX(t∉B)}$ is a counter-example to the judgment
 "$t$ has type $\f{∀X B}$". Hence, to show that $t$ has type
-$\f{∀X B}$, it will be enough to show that it has type
-$\f{B[X≔εX(t∉B)]}$. As a consequence, our typing rule for the
-introduction of the universal quantifier is subsumed by the
-following local subtyping rule.
+$\f{∀X B}$ it will be enough to show that it has type
+$\f{B[X≔εX(t∉B)]}$. As a consequence, the introduction rule for
+the universal quantifier is subsumed by the following local
+subtyping rule.
 \begin{center}
 $ \binaryR{Ξ ⊢ t ∈ A ⊂ \f{B[X≔εX(t∉B)]}}{Ξ ⊢ t ≡ v}
           {Ξ ⊢ t ∈ A ⊂ \f{∀X B}} $
 \end{center}
-Note that the rule includes a premise stating the term $t$ carried by
+Note that it includes a premise stating that the term $t$ carried by
 the judgments should be equivalent to a value. This corresponds to
 the semantical value restriction condition in our new system with
 subtyping.
@@ -473,8 +473,8 @@ $$
 $$
 can be easily derived. Consequently, our type system mostly
 contains typing and subtyping rules that are syntax-directed.
-In particular, we do not have a transitivity rule for subtyping.
-It is not a problem since such a rule cannot be implemented.
+In particular, we do not have a transitivity rule for subtyping
+and this is a good thing since such a rule cannot be implemented.
 Indeed, it would require the system to guess an intermediate
 type. Transitivity is generally admissible in subtyping systems.
 In our system however, it is an open problem whether a form of
@@ -482,7 +482,7 @@ transitivity is admissible. However, type annotations of the form
 $((t : A) : B) : C$ can always be used to decompose a proof of
 $t : C$ into proofs of $t : A$, $t ∈ A ⊂ B$ and $t ∈ B ⊂ C$. Such
 annotations are required in the implementations of systems having
-and admissible transitivity rule as well. Indeed, applying a
+an admissible transitivity rule as well. Indeed, applying a
 transitivity rule without annotations would require the algorithm
 to guess the intermediate types $A$ and $C$.
 
@@ -495,16 +495,18 @@ with subtyping. We will reuse some of the formalism given in
 instance, we will need to extend the language of values, stacks
 and formulas to include choice operators.
 \begin{def}
-We will extend the language of formulas $\cal{F}$ with two new
+We extend the language of formulas $\cal{F}$ with new
 constructors $\f{εχ∈s(t∈A)}$ and $\f{εχ∈s(t∉A)}$ representing
 choice operators. They will be made available in the syntax, and
 will provide an alternative presentation of quantifiers. Note that
 our system needs to be extended with the following two sorting
 rules.
 \begin{center}
-$ \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : ο}
+$
+  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∈A)} : s}
   \hspace(4.0)
-  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∉A)} : ο} $
+  \binaryR{Σ ⊢ t : τ}{Σ, χ : s ⊢ A : ο}{Σ ⊢ \f{εχ∈s(t∉A)} : s}
+$
 \end{center}
 \linesAfter(0) (* FIXME hack. *)
 \end{def}
@@ -523,13 +525,16 @@ $μ$-variable, $t∈Λ$ is a term and $A∈\cal{F}$ is a
 proposition. Note that our system needs to be extended
 with the following two sorting rules.
 \begin{center}
-$ \ternaryR{Σ ⊢ A:ο}{x:ι ⊢ t:τ}{Σ ⊢ B : ο}{Σ ⊢ \t{εx∈A(t∉B)}:ι}
-  \hspace(4.0) \binaryR{Σ ⊢ A:ο}{α:σ ⊢ t:τ}{Σ ⊢ \s{εα∈A(t∉A)}:σ} $
+$
+  \ternaryR{⊢ A:ο}{x:ι ⊢ t:τ}{x:ι ⊢ B : ο}{Σ ⊢ \t{εx∈A(t∉B)}:ι}
+  \hspace(4.0)
+  \binaryR{⊢ A:ο}{α:σ ⊢ t:τ}{Σ ⊢ \s{εα∈A(t∉A)}:σ}
+$
 \end{center}
-It is important to note that the variable $x$ (resp. $α$) is
-only bound in $t$. Moreover, thanks to the sorting rules, no
-other variable than $x$ (resp. $α$) may be bound in $t$. This
-restriction is required for the definition of our semantics.
+It is important to note that the variable $x$ (resp. $α$) should not
+be bound in $A$ in both rules. Moreover, thanks to the sorting rules
+no other variable than $x$ (resp. $α$) may be bound in $t$. These
+restrictions are required for the definition of our semantics.
 \end{def}
 \begin{def}
 We will refer to values, terms and stacks that may contain value
@@ -550,19 +555,20 @@ they cannot have additional record fields. One solution to this problem
 would be to amend the semantics of product types. Instead, we will keep our
 original, //strict// product type, and introduce another //extensible//
 product type.
+\Caml(let _ = typrules ()) (* NOTE can be moved *)
 \begin{def}
-We extend the syntax of formulas $\cal{F}$ with a constructors
-$\f{{(li : Ai) i∈I ; ⋯}}$ for the //extensible product type//. Our
-system again requires a new sorting rule.
+We extend the syntax of formulas $\cal{F}$ with an //extensible product
+type// constructors $\f{{(li : Ai) i∈I ; ⋯}}$. Our system again requires
+a new sorting rule.
 \begin{center}
 $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li:Ai)i∈I;⋯}} : ο}$
 \end{center}
 \linesAfter(0) (* FIXME hack. *)
 \end{def}
-\Caml(let _ = typrules ()) (* NOTE can be moved *)
 
 We will now give the new typing and subtyping rules of our system, which
 will contains three (and in fact four) new forms of judgments.
+\Caml(let _ = subrules ()) (* NOTE can be moved *)
 \begin{def}
 A //general typing judgment// is a triple of an equational context
 $Ξ$, a raw term $t∈Λ^+$ and a formula $A ∈ \cal{F}$ that is denoted
@@ -576,13 +582,12 @@ notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v{εx∈A(x∉B)}$.
 \begin{def}
 A general typing judgment, a general stack judgment or a pointed
 subtyping judgment is said to be correct if it is derivable using
-the rules of \figRefs(["subrules"; "typrules"]).
+the rules of \figRefs(["typrules" ; "subrules"]).
 \end{def}
 There is nothing too surprising about our new typing rules. Note
 however that, in the case where our equivalence decision procedure
 is unable to prove a premise of the form $Ξ ⊢ v ≡ t$ in a local
 subtyping rule, one can always fallback to the ($Gen$) rule.
-\Caml(let _ = subrules ()) (* NOTE can be moved *)
 
 =<
 => Semantics of subtyping
@@ -784,7 +789,7 @@ We consider the last rules used in the proof.
   for which it is enough to show that $\t{f[x≔⟦v⟧]} ∈ \vs{B}$. To conclude
   using the definition of $\vs{u∈A ⇒ B}$, we need to show that $\t{⟦v⟧} ∈
   \vs{u∈A}$. As we have $\t{⟦u⟧} ≡ \t{⟦v⟧}$, we only need to show that
-  that $\t{⟦v⟧} ∈ \vs{A}$. Using \thmRef("main") it is enough to show that
+  that $\t{⟦v⟧} ∈ \vs{A}$. Using \theorem("main") it is enough to show that
   $\t{⟦v⟧} ∈ \ts{A}$. This follows from \theorem("poleext") since
   $⟦u⟧ ∈ \ts{A}$ by our second induction hypothesis and we know that
   $\t{⟦u⟧} ≡ \t{⟦v⟧}$.
@@ -795,7 +800,7 @@ We consider the last rules used in the proof.
 \item In the case of the ($μ$) rule, we need to show that $\t{μαt} ⊩ A$,
   which is the same as $\t{μα⟦t⟧} ∈ \ts{A}$. We thus take $π ∈ \ss{A}$
   and show $\p{μα⟦t⟧ ∗ π} ∈ \dbot$. Since $\dbot$ is $({↠})$-saturated,
-  it is enougth to show $\p{⟦t⟧[α≔π] ∗ π} = \p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$.
+  it is enough to show $\p{⟦t⟧[α≔π] ∗ π} = \p{⟦t[α≔π]⟧ ∗ π} ∈ \dbot$.
   consequently, we need to show that $\t{⟦t[α≔π]⟧} ∈ \ts{A}$ since we
   know that $π ∈ \ss{A}$. Let us now suppose that there is a stack
   $\s{ξ} ∈ \ss{A}$ such that $\t{⟦t[α≔ξ]⟧} ∉ \ts{A}$. In this case we
@@ -811,7 +816,7 @@ We consider the last rules used in the proof.
 \item In the case of the ($[\wc]$) rule, we need to show that $\t{[π]u}
   ⊩ B$, which is the same as $\t{[⟦π⟧]⟦u⟧} ∈ \ts{B}$. We thus take
   $ξ ∈ \ss{B}$ and show that $\p{[⟦π⟧]⟦u⟧ ∗ ξ} ∈ \dbot$. As $\dbot$ is
-  $({↠})$-saturated, it is enougth to show $\p{⟦u⟧ ∗ ⟦π⟧} ∈ \dbot$. This
+  $({↠})$-saturated, it is enough to show $\p{⟦u⟧ ∗ ⟦π⟧} ∈ \dbot$. This
   is immediate since our two induction hypotheses give respectively
   $\t{⟦u⟧} ∈ \ts{A}$ and $\s{⟦π⟧} ∈ \ss{A}$.
   \begin{center}
@@ -835,7 +840,7 @@ We consider the last rules used in the proof.
 \item In the case of the ($\wc·\wc$) rule, we need to show that
   $\s{v·π} ⊩ C$, which is the same as $\s{⟦v⟧·⟦π⟧} ∈ \ss{C}$. According to
   the third induction hypothesis, combined with \lemma("subtypingincl")
-  and \lemma("orthoinclstack"), we have $\ss{C} ⊆ \ss{A⇒B}$. As a
+  and \lemma("orthoinclstack"), we have $\ss{A⇒B} ⊆ \ss{C}$. As a
   consequence, it is enough for us to show $\s{⟦v⟧·⟦π⟧} ∈ \ss{A⇒B}$.
   We thus take a value $\v{w} ∈ \vs{A⇒B}$ and we show that
   $\p{w ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$. If $\v{w} = \v{□}$ then it is enough to
@@ -843,9 +848,9 @@ We consider the last rules used in the proof.
   This is immediate since $\s{⟦π⟧} ∈ \ss{B}$ by the second
   induction hypothesis and $\v{□} ∈ \vs{B}$ as $\vs{B} ∈ ⟦ο⟧$.
   If $\v{w} = \v{λx f}$ then it is enough to show that
-  $\p{t[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$ as $({↠})$-saturated. Using the
+  $\p{f[x≔⟦v⟧] ∗ ⟦π⟧} ∈ \dbot$ as $({↠})$-saturated. Using the
   second induction hypothesis, we only need to show that
-  $\t{t[x≔⟦v⟧]} ∈ \ts{B}$. This follows from the definition of
+  $\t{f[x≔⟦v⟧]} ∈ \ts{B}$. This follows from the definition of
   $\vs{A⇒B}$ since we know that $\v{⟦v⟧} ∈ \vs{A}$ using the first
   induction hypothesis.
   \begin{center}
@@ -891,23 +896,17 @@ We consider the last rules used in the proof.
   $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$. We thus take a stack
   $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈ \dbot$.
   Using the first induction hypothesis (together with \theorem("main")) we
-  learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$. If $\v{⟦w⟧} = \v{□}$ then
+  learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$. If $\v{⟦v⟧} = \v{□}$ then
   we only need to show that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is
   $({↠})$-saturated. This is immediate since $π ∈ \ss{C}$ and
   $\v{□} ∈ \vs{C}$ as $\vs{C} ∈ ⟦ο⟧$. If $\t{⟦v⟧} = \t{Ck[w]}$ for some
   $k ∈ I$ and $w ∈ \vs{Ai}$ then we only need to show that
   $\p{⟦tk⟧[xk≔w] ∗ π} = \p{⟦tk[xk≔w]⟧ ∗ π} ∈ \dbot$ as $\dbot$ is
   $({↠})$-saturated. It is thus enough to show that $\t{⟦tk[xk≔w]⟧} ∈
-  \ts{C}$. Let us now suppose that there is a value $\v{vk} ∈ \vs{Ak}$
-  such that $\t{⟦tk[xk≔vk]⟧} ∉ \ts{C}$. If $w$ is not such a value then
-  we can conclude since this means that we have $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$.
-  However, if $\t{⟦tk[xk≔w]⟧} ∉ \ts{C}$ then we can assume that
-  $\t{⟦εxk∈Ak(tk∉C)⟧} = \v{w}$. In this case, as
+  \ts{C}$. If it is false then we can assume that
+  $\v{w} = \t{⟦εxk∈Ak(tk∉C)⟧}$. In this case, as
   $\v{⟦v⟧} ≡ \v{⟦Ck[w]⟧} = \v{Ck[w]}$, the induction hypothesis gives us
-  $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$, which is a contradiction. It only remains
-  to consider the case where we have $\t{⟦tk[xk≔vk]⟧} ∈ \ts{C}$ for all
-  $\v{vk} ∈ \vs{Ak}$. In particular, this is true for $\v{vk} = w$ and
-  thus we can conclude.
+  $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$, which is a contradiction.
   \begin{center}
     $\id(r_sum_e)$
   \end{center}
@@ -915,22 +914,21 @@ We consider the last rules used in the proof.
 \item In the case of the ($+_i$) rule, we need to show $\t{Ck[v]} ⊩ B$.
   Using the second induction hypothesis, it is enough to show that
   $\t{Ck[⟦v⟧]} ∈ \ts{[Ck:A]}$. By definition, it is enough to show that
-  $\v{⟦v⟧} ∈ \vs{A}$. This follows from the combination of the first
-  induction hypothesis with \theorem("main").
+  $\v{⟦v⟧} ∈ \vs{A}$ which follows from \theorem("main") since we have
+  $\v{⟦v⟧} ∈ \ts{A}$ according to our first induction hypothesis.
   \begin{center}
     $\id(r_sum_i)$
   \end{center}
 
-\item In the case of the ($≡$) rule, we need to show $\t{t[a≔u₁]} ⊩
-  \f{A[a≔u₁]}$, which is the same as $\t{⟦t[a≔u₁]⟧} ∈ \ts{A[a≔u₁]}$.
-  Since we have $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ we know that we have
-  $\vs{A[a≔u₁]} = \vs{A[a≔u₂]}$ according to \lemma("texttyp"). As
-  a consequence, it is enough to show that we have $\t{⟦t[a≔u₁]⟧} ∈
-  \ts{A[a≔u₂]}$. Since $\t{⟦t[a≔u₂]⟧} ∈ \ts{A[a≔u₂]}$ by
-  induction hypothesis, we only need to show that
-  $\t{⟦t[a≔u₁]⟧} ≡ \t{⟦t[a≔u₂]⟧}$ to be able to conclude using
-  \theorem("poleext"). Since we know that $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ this
-  follows from \theorem("fullextterm").
+\item In the case of the ($≡$) rule, we need to show $\t{t[a≔u₂]} ⊩
+  \f{A[a≔u₂]}$, which is the same as $\t{⟦t[a≔u₂]⟧} ∈ \ts{A[a≔u₂]}$.
+  Since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ we can use \lemma("texttyp") to obtain
+  $\vs{A[a≔u₁]} = \vs{A[a≔u₂]}$ and thus showing $\t{⟦t[a≔u₂]⟧} ∈
+  \ts{A[a≔u₁]}$ is enough. By induction hypothesis we have
+  $\t{⟦t[a≔u₁]⟧} ∈ \ts{A[a≔u₁]}$ so we only need to show
+  $\t{⟦t[a≔u₁]⟧} ≡ \t{⟦t[a≔u₂]⟧}$ to be able to
+  conclude with \theorem("poleext"). Since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$
+  this follows from \theorem("fullextterm").
   \begin{center}
     $\id(r_equiv)$
   \end{center}
@@ -942,8 +940,8 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($Gen$) rule, we need to show that $t ⊩ A ⊂ B$.
-  Using the induction hypothesis with \lemRef("subtypingincl") we obtain
-  $\vs{A} ⊆ \vs{B}$, and we can thus conclude using \lemRef("orthoincl").
+  Using the induction hypothesis with \lemma("subtypingincl") we obtain
+  $\vs{A} ⊆ \vs{B}$, and we can thus conclude using \lemma("orthoincl").
   \begin{center}
     $\id(r_ax_gen)$
   \end{center}
@@ -955,23 +953,23 @@ We consider the last rules used in the proof.
   \ts{A₁⇒B₁}$ and we only have to show that $\t{⟦v⟧} ∈ \ts{A₂⇒B₂}$. With
   \theorem("main") we even have $\t{⟦v⟧} ∈ \vs{A₁⇒B₁}$ and we can show
   $\t{⟦v⟧} ∈ \vs{A₂⇒B₂}$. If $\v{⟦v⟧} = \v{□}$ then this is immediate
-  as we have $\v{□} ∈ \vs{A₁⇒B₁}$ and $\v{□} ∈ \vs{A₂⇒B₂}$ by definition.
+  as we have $\v{□} ∈ \vs{A₂⇒B₂}$ by definition.
   Let us now suppose that $\t{⟦v⟧} = \t{λx f}$ and that for all
   $w ∈ \vs{A₁}$ we have $\t{f[x≔w]} ∈ \ts{B₁}$.
   (* *)
   If for all $w∈\vs{A₂}$ we have $\t{⟦t⟧ w} ∈ \ts{B₂}$ then, since we have
-  $\t{⟦t⟧} ≡ \t{λx f}$, we can use \theorem("fullextterm") and
-  \theorem("poleext") to get $\t{(λx f) w} ∈ \ts{B₂}$. We can then use
-  \thmRef("cbvbeta") to obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same reason.
+  $\t{⟦t⟧} ≡ \t{λx f}$, we can use \theorems(["poleext" ; "fullextterm"])
+  to get $\t{(λx f) w} ∈ \ts{B₂}$. We can then use
+  \theorem("cbvbeta") to obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same reason.
   This exactly means that we have $\t{⟦v⟧} = \t{λx f} ∈ \vs{A₂⇒B₂}$.
   (* *)
   Finally, let us suppose that $\t{⟦t⟧ w} ∉ \ts{B₂}$ for some value
   $w ∈ \vs{A₂}$. We can assume that $\t{⟦εx∈A₂(t x∉B₂)⟧} = w$ and
-  thus the second induction hypothesis gives us $w ∈ \vs{A₁}$. We then
+  thus the first induction hypothesis gives us $w ∈ \vs{A₁}$. We then
   obtain that $\t{f[x≔w]} ∈ \ts{B₁}$ by definition of $\vs{A₁⇒B₁}$.
-  Now, using again \thmRef("cbvbeta") and \thmRef("fullextterm") we obtain
-  $\t{f[x≔w]} ≡ \t{⟦t⟧ w}$ and thus we can conclude using the second
-  induction hypothesis.
+  Now, using again \theorems(["cbvbeta" ; "fullextterm"]) we obtain
+  $\t{f[x≔w]} ≡ \t{⟦t⟧ w}$ and thus we get a contradiction with the
+  second induction hypothesis.
   \begin{center}
     $\id(r_arrow)$
   \end{center}
@@ -987,10 +985,10 @@ We consider the last rules used in the proof.
   the term $\t{⟦(λx[x|Ck[xk]→xk]) t⟧} = \t{(λx[x|Ck[xk]→xk]) ⟦t⟧}$.
   As we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{Ck[w]}$, we know
   $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{(λx[x|Ck[xk]→xk]) Ck[w]}$.
-  Using \thmRef("cbvbeta") and \thmRef("equivtrivial") we even obtain
+  Using \theorems(["cbvbeta" ; "equivtrivial"]) we even obtain
   $\t{(λx[x|Ck[xk]→xk]) ⟦t⟧} ≡ \t{w}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
-  and \thmRef("main").
+  and \theorem("main").
   \begin{center}
     $\id(r_sum)$
   \end{center}
@@ -1006,10 +1004,10 @@ We consider the last rules used in the proof.
   and consider the term $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As we
   have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
   $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. Using
-  \thmRef("cbvbeta") and \thmRef("equivtrivial") we obtain
+  \theorems(["cbvbeta" ; "equivtrivial"]) we obtain
   $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$. We can hence conclude using the
   induction hypothesis, the $({≡})$-extensionality of the pole and
-  \thmRef("main").
+  \theorem("main").
   \begin{center}
     $\id(r_prod)$
   \end{center}
@@ -1024,10 +1022,10 @@ We consider the last rules used in the proof.
   $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
   we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
   $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. Using
-  \thmRef("cbvbeta") and \thmRef("equivtrivial") we obtain
+  \theorems(["cbvbeta" ; "equivtrivial"]) we obtain
   $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$. We can hence conclude using
   the induction hypothesis, the $({≡})$-extensionality of the pole
-  and \thmRef("main").
+  and \theorem("main").
   \begin{center}
     $\id(r_prod_ext1)$
   \end{center}
@@ -1056,7 +1054,7 @@ We consider the last rules used in the proof.
   and $\t{⟦v⟧} ≡ \t{⟦t⟧}$ for some value $v$, we have $\t{⟦v⟧} ∈
   \ts{B[χ ≔ εχ∈s(t∉B)]}$ according to \theorem("poleext"). For the
   same reason, it will be enough for us to show that
-  $\t{⟦v⟧} ∈ \ts{∀χ^s B}$. With \thmRef("main") we even have
+  $\t{⟦v⟧} ∈ \ts{∀χ^s B}$. With \theorem("main") we even have
   $\t{⟦v⟧} ∈ \vs{B[χ ≔ εχ∈s(t∉B)]}$ and we can show
   $\t{⟦v⟧} ∈ \vs{∀χ^s B}$.
   (* *)
@@ -1066,7 +1064,7 @@ We consider the last rules used in the proof.
   (* *)
   As a consequence, it must be that for every formula $Φ ∈ ⟦s⟧$ we have
   $\t{⟦t⟧} ∈ \ts{B[χ≔Φ]}$, or equivalently $\t{⟦v⟧} ∈ \vs{B[χ≔Φ]}$ using
-  \theorem("poleext") and \thmRef("main"). This immediately implies that
+  \theorems(["poleext" ; "main"]). This immediately implies that
   $\t{⟦v⟧} ∈ \vs{∀χ^s B}$.
   \begin{center}
     $\id(r_forall_r)$
@@ -1077,7 +1075,7 @@ We consider the last rules used in the proof.
   suppose $t ⊩ \f{A}$ and show $t ⊩ \f{∃χ^s B}$. Using the induction
   hypothesis, we know that $\t{t} ⊩ \f{B[χ≔C]}$. As a consequence, we
   only need to show $\ts{B[χ≔C]} ⊆ \ts{∃χ^s B}$. This immediatly follows
-  from the definition of $\vs{∃χ^s B}$ using \lemRef("orthoincl").
+  from the definition of $\vs{∃χ^s B}$ using \lemma("orthoincl").
   \begin{center}
     $\id(r_exists_r)$
   \end{center}
@@ -1086,15 +1084,14 @@ We consider the last rules used in the proof.
   ($∀_r$) rule. We need to show that $t ⊩ \f{∃χ^s A} ⊂ \f{B}$ so we
   suppose $\t{t} ⊩ \f{∃χ^s A}$ and show $\t{t} ⊩ \f{B}$. To be able to
   use the induction hypothesis, we need to show that $\t{⟦t⟧} ∈
-  \ts{A[χ ≔ εχ∈s(t∈A)]}$, provided that $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$.
-  As we have $\t{⟦v⟧} ≡ \t{⟦t⟧}$ we can use \theorem("poleext") and
-  \theorem("main"), assume $\v{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$ and show
-  $\v{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$.
+  \ts{A[χ ≔ εχ∈s(t∈A)]}$, provided that $\t{⟦t⟧} ∈ \ts{∃χ^s A}$.
+  As we have $\t{⟦v⟧} ≡ \t{⟦t⟧}$ we can use \theorems(["poleext";"main"]),
+  assume $\v{⟦v⟧} ∈ \vs{∃χ^s A}$ and show $\v{⟦v⟧} ∈ \vs{A[χ ≔ εχ∈s(t∈A)]}$.
   (* *)
   We will now suppose, by contradiction, that for every element $Φ$ of
   $⟦s⟧$ we have $\t{⟦t⟧} ∉ \ts{A[χ≔Φ]}$ and thus $\t{⟦v⟧} ∉ \vs{A[χ≔Φ]}$
   using again \theorems(["poleext"; "main"]). This is a contradiction
-  since this exacly means that $\t{⟦v⟧} ∉ \vs{∃χ^s A}$.
+  since this exactly means that $\t{⟦v⟧} ∉ \vs{∃χ^s A}$.
   (* *)
   Hence, there must be $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$. As
   a consequence, we can suppose that $\vs{A[χ ≔ εχ∈s(t∈A)]} = \vs{A[χ≔Φ]}$,
@@ -1109,10 +1106,10 @@ We consider the last rules used in the proof.
   we show $\t{⟦t⟧} ∈ \ts{B}$. As in the case of the ($⇒$) rule, we know that
   $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that we have $\t{⟦v⟧} ∈ \vs{A∧u₁≡u₂}$
   and we can show $\t{⟦v⟧} ∈ \vs{B}$. Now, if $\v{⟦v⟧} = \v{□}$ then we can
-  conclude immediatly. Otherwise, we have $\v{⟦v⟧} ∈ \vs{A}$ and
+  conclude immediately. Otherwise, we have $\v{⟦v⟧} ∈ \vs{A}$ and
   $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ by definition of $\vs{A∧u₁≡u₂}$. As a consequence,
-  we can apply the induction hypothesis to obtain $\t{⟦v⟧} ∈ \vs{B}$ (using
-  the fact that the $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$).
+  we get $\t{⟦v⟧} ∈ \vs{B}$ by induction hypothesis (using $\t{⟦u₁⟧} ≡
+  \t{⟦u₂⟧}$).
   \begin{center}
     $\id(r_rest_l)$
   \end{center}
@@ -1120,8 +1117,9 @@ We consider the last rules used in the proof.
 \item In the case of the ($\restriction_r$) rule, we need to show that
   $t ⊩ A ⊂ \f{B∧u₁≡u₂}$. We thus assume $\t{t} ⊩ \f{A}$ and show $\t{t}
   ⊩ \f{B∧u₁≡u₂}$. Using the induction hypothesis, we know that $\t{t} ⊩
-  \f{B}$. We will thus conclude the proof by showing that $\vs{B∧u₁≡u₂}
-  = \vs{B}$. This is immediate since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ by hypothesis.
+  \f{B}$. We will thus conclude the proof by showing $\vs{B∧u₁≡u₂}
+  = \vs{B}$, which implies $\ts{B∧u₁≡u₂} = \ts{B}$. This is immediate
+  since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ by hypothesis.
   \begin{center}
     $\id(r_rest_r)$
   \end{center}
@@ -1194,15 +1192,14 @@ example, unary natural numbers or lists.
 
 \begin{thm}
 Let $\f{A} ∈ \cal{F}₀$ be a simple data type. For every value $\v{v} ∈
-\vs{A}$ such that $\v{□} ∉ \vs{A}$ the judgment $⊢ v : A$ is derivable.
+{\vs{A} ∖ \{\v{□}\}}$ the judgment $⊢ v : A$ is derivable.
 \begin{proof}
-We do a proof by induction on the structure of $\f{A}$. If $A$ is of the
-form $\f{{(li : Ai) i∈I}}$ then we know that $\v{v} = \v{{(li = vi)i∈I}}$
-with $\v{vi} ∈ \vs{Ai}$. We cannot have $\v{v} = \v{□}$ as we assumed
-that $\v{v}$ does not contain $\v{□}$. As a consequence, the induction
-hypotheses give us a proof of $⊢ \v{vk} : \f{Ak}$ for all $k ∈ I$. We
-can thus build a proof of $⊢ \v{{(li = vi)i∈I}} : \f{{(li : Ai) i∈I}}$
-as follows.
+We do a proof by induction on the structure of $\f{A}$. If it is of the
+form $\f{{(li : Ai) i∈I}}$ then by definition $\v{v} = \v{{(li = vi)i∈I}}$
+with $\v{vi} ∈ {\vs{Ai} ∖ \{\v{□}\}}$ since $v ≠ \v{□}$. As a consequence,
+the induction hypotheses give us a proof of $⊢ \v{vk} : \f{Ak}$ for all
+$k ∈ I$. We can thus build a proof of
+$⊢ \v{{(li = vi)i∈I}} : \f{{(li : Ai) i∈I}}$ as follows.
 \begin{proofTree}
 \Caml(
 let p =
@@ -1216,12 +1213,14 @@ let p =
 $$\fit(p)$$
 \end{center}
 \end{proofTree}
-If $A$ is of the form $\f{[(Ci : Ai) i∈I]}$ then we know that $\v{v} =
-\v{Ck[w]}$ with $k ∈ I$ and $\v{w} ∈ \f{Ak}$. Again, we cannot have
-$\v{v} = \v{□}$ as we assumed that $\v{v}$ does not contain $\v{□}$. Our
-induction hypothesis hence gives us a derivation of $⊢ \v{w} : \f{Ak}$.
-We can thus build a proof of $⊢ \v{Ck[w]} : \f{[(Ci : Ai) i∈I]}$ as
-follows.
+Note that the base case of our induction is the empty record type $\f{{}}$.
+In this case the above proof does not have any open premise.
+
+If $A$ is of the form $\f{[(Ci : Ai) i∈I]}$ then by definition we have
+$\v{v} = \v{Ck[w]}$ with $k ∈ I$ and $\v{w} ∈ {\vs{Ak} ∖ \{\v{□}\}}$ since
+$v ≠ \v{□}$. Our induction hypothesis hence gives us a derivation of
+$⊢ \v{w} : \f{Ak}$ that we can use to build a proof of
+$⊢ \v{Ck[w]} : \f{[(Ci : Ai) i∈I]}$ as follows.
 \begin{proofTree}
 \Caml(
 let p =
@@ -1238,8 +1237,6 @@ let p =
 $$\fit(p)$$
 \end{center}
 \end{proofTree}
-Note that the base case of our induction is the empty record type $\f{{}}$.
-In this case the proof only does not have any open premise.
 \end{proof}
 \end{thm}
 
@@ -1266,8 +1263,8 @@ that we can apply our main theorem (\theorem("main")).
 
 \begin{thm}\label("fullnorm")
 Every closed, typed term normalises. More precisely, for every term
-$t∈Λ^{∗}$ such that $⊢ t : A$ is derivable, there is $v∈Λ_ι^{∗}$ such
-that $\p{t∗π} ↠^{∗} \p{v∗ε}$.
+$t∈Λ^{∗}$ such that $⊢ t : A$ is derivable, there is $v∈{Λ_ι^{∗} ∖
+\{\v{□}\}}$ such that $\p{t∗π} ↠^{∗} \p{v∗ε}$.
 \begin{proof}
 We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ↠^{∗} \p{v∗ε}\}$ which is
 trivially saturated. Moreover, this pole only contains processes that reduce
@@ -1280,14 +1277,16 @@ and thus there must be a value $w$ such that $\p{u∗π} ↠_k^{∗} \p{w∗ε}$
 a consequence, we have $\p{u∗π} ↠^{∗} \p{w∗ε}$, which gives us
 $\p{u∗π} ∈ \dbot$.
 
-We can now apply \thmRef("fulladequacy") with the pole $\dbot$ and obtain
-$\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$ it cannot contain any choice operator,
-and thus we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
-$\p{t∗π} ∈ \dbot$ for every stack $ξ ∈ \ss{A}$. In particular, we have
+We can now apply \theorem("fulladequacy") with the pole $\dbot$ and obtain
+$\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$, it cannot contain any choice operator
+and we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
+$\p{t∗π} ∈ \dbot$ for every stack $π ∈ \ss{A}$. In particular, we have
 $\p{t ∗ ε} ∈ \dbot$ as we trivially have $ε ∈ \ss{A}$. This exactly means
 that there is a value $v∈Λ_ι$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$. It remains
-to show that $v$ is closed, but this is trivial as $\p{t∗ε}$ is closed and
-none of our reduction rules can introduce a free variable.
+to show that $v$ is closed and different from $\v{□}$. This follows from
+the fact that $\p{t∗ε}$ is closed and that it does not contain $\v{□}$
+since none of our reduction rules can introduce free variables or the
+value $\v{□}$.
 \end{proof}
 \end{thm}
 
@@ -1345,11 +1344,11 @@ $\p{wρ ∗ [λx δ(v,x)]ε}$ is not in $\dbot$ either. Now, since we have
 $\p{wρ ∗ [λx δ(v,x)]ε} ↠^{2} \p{δ(v,wρ)∗ε}$ then we also know that
 $\p{δ(v,wρ)∗ε} ∉ \dbot$. This can only be true if $\v{wρ} ≡ \v{v}$.
 Now, since $\vs{A}$ is closed under $({≡})$ then it must be that
-$\v{wρ} ∈ \vs{A}$. As mentionned above, the elements of $\vs{A}$ cannot
+$\v{wρ} ∈ \vs{A}$. As mentioned above, the elements of $\vs{A}$ cannot
 contain the empty stack symbol $\s{ε}$ and thus we have $\v{wρ} = \v{w}$,
 which gives $\v{w} ∈ \vs{A}$.
 
-We can now apply \thmRef("fulladequacy") with the pole $\dbot_A$ and obtain
+We can now apply \theorem("fulladequacy") with the pole $\dbot_A$ and obtain
 $\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$ it cannot contain any choice operator,
 and thus we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
 $\p{t∗π} ∈ \dbot_A$ for every stack $ξ ∈ \ss{A}$. In particular, we have
@@ -1358,16 +1357,12 @@ that there is a value $v∈\vs{A}$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$.
 \end{proof}
 \end{thm}
 
-On of the applications of our type safety theorem is to show the consistency
-of the system. In particular, we can immediatly show that the type $\f{[]}$
+One of the applications of our type safety theorem is to show the consistency
+of the system. In particular, we can immediately show that the type $\f{[]}$
 (i.e., the empty sum type) is empty. In other words, there should be no
-typable program of type $\f{[]}$. Note that the terms that will be used in
-practice will not contain the value $\v{□}$. It will only be introduced
-during the construction of the typing derivation. As a consequence, we only
-need to consider terms that do not contain $\v{□}$.
+typable program of type $\f{[]}$.
 \begin{thm}\label("fullconsistency")
-There is no closed term $t ∈ Λ^{∗}$ that does not contain $\v{□}$ and such
-that $⊢ t : \f{[]}$ is derivable.
+There is no closed term $t ∈ Λ^{∗}$ such that $⊢ t : \f{[]}$ is derivable.
 \begin{proof}
 Let us assume that there a term $t ∈ Λ^{∗}$ that $⊢ t : \f{[]}$. As $\f{[]}$
 is a simple data type we can apply \theorem("fullsafety") to obtain a value
