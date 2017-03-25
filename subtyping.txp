@@ -69,7 +69,8 @@ let r_sum_i =
     {Ξ ⊢ \t{Ck[v]} ∈ \f{[Ck : A]} ⊂ \f{B}}{Ξ ⊢ \t{Ck[v]} : B}$>
 
 let r_equiv =
-  <$\binaryRN{≡}{Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+  <$\ternaryRN{≡}{Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
+    {(Ξ ⊢ u₂ ≡ v \hspace(1.4) Ξ ⊢ v ≠ \v{□})_{if \hspace(0.4) t = a}}
     {Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
 
 let r_sum_e =
@@ -265,7 +266,8 @@ let typ_rs env =
     ; [ r_push ; r_fram ]
     ; [ r_prod_e ; r_prod_i ]
     ; [ r_sum_e ]
-    ; [ r_sum_i ; r_equiv ] ]
+    ; [ r_sum_i ]
+    ; [ r_equiv ] ]
   in
   let rs = List.map (List.map (fun cs -> <<$\id(cs)$>>)) rs in
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
@@ -946,20 +948,18 @@ We consider the last rules used in the proof.
     $\id(r_prod_i)$
   \end{center}
 
+(* FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME *)
 \item In the case of the ($+_e$) rule, we need to show
   $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ \f{C}$, which is the same as
   $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$. We thus take a stack
   $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈ \dbot$.
   Using the first induction hypothesis (together with \theorem("main")) we
-  learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$. If $\v{⟦v⟧} = \v{□}$ then
-  we only need to show that $\p{□ ∗ π} ∈ \dbot$ as $\dbot$ is
-  $({↠})$-saturated. This is immediate since $π ∈ \ss{C}$ and
-  $\v{□} ∈ \vs{C}$ as $\vs{C} ∈ ⟦ο⟧$. If $\t{⟦v⟧} = \t{Ck[w]}$ for some
-  $k ∈ I$ and $w ∈ \vs{Ai}$ then we only need to show that
-  $\p{⟦tk⟧[xk≔w] ∗ π} = \p{⟦tk[xk≔w]⟧ ∗ π} ∈ \dbot$ as $\dbot$ is
-  $({↠})$-saturated. It is thus enough to show that $\t{⟦tk[xk≔w]⟧} ∈
-  \ts{C}$. If it is false then we can assume that
-  $\v{w} = \t{⟦εxk∈Ak(tk∉C)⟧}$. In this case, as
+  learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$ and that $\v{⟦v⟧} ≠ \v{□}$.
+  As a consequence, $\t{⟦v⟧} = \t{Ck[w]}$ for some $k ∈ I$ and $w ∈
+  {\vs{Ai} ∖ \{\v{□}\}}$. As $\dbot$ is $({↠})$-saturated we only need
+  to show $\p{⟦tk⟧[xk≔w] ∗ π} = \p{⟦tk[xk≔w]⟧ ∗ π} ∈ \dbot$. It is thus
+  enough to show that $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$. If it is false then we
+  also have $\t{⟦tk[xk≔εxk∈Ak(tk∉C)]⟧} ∉ \ts{C}$. As
   $\v{⟦v⟧} ≡ \v{⟦Ck[w]⟧} = \v{Ck[w]}$, the induction hypothesis gives us
   $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$, which is a contradiction.
   \begin{center}
@@ -967,10 +967,10 @@ We consider the last rules used in the proof.
   \end{center}
 
 \item In the case of the ($+_i$) rule, we need to show $\t{Ck[v]} ⊩ B$.
-  Using the second induction hypothesis, it is enough to show that
-  $\t{Ck[⟦v⟧]} ∈ \ts{[Ck:A]}$. By definition, it is enough to show that
-  $\v{⟦v⟧} ∈ \vs{A}$ which follows from \theorem("main") since we have
-  $\v{⟦v⟧} ∈ \ts{A}$ according to our first induction hypothesis.
+  Using the second induction hypothesis and \lemma("orthosimple"), it is
+  enough to show $\t{Ck[⟦v⟧]} ∈ \vs{[Ck:A]}$. By definition, it is enough
+  to show $\v{⟦v⟧} ∈ {\vs{A} ∖ \{\v{□}\}}$ which follows from the first
+  induction hypothesis and \theorem("main").
   \begin{center}
     $\id(r_sum_i)$
   \end{center}
@@ -979,17 +979,22 @@ We consider the last rules used in the proof.
   \f{A[a≔u₂]}$, which is the same as $\t{⟦t[a≔u₂]⟧} ∈ \ts{A[a≔u₂]}$.
   Since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ we can use \lemma("texttyp") to obtain
   $\vs{A[a≔u₁]} = \vs{A[a≔u₂]}$ and thus showing $\t{⟦t[a≔u₂]⟧} ∈
-  \ts{A[a≔u₁]}$ is enough. By induction hypothesis we have
-  $\t{⟦t[a≔u₁]⟧} ∈ \ts{A[a≔u₁]}$ so we only need to show
-  $\t{⟦t[a≔u₁]⟧} ≡ \t{⟦t[a≔u₂]⟧}$ to be able to
-  conclude with \theorem("poleext"). Since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$
-  this follows from \theorem("fullextterm").
+  \ts{A[a≔u₁]}$ is enough. According to our induction hypothesis we
+  have $\t{⟦t[a≔u₁]⟧} ∈ \ts{A[a≔u₁]}$ and so we only need to show
+  $\t{⟦t[a≔u₁]⟧} ≡ \t{⟦t[a≔u₂]⟧}$ to be able to conclude with
+  \theorem("poleext"). Since $\t{⟦u₁⟧} ≡ \t{⟦u₂⟧}$ this follows from
+  \theorem("fullextterm"). It remains to check that $\t{⟦t[a≔u₂]⟧} ≠
+  \v{□}$, which is immediate if $t ≠ \v{□}$ and $t ≠ a$. It cannot be
+  that $t = \v{□}$ as otherwise this would contradict the induction
+  hypothesis. If $t = a$ then we need to show $\t{⟦u₂⟧} ≠ \v{□}$,
+  which follows from the two right premises that are only active in
+  this case.
   \begin{center}
     $\id(r_equiv)$
   \end{center}
 
-\item In the case of the ($Ax_{⊂}$) rule, the proof is immediate. Indeed,
-  it is always true that $t ⊩ A$ implies $t ⊩ A$.
+\item In the case of the ($Ax_{⊂}$) rule, the proof is immediate since
+  $t ⊩ A$ implies $t ⊩ A$.
   \begin{center}
     $\id(r_ax_sub)$
   \end{center}
