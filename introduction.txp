@@ -208,11 +208,11 @@ val rec add : nat ⇒ nat ⇒ nat = fun n m →
   case n { Zero[_] → m | Succ[k] → Succ[add k m] }
 ###
 As a first example, we will show that ##add Zero n ≡ n## for all ##n##.
-To express this property, we can use the type ##∀n:ι, add Zero n ≡ n##,
-where ##ι## can be thought of as the set of all program values. This
-statement can then be proved as follows.
+To express this property we can use the type ##∀n:ι↓, add Zero n ≡ n##,
+where ##ι↓## can be thought of as the set of all the usual program
+values. This statement can then be proved as follows.
 ### PML "examples/demo.pml"
-val add_z_n : ∀n:ι, add Zero n ≡ n = {}
+val add_z_n : ∀n:ι↓, add Zero n ≡ n = {}
 ###
 Here, the proof is immediate (i.e., ##{}##) as have ##add Zero n ≡ n## by
 definition of the ##add## function. Note that this equivalence holds for
@@ -222,7 +222,7 @@ instance, it can be used to show ##add Zero true ≡ true##.
 Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
 this property looks similar to ##add_z_n##, the following proof is invalid.
 ### PML "examples/demo.pml"
-// val add_n_z : ∀n:ι, add n Zero ≡ n = {}
+// val add_n_z : ∀n:ι↓, add n Zero ≡ n = {}
 ###
 Indeed, the equivalence ##add n Zero ≡ n## does not hold when ##n##
 is not a unary natural number. In this case, the computation of
@@ -446,7 +446,7 @@ the system is not able to directly prove that ##add n m## is a value,
 provided that ##n## and ##m## are two natural numbers. It is however
 possible to establish this fact internally as follows.
 ### PML "examples/demo.pml"
-val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
+val rec add_total : ∀n m∈nat, ∃v:ι↓, add n m ≡ v = fun n m →
   case n {
     | Zero[_] → {}
     | Succ[k] → let ih = add_total k m in {}

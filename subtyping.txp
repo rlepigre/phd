@@ -678,15 +678,15 @@ let contents =
   ; line s "⟦v·π⟧"                "⟦v⟧·⟦π⟧"
   ; line s "⟦[t]π⟧"               "[⟦t⟧]⟦π⟧"
   ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
-  ; spec v "⟦εx∈A(t∉B)⟧"          <$ v∈\vs{A} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
-  ; spec v "⟦εx∈A(t∉B)⟧"          <$ \v{□} \hspace(0.4) otherwise $>
+  ; spec v "⟦εx∈A(t∉B)⟧"  <$ v∈{\vs{A} ∖ \{\v{□}\}} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
+  ; spec v "⟦εx∈A(t∉B)⟧"  <$ \v{□} \hspace(0.4) otherwise $>
   ; line t "⟦μα t⟧"               "μα ⟦t⟧"
   ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
   ; line s "⟦ε⟧"                  "ε"
-  ; spec s "⟦εα∈A(t∉A)⟧"          <$ π∈\ss{A} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>
-  ; spec s "⟦εα∈A(t∉A)⟧"          <$ \s{ε} \hspace(0.4) otherwise $> ]
+  ; spec s "⟦εα∈A(t∉A)⟧"  <$ π∈\ss{A} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>
+  ; spec s "⟦εα∈A(t∉A)⟧"  <$ \s{[□]ε} \hspace(0.4) otherwise $> ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents
           ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
           ~vertical_padding:(fun n -> 2.0)
@@ -723,7 +723,7 @@ product type. It is defined as follows.
 \begin{center}
 \linesBefore(2) (* FIXME HACK *)
 $\vs{{(li:Ai) i∈I;⋯}} = \{\v{{(li = vi) i∈K}} \| {I ⊆ K}
-                      ∧ {∀i∈I, \v{vi} ∈ \vs{Ai}} \} ∪ \{\v{□}\}$
+    ∧ {∀i∈I, \v{vi} ∈ {\vs{Ai} ∖ \{\v{□}\}}} \} ∪ \{\v{□}\}$
 \end{center}
 \end{def}
 
@@ -732,30 +732,32 @@ in the semantics, and prove the adequacy of the semantics with respect to
 the typing rules given in \figRefs(["subrules"; "typrules"]).
 
 \begin{def}
-We will write $t ⊩ A$ whenever $\t{⟦t⟧} ∈ \ts{A}$, $π ⊩ A$ whenever
-$\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊆ B$ if $t ⊩ A$ implies $t ⊩ B$.
+Let $t ∈ Λ^{+}$ be a raw term, $π ∈ Π^{+}$ be a raw stack and $A$,
+$B ∈ \cal{F}$ be two types. We will write $t ⊩ A$ if $\t{⟦t⟧} ∈ \ts{A}$,
+$π ⊩ A$ if $\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊆ B$ if $t ⊩ A$ implies $t ⊩ B$.
 \end{def}
 
 \begin{lem}\label("subtypingincl")
-Let $A$, $B ∈ \cal{F}$ be two formulas such that $\t{εx∈A(x∉B)} ⊩ A ⊂ B$.
-In this case we have $\vs{A} ⊆ \vs{B}$.
+Let $A$, $B ∈ \cal{F}$ be two types such that $\t{εx∈A(x∉B)} ⊩ A ⊂ B$. In
+this case we have $\vs{A} ⊆ \vs{B}$.
 \begin{proof}
-Let us suppose that there is $v ∈ \vs{A}$ such that $v ∉ \ts{B}$. As we
-can choose $\t{⟦εx∈A(x∉B)⟧} = v$ and since $v ∈ \ts{A}$ by
-\lemma("orthosimple"), our hypothesis gives us $v ∈ \ts{B}$ which is a
-contradiction. As a consequence, for all $v ∈ \vs{A}$ we know that
-$v ∈ \ts{B}$, which implies $v ∈ \vs{B}$ by \theorem("main"). This
-exactly means that $\vs{A} ⊆ \vs{B}$.
+By definition $v = \t{⟦εx∈A(x∉B)⟧} ∈ \vs{A}$ since we have $\v{□}∈\vs{A}$.
+By \lemma("orthosimple") this implies $\t{v} ∈ \ts{A}$ and thus we
+need to show $\t{v} ∉ \ts{B}$. We reason by case on the definition of
+$v = \t{⟦εx∈A(x∉B)⟧}$. If it is equal to $\v{□}$ then the proof is
+immediate since $\v{□} ∈ \vs{B} ⊆ \ts{B}$. Otherwise we get a
+contradiction since $\t{v} ∉ \ts{B}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("fulladequacy")
 Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
-$t ∈ Λ^{+}$ be a raw term. If for every equivalence $(\t{t₁},\t{t₂}) ∈ Ξ$
-we have $\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$ then:
+$t ∈ Λ^{+}$ be a raw term. If for all $(\t{t₁},\t{t₂}) ∈ Ξ$ the equivalence
+$\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$ holds then we have the following.
 \begin{itemize}
-\item if $Ξ ⊢ t : A$ is valid then we have $t ⊩ A$,
-\item if $Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$ and
-\item if $Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
+\item If $Ξ ⊢ t : A$ is valid then we have $t ⊩ A$. Moreover, if $t$ is
+      a value then $\t{⟦t⟧} ≠ \v{□}$.
+\item If $Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$.
+\item If $Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
 \end{itemize}
 \begin{proof}
 We do a proof by induction on the structure of the proof of $Ξ ⊢ t : A$,

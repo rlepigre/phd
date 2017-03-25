@@ -9,7 +9,7 @@ manuscrit.pdf: $(SRC)
 
 .PHONY:test
 test:
-	for f in `find examples -type f`; do pml2 $$f; done
+	for f in `find examples -type f`; do pml2 $$f || break; done
 
 manuscrit.ps: manuscrit.pdf
 	pdftops $^

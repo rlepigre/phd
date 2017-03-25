@@ -517,6 +517,7 @@ module PMLVerbatim : sig
       ; simple_verb "Λ"
       ; simple_verb "λ"
       ; simple_verb "→"
+      ; simple_verb "↓"
       ; simple_verb "∃"
       ; simple_verb "≡"
       ; simple_verb "∈"
