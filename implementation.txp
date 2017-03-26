@@ -36,9 +36,7 @@ In this last chapter, we consider examples of programs and proofs that can be
 written and manipulated using our prototype implementation. This restricted
 set of examples is not intended to give an exhaustive view of our language.
 Their only purpose is to demonstrate its expressiveness through a selected
-set of examples that seem interesting to the author. This chapter also
-contains some discussions on possible extensions and improvement on the
-system and its implementation.
+set of examples.
 
 => Concrete syntax and syntactic sugars
 
@@ -113,9 +111,8 @@ val rec last : ∀a:ο, list<a> ⇒ [None ; Some of a] = fun l →
                  }
   }
 ###
-Note that we use a Rust-like syntax for case analysis: we wrap the patterns
-into curly brackets. This will also be the case for conditionals, but they
-will be introduced later.
+Note that we wrap the patterns of case analysis into curly brackets. This
+will also be the case for conditionals, but they will be introduced later.
 
 Another important remark about our concrete syntax is that we allow terms
 which are not values everywhere, including in records and variants. This
@@ -164,7 +161,7 @@ and restriction.
 ### PML "examples/realunit.pml"
 type unit1 = {} ∈ {⋯}
 type unit2 = ∃x:ι↓, x ∈ ({⋯} | x ≡ {})
-type unit3 = ∃x:ι↓, x ∈ {⋯} | x ≡ {}
+type unit3 = ∃x:ι↓, (x ∈ {⋯}) | x ≡ {}
 ###
 Note that these types are all equivalent semantically. In the implementation,
 we chose to use the definition ##unit1## in place of the syntactic sugar
@@ -241,22 +238,22 @@ language.
 def cond<c:τ, e1:τ, e2:τ> : τ =
   case c { Tru[_] → e1 | Fls[_] → e2 }
 ###
-Although such a macro remains untyped in the system, we can check that
-can be "typed" as expected by giving the following alternative definition
-of ##cond_fun## (which is actually expended to the exact same definition
-as above).
+Although such a macro is not typed at the time of its definition (it is
+only given a sort), it is expended and type-checked each time it is used.
+For instance, ##cond## can be used to define the following alternative
+definition of ##cond_fun##.
 ### PML "examples/bool.pml"
 val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
   cond<c, e1, e2>
 ###
-Note that in the syntax, the syntactic sugar ##if c { e1 } else { e2 }## is
-immediately translated to ##cond<c, e1, e2>## according to the definition
-given above.
+Note that in the syntax of our prototype, the syntactic sugar
+##if c { e1 } else { e2 }## is immediately translated to
+##cond<c, e1, e2>## according to the definition given above.
 
-Note that the definition of similar macros can be used for definition an
-##and## and an ##or## operator with the expected (lazy) semantics. This
-feature is in fact useful in many ways, we will see in a further section
-that it can even be used to encode proof tactics.
+Note that the definition of similar macros can be used for defining
+conjunction and disjunction operators having with the expected (lazy)
+semantics. This feature is in fact useful in many ways, we will see
+in a further section that it can even be used to encode proof tactics.
 ### PML "examples/bool.pml"
 def land<b1:τ,b2:τ> =
   case b1 { Tru[_] → b2 | Fls[_] → Fls }
@@ -274,7 +271,7 @@ val not : bool ⇒ bool = fun a →
 
 val or  : bool ⇒ bool ⇒ bool = fun a b → lor <a, b>
 val and : bool ⇒ bool ⇒ bool = fun a b → land<a, b>
-val imp : bool ⇒ bool ⇒ bool = fun a b → lor <b, not a>
+val imp : bool ⇒ bool ⇒ bool = fun a b → lor <not a, b>
 
 val xor : bool ⇒ bool ⇒ bool = fun a b →
   case a {
@@ -369,6 +366,7 @@ it is immediate to show ##add Zero n ≡ n## and ##mul Zero n ≡ Zero## for
 every ##n##.
 ### PML "examples/unat.pml"
 val add_zero_v : ∀v:ι↓, add Zero v ≡ v    = {}
+
 val mul_zero_v : ∀v:ι↓, mul Zero v ≡ Zero = {}
 ###
 Note that these properties are proved by quantifying over every possible
@@ -381,6 +379,7 @@ Of course, it is possible to show similar properties by quantifying only
 on natural numbers using dependent functions.
 ### PML "examples/unat.pml"
 val add_zero_n : ∀n∈nat, add Zero n ≡ n    = fun _ → {}
+
 val mul_zero_n : ∀n∈nat, mul Zero n ≡ Zero = fun _ → {}
 ###
 However, such definitions will never need to be used in practice since the
@@ -391,7 +390,7 @@ will never need to call ##add_zero_n## or ##mul_zero_n## to prove the
 corresponding equivalences.
 
 Let us now consider the commutativity of the ##add## function, which is a
-much more interesting example. To obtain this properties, two lemmas are
+more interesting example. To obtain this properties, two lemmas are
 required. We need to prove that ##add n Zero ≡ n## for every unary number
 ##n##, and that ##add n Succ[m] ≡ Succ[add n m]## for every unary numbers
 ##n## and ##m##. These two properties can be obtained easily using a case
@@ -436,8 +435,8 @@ val rec add_total : ∀n m∈nat, ∃v:ι↓, add n m ≡ v = fun n m →
     | Succ[k] → let ih = add_total k m in {}
   }
 ###
-Using ##add_total## twice, it is then possible to show that addition function
-##add## corresponds to an associative operation.
+Using ##add_total## twice, it is then possible to show that the addition
+function corresponds to an associative operation.
 ### PML "examples/unat.pml"
 val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
   fun n m p →
@@ -522,10 +521,10 @@ Here, we add type annotations on used lemmas to explicit the properties
 they prove. We also extend the proof with intermediate steps using local
 definitions. They allow us to check that some property can be deduced in
 the current context, while showing more reasoning steps. Note that the
-names chosen for the local definitions is never used, and is thus not
-important. Only the equations that are transparently added to the context
-matter. Using this discipline, the proofs are not only more readable, but
-also easier to write.
+names chosen for the local definitions is never used, they can hence be
+seen as a form of comments. Only the equations that are transparently
+added to the context matter. Using this discipline, the proofs are not
+only more readable, but also easier to write.
 
 Another, more satisfactory way of obtaining more readable proofs is to
 use again the higher-order layer of our system to define "tactics". We
@@ -541,35 +540,34 @@ is a lot more readable than our original proof. Note that here, we use
 semicolons to put proof steps in sequence. It is encoded as usual using
 a dummy redex.
 ### PML "examples/unat.pml"
-val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
-  fun n m →
-    case n {
-      | Zero[_] → t_deduce<mul Zero m ≡ Zero>;
-                   t_show<mul m Zero ≡ Zero, mul_n_zero m>
-      | Succ[k] → t_deduce<mul Succ[k] m ≡ add m (mul k m)>;
-                   t_show<mul k m ≡ mul m k, mul_comm k m>;
-                   t_show<mul m Succ[k] ≡ add (mul m k) m, mul_succ m k>;
-                   t_show<(∃v:ι↓, mul k m ≡ v), mul_total k m>;
-                   t_show<add (mul k m) m ≡ add m (mul k m)
-                         , add_comm (mul k m) m>
-    }
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
+  case n {
+    | Zero[_] → t_deduce<mul Zero m ≡ Zero>;
+                 t_show<mul m Zero ≡ Zero, mul_n_zero m>
+    | Succ[k] → t_deduce<mul Succ[k] m ≡ add m (mul k m)>;
+                 t_show<mul k m ≡ mul m k, mul_comm k m>;
+                 t_show<mul m Succ[k] ≡ add (mul m k) m
+                       , mul_succ m k>;
+                 t_show<(∃v:ι↓, mul k m ≡ v), mul_total k m>;
+                 t_show<add (mul k m) m ≡ add m (mul k m)
+                       , add_comm (mul k m) m>
+  }
 ###
 We could even introduce syntactic sugar for our tactics into the parser
 of our language to obtain the following, very satisfactory proof.
 ### PML "examples/unat.pml"
-val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
-  fun n m →
-    case n {
-      | Zero[_] → deduce mul Zero m ≡ Zero;
-                   show mul m Zero ≡ Zero using mul_n_zero m
-      | Succ[k] → deduce mul Succ[k] m ≡ add m (mul k m);
-                   show mul k m ≡ mul m k using mul_comm k m;
-                   show mul m Succ[k] ≡ add (mul m k) m
-                     using mul_succ m k;
-                   show ∃v:ι↓, mul k m ≡ v using mul_total k m;
-                   show add (mul k m) m ≡ add m (mul k m)
-                     using add_comm (mul k m) m
-    }
+val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
+  case n {
+    | Zero[_] → deduce mul Zero m ≡ Zero;
+                 show mul m Zero ≡ Zero using mul_n_zero m
+    | Succ[k] → deduce mul Succ[k] m ≡ add m (mul k m);
+                 show mul k m ≡ mul m k using mul_comm k m;
+                 show mul m Succ[k] ≡ add (mul m k) m
+                   using mul_succ m k;
+                 show ∃v:ι↓, mul k m ≡ v using mul_total k m;
+                 show add (mul k m) m ≡ add m (mul k m)
+                   using add_comm (mul k m) m
+  }
 ###
 
 =<
@@ -604,8 +602,7 @@ given bellow.
 val rec map : ∀a b:ο, (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun f l →
   case l {
     | Nil[_]  → Nil
-    | Cons[c] → let hd = f c.hd in
-                 let tl = map f c.tl in
+    | Cons[c] → let hd = f c.hd in let tl = map f c.tl in
                  Cons[{hd = hd ; tl = tl}]
   }
 
@@ -684,7 +681,7 @@ a term.
 type vec<a:ο, s:τ> = ∃l:ι↓, l∈(list<a> | length l ≡ s)
 ###
 (* TODO a word on the position of parentheses ? *)
-We can then define a concatenation function ##app## on vector. The produces
+We can then define a concatenation function ##app## on vector. It produces
 a vector which length is the sum of the lengths of its two arguments. Note
 that the definition of ##app## requires the use of ##length_total##.
 ### PML "examples/unat.pml"
@@ -705,15 +702,15 @@ val app3 : ∀a:ο, ∀m n p:ι↓, vec<a,m> ⇒ vec<a,n> ⇒ vec<a,p>
    app l1 (app l2 l3)
 ###
 
-It is important to notice is that an element of type ##vec<a,s>## can
-always be used as an element of ##list<a>##, independently of the value
-of ##s##. In fact, ##vec<a,s>## is a subtype of ##list<a>##.
+It is important to notice that an element of type ##vec<a,s>## can
+always be used as an element of ##list<a>##, independently of ##s##.
+In fact, ##vec<a,s>## is a subtype of ##list<a>##.
 ### PML "examples/unat.pml"
 val vec_to_list : ∀a:ο, ∀s:τ, vec<a,s> ⇒ list<a> = fun x → x
 ###
 Note that we will never need to use the function ##vec_to_list## to
 turn a vector into a list. A vector can be seen as a list directly, without
-relying on any from of coercion.
+relying on any form of coercion.
 
 =<
 => Sorted lists and insertion sort
@@ -736,11 +733,11 @@ accessible in the types of the other fields.
 \begin{rem}
 An element of type ##ord<a>## does not really correspond to an ordering
 relation as transitivity is not required. Although it could very well be
-included, it will not be necessary for the insertion sort.
+included, it is surprisingly not required for the insertion sort.
 \end{rem}
 
 We can then define our ##isort## function in the usual way, using
-and intermediate function ##insert##, inserting an element in a sorted
+an intermediate function ##insert##, inserting an element in a sorted
 list.
 ### PML "examples/unat.pml"
 val rec insert : ∀a:ο, ord<a> ⇒ a ⇒ list<a> ⇒ list<a> = fun o x l →
@@ -871,11 +868,10 @@ that the produced list is sorted. As for vectors, the type of sorted
 lists is a subtype of lists. As a consequence, a sorted list can be
 used as a list transparently.
 ### PML "examples/unat.pml"
-val isort_full : ∀a:ο, ∀o∈ord<a>, list<a> ⇒ slist<a,o> = Λa:ο.
-  fun o l →
-    let tot = isort_total o l in
-    let lem = isort_sorted o l in
-    (isort o l : list<a> | sorted o (isort o l) ≡ true)
+val isort_full : ∀a:ο, ∀o∈ord<a>, list<a> ⇒ slist<a,o> = fun o l →
+  let tot = isort_total o l in
+  let lem = isort_sorted o l in
+  isort o l
 ###
 
 =<
@@ -885,7 +881,7 @@ To conclude this chapter, we will consider an example of a program
 that relies on control operators as exceptions. We will take the
 common example of a lookup function on the type of lists. However,
 the type of our exception will carry a proof that the element that
-is looked for is not in the list. To encode this property, we will
+is looked for is in the list. To encode this property, we will
 rely on the ##exists## function (given in \chapter("intro")).
 ### PML "examples/unat.pml"
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →

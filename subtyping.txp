@@ -240,20 +240,23 @@ let r_ordimpl_r =
 
 (* Rules for propagating ordinal restrictions. *)
 let r_arrow_ord_i =
-  <$\binaryRN{⇒_{i,κ}}{Ξ ⊢ \t{λx t} ∈ \f{A ⇒ B} ⊂ C}
-    {Ξ ⊢ \t{t[x ≔ εx∈A(t∉B)]} : \f{B}}{Ξ ⊢ \t{λx t} : C}$>
+  <$\binaryRN{⇒_{i,κ}}{γ; Ξ ⊢ \t{λx t} ∈ \f{γ₀ ↪ (A ⇒ B)} ⊂ C}
+    {γ, γ₀; Ξ ⊢ \t{t[x ≔ εx∈A(t∉B)]} : \f{B}}{γ; Ξ ⊢ \t{λx t} : C}$>
 
 let r_sum_ord_e =
-  <$\binaryRN{+_{e,κ}}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
-    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
+  <$\ternaryRN{+_{e,κ}}{γ; Ξ ⊢ \t{v} : A}
+    {γ; Ξ ⊢ \t{v} ∈ A ⊆ \f{[(Ci : Ai) i∈I] ∧ γ₀}}
+    {(γ, γ₀; Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
       \t{ti[xi ≔ εxi∈Ai(ti∉C)]} : \f{C})_{i∈I}}
-    {Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
+    {γ; Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
+let r_sum_ord_e = mathsize 2.6 r_sum_ord_e
+(* FIXME  FIXME  FIXME  FIXME  FIXME *)
 
 (* Fixpoint rule. *)
 let r_fix =
   <$\binaryRN{Y}
-    {γ; Ξ ⊢ \t{t[x≔λx Y(λr t,x)]} : \f{A⇒B}}
-    {γ; Ξ ⊢ \t{λx Y(λr t,x)} ∈ \f{A⇒B} ⊂ \f("C")}
+    {γ, γ₀; Ξ ⊢ \t{t[x≔λx Y(λr t,x)]} : \f{A⇒B}}
+    {γ; Ξ ⊢ \t{λx Y(λr t,x)} ∈ \f{γ₀ ↪ (A⇒B)} ⊂ \f("C")}
     {γ; Ξ ⊢ \t{λx Y(λr t,x)} : \f{C}}$>
 
 let typ_rs env =
@@ -948,7 +951,6 @@ We consider the last rules used in the proof.
     $\id(r_prod_i)$
   \end{center}
 
-(* FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME *)
 \item In the case of the ($+_e$) rule, we need to show
   $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ \f{C}$, which is the same as
   $\t{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I]} ∈ \ts{C}$. We thus take a stack
@@ -1013,25 +1015,25 @@ We consider the last rules used in the proof.
   \ts{A₁⇒B₁}$ and we only have to show that $\t{⟦v⟧} ∈ \ts{A₂⇒B₂}$. With
   \theorem("main") we even have $\t{⟦v⟧} ∈ \vs{A₁⇒B₁}$ and we can show
   $\t{⟦v⟧} ∈ \vs{A₂⇒B₂}$. If $\v{⟦v⟧} = \v{□}$ then this is immediate
-  as we have $\v{□} ∈ \vs{A₂⇒B₂}$ by definition.
-  Let us now suppose that $\t{⟦v⟧} = \t{λx f}$ and that for all
-  $w ∈ \vs{A₁}$ we have $\t{f[x≔w]} ∈ \ts{B₁}$.
+  as we have $\v{□} ∈ \vs{A₂⇒B₂}$ by definition. Let us now suppose that
+  $\t{⟦v⟧} = \t{λx f}$ and that for all $w ∈ {\vs{A₁} ∖ \{\v{□}\}}$ we have
+  $\t{f[x≔w]} ∈ \ts{B₁}$.
   (* *)
-  If for all $w∈\vs{A₂}$ we have $\t{⟦t⟧ w} ∈ \ts{B₂}$ then, since we have
-  $\t{⟦t⟧} ≡ \t{λx f}$, we can use \theorems(["poleext" ; "fullextterm"])
-  to get $\t{(λx f) w} ∈ \ts{B₂}$. We can then use
-  \theorem("cbvbeta") to obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same reason.
-  This exactly means that we have $\t{⟦v⟧} = \t{λx f} ∈ \vs{A₂⇒B₂}$.
+  If we have $\t{⟦t⟧ w} ∈ \ts{B₂}$ for all $w∈{\vs{A₂} ∖ \{\v{□}\}}$ then,
+  since we have $\t{⟦t⟧} ≡ \t{λx f}$, we can use \theorems(["poleext" ;
+  "fullextterm"]) to get $\t{(λx f) w} ∈ \ts{B₂}$. We can then use
+  \theorem("cbvbeta") to obtain $\t{f[x≔w]} ∈ \ts{B₂}$ for the same
+  reason. This exactly means that we have $\t{⟦v⟧} = \t{λx f} ∈ \vs{A₂⇒B₂}$.
   (* *)
   Finally, let us suppose that $\t{⟦t⟧ w} ∉ \ts{B₂}$ for some value
-  $w ∈ \vs{A₂}$. We can assume that $\t{⟦εx∈A₂(t x∉B₂)⟧} = w$ and
-  thus the first induction hypothesis gives us $w ∈ \vs{A₁}$. We then
+  $w ∈ {\vs{A₂} ∖ \{\v{□}\}}$. We can assume that $w = \t{⟦εx∈A₂(t x∉B₂)⟧}$
+  and thus the first induction hypothesis gives us $w ∈ \vs{A₁}$. We then
   obtain that $\t{f[x≔w]} ∈ \ts{B₁}$ by definition of $\vs{A₁⇒B₁}$.
   Now, using again \theorems(["cbvbeta" ; "fullextterm"]) we obtain
   $\t{f[x≔w]} ≡ \t{⟦t⟧ w}$ and thus we get a contradiction with the
   second induction hypothesis.
   \begin{center}
-    $\id(r_arrow)$
+    $\fit(r_arrow)$
   \end{center}
 
 \item In the case of the ($+$) rule, we need to show $t ⊩ \f{[(Ci:Ai) i∈I₁]}
@@ -1040,7 +1042,8 @@ We consider the last rules used in the proof.
   $\t{⟦v⟧} ∈ \vs{[(Ci:Ai) i∈I₁]}$ and show that
   $\t{⟦v⟧} ∈ \vs{[(Ci:Bi) i∈I₂]}$. If $\v{⟦v⟧} = \v{□}$ then the proof is
   trivial as for the ($⇒$) rule. As a consequence, we may assume that
-  $\v{⟦v⟧} = \v{Ck[w]}$ for some $k ∈ I₁$ and $\v{w} ∈ \vs{Ak}$. Thus, we
+  $\v{⟦v⟧} = \v{Ck[w]}$ for some $k ∈ I₁$ and $\v{w} ∈ {\vs{Ak} ∖
+  \{\v{□}\}}$. Thus, we
   only need to show that $\v{w} ∈ \vs{Bk}$. Let us now consider
   the term $\t{⟦(λx[x|Ck[xk]→xk]) t⟧} = \t{(λx[x|Ck[xk]→xk]) ⟦t⟧}$.
   As we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{Ck[w]}$, we know
@@ -1058,14 +1061,14 @@ We consider the last rules used in the proof.
   the ($⇒$) rule, we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ so we can assume that
   we have $\t{⟦v⟧} ∈ \vs{{(li : Ai) i∈I}}$ and show that $\t{⟦v⟧} ∈
   \vs{{(li : Bi) i∈I}}$. Again, if $\v{⟦v⟧} = \v{□}$ then the proof is
-  trivial. As a consequence, we may assume $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$
-  and $\v{vi} ∈ \vs{Ai}$ for all index $i∈I$. As a consequence, we only
-  need to show that $\v{vi} ∈ \vs{Bi}$ for all $i∈I$. Let us take $k∈I$
-  and consider the term $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As we
-  have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
-  $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. Using
-  \theorems(["cbvbeta" ; "equivtrivial"]) we obtain
-  $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$. We can hence conclude using the
+  trivial. Hence, we may assume $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$ and
+  $\v{vi} ∈ {\vs{Ai} ∖ \{\v{□}\}}$ for all index $i∈I$. As a consequence,
+  we only need to show that $\v{vi} ∈ \vs{Bi}$ for all $i∈I$. Let us take
+  $k∈I$ and consider the term $\t{⟦(λx x.lk) t⟧} = \t{(λx x.lk) ⟦t⟧}$. As
+  we have $\t{⟦t⟧} ≡ \t{⟦v⟧} = \t{{(li=vi) i∈I}}$, we know
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{(λx x.lk) {(li=vi) i∈I}}$. We then obtain
+  $\t{(λx x.lk) ⟦t⟧} ≡ \t{vk}$ using \theorems(["cbvbeta" ; "equivtrivial"]).
+  We can hence conclude using the
   induction hypothesis, the $({≡})$-extensionality of the pole and
   \theorem("main").
   \begin{center}
@@ -1153,9 +1156,9 @@ We consider the last rules used in the proof.
   using again \theorems(["poleext"; "main"]). This is a contradiction
   since this exactly means that $\t{⟦v⟧} ∉ \vs{∃χ^s A}$.
   (* *)
-  Hence, there must be $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$. As
-  a consequence, we can suppose that $\vs{A[χ ≔ εχ∈s(t∈A)]} = \vs{A[χ≔Φ]}$,
-  which gives us $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$. We can thus conclude
+  Hence, there must be $Φ ∈ ⟦s⟧$ such that $\t{⟦t⟧} ∈ \ts{A[χ≔Φ]}$. We
+  can thus suppose $\vs{A[χ ≔ εχ∈s(t∈A)]} = \vs{A[χ≔Φ]}$ which gives us
+  $\t{⟦t⟧} ∈ \ts{A[χ ≔ εχ∈s(t∈A)]}$. We can thus conclude
   the proof using \theorems(["poleext"; "main"]) one more time.
   \begin{center}
     $\id(r_exists_l)$
@@ -1316,10 +1319,11 @@ is the framework of classical realisability (e.g., \mcite(["Krivine2009";
 "Miquel2011"])). Indeed, the only property that is commonly required of
 a pole is to be saturated under the reduction relation of the abstract
 machine (i.e., to be closed under backward reduction). Here however, we
-need to ask for two more properties. Our poles need to be
-$({≡})$-extensional for the semantics of our types to be closed under
-equivalence. And our poles must contain only terminating processes so
-that we can apply our main theorem (\theorem("main")).
+need to ask for more properties. Our poles need to be $({≡})$-extensional
+for the semantics of our types to be closed under equivalence. Moreover,
+they must satisfy the conditions of our main theorem (\theorem("main")).
+In particular they must only contain terminating processes and they must
+include the process $\p{□∗ε}$.
 
 \begin{thm}\label("fullnorm")
 Every closed, typed term normalises. More precisely, for every term
@@ -1373,8 +1377,8 @@ $≡$-extensional. This is in fact possible thanks (again) to our
 $\t{δ(v,w)}$ term constructor.
 \begin{thm}\label("fullsafety")
 For every closed term $t ∈ Λ_ι^{∗}$ such that $⊢ t : A$ for a simple
-data type $A ∈ \cal{F}₀$, there is a value $v ∈ \vs{A}$ such that
-$\p{t∗ε} ↠^{∗} \p{v∗ε}$.
+data type $A ∈ \cal{F}₀$, there is a value $v ∈ {\vs{A} ∖ \{\v{□}\}}$
+such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$.
 \begin{proof}
 We consider the pole $\dbot_A = \{p ∈ Λ∗Π \| ∃v∈\vs{A}, p ↠^{∗} \p{v∗ε}\}$
 which is trivially saturated. Moreover, this pole only contains processes
@@ -1413,7 +1417,8 @@ $\t{t} ⊩ \f{A}$. Since $t ∈ Λ^{∗}$ it cannot contain any choice operator,
 and thus we have $\t{⟦t⟧} = \t{t} ∈ \ts{A}$ by definition. This means that
 $\p{t∗π} ∈ \dbot_A$ for every stack $ξ ∈ \ss{A}$. In particular, we have
 $\p{t ∗ ε} ∈ \dbot_A$ as we trivially have $ε ∈ \ss{A}$. This exactly means
-that there is a value $v∈\vs{A}$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$.
+that there is a value $v∈\vs{A}$ such that $\p{t∗ε} ↠^{∗} \p{v∗ε}$. Moreover,
+$\v{v} ≠ \v{□}$ since a typed term cannot contain $\v{□}$.
 \end{proof}
 \end{thm}
 
@@ -1484,10 +1489,9 @@ extend our system with sized types \mcite(["Hughes1996"; "Abel2008";
 using actual ordinals.
 \begin{def}
 We denote $κ$ the sort of //syntactic ordinals//. From now on, we will
-consider that $κ ∈ \cal{S}₀$ (and hence that $κ ∈ \cal{S}$).
+consider that it is contained in our set of atomic sorts $\cal{S}₀$
+and thus $κ ∈ \cal{S}$.
 \end{def}
-\Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
-\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
 \begin{def}
 The set of all the syntactic ordinals is generated from a set of ordinal
 variables $\cal{V}_κ = \{θ, η, ζ ...\}$ using the following ||bnf|| grammar.
@@ -1524,8 +1528,8 @@ fixpoints in the semantics of our types.
 \begin{def}
 Given a syntactic ordinal $τ$, we denote $⟦\o{τ}⟧$ the ordinal corresponding
 to its interpretation. In particular, we define $⟦\o{∞}⟧$ to be the set of
-all the ordinals smaller or equal to the cardinal of the set $⟦ο⟧$. The
-interpretation of the other syntactic ordinals is defined inductively as
+all the ordinals smaller or equal to the cardinal of the set $\cal{P}(⟦ο⟧)$.
+The interpretation of the other syntactic ordinals is defined inductively as
 follows.
 \begin{center}
 \diagram(
@@ -1590,6 +1594,7 @@ positive. For convenience, we will represent such contexts using
 comma-separated lists of syntactic ordinals generated by the following
 ||bnf|| grammar.
 \Caml(let _ = sidenote << $γ ::= ∅ \| {γ, τ} $ >> << $τ ∈ \cal{O} $ >>)
+\Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
 We will say that a positivity context $γ$ is valid if the interpretation of
 every syntactic ordinal $τ$ of $γ$ is strictly positive (i.e., $⟦τ⟧ > 0$).
 \end{def}
@@ -1621,11 +1626,11 @@ thus that the fixpoint can be unrolled. When a least fixpoint appears on
 the left side of a pointed subtyping relation, the ($μ_l$) rule can be
 applied. In this case, a choice operator is used to obtain some ordinal
 such that the left part of the judgment is satisfied. If no such ordinal
-exist, then $0$ is chosen and thus the premise of the rule is immediate
-(the context is contradictory). The three rules for handling the greatest
-fixpoint constructor are dual to those for the least fixpoint constructor.
+exist, then $0$ is chosen and thus the premise of the rule is immediate.
+The three rules for handling the greatest fixpoint constructor are dual
+to those for the least fixpoint constructor.
 
-\Caml(let _ = extra_ord_subrules ()) (* NOTE can be moved *)
+\Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
 
 Now, handling recursion requires providing a typing rule for our fixpoint
 term constructor. However, this is not enough because in practice we will
@@ -1665,6 +1670,7 @@ let _ = array [`East; `Main; `West; `East; `Main; `West] contents
 )
 \end{center}
 \end{def}
+\Caml(let _ = extra_ord_subrules ()) (* NOTE can be moved *)
 \begin{rem}
 It would be perfectly possible to add an implication connective similar
 to $\f{γ ↪ A}$ but depending on an equivalence instead of a list of
@@ -1699,19 +1705,21 @@ A complete proof is given in \id(citen "Lepigre2017" "Lemma 1.10").
 Let $γ$ be a positivity context, $Ξ$ be an equational context, $A$,
 $B ∈ \cal{F}$ be closed types and $t ∈ Λ^{+}$ be a closed raw term.
 If for every syntactic ordinal $τ ∈ γ$ we have $⟦τ⟧ > 0$ and if for
-every equivalence $(\t{t₁},\t{t₂}) ∈ Ξ$ we have $\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$
-then:
+every $(\t{t₁},\t{t₂}) ∈ Ξ$ the equivalence $\t{⟦t₁⟧} ≡ \t{⟦t₂⟧}$
+holds then we have the following.
 \begin{itemize}
-\item if $γ; Ξ ⊢ t : A$ is valid then we have $t ⊩ A$,
-\item if $γ; Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$ and
-\item if $γ; Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
+\item If $γ; Ξ ⊢ t : A$ is valid then we have $t ⊩ A$. Moreover, if $t$
+      is a value $\t{⟦t⟧} ≠ \v{□}$.
+\item If $γ; Ξ ⊢ π : ¬A$ is valid then we have $π ⊩ A$.
+\item If $γ; Ξ ⊢ t ∈ A ⊂ B$ is valid then we have $t ⊩ A ⊂ B$.
 \end{itemize}
 \begin{proof}
 The proof proceeds as for \theorem("fulladequacy") with the exception
 of the management of the positivity context. For all the rules that
-were given before the current section, the adaptation is immediate as
-the positivity context is only transmitted. As a consequence, we only
-consider the rules that were introduced in this section.
+were given in previous sections of the current chapter, the adaptation
+is immediate as the positivity context is only transmitted. As a
+consequence, we only consider the rules that were introduced in this
+section.
 \begin{itemize}
 \item In the case of the ($μ_{r,∞}$) rule, we need to show that
   $t ⊩ \f{A} ⊂ \f{μ∞ X B}$. By induction hypothesis, we know that
@@ -1783,29 +1791,41 @@ consider the rules that were introduced in this section.
   \end{center}
 
 \item In the case of the ($↪_{l,κ}$) rule, we need to show $t ⊩ \f{γ₀ ↪ A}
-  ⊂ \f{B}$. By our second hypothesis, we know that all the ordinals in $γ₀$
-  are positive, which means that $\vs{γ₀ ↪ A} = \vs{A}$. We can thus
-  conclude using \theorem("orthoincl") and the induction hypothesis.
+  ⊂ \f{B}$. Thanks to our second premise we know that all the ordinals in
+  $γ₀$ are positive. As a consequence we know that $\vs{γ₀ ↪ A} = \vs{A}$.
+  We can thus conclude using \theorem("orthoincl") and the induction
+  hypothesis.
   \begin{center}
     $\id(r_ordimpl_l)$
   \end{center}
 
-\item In the case of the ($↪_{r,κ}$) rule, ... (* TODO *)
+\item In the case of the ($↪_{r,κ}$) rule, we need to show
+  $t ⊩ A ⊂ \f{γ₀↪B}$. We thus suppose that $\t{⟦t⟧} ∈ \ts{A}$ and
+  show $\t{⟦t⟧} ∈ \ts{γ₀↪B}$. If the ordinals of $γ₀$ are not all
+  positive then the proof is immediate as $\vs{γ₀ ↪ B} = Λ_ι^{∗}$.
+  If all the ordinals are positive then we can immediately conclude
+  using the induction hypothesis.
   \begin{center}
     $\id(r_ordimpl_r)$
   \end{center}
 
-\item In the case of the ($⇒_{i,κ}$) rule, ... (* TODO *)
+\item In the case of the ($⇒_{i,κ}$) rule, we need to show $\t{λx t} ⊩ C$.
+  Using the first induction hypothesis it is enough to show $\t{λx t} ⊩
+  \f{γ₀↪(A⇒B)}$. ... (* TODO *)
   \begin{center}
     $\id(r_arrow_ord_i)$
   \end{center}
 
-\item In the case of the ($+_{e,κ}$) rule, ... (* TODO *)
+\item In the case of the ($+_{e,κ}$) rule, we need to show
+  $\t{[v | (Ci[xi] → ti) i∈I]} ⊩ C$. ... (* TODO *)
   \begin{center}
     $\id(r_sum_ord_e)$
   \end{center}
 
-\item In the case of the ($Y$) rule, ... (* TODO *)
+\item In the case of the ($Y$) rule, we need to show $\t{λx Y(λr t, x)}
+  ⊩ C$. Using the second induction hypothesis it is enough to show
+  $\t{λx Y(λr t, x)} ⊩ \f{γ₀↪(A⇒B)}$. ... (* TODO *)
+
   \begin{center}
     $\id(r_fix)$
   \end{center}
@@ -1816,25 +1836,16 @@ consider the rules that were introduced in this section.
 Even with all the new rules introduced in this section, the system still
 not quite ready to be usable. In fact, a notion of circular proofs and
 an associated notion of well-foundedness needs to be introduced in the
-system. To do so, we need to extend our notion of typing and subtyping
-judgments for them to have (optional) ordinal parameters. It would then
-be possible to apply the framework defined in \id(citen "Lepigre2017"
-"Section 3") to obtain circular proofs. This can be done rather easily
-as the syntax used for ordinals is exactly the same, and the system
+system. It is possible to apply the framework defined in
+\id(citen "Lepigre2017" "Section 3") to obtain circular proofs because
+the syntax used for ordinals is exactly the same as ours, and the system
 presented in the paper requires a very similar construction.
-
+(* *)
 After obtaining a notion of circular proofs, it would be possible to
 extend \theorem("uselessadequacy") so that it is proved by ordinal
 induction on the circular proofs, provided that they have been show
 well-founded. We do not go into the details here for lack of time as
 this is still a work in progress.
-
-(*
-As in \cite("Lepigre2017"), local subtyping judgments can be considered
-as //abstract judgments// for building well-founded //circular proofs//.
-We can thus rely on this framework to obtain so-called //generalisation//
-and //induction// rules.
-*)
 
 =<
 
