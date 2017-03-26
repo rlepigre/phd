@@ -1613,12 +1613,12 @@ a well-behaved semantics. In particular, we do not want to expose them
 to the users of our implementation. It is thus enough for $({≡})$ to
 be compatible with $({≡}_{≻})$.
 
-\begin{def}
-Allowing the user to work with and reason about terms containing $δ$-like
-terms would not be such a bad idea as it could allow the encoding of
-mathematical objects into pure $λ$-term. In particular, it would be
-interesting to investigate the possibility of using the following
-alternative reduction rules for $δ$-like processes.
+\begin{rem}
+Allowing the user to work with and reason about $δ$-like terms would
+not be such a bad idea. Indeed, it could allow the encoding of
+mathematical objects into pure terms of the language. In particular,
+it would be interesting to investigate the possibility of using the
+following alternative reduction rules for $δ$-like processes.
 \Caml(
   let _ =
     let line p1 p2 c =
@@ -1632,7 +1632,7 @@ They would allow the definition of non-computable functions in our
 language by giving complete access to our equivalence relation.
 This would allow, for example, the definition of functions like
 $\t{λx λy δ(x,y)}$ (i.e., a general equality function).
-\end{def}
+\end{rem}
 
 =<
 

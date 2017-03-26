@@ -15,6 +15,8 @@
   let mt = mathsText
   let wbox = <$\mathsize{3.}{\wbox}$>
   let bbox = <$\mathsize{3.}{\bbox}$>
+
+  let mif = mathsText ([tT "if"])
 )
 
 \Configure_math_macro{\v}{ syntax = string; }
@@ -70,13 +72,12 @@ let r_sum_i =
 
 let r_equiv =
   <$\ternaryRN{≡}{Ξ ⊢ \t{t[a≔u₁]} : \f{A[a≔u₁]}}{Ξ ⊢ \t{u₁} ≡ \t{u₂}}
-    {(Ξ ⊢ u₂ ≡ v \hspace(1.4) Ξ ⊢ v ≠ \v{□})_{if \hspace(0.4) t = a}}
+    {(Ξ ⊢ u₂ ≡ v \hspace(1.4) Ξ ⊢ v ≠ \v{□})_{\mif \hspace(0.4) t = a}}
     {Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
 
 let r_sum_e =
   <$\binaryRN{+_e}{Ξ ⊢ \t{v} : \f{[(Ci : Ai) i∈I]}}
-    {(Ξ, \t{v} ≡ \t{Ci[εxi∈Ai(ti∉C)]} ⊢
-      \t{ti[xi ≔ εxi∈Ai(ti∉C)]} : \f{C})_{i∈I}}
+    {(Ξ ⊢ \t{ti[xi ≔ εxi∈Ai∧Ci[xi]≡v(ti∉C)]} : \f{C})_{i∈I}}
     {Ξ ⊢ \t{[v | (Ci[xi] → ti) i∈I]} : \f{C}}$>
 
 let r_prod_i =
@@ -475,7 +476,7 @@ the semantical value restriction condition in our new system with
 subtyping.
 
 In conjunction with local subtyping, choice operators allow the
-derivation of many valid permutations of quantifiers and connectors.
+derivation of many valid permutations of quantifiers and connectives.
 For example, subtyping relations like
 $$
   \f{∀X ∀Y A} ⊂ \f{∀Y ∀X A}
@@ -483,8 +484,8 @@ $$
   \f{{l₁ : ∀X A; l₂ : ∀X B}} ⊂ \f{∀X {l₁ : A; l₂ : B}}
 $$
 can be easily obtained thanks to our syntax-directed subtyping rules.
-In particular, they do not include a transitivity, and this is a good
-thing since such a rule could not be implemented. Indeed, it would
+In particular, they do not include a transitivity rule, and this is a
+good thing since such a rule could not be implemented. Indeed, it would
 require the system to guess an intermediate type.
 (* *)
 Transitivity is generally admissible in subtyping systems.
@@ -536,15 +537,15 @@ proposition. Note that our system needs to be extended
 with the following two sorting rules.
 \begin{center}
 $
-  \ternaryR{⊢ A:ο}{x:ι ⊢ t:τ}{x:ι ⊢ B : ο}{Σ ⊢ \t{εx∈A(t∉B)}:ι}
+  \ternaryR{x:ι ⊢ A:ο}{x:ι ⊢ t:τ}{x:ι ⊢ B : ο}{Σ ⊢ \t{εx∈A(t∉B)}:ι}
   \hspace(4.0)
-  \binaryR{⊢ A:ο}{α:σ ⊢ t:τ}{Σ ⊢ \s{εα∈A(t∉A)}:σ}
+  \binaryR{α:σ ⊢ A:ο}{α:σ ⊢ t:τ}{Σ ⊢ \s{εα∈A(t∉A)}:σ}
 $
 \end{center}
-It is important to note that the variable $x$ (resp. $α$) should not
-be bound in $A$. Moreover, thanks to the sorting rules no other
-variable than $x$ (resp. $α$) may be bound in $t$. These restrictions
-are required for the definition of our semantics.
+It is important to note that no other variable than $x$ may be bound
+in $A$, $t$ or $B$ in the first rule. Similarly, only $α$ can be
+bound in $t$ and $B$ in the second one. These restrictions are
+required for the definition of our semantics.
 \end{def}
 \begin{def}
 We will refer to values, terms and stacks that may contain value
@@ -683,17 +684,17 @@ let contents =
   ; line s "⟦v·π⟧"                "⟦v⟧·⟦π⟧"
   ; line s "⟦[t]π⟧"               "[⟦t⟧]⟦π⟧"
   ; line v "⟦{(li=vi)i∈I}⟧"       "{(li=⟦vi⟧)i∈I}"
-  ; spec v "⟦εx∈A(t∉B)⟧"  <$ v∈{\vs{A} ∖ \{\v{□}\}} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
+  ; spec v "⟦εx∈A(t∉B)⟧"  <$ v∈{\vs{A[x≔v]} ∖ \{\v{□}\}} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
   ; spec v "⟦εx∈A(t∉B)⟧"  <$ \v{□} \hspace(0.4) otherwise $>
   ; line t "⟦μα t⟧"               "μα ⟦t⟧"
   ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
   ; line s "⟦ε⟧"                  "ε"
-  ; spec s "⟦εα∈A(t∉A)⟧"  <$ π∈\ss{A} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>
+  ; spec s "⟦εα∈A(t∉A)⟧"  <$ π∈\ss{A[α≔π]} \st \t{⟦t[α≔π]⟧}∉\ts{B} $>
   ; spec s "⟦εα∈A(t∉A)⟧"  <$ \s{[□]ε} \hspace(0.4) otherwise $> ]
 let _ = array [`East; `Main; `West; `East; `Main; `West] contents
-          ~horizontal_padding:(fun n -> if n = 3 then 10.0 else 1.0)
+          ~horizontal_padding:(fun n -> if n = 3 then 2.0 else 1.0)
           ~vertical_padding:(fun n -> 2.0)
 )
 \end{center}
@@ -734,7 +735,7 @@ $\vs{{(li:Ai) i∈I;⋯}} = \{\v{{(li = vi) i∈K}} \| {I ⊆ K}
 
 We will now given the interpretation of our different forms of judgments
 in the semantics, and prove the adequacy of the semantics with respect to
-the typing rules given in \figRefs(["subrules"; "typrules"]).
+the typing rules given in \figRefs(["typrules" ; "subrules"]).
 
 \begin{def}
 Let $t ∈ Λ^{+}$ be a raw term, $π ∈ Π^{+}$ be a raw stack and $A$,
@@ -746,12 +747,13 @@ $π ⊩ A$ if $\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊆ B$ if $t ⊩ A$ implies
 Let $A$, $B ∈ \cal{F}$ be two types such that $\t{εx∈A(x∉B)} ⊩ A ⊂ B$. In
 this case we have $\vs{A} ⊆ \vs{B}$.
 \begin{proof}
-By definition $v = \t{⟦εx∈A(x∉B)⟧} ∈ \vs{A}$ since we have $\v{□}∈\vs{A}$.
-By \lemma("orthosimple") this implies $\t{v} ∈ \ts{A}$ and thus we
-need to show $\t{v} ∉ \ts{B}$. We reason by case on the definition of
-$v = \t{⟦εx∈A(x∉B)⟧}$. If it is equal to $\v{□}$ then the proof is
-immediate since $\v{□} ∈ \vs{B} ⊆ \ts{B}$. Otherwise we get a
-contradiction since $\t{v} ∉ \ts{B}$.
+We proceed by case on the definition of $v = \t{⟦εx∈A(x∉B)⟧}$.
+If $v ≠ \v{□}$ then we have $v ∈ \vs{A}$ and $v ∉ \ts{B}$. This
+is a contradiction since $v ∉ \vs{B}$ by \theorem("orthosimple").
+(* *)
+If $v = \v{□}$ then for all $v ∈ {\vs{A} ∖ \{\v{□}\}}$ we have $v ∈ \ts{B}$
+and $v ∈ \vs{B}$ thanks to \theorem("main"). Moreover, $\v{□} ∈ \vs{A}$ and
+$\v{□} ∈ \vs{B}$ so for all $v ∈ \vs{A}$ we indeed have $v ∈ \vs{B}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("fulladequacy")
@@ -957,13 +959,16 @@ We consider the last rules used in the proof.
   $π ∈ \ss{C}$ and show that $\p{[⟦v⟧ | (Ci[xi] → ⟦ti⟧) i∈I] ∗ π} ∈ \dbot$.
   Using the first induction hypothesis (together with \theorem("main")) we
   learn that $\t{⟦v⟧} ∈ \vs{[(Ci : Ai) i∈I]}$ and that $\v{⟦v⟧} ≠ \v{□}$.
-  As a consequence, $\t{⟦v⟧} = \t{Ck[w]}$ for some $k ∈ I$ and $w ∈
+  As a consequence, $\t{⟦v⟧} = \t{Ck[wk]}$ for some $k ∈ I$ and $\v{wk} ∈
   {\vs{Ai} ∖ \{\v{□}\}}$. As $\dbot$ is $({↠})$-saturated we only need
-  to show $\p{⟦tk⟧[xk≔w] ∗ π} = \p{⟦tk[xk≔w]⟧ ∗ π} ∈ \dbot$. It is thus
-  enough to show that $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$. If it is false then we
-  also have $\t{⟦tk[xk≔εxk∈Ak(tk∉C)]⟧} ∉ \ts{C}$. As
-  $\v{⟦v⟧} ≡ \v{⟦Ck[w]⟧} = \v{Ck[w]}$, the induction hypothesis gives us
-  $\t{⟦tk[xk≔w]⟧} ∈ \ts{C}$, which is a contradiction.
+  to show $\p{⟦tk⟧[xk≔wk] ∗ π} = \p{⟦tk[xk≔wk]⟧ ∗ π} ∈ \dbot$.
+  (* *)
+  Let us assume that it is false and find a contradiction. Since $\v{wk} ∈
+  {\vs{Ai} ∖ \{\v{□}\}}$ and $\t{⟦v⟧} = \t{Ck[wk]}$ we have
+  $\v{wk} ∈ {\vs{Ai∧Ck[wk]≡v} ∖ \{\v{□}\}}$. As a consequence
+  $\t{⟦εxk∈Ak∧C[xk]≡v(tk∉C)⟧} ≠ \v{□}$ since $\v{vk}$ is a possible
+  definition for the witness. This contradicts the induction hypothesis
+  since it implies $\t{⟦tk[xk≔εxk∈Ak∧C[xk]≡v(tk∉C)]⟧} ∉ \ts{C}$.
   \begin{center}
     $\id(r_sum_e)$
   \end{center}

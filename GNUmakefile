@@ -1,36 +1,58 @@
 FLAG := -j 4 --verbose 1 -I lang
 
-all: manuscrit.pdf
+all: manuscript.pdf
 
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
-manuscrit.pdf: $(SRC)
-	patoline --format FormatManuscrit $(FLAG) manuscrit.txp
+manuscript.pdf: $(SRC)
+	patoline --format FormatManuscrit $(FLAG) manuscript.txp
 
 .PHONY:test
 test:
 	for f in `find examples -type f`; do pml2 $$f || break; done
 
-manuscrit.ps: manuscrit.pdf
+manuscript.ps: manuscript.pdf
 	pdftops $^
 
-manuscrit_short.ps : manuscrit.ps
+manuscript_short.ps : manuscript.ps
 	psselect 5- $^ $@
 
-www/manuscrit_lepigre.pdf: manuscrit_short.ps
+www/manuscript_lepigre.pdf: manuscript_short.ps
 	ps2pdf $^ $@
+
+www/manuscript_lepigre.ps: manuscript_short.ps
+	cp $^ $@
+
+www/classification.ml: files/classification.ml
+	cp $^ $@
+
+www/cbvMachine.v: files/cbvMachine.v
+	cp $^ $@
 
 clean:
 	patoline --clean $(FLAG)
 	rm -f *~
 
 distclean: clean
-	rm -f manuscrit.pdf manuscrit.ps
-	rm -f www/manuscrit_lepigre.pdf
+	rm -f manuscript.pdf manuscript.ps manuscript_short.ps
+	rm -f www/manuscript_lepigre.pdf
+	rm -f www/manuscript_lepigre.ps
+	rm -f www/classification.ml
+	rm -f www/cbvMachine.v
 	rm -f examples/*
 	rm -f **/*~
 
-upload: www/index.html www/manuscrit_lepigre.pdf
+DOCS=\
+	www/manuscript_lepigre.ps \
+	www/manuscript_lepigre.pdf \
+	www/cbvMachine.v \
+	www/classification.ml
+
+upload: www/index.html $(DOCS)
 	rm -f www/*~
+	scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
+
+upload_redirect: www_redirect/index.html
+	rm -f www_redirect/*~
 	lftp -u lepigre ftp://ftp.lepigre.fr -e \
-		"mirror -R www www/these; quit"
+		"mirror -R www_redirect www/these; quit"

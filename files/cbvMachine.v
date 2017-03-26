@@ -1,5 +1,5 @@
 (*
-  Correction of the call-by-value Krivine Abstract Machine.
+  Correctness of the call-by-value Krivine Abstract Machine.
   Author: Rodolphe Lepigre <rodolphe.lepigre@univ-smb.fr>
 
   Developped with the Coq Proof Assistant, version 8.6 (February 2017).

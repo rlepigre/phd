@@ -526,7 +526,7 @@ It is possible to prove that the abstract machine and its $({≻})$ reduction
 relation indeed implement the $({→}_v)$ evaluation on $λ$-terms. Although
 this result is not required here, it has been formalised by the author in
 the //Coq// proof assistant \cite("CoqTeam2004"). The proof sketch is
-available online (\website("http://lepigre.fr/these/correction.v")).
+available online (\website("http://lepigre.fr/these/cbvMachine.v")).
 \end{rem}
 
 \begin{rem}
