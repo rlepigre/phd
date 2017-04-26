@@ -960,7 +960,7 @@ We consider the last rules used in the proof.
   Let us assume that it is false and find a contradiction. Since $\v{wk} ∈
   {\vs{Ai} ∖ \{\v{□}\}}$ and $\t{⟦v⟧} = \t{Ck[wk]}$ we have
   $\v{wk} ∈ {\vs{Ai∧Ck[wk]≡v} ∖ \{\v{□}\}}$. As a consequence
-  $\t{⟦εxk∈Ak∧C[xk]≡v(tk∉C)⟧} ≠ \v{□}$ since $\v{vk}$ is a possible
+  $\t{⟦εxk∈Ak∧C[xk]≡v(tk∉C)⟧} ≠ \v{□}$ since $\v{wk}$ is a possible
   definition for the witness. This contradicts the induction hypothesis
   since it implies $\t{⟦tk[xk≔εxk∈Ak∧C[xk]≡v(tk∉C)]⟧} ∉ \ts{C}$.
   \begin{center}
