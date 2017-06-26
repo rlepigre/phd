@@ -872,7 +872,7 @@ rule
 $$ \unaryR{Φ ∈ ⟦s⟧}{Σ ⊢ Φ : s} $$
 the proof is trivial. For the first eighteen rules of \figRef("sortrules"),
 the proof is immediate using the induction hypothesis. The remaining cases
-are treated bellow. Note that we recall the corresponding rules after the
+are treated below. Note that we recall the corresponding rules after the
 proof of each case.
 \begin{itemize}
 \item In the case of the arrow type, we need to show $\vs{(A⇒B)ρ} ∈ ⟦ο⟧$.
@@ -1063,7 +1063,7 @@ that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 We proceed by induction on the derivation of the judgment
 $Σ \sp Γ ; Ξ ⊢_\tval v : A$ or $Σ \sp Γ ; Ξ ⊢ t : A$, and
 we reason by case on the last used rule. Note that the
-deduction rules are recalled bellow the proof of the
+deduction rules are recalled below the proof of the
 corresponding case.
 \begin{itemize}
 \item In the case of ($Ax$), we immediately have $\v{xρ} = \v{ρ(x)} ∈
@@ -1488,7 +1488,7 @@ that $ρ ⊩ Γ$ and $ρ ⊩ Ξ$.
 As for \thmRef("adequacy"), the proof is done by induction of the derivation
 of the typing judgments. For all the rules of \figRef("typerules") but
 ($[\wc]$) the proof is exactly the same as for \thmRef("adequacy"). Four
-new cases are displayed bellow.
+new cases are displayed below.
 \begin{itemize}
 \item If the last used rule is ($[\wc]$) then we need to show
   $\t{[πρ]tρ} ∈ \ts{Bρ}$. Let us take $ξ ∈ \ss{Bρ}$ and show

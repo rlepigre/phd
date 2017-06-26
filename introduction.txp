@@ -176,8 +176,8 @@ control operators can be understood as cheating. For example
 immediately returns a (possibly false) proof of ##neg<a>##. Now, if
 this proof is ever applied to a proof of ##a## (which would result
 in absurdity), the program backtracks and returns the given proof of
-##a##. This interpretation in terms of cheating seems to be due to
-Peter Selinger according to \id(citen "Wadler2003" "Section 4").
+##a##. This interpretation in terms of cheating has been well-known
+for a long time (see, for example, \id(citen "Wadler2003" "Section 4")).
 
 =<
 
@@ -199,7 +199,7 @@ are supposed equivalent).
 
 To illustrate the proof mechanism, we will consider simple examples of
 proofs on unary natural number (a.k.a. Peano numbers). Their type is
-given bellow, together with the corresponding addition function defined
+given below, together with the corresponding addition function defined
 using recursion on its first argument.
 ### PML "examples/demo.pml"
 type rec nat = [Zero ; Succ of nat]

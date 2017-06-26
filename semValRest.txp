@@ -333,7 +333,7 @@ Moreover, if an instance of the value restriction is encountered, one can
 always use a dummy $λ$-abstraction (or an $η$-expansion) to transform a term
 into a value. A common example of this situation arises when working with
 combinators (e.g., parser combinators) and partial application. As an
-example, let us consider the code bellow (written in OCaml syntax).
+example, let us consider the code below (written in OCaml syntax).
 ### OCaml
 (* type 'a gr                               *)
 (* val any : char gr                        *)
@@ -382,7 +382,7 @@ $ \unaryRN{∈_{i,⊥}}{Σ \sp Γ,Ξ ⊢ t : A} {Σ \sp Γ,Ξ ⊢ t : \f{t∈A}}
 \end{center}
 In this system, the following (unrestricted) typing rule for the
 elimination of the dependent function type can be derived (see the
-typing derivation bellow the rule).
+typing derivation below the rule).
 \begin{center}
 $
   \binaryRN{Π_{e,⊥}}
@@ -487,7 +487,7 @@ $\f{[C₀:{} | C₁:{} ∧ u F[{}] ≡ F[{}]]}$, then we will have a
 contradiction to the type safety as $\t{t u}$ reduces to $\v{C₁[{}]}$,
 which is not contained in $\vs{[C₀ : {}]}$.
 
-In the typing derivation displayed bellow, the type $\f{B}$ is
+In the typing derivation displayed below, the type $\f{B}$ is
 defined as $\f{[T:{}|F:{}]}$, the type $\f{C}$ is defined as
 $\f{[C₀:{} | C₁:{} ∧ f F[{}] ≡ F[{}]]}$, the context $Γ₁$ is
 defined as $f : \f{B⇒B}$, the context $Γ₂$ is defined as
@@ -792,7 +792,7 @@ $\fit{
 Without such a rule, it would be impossible to preserve the equivalences of
 the form $t ≡ \t{Ci[xi]}$ in the premises. We would only know that
 $x ≡ \t{Ci[xi]}$, which is not enough since we would have no way of linking
-$x$ to $t$. The derivation of ($+_{e,τ}$) is given bellow. Note that we will
+$x$ to $t$. The derivation of ($+_{e,τ}$) is given below. Note that we will
 omit the sorting contexts for the proof to be more concise. We will also use
 the notation $Δ$ for the context $Γ,x:\f{[(Ci : Ai) i∈I]}$.
 \Caml(
@@ -857,7 +857,7 @@ equivalence.
 
 As mentioned in the previous section, semantical value restriction can be
 enabled in our system by extending it with the ($↓$) typing rule (recalled
-bellow).
+below).
 \begin{center}
 $ \unaryRN{↓}{Σ \sp Γ ; Ξ ⊢ v : A}{Σ \sp Γ ; Ξ ⊢_\tval v : A} $
 \end{center}

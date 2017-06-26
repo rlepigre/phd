@@ -51,6 +51,7 @@ DOCS=\
 upload: www/index.html $(DOCS)
 	rm -f www/*~
 	scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
+	scp -r www/* rodolphe@lepigre.fr:www/these
 
 upload_redirect: www_redirect/index.html
 	rm -f www_redirect/*~

@@ -1,31 +1,52 @@
 Je tiens en premier lieu à remercier mes deux directeurs de thèse, Christophe
 Raffalli et Pierre Hyvernat, sans qui ce travail n'aurait jamais vu le jour.
-En particulier, merci à Christophe pour son immense enthousiasme et ses
-innombrables idées (bonnes, mauvaises ou pour devenir riche). Merci aussi à
-Pierre pour ses relectures attentives, son soutien sans failles, ainsi que
-pour son immense culture des énigmes, casses-têtes et autres résultats
-mathématiques déroutants.
+En particulier, merci à Christophe pour son grand enthousiasme et ses
+innombrables idées (bonnes, mauvaises, ou pour devenir riche), mais également
+pour nos (trop) nombreuses « pauses café ». Merci à Pierre pour ses
+relectures attentives, son soutien sans failles, ainsi que pour son immense
+culture des énigmes, casse-têtes et travaux de John Horton Conway. Merci
+également à Karim Nour pour avoir accepté de nous prêter son habilitation en
+attendant celle de Christophe, qui est est « presque terminée » depuis au
+moins quatre ans.
 
-Pour finir, merci à Robert Harper et à Alexandre Miquel de m'avoir fait
-l'honneur de rapporter cette thèse.
+Je souhaite également adresser mes plus sincères remerciements à Thierry
+Coquand et à Alexandre Miquel, pour m'avoir fait l'honneur de rapporter
+cette thèse. Merci également à Andreas Abel, à Frédéric Blanqui et à Laurent
+Regnier pour avoir accepté de compléter le jury, parfois dans des délais
+très courts.
+
+(* TODO *)
+
+Merci à Tom Hirschowitz pour son aide avec Coq, sa contribution aux pavage
+de salles de bains en école primaire, mais aussi pour m'avoir fait découvrir
+son modèle de virilité.
+(* *)
+Merci à Jacques-Olivier Lachaud pour son esprit très critique qui nous aide
+à garder les pieds sur terre, pour nos nombreuses discussions sur la connerie
+humaine, et également pour son humour tranchant (en particulier lors des
+soutenances de projets).
+(* *)
+Merci à Xavier Provençal pour son aide avec les enseignements, pour son
+sens de la pédagogie, mais aussi pour sa solidarité avec mon penchant pour
+les burgers et la nourriture forte en fromage (dont l'intersection est bien
+entendu non vide).
+(* *)
+Merci à Clovis Eberhart pour sa complicité dans la lecture des travaux
+scientifiques douteux d'un certain Professeur des Universités CNU, pour
+ses nombreuses tentatives d'explications de concepts catégoriques, mais
+également pour de nombreux fous rires provoqués par les perles de nos
+étudiants.
+(* *)
+Merci à Pierre Villemot pour sa grande culture mathématique, pour son
+enthousiasme vis-à-vis de la représentation des constructibles (qu'il
+faudra qu'on entreprenne un jour), et pour sa participation à un « ICFP
+contest » mémorable chez Christophe.
 
 (*
 Idées:
- - Pauses café
- - John Horton Conway
- - Idées pour devenir riche
- - « Il n'y a plus qu'à terminer »
  - Patoline et rédaction
  - Discussions au déjeuné
- - Christophe Roche
- - Maths à Modeler
- - ICFP Contest
 
-Tom Hirschowitz
-Clovis Eberhart
-
-Xavier Provençal
-Jacques-Oliver Lachaud
-
-Karim Nour
+Marion Foare
+Lama Tarsissi
 *)

@@ -55,7 +55,7 @@ and  ordi =
   | OMeta of vari                      (* τ, υ   *)
   | OInfi                              (* ∞      *)
   | OSucc of ordi                      (* o+1    *)
-  | OWitn of vari * ordi * term * form (* εθ<τ(t∈A) *)
+  | OWitn of vari * ordi * term * bool * form (* εθ<τ(t∈A) *)
 and  proc =
   | PMeta of vari                      (* p, q   *)
   | PProc of term * stac               (* t ∗ π  *)

@@ -207,7 +207,7 @@ let r_mu_l =
 
 let r_nu_r =
   <$\binaryRN{ν_r}
-    {γ,τ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ νεθ<τ(t∈B[X ≔ νθX B])X B]}}
+    {γ,τ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{B[X ≔ νεθ<τ(t∉B[X ≔ νθX B])X B]}}
     {Ξ ⊢ v ≡ t}
     {γ; Ξ ⊢ \t{t} ∈ \f{A} ⊂ \f{ντX B}}$>
 
@@ -745,9 +745,9 @@ We proceed by case on the definition of $v = \t{⟦εx∈A(x∉B)⟧}$.
 If $v ≠ \v{□}$ then we have $v ∈ \vs{A}$ and $v ∉ \ts{B}$. This
 is a contradiction since $v ∉ \vs{B}$ by \theorem("orthosimple").
 (* *)
-If $v = \v{□}$ then for all $v ∈ {\vs{A} ∖ \{\v{□}\}}$ we have $v ∈ \ts{B}$
-and $v ∈ \vs{B}$ thanks to \theorem("main"). Moreover, $\v{□} ∈ \vs{A}$ and
-$\v{□} ∈ \vs{B}$ so for all $v ∈ \vs{A}$ we indeed have $v ∈ \vs{B}$.
+If $v = \v{□}$ then for all $w ∈ {\vs{A} ∖ \{\v{□}\}}$ we have $w ∈ \ts{B}$
+and $w ∈ \vs{B}$ thanks to \theorem("main"). Moreover, $\v{□} ∈ \vs{A}$ and
+$\v{□} ∈ \vs{B}$ so we indeed have $\vs{A} ⊆ \vs{B}$.
 \end{proof}
 \end{lem}
 \begin{thm}\label("fulladequacy")

@@ -149,8 +149,9 @@ and        ordi =
   | x:ometa     -> OMeta(x)
   | "∞"         -> OInfi
   | o:ordi "+1" -> OSucc(o)
-  | "ε" x:vordi '<' o:ordi '(' t:(term TAppl) "∈" a:(form FFull) ')'
-                -> OWitn(x,o,t,a)
+  | "ε" x:vordi '<' o:ordi '(' t:(term TAppl)
+    b:{"∈" -> true | "∉" → false} a:(form FFull) ')'
+                -> OWitn(x,o,t,b,a)
 and        form prio =
   | t:(term TAppl) u:{"≡" u:(term TAppl)}?$   when prio = FAtom ->
       (match u with None -> FTerm(t) | Some u -> FRest(None,Eq (t,u)))

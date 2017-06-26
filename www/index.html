@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <title>Rodolphe Lepigre's PhD Thesis</title>
@@ -9,6 +9,7 @@
       html, body { max-width : 920px; margin : auto; padding : 20px; }
       a { text-decoration : none; color : grey; }
       a:hover { color : red; }
+      pre { padding : 10px; margin-left : 20px; }
     </style>
   </head>
   <body>
@@ -48,7 +49,7 @@
       implementation, by proving properties of standard programs like the map
       function on lists or the insertion sort.
     </p>
-    <h3>Documents and source code:</h3>
+    <h3>Thesis and appendices:</h3>
     <ul>
       <li>
         <a href="manuscript_lepigre.pdf">PDF version</a> of the manuscript.
@@ -65,10 +66,41 @@
         <a href="classification.ml">Proof of Lemmas 2.6.45 and 2.6.46</a>
         (relies on OCaml's exhaustivity checker for patterns).
       </li>
-      <li>
-        Prototype implementation (soon available).
-      </li>
     </ul>
+    <h3>Prototype implementation:</h3>
+    <p>
+      The source code of the implementation is available online as a
+      <a href="https://darcs.net">Darcs</a> repository. It can be accessed
+      through the HTTPS protocol using the following command.
+    </p>
+    <pre>darcs get <a href="https://lama.univ-smb.fr/~lepigre/these/pml2">https://lama.univ-smb.fr/~lepigre/these/pml2</a></pre>
+    <p>
+      It can be compiled using <a href="https://ocaml.org">OCaml</a> (it has
+      been tested with version 4.03.0) with ocamlfind, ocamlbuild and standard
+      tools such as GNU make. There are also several dependencies on libraries
+      developed by Christophe Raffalli and me:
+    </p>
+    <ul>
+      <li>the <a href="https://www.lama.univ-savoie.fr/~raffalli/bindlib">bindlib</a> library for structures with binders,</li>
+      <li>the <a href="https://lama.univ-savoie.fr/~raffalli/earley">earley</a> library for building parsers and</li>
+      <li>the related <a href="https://lama.univ-savoie.fr/~raffalli/earley">earley-ocaml</a> parser for OCaml.</li>
+    </ul>
+    <p>
+      Their latest verion can be obtained and installed with the following
+      commands.
+    </p>
+    <pre>darcs get <a href="https://www.lama.univ-savoie.fr/~raffalli/repos/bindlib">https://www.lama.univ-savoie.fr/~raffalli/repos/bindlib</a>
+cd bindlib &amp;&amp; make &amp;&amp; make install &amp;&amp; cd ..
+
+darcs get <a href="https://www.lama.univ-savoie.fr/~raffalli/repos/earley">https://www.lama.univ-savoie.fr/~raffalli/repos/earley</a>
+cd earley &amp;&amp; make &amp;&amp; make install &amp;&amp; cd ..
+
+darcs get <a href="https://www.lama.univ-savoie.fr/~raffalli/repos/earley_ocaml">https://www.lama.univ-savoie.fr/~raffalli/repos/earley_ocaml</a>
+cd earley_ocaml &amp;&amp; make &amp;&amp; make &amp;&amp; make install &amp;&amp; cd ..</pre>
+    <p>
+      Note that make needs to be run twice (for bootstrap) for the compilation
+      of earley-ocaml.
+    </p>
     <h3>My advisors:</h3>
     <ul>
       <li><a href="https://lama.univ-savoie.fr/~nour">Karim Nour</a> (HDR)</li>

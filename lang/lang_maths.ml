@@ -167,10 +167,12 @@ and o2m : ordi -> Maths.math list = function
   | OSucc(o)       -> bin' 3 "+" (o2m o, str "1")
   | OVari(x)       -> vari2m x
   | OMeta(x)       -> vari2m x
-  | OWitn(x,o,t,a) -> let n = Maths.node (Maths.glyphs "ε") in
-                      let subscript_right = bin' 2 "<" (vari2m x, o2m o) in
-                      let n = [Maths.Ordinary {n with subscript_right}] in
-                      n @ (str "(") @ (bin' 2 "∈" (t2m t, f2m a)) @ (str ")")
+  | OWitn(x,o,t,b,a) ->
+      let n = Maths.node (Maths.glyphs "ε") in
+      let subscript_right = bin' 2 "<" (vari2m x, o2m o) in
+      let n = [Maths.Ordinary {n with subscript_right}] in
+      n @ (str "(") @
+        (bin' 2 (if b then "∈" else "∉") (t2m t, f2m a)) @ (str ")")
 
 and f2m : form -> Maths.math list = function
   | FTerm(t)       -> t2m t

@@ -5,14 +5,17 @@
   open Lang
 )
 
+\begin{env}(fun env -> hyphenate_fr env)
 Les travaux de thèse présentés ici s'articulent autours d'un but commun :
 proposer un nouveau langage de programmation combinant un système de type
 expressif (produit dépendant, sous-typage) et rendant accessible la preuve
 de programme. Chacun des aspects du système de type ont été implémentés
 dans un prototype.
+\end{env}
 
 -> Langage et système de types
 
+\begin{env}(fun env -> hyphenate_fr env)
 Notre nouveau langage de programmation s'inspire largement des langages
 de la famille ML (comme OCaml ou SML) et de leurs systèmes de types. En
 particulier, il suit le paradigme de la programmation fonctionnelle et
@@ -39,11 +42,13 @@ Cette dernière applique une fonction donnée à tous les éléments
 d'une liste. Évidemment, le type des éléments de la liste d'entrée
 et de la liste de sortie doivent correspondre aux types du domaine
 et du co-domaine de la fonction.
+\end{env}
 
 -<
 
 -> Réstriction aux valeurs relaxée
 
+\begin{env}(fun env -> hyphenate_fr env)
 Du fait de la présence d'opérateurs de contrôle, et donc d'effets de bord,
 il est nécessaire de fixer une stratégie d'évaluation. Comme la plupart
 des langages de la famille \sc{ml}, nous opterons pour l'appel par valeur.
@@ -75,6 +80,7 @@ produit dépendant en utilisant ces nouveaux constructeurs.
 
 Globalement, programmer avec notre langage devrait être
 une expérience relativement similaire à programmer en \sc{ml}.
+\end{env}
 
 -<
 
@@ -86,6 +92,7 @@ une expérience relativement similaire à programmer en \sc{ml}.
 
 -> Organisation du manuscrit
 
+\begin{env}(fun env -> hyphenate_fr env)
 Ce manuscrit, rédigé en grande partie en anglais, présente notre nouveau
 langage et son système de type de manière incrémentale. Après avoir
 donné les objectifs généraux (et divers travaux liés) dans le
@@ -155,5 +162,6 @@ standard sont également fournis pour donner au lecteur une idée de
 l'expressivité du système en pratique. Les exemples sont également
 distribués avec le code source du prototype, afin que le lecteur puisse
 s'essayer à les utiliser et à les modifier.
+\end{env}
 
 -<

@@ -13,28 +13,32 @@ let thierry   = ("Thierry Coquand", "Göteborgs Universitet, Suède")
 
 let christophe = ("Christophe Raffalli", usmb)
 let pierre     = ("Pierre Hyvernat", usmb)
+let karim      = ("Karim Nour", usmb)
 
 let karim      = ("Karim Nour", usmb)
 let frederic   = ("Frédéric Blanqui", "Inria (Deducteam)")
 
+let andreas    = ("Andreas Abel", "Göteborgs Universitet, Suède")
+let laurent    = ("Laurent Regnier", "Aix-Marseille Université")
+
 let title = 
   [ "Sémantique et Implantation"
-  ; "d'une extension de ML"
+  ; "d'une Extension de ML"
   ; "pour la Preuve de Programmes" ]
 
 
 let johndoe = ("IAmA Nobody", "University of Nowhere")
 
 let cover_data =
-  { author    = "Rodolphe Lepigre"
-  ; title     = title
-  ; def_date  = "XX juillet 2017" (* FIXME *)
-  ; lab       = "LAMA, " ^ usmb
-  ; advisor   = christophe
-  ; coadvisor = Some pierre
-  ; jury_pres = frederic (* FIXME *)
-  ; reviewers = [ thierry ; alexandre ]
-  ; examinors = [ karim ; johndoe ; johndoe ] } (* FIXME *)
+  { author     = "Rodolphe Lepigre"
+  ; title      = title
+  ; def_date   = "18 juillet 2017"
+  ; lab        = "LAMA, " ^ usmb
+  ; advisor    = christophe
+  ; coadvisor  = Some pierre
+  ; advisorhdr = Some karim
+  ; reviewers  = [ thierry ; alexandre ]
+  ; examinors  = [ andreas ; frederic ; laurent ] }
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
@@ -43,11 +47,9 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{AbstractFr}
 
 (* Remerciements *)
-(* TODO
 \begin{minichap}{Remerciements}
 \Include{Remerciements}
 \end{minichap}
-*)
 
 (* Titre en anglais. *)
 \pagesBefore(2)
@@ -86,16 +88,10 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{Implementation}
 
-(* TODO ?
-\Include{Conclusion}
-*)
-
-(* TODO
 (* Résumé en français *)
 \begin{minichap}{Résumé « substantiel » en français}
 \Include{Resume}
 \end{minichap}
-*)
 
 (* Bibliographie *)
 \begin{minichap}{References}

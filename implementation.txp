@@ -58,7 +58,7 @@ defining meta-variable: the definition of an expression of a given sort,
 the definition of a type and the definition of a value. The definition of
 an expression simply amounts to giving a name to some higher-order term
 of our language (i.e., to an element of $\cal{F}$ of an arbitrary sort).
-Examples of such definitions are given bellow.
+Examples of such definitions are given below.
 ### PML "examples/syntax.pml"
 def delta : ι          = λx.x x
 def rapp<t:τ, u:τ> : τ = u t
@@ -499,7 +499,7 @@ One possible way for making a proof more readable is to give type
 annotations. They can be used to specify explicitly the equivalences
 that are being shown when using lemmas, but also for checking that
 some properties can be derived at a given point in the proof. We give
-bellow another version of ##mul_comm## annotated in this way.
+below another version of ##mul_comm## annotated in this way.
 ### PML "examples/unat.pml"
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m →
@@ -597,7 +597,7 @@ functions on lists, including ##exists## or ##rev_append## (see
 \chapter("intro")). Many more functions are given in the standard
 library of the prototype, together with its source code. Here, we
 will only focus on the ##map## and ##length## function, which are
-given bellow.
+given below.
 ### PML "examples/unat.pml"
 val rec map : ∀a b:ο, (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun f l →
   case l {

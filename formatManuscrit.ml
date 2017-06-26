@@ -16,15 +16,15 @@ module Cover = struct
   
   (* Métadonnées pour la couverture. *)
   type metadata =
-    { author    : string
-    ; title     : string list
-    ; def_date  : string
-    ; lab       : string
-    ; advisor   : person
-    ; coadvisor : person option
-    ; jury_pres : person
-    ; reviewers : person list
-    ; examinors : person list }
+    { author     : string
+    ; title      : string list
+    ; def_date   : string
+    ; lab        : string
+    ; advisor    : person
+    ; coadvisor  : person option
+    ; advisorhdr : person option
+    ; reviewers  : person list
+    ; examinors  : person list }
   
   (* Paramètres de la couverture. *)
   let logo_UG     = "logo_UG.png"
@@ -40,16 +40,20 @@ module Cover = struct
   
   (* Composition du jury à partir des métadonnées. *)
   let build_jury data =
-    let president = [(data.jury_pres, "président")] in
-    let advisor   = [(data.advisor, "directeur de thèse")] in
-    let coadvisor =
+    let advisor    = [(data.advisor, "directeur de thèse")] in
+    let coadvisor  =
       match data.coadvisor with
       | None   -> []
       | Some p -> [(p, "codirecteur de thèse")]
     in
-    let reviewers = List.map (fun p -> (p, "rapporteur")) data.reviewers in
-    let examinors = List.map (fun p -> (p, "examinateur")) data.examinors in
-    president @ advisor @ coadvisor @ reviewers @ examinors
+    let advisorhdr =
+      match data.advisorhdr with
+      | None   -> []
+      | Some p -> [(p, "directeur de thèse (HDR)")]
+    in
+    let reviewers  = List.map (fun p -> (p, "rapporteur")) data.reviewers in
+    let examinors  = List.map (fun p -> (p, "examinateur")) data.examinors in
+    reviewers @ examinors @ advisorhdr @ advisor @ coadvisor
   
   (* Construit la couverture dans le style de l'UGA. *)
   let cover data env =
@@ -118,7 +122,7 @@ module Cover = struct
   
     let jury_member ((name,inst), func) =
       hspace 6.;
-      add_line ~off:8. 4. (Printf.sprintf "%s (%s)" name func);
+      add_line ~off:8. 4. (Printf.sprintf "%s, %s" name func);
       hspace 4.;
       add_line ~off:16. 4. inst
     in
@@ -147,11 +151,11 @@ module Cover = struct
     hspace 10.;
     add_line 4. "pour obtenir le grade de";
     hspace 10.;
-    add_line 7. "Docteur de la Communauté Université";
-    hspace 7.;
-    add_line 7. "Grenoble Alpes";
+    add_line 6. "Docteur de l'Université Grenoble Alpes";
     hspace 8.;
-    add_line 4. "spécialité : Informatique";
+    add_line 4. "spécialité : informatique";
+    hspace 4.;
+    add_line 4. "arrêté ministériel : 25 mai 2016";
     hspace 14.;
     add_line 4. "présentée par";
     hspace 5.;
