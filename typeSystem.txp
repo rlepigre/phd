@@ -1349,7 +1349,7 @@ to be $({≻})$ in the following theorem.
 \begin{thm}\label("basicnorm")
 Every closed, typed term normalises. More precisely, for all $t∈Λ^{∗}$
 such that $⊢ t : A$ is derivable there is $v ∈ {Λ_ι^{∗} ∖ \{\v{□}\}}$
-such that $\p{t∗π} ≻^{∗} \p{v∗ε}$.
+such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
 We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$ which is
 trivially saturated. We will first check that it is also $≡_{≻}$-extensional.

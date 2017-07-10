@@ -160,8 +160,8 @@ on the membership type, optionally combined with existential quantification
 and restriction.
 ### PML "examples/realunit.pml"
 type unit1 = {} ∈ {⋯}
-type unit2 = ∃x:ι↓, x ∈ ({⋯} | x ≡ {})
-type unit3 = ∃x:ι↓, (x ∈ {⋯}) | x ≡ {}
+type unit2 = ∃x:ι, x ∈ ({⋯} | x ≡ {})
+type unit3 = ∃x:ι, (x ∈ {⋯}) | x ≡ {}
 ###
 Note that these types are all equivalent semantically. In the implementation,
 we chose to use the definition ##unit1## in place of the syntactic sugar
@@ -188,7 +188,7 @@ encoding can be used for any record type, and it is made accessible in the
 syntax using the strict product type notation. For instance, the type of
 pairs ##pair<a,b>## can be encoded as follows.
 ### PML "examples/pair.pml"
-type pair<a,b> = ∃ x y:ι↓, {fst = x ; snd = y} ∈ {fst : a ; snd : b ⋯}
+type pair<a,b> = ∃ x y:ι, {fst = x ; snd = y} ∈ {fst : a ; snd : b ⋯}
 // type pair<a,b> = {fst : a ; snd : b}
 
 val couple : ∀ a b, a ⇒ b ⇒ pair<a,b> = fun x y →
@@ -200,7 +200,7 @@ val pi2 : ∀ a b, pair<a,b> ⇒ b = fun p → p.snd
 As for the unit type, it is possible to show that the elements of a pair
 type are indeed records with exactly two fields ##fst## and ##snd##.
 ### PML "examples/pair.pml"
-val true_pair : ∀a b, ∀p∈pair<a,b>, ∃x y:ι↓, p ≡ {fst = x ; snd = y} =
+val true_pair : ∀a b, ∀p∈pair<a,b>, ∃x y:ι, p ≡ {fst = x ; snd = y} =
   fun p → {}
 ###
 
@@ -365,9 +365,9 @@ As ##add## and ##mul## are defined using recursion on their first argument,
 it is immediate to show ##add Zero n ≡ n## and ##mul Zero n ≡ Zero## for
 every ##n##.
 ### PML "examples/unat.pml"
-val add_zero_v : ∀v:ι↓, add Zero v ≡ v    = {}
+val add_zero_v : ∀v:ι, add Zero v ≡ v    = {}
 
-val mul_zero_v : ∀v:ι↓, mul Zero v ≡ Zero = {}
+val mul_zero_v : ∀v:ι, mul Zero v ≡ Zero = {}
 ###
 Note that these properties are proved by quantifying over every possible
 value ##v##. Whether it is a unary natural number or not is not important
@@ -429,7 +429,7 @@ the totality of functions. In other words, it will sometimes be required to
 show that the application of a function to any value produces a value. As an
 example, we will prove the totality of the ##add## function.
 ### PML "examples/unat.pml"
-val rec add_total : ∀n m∈nat, ∃v:ι↓, add n m ≡ v = fun n m →
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
   case n {
     | Zero[_] → {}
     | Succ[k] → let ih = add_total k m in {}
@@ -462,7 +462,7 @@ val rec mul_n_zero : ∀n∈nat, mul n Zero ≡ Zero = fun n →
     | Succ[k] → let ih = mul_n_zero k in {}
   }
 
-val rec mul_total : ∀n m∈nat, ∃v:ι↓, mul n m ≡ v = fun n m →
+val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v = fun n m →
   case n {
     | Zero[_] → {}
     | Succ[k] → let ih = mul_total k m in
@@ -511,7 +511,7 @@ val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
                    let lem : mul m Succ[k] ≡ add (mul m k) m =
                      mul_succ m k
                    in
-                   let tot : (∃v:ι↓, mul k m ≡ v) = mul_total k m in
+                   let tot : (∃v:ι, mul k m ≡ v) = mul_total k m in
                    let lem : add (mul k m) m ≡ add m (mul k m) =
                      add_comm (mul k m) m
                    in {}
@@ -548,7 +548,7 @@ val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
                  t_show<mul k m ≡ mul m k, mul_comm k m>;
                  t_show<mul m Succ[k] ≡ add (mul m k) m
                        , mul_succ m k>;
-                 t_show<(∃v:ι↓, mul k m ≡ v), mul_total k m>;
+                 t_show<(∃v:ι, mul k m ≡ v), mul_total k m>;
                  t_show<add (mul k m) m ≡ add m (mul k m)
                        , add_comm (mul k m) m>
   }
@@ -564,7 +564,7 @@ val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n = fun n m →
                  show mul k m ≡ mul m k using mul_comm k m;
                  show mul m Succ[k] ≡ add (mul m k) m
                    using mul_succ m k;
-                 show ∃v:ι↓, mul k m ≡ v using mul_total k m;
+                 show ∃v:ι, mul k m ≡ v using mul_total k m;
                  show add (mul k m) m ≡ add m (mul k m)
                    using add_comm (mul k m) m
   }
@@ -619,10 +619,10 @@ because it will be needed later. Note that the totality of the
 given as first argument is itself total.
 ### PML "examples/unat.pml"
 // total<f,a> means that f is total on the domain a.
-def total<f:ι,a:ο> : ο = ∀x∈a, ∃v:ι↓, f x ≡ v
+def total<f:ι,a:ο> : ο = ∀x∈a, ∃v:ι, f x ≡ v
 
 val rec map_total : ∀a b:ο, ∀f∈(a ⇒ b), total<f,a>
-                    ⇒ ∀l∈list<a>, ∃v:ι↓, map f l ≡ v =
+                    ⇒ ∀l∈list<a>, ∃v:ι, map f l ≡ v =
   fun fn ft ls →
     case ls {
       | Nil[_]  → {}
@@ -630,7 +630,7 @@ val rec map_total : ∀a b:ο, ∀f∈(a ⇒ b), total<f,a>
                    let ih  = map_total fn ft c.tl in {}
     }
 
-val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι↓, v ≡ length l = fun l →
+val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l = fun l →
   case l {
     | Nil[_]  → {}
     | Cons[c] → let ind = length_total c.tl in {}
@@ -645,8 +645,8 @@ that the composition of two total functions is itself total.
 val compose_total : ∀a b c:ο, ∀f∈(a ⇒ b), ∀g∈(b ⇒ c),
     total<f,a> ⇒ total<g,b> ⇒ total<(fun x → g (f x)), a> =
   fun f g ftot gtot a →
-    show ∃v:ι↓, f a ≡ v using ftot a;
-    show ∃w:ι↓, g (f a) ≡ w using gtot (f a)
+    show ∃v:ι, f a ≡ v using ftot a;
+    show ∃w:ι, g (f a) ≡ w using gtot (f a)
 ###
 We can then state and prove our lemma as follows, using a proof by
 induction together with our different totality results.
@@ -678,14 +678,14 @@ two parameters. The former will give the type of the elements contained
 in the vectors and the latter will be the size parameter, in the form of
 a term.
 ### PML "examples/unat.pml"
-type vec<a:ο, s:τ> = ∃l:ι↓, l∈(list<a> | length l ≡ s)
+type vec<a:ο, s:τ> = ∃l:ι, l∈(list<a> | length l ≡ s)
 ###
 (* TODO a word on the position of parentheses ? *)
 We can then define a concatenation function ##app## on vector. It produces
 a vector which length is the sum of the lengths of its two arguments. Note
 that the definition of ##app## requires the use of ##length_total##.
 ### PML "examples/unat.pml"
-val rec app : ∀a:ο, ∀m n:ι↓, vec<a, m> ⇒ vec<a, n> ⇒ vec<a, add m n> =
+val rec app : ∀a:ο, ∀m n:ι, vec<a, m> ⇒ vec<a, n> ⇒ vec<a, add m n> =
   fun l1 l2 → case l1 { Nil[_] → l2 | Cons[c] →
     let _ = length_total c.tl in
     let r = app c.tl l2 in
@@ -695,7 +695,7 @@ We can now define a ternary concatenation function on vectors as follows,
 using two calls to ##app##. To be able to define this function, the
 totality of the ##add## function is required.
 ### PML "examples/unat.pml"
-val app3 : ∀a:ο, ∀m n p:ι↓, vec<a,m> ⇒ vec<a,n> ⇒ vec<a,p>
+val app3 : ∀a:ο, ∀m n p:ι, vec<a,m> ⇒ vec<a,n> ⇒ vec<a,p>
                            ⇒ vec<a, add m (add n p)> =
  fun l1 l2 l3 →
    let lem = add_total (length l2) (length l3) in
@@ -720,9 +720,9 @@ important property: the fact that it actually produces sorted lists.
 Before going further, we will start by define a type ##ord<a>## that
 will be represent an ordering relation together with its properties.
 ### PML "examples/unat.pml"
-type ord<a:ο> = ∃cmp:ι↓,
+type ord<a:ο> = ∃cmp:ι,
   { cmp : cmp ∈ (a ⇒ a ⇒ bool)
-  ; tot : ∀x y∈a, ∃v:ι↓, cmp x y ≡ v
+  ; tot : ∀x y∈a, ∃v:ι, cmp x y ≡ v
   ; dis : ∀x y∈a, or (cmp x y) (cmp y x) ≡ true }
 ###
 If we ignore the leading existential, an ordering relation simply consist
@@ -780,7 +780,7 @@ Most remarkably, we can even define the type of sorted lists using the
 restriction operator. Indeed, sorted lists are lists on which the
 ##sorted## function returns ##true##.
 ### PML "examples/unat.pml"
-type slist<a:ο,o:τ> = ∃l:ι↓, l∈(list<a> | sorted o l ≡ true)
+type slist<a:ο,o:τ> = ∃l:ι, l∈(list<a> | sorted o l ≡ true)
 ###
 At the end of this section we will be able to define another version of
 ##isort## that can be given the type
@@ -791,7 +791,7 @@ To build our proof, we will first need to establish the totality of the
 with the following proofs.
 ### PML "examples/unat.pml"
 val rec insert_total : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈list<a>,
-                       ∃v:ι↓, insert o x l ≡ v =
+                       ∃v:ι, insert o x l ≡ v =
   fun o x l →
     case l {
       | Nil[_]   → {}
@@ -802,7 +802,7 @@ val rec insert_total : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈list<a>,
     }
 
 val rec isort_total :  ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>,
-                       ∃v:ι↓, isort o l ≡ v =
+                       ∃v:ι, isort o l ≡ v =
   fun o l →
     case l {
       | Nil[_]  → {}

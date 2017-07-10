@@ -6,11 +6,42 @@
 )
 
 \begin{env}(fun env -> hyphenate_fr env)
+Au cours des dernières années, les assistants de preuves on fait des progrès
+considérables et ont atteint un grand niveau de maturité. Ils ont permit la
+certification de programmes complexes tels que des compilateurs et même des
+systèmes d'exploitation. Néanmoins, l'utilisation d'un assistant de preuve
+requiert des compétences techniques très particulières, qui sont très
+éloignées de celles requises pour programmer de manière usuelle. Pour combler
+cet écart, nous entendons concevoir un langage de programmation de style ML
+supportant la preuve de programmes. Il combine au sein d'un même outil la
+flexibilité de ML et le fin niveau de spécification offert par un assistant
+de preuve. Autrement dit, le système peut être utilisé pour programmer de
+manière fonctionnelle et fortement typée tout en autorisant l'obtention de
+nouvelles garanties au besoin.
+
+On étudie donc un langage en appel par valeurs dont le système de type
+étend une logique d'ordre supérieur. Il comprend un type égalité entre
+les programmes non typés, un type de fonction dépendant, la logique
+classique et du sous-typage. La combinaison de l'appel par valeurs,
+des fonctions dépendantes et de la logique classique est connu pour
+poser des problèmes de cohérence. Pour s'assurer de la correction du
+système (cohérence logique et sûreté à l'exécution), on propose un
+cadre théorique basé sur la réalisabilité classique de Krivine. La
+construction du modèle repose sur une propriété essentielle qui lie
+les différent niveaux d'interprétation des types d'une manière
+novatrice.
+
+On démontre aussi l'expressivité de notre système en se basant sur
+son implantation dans un prototype. Il peut être utilisé pour prouver
+des propriétés de programmes standards tels que la fonction « map »
+sur les listes ou le tri par insertion.
+(*
 Les travaux de thèse présentés ici s'articulent autours d'un but commun :
 proposer un nouveau langage de programmation combinant un système de type
 expressif (produit dépendant, sous-typage) et rendant accessible la preuve
 de programme. Chacun des aspects du système de type ont été implémentés
 dans un prototype.
+*)
 \end{env}
 
 -> Langage et système de types
