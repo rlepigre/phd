@@ -391,7 +391,7 @@ the evaluation of $λ$-terms. We will now reformulate these definitions in
 terms of a call-by-value Krivine abstract machine \cite("Krivine2007").
 Our presentation will differ from the original machine, which is
 call-by-name. Although call-by-value Krivine machines have rarely been
-published, they are well-known in the classical realisability and compiler
+published, they are well-known in the classical realizability and compiler
 communities.
 
 The main idea behind the Krivine abstract machine is to think of a term
@@ -754,7 +754,7 @@ definition of our semantics in \chapters(["typeSystem"; "subtyping"]).
 Terms of the form $\t("R(v,t)")$ will help us to distinguish records from
 other sorts of values in in our definition of observational equivalence in
 \chapter("obsEquiv"). Finally, terms of the form $\t("δ(v,w)")$ will be
-used to obtain an essential property of our realisability model in
+used to obtain an essential property of our realizability model in
 \chapter("semValRest") (\thmRef("main")).
 
 A stack can be either the empty stack $\s("ε")$, a stack variable $\s("α")$,

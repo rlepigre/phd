@@ -24,7 +24,7 @@ and only if they have the same observable behaviour in terms
 of computation. General equational properties will then be
 derived for any equivalence relation satisfying specific
 compatibility conditions. These properties will then be
-essential for the definition of our realisability semantics
+essential for the definition of our realizability semantics
 in the next chapters. Moreover, they will be used for
 implementing a partial decision procedure for program
 equivalence.
@@ -245,7 +245,7 @@ possibilities.
 
 The purpose of the theorems given in the previous section was to show
 that $({≡}_{≻})$ is a form of congruence. This property will be
-essential to the construction of our realisability model and semantics
+essential to the construction of our realizability model and semantics
 in the following chapter.
 \begin{def}\label("defcongruence")
 An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be a congruence if

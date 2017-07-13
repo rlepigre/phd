@@ -1301,7 +1301,7 @@ very similar techniques, which consist in considering particular examples
 of poles.
 
 In this thesis, the choice of a pole is more constrained than it usually
-is the framework of classical realisability (e.g., \mcite(["Krivine2009";
+is the framework of classical realizability (e.g., \mcite(["Krivine2009";
 "Miquel2011"])). Indeed, the only property that is commonly required of
 a pole is to be saturated under the reduction relation of the abstract
 machine (i.e., to be closed under backward reduction). Here however, we
@@ -1344,7 +1344,7 @@ Now that we have proved normalisation, we will show that our system is
 type safe. In other words, a typed program is expected to reduce to a value
 of the corresponding type. For instance, a program which type corresponds
 to some encoding of the natural numbers is expected to evaluate to a
-value representing a natural number. As usual in classical realisability,
+value representing a natural number. As usual in classical realizability,
 we do not prove type safety for all types. In particular, safety is never
 proved for types containing function arrows. We will here restrict ourselves
 to simple data types.

@@ -196,7 +196,7 @@ let typrules () =
   figure_here ~name:"typerules" ~caption:[tT "Typing rules."] (dr rs)
 )
 
-=> Types and realisability semantics \label("typeSystem")
+=> Types and realizability semantics \label("typeSystem")
 
 \begin{center}
 \linesBefore(10)
@@ -206,7 +206,7 @@ In this chapter, we present a new type system which distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
 of equational properties over programs, which can then be proved using
 equational reasoning. Our types are interpreted using standard classical
-realisability techniques, which allows for a semantical justification of
+realizability techniques, which allows for a semantical justification of
 our typing rules.
 
 => Observational equivalence type
@@ -283,9 +283,9 @@ has been successfully implemented to work with our prototype language
 (\website("http://lepigre.fr/these/")). Although we cannot hope for
 completeness, we will argue that it is a good enough approximation of
 our equivalent relation in practice.
-\begin{def}\label("equationalrealise")
+\begin{def}\label("equationalrealize")
 Given an equational context $Ξ$ and a substitution $ρ$, we say that $ρ$
-//realises// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
+//realizes// $Ξ$ and we write $ρ ⊩ Ξ$ if for every $(t,u) ∈ Ξ$ we have
 $\t{tρ} ≡ \t{uρ}$.
 \end{def}
 \begin{def}
@@ -333,7 +333,7 @@ $\f{t∈A}$ are those of $A$ that are equivalent to $t$. In particular,
 $\f{t ∈ A}$ is empty if $t$ does not have type $A$. Intuitively,
 $\f{t∈A}$ can be read as the proposition "$t$ has type $A$", but we will
 see later that a more appropriate interpretation would be
-"$t$ realises $A$". Using membership, we can use the well-known relativised
+"$t$ realizes $A$". Using membership, we can use the well-known relativised
 quantification scheme to obtain a dependent function type.
 $$ \f{Π_(x∈A) B} ≔ \f{∀x (x∈A ⇒ B)} $$
 The dependent function type exactly correspond to typed quantification as
@@ -614,14 +614,14 @@ the elimination of the dependent function type at the begining of
 \chapter("semValRest"), the latter will also need value restriction.
 
 =<
-=> Call-by-value realisability semantics
+=> Call-by-value realizability semantics
 
 The abstract machine presented in \chapter("calculus") is part of a
-//classical realisability// machinery that will be built upon here.
+//classical realizability// machinery that will be built upon here.
 We aim at obtaining a semantical interpretation of our higher-order
 type system. In particular, a proposition (i.e., a type of sort $ο$)
 will be interpreted by three sets: a set of values, a set of stacks
-and a set of terms. As always in classical realisability, the model
+and a set of terms. As always in classical realizability, the model
 is parametrised by a pole, which serves as an exchange point between
 the world of programs and the world of execution contexts, encoded
 as stacks.
@@ -637,7 +637,7 @@ pole $\dbot$.
 
 (* FIXME "as an example" pas très clair selon Pierre (example de π, t) *)
 The notion of //orthogonality// is central in Krivine's classical
-realisability. In this framework a type is interpreted (or realised) by
+realizability. In this framework a type is interpreted (or realized) by
 programs computing corresponding values. This interpretation is spread
 in a three-layered construction, even though it is fully determined by
 the first layer and the choice of the pole. The first layer consists of
@@ -664,14 +664,14 @@ For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows
 $$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p{t ∗ π} ∈ \dbot\} $$
 \end{def}
 \begin{rem}
-In the usual presentation of Krivine's classical realisability, the
+In the usual presentation of Krivine's classical realizability, the
 interpretation of types can contain open values, terms and stacks.
 Here, we need to restrict ourselves to closed objects for our model
 to be compatible with our notion of equivalence.
 \end{rem}
 
 We now give several general properties of orthogonality, which hold in
-every call-by-value classical realisability model. They will be useful
+every call-by-value classical realizability model. They will be useful
 when proving the soundness of our type system.
 \begin{lem}\label("orthosimple")
 If $Φ ⊆ Λ_ι^{∗}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
@@ -733,7 +733,7 @@ From now on, and until the end of this chapter, we will only consider
 poles that are both $≡$-extensional and $R$-saturated for some reduction
 relation $R ⊆ (Λ×Π)×(Λ×Π)$ such that $({≻}) ⊆ R$. This information will
 be kept implicit most of the time. Note that $R$, much like $({≡})$ is
-a parameter of our type system and realisability semantics.
+a parameter of our type system and realizability semantics.
 \begin{thm}\label("poleext")
 Let $Φ ⊆ Λ_ι^{∗}$ be a set of closed values and $t$, $u ∈ Λ^{∗}$ be two
 closed terms. With an $≡$-extensional pole, if $t ∈ Φ^{⊥⊥}$ and $t ≡ u$
@@ -745,7 +745,7 @@ using the $≡$-extensionality of our pole since we have $t ≡ u$.
 \end{proof}
 \end{thm}
 
-In our realisability model, the well-formed closed types will be
+In our realizability model, the well-formed closed types will be
 interpreted by the elements of a set defined according to their sort.
 Such a set can be seen as the interpretation, in the model, of the sort
 themselves.
@@ -1041,10 +1041,10 @@ Intuitively, we need to check that whenever our type system can be used to
 prove that a term $t$ has type $A$, then $t$ is indeed in the term level
 interpretation of $A$. This will be summarised in the following theorem,
 but we first need the following definition. It will play a similar role
-as \definition("equationalrealise") for typing contexts.
+as \definition("equationalrealize") for typing contexts.
 \begin{def}
 Let $Σ$ be a sorting context, $ρ$ be a valuation over $Σ$ and $Γ$ be a
-typing context such that $Σ ⊢ Γ$ is derivable. We say that $ρ$ realises
+typing context such that $Σ ⊢ Γ$ is derivable. We say that $ρ$ realizes
 $Γ$ and we write $ρ ⊩ Γ$ if for every $x ∈ dom(Γ) ∩ \cal{V}_ι$ we have
 $ρ(x) ∈ {⟦(Γ(x))ρ⟧ ∖ \{\v{□}\}}$ and for every $α ∈ dom(Γ) ∩ \cal{V}_σ$
 we have $ρ(α) ∈ ⟦(Γ(x))ρ⟧^\bot$.
@@ -1284,7 +1284,7 @@ corresponding case.
   As a consequence, we have $\vs{Bρ[xk≔w]} = \vs{Bρ}$, $\vs{Akρ[xk≔w]} =
   \vs{Akρ}$ and $\v{vρ[xk≔w]} = \v{vρ}$. To be able to conclude using the
   induction hypothesis, we need to show that the valuation
-  $\subs("ρ[xk≔w]")$ realises $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As $ρ$ realises
+  $\subs("ρ[xk≔w]")$ realizes $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As $ρ$ realizes
   $Γ; Ξ$ and as $w ∈ {\vs{Akρ} ∖ \{\v{□}\}}$ it only remains to show
   $\v{vρ} ≡ \t{Ck[w]}$, which follows from the reflexivity of $({≡})$.
  
@@ -1378,7 +1378,7 @@ In particular, we will use the fact that the value interpretation of such
 a type does not depend on the choice of the pole.
 
 \begin{rem}
-We do not prove any type safety result here as our realisability model and
+We do not prove any type safety result here as our realizability model and
 type system will be altered in \chapters(["subtyping"; "semValRest"]). In
 particular, the reduction relation $({↠})$ that will be introduced in
 \chapter("semValRest") will allow for simpler proofs.

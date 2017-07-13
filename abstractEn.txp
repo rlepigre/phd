@@ -21,7 +21,7 @@ function type, classical logic and subtyping. The combination of
 call-by-value evaluation, dependent functions and classical logic is known
 to raise consistency issues. To ensure the correctness of the system (logical
 consistency and runtime safety), we design a theoretical framework based
-on Krivine's classical realisability. The construction of the model relies
+on Krivine's classical realizability. The construction of the model relies
 on an essential property linking the different levels of interpretation of
 types in a novel way.
 

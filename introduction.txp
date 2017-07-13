@@ -535,11 +535,11 @@ The system that seems the most similar to ours is NuPrl
 and not effectful. NuPrl accommodates an observational equivalence relation
 similar to ours (Howe's //squiggle// relation \cite("Howe1989")). It is
 partially reflected in the syntax of the system. Being based on a Kleene
-style realisability model, NuPrl can also be used to reason about untyped
+style realizability model, NuPrl can also be used to reason about untyped
 terms.
 
 The central part of this paper consists in the construction of a classical
-realisability model in the style of Jean-Louis Krivine \cite("Krivine2009").
+realizability model in the style of Jean-Louis Krivine \cite("Krivine2009").
 We rely on a call-by-value presentation which yields a model in three layers
 (values, terms and stacks). Such a technique has already been used to account
 for classical ML-like polymorphism in call-by-value in the work of Guillaume
@@ -636,7 +636,7 @@ equality type over terms, that is interpreted using the untyped notion of
 equivalence described in \chapter("calculus"). This enables the specification
 of program properties that can then be proved using equational reasoning.
 The adequacy of our type system with respect to its semantics is then proved
-using classical realisability techniques. As our language is call-by-value,
+using classical realizability techniques. As our language is call-by-value,
 the interpretation of types is spread among three sets related by
 orthogonality: a set of values, a set of evaluation contexts and a set of
 terms.
@@ -647,7 +647,7 @@ However, value restriction is required on the arguments of dependent
 functions, which makes them practically useless. \chapter("semValRest")
 provides a solution to this problem by proposing a relaxed restriction
 expressed using observational equivalence. The soundness of this new
-approach is established by constructing a somewhat surprising realisability
+approach is established by constructing a somewhat surprising realizability
 model. It relies on a new instruction, that internalises our notion of
 program equivalence into the reduction relation of our abstract machine.
 For the definition of reduction and equivalence not to be circular, we need
@@ -656,7 +656,7 @@ to rely on a stratified construction of these relations.
 In \chapter("subtyping"), a more practical approach is taken. The system
 is extended with a notion of subtyping, which yields a system that can be
 directly implemented with syntax-directed rules. While remaining compatible
-with the realisability model of \chapter("semValRest"), our notion
+with the realizability model of \chapter("semValRest"), our notion
 of subtyping is able to handle all the connectives that do not have
 algorithmic contents. This means that quantifiers and equality types are
 only managed by subtyping. At the end of \chapter("subtyping"), we sketch
