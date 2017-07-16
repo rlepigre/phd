@@ -35,72 +35,131 @@ On démontre aussi l'expressivité de notre système en se basant sur
 son implantation dans un prototype. Il peut être utilisé pour prouver
 des propriétés de programmes standards tels que la fonction « map »
 sur les listes ou le tri par insertion.
-(*
-Les travaux de thèse présentés ici s'articulent autours d'un but commun :
-proposer un nouveau langage de programmation combinant un système de type
-expressif (produit dépendant, sous-typage) et rendant accessible la preuve
-de programme. Chacun des aspects du système de type ont été implémentés
-dans un prototype.
-*)
 \end{env}
 
--> Langage et système de types
+-> Chapitre 1, introduction
 
 \begin{env}(fun env -> hyphenate_fr env)
-Notre nouveau langage de programmation s'inspire largement des langages
-de la famille ML (comme OCaml ou SML) et de leurs systèmes de types. En
-particulier, il suit le paradigme de la programmation fonctionnelle et
-il contient donc le $λ$-calcul. Il adopte également la syntaxe du
-$λμ$-calcul pour obtenir un accès à la continuation des programmes. On
-obtient donc des opérateurs de contrôle tels que \emph{call/cc} dans le
-langage \sc{Lisp}.
-
-Les types sont construits en utilisant une forme de type produit
-(enregistrement), une forme de type somme (variants) et un type
-flèche qui enrichissent un système de type d'ordre supérieur
-standard. En particulier, il est possible de programmer dans
-notre langage comme on le ferait en OCaml. Par exemple, on peut
-définir le type des listes avec leur fonction « map » comme suit.
-### PML
-type rec list<a> = [Nil | Cons of {hd : a; tl : list<a>}]
-
-val rec map : ∀a ∀b (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun fn l →
-  case l of
-  | Nil     → Nil
-  | Cons[c] → Cons[{hd = fn c.hd; tl = map fn c.tl}]
-###
-Cette dernière applique une fonction donnée à tous les éléments
-d'une liste. Évidemment, le type des éléments de la liste d'entrée
-et de la liste de sortie doivent correspondre aux types du domaine
-et du co-domaine de la fonction.
+... (* TODO *)
 \end{env}
 
 -<
 
--> Réstriction aux valeurs relaxée
+-> Chapitre 2, calcul non typé
 
 \begin{env}(fun env -> hyphenate_fr env)
-Du fait de la présence d'opérateurs de contrôle, et donc d'effets de bord,
-il est nécessaire de fixer une stratégie d'évaluation. Comme la plupart
-des langages de la famille \sc{ml}, nous opterons pour l'appel par valeur.
-De ce fait, on doit prendre garde aux problèmes de correction liés à la
-combinaison de l'appel par valeur, des effets de bord et du polymorphisme
-à la \sc{ml}. Une solution classique à ce problème est d'opter pour la
-bien connue « value restriction » : certaines règles de typage sont
-restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques (et
-non plus aux termes arbitraires).
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Chapitre 3, équivalence observationnelle
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Chapitre 4, système de type et sémantique
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Chapitre 5, restriction aux valuers
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Chapitre 6, sous-typage
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Chapitre 7, programmes et preuves
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+(*
+-> Chapitre 1 - Calcul non typé
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
+
+-<
+
+
+
+
+
+-> Programmation et preuve de programmes
+
+\begin{env}(fun env -> hyphenate_fr env)
+Notre nouveau langage de programmation s'inspire largement des langages
+de la famille ML (comme OCaml ou SML) et de leurs systèmes de types. Il
+permet donc un style de programmation fonctionnelle standard, autorisant
+l'usage de types de données inductifs et polymorphes, construit à partir
+de types produits (ou types enregistrements) et de types sommes (variants
+ou constructeurs). On pourra, par exemple, définir de la manière suivante
+la fonction d'addition sur les entiers unaires, et la fonction « map »
+standard sur les listes.
+### PML "examples/demo_resume.pml"
+type rec nat = [Zero ; Succ of nat]
+
+val rec add : nat ⇒ nat ⇒ nat = fun n m →
+  case n { Zero[_] → m | Succ[k] → Succ[add k m] }
+
+type rec list<a> = [Nil ; Cons of {hd : a; tl : list}]
+
+val rec map : ∀a b, (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun f l →
+  case l {
+    Nil[_]  → Nil
+    Cons[c] → let hd = f c.hd in
+               let tl = map f c.tl in
+               Cons[{hd = hd ; tl = tl}]
+  }
+###
+
+... (* TODO *)
+\end{env}
+
+-<
+
+-> Les limitations de la restriction aux valeurs
+
+\begin{env}(fun env -> hyphenate_fr env)
+Du fait de la présence d'opérateurs de contrôle, et donc d'effets de
+bord, il est nécessaire de fixer une stratégie d'évaluation. Comme la
+plupart des langages de la famille ML, nous opterons pour l'appel par
+valeur. De ce fait, on doit prendre garde aux problèmes de correction
+liés à la combinaison de l'appel par valeur, des effets de bord et du
+polymorphisme à la ML. Une solution classique à ce problème est d'opter
+pour la bien connue « value restriction » : certaines règles de typage
+sont restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques
+(et non plus aux termes arbitraires).
 
 Bien qu'étant une solution simple et élégante, la « value restriction »
 n'est pas satisfaisante quand on étend le système avec une forme de
 produit dépendant. En effet, l'argument d'une fonction dépendante ne
-peut être qu'une valeur. Pour contourner ce problème il est possible
-d'utiliser des sucres syntaxiques pour garder les arguments des fonctions
-dépendantes, mais nous ne considérons pas cette solution satisfaisante.
-Dans ce travail, nous relaxons la restriction syntaxique, et la remplaçons
-par un restriction sémantique exprimée en terme d'équivalence
-observationnelle. Pour montrer la correction de cette nouvelle approche,
-nous construisons un modèle de réalisabilité surprenant, qui nécessite
-l'ajout d'une instruction à la machine de calcul.
+peut être qu'une valeur. Dans ce travail, nous relaxons la restriction
+syntaxique, et la remplaçons par un restriction sémantique exprimée en
+terme d'équivalence observationnelle. Pour montrer la correction de cette
+nouvelle approche, nous construisons un modèle de réalisabilité surprenant,
+qui nécessite l'ajout d'une instruction à la machine de calcul.
 
 Un des points essentiels pour autoriser la relaxation de la « value
 restriction » est d'intégrer une théorie équationnelle du langage au sein
@@ -115,9 +174,19 @@ une expérience relativement similaire à programmer en \sc{ml}.
 
 -<
 
--> Preuve de programme
+-> Sémantique et modèle de réalisabilité classique
 
+\begin{env}(fun env -> hyphenate_fr env)
 ... (* TODO *)
+\end{env}
+
+-<
+
+-> Sous-typage et implémentation
+
+\begin{env}(fun env -> hyphenate_fr env)
+... (* TODO *)
+\end{env}
 
 -<
 
@@ -196,3 +265,4 @@ s'essayer à les utiliser et à les modifier.
 \end{env}
 
 -<
+*)

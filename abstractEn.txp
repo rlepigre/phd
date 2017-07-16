@@ -1,9 +1,10 @@
-\color(white){...}\linesAfter(8)
+\color(white){...}\linesAfter(2)
 
 \begin{center}
 \size(6.0){||Abstract||}
-\linesAfter(3)
+\linesAfter(4)
 \end{center}
+\begin{env}(resize_env 3.4)
 In recent years, proof assistant have reached an impressive level of
 maturity. They have led to the certification of complex programs such
 as compilers and operating systems. Yet, using a proof assistant requires
@@ -28,3 +29,4 @@ types in a novel way.
 We finally demonstrate the expressive power of our system using our prototype
 implementation, by proving properties of standard programs like the map
 function on lists or the insertion sort.
+\end{env}

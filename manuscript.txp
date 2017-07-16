@@ -43,16 +43,7 @@ let cover_data =
 let _ = special_page 1 (cover cover_data defaultEnv)
 )
 
-(* Abstract / Résumé *)
-\Include{AbstractFr}
-
-(* Remerciements *)
-\begin{minichap}{Remerciements}
-\Include{Remerciements}
-\end{minichap}
-
 (* Titre en anglais. *)
-\pagesBefore(2)
 \begin{center}
 \size(10.0){||Semantics and Implementation||}
 
@@ -63,14 +54,15 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \linesBefore(34)
 \size(6.0){||Rodolphe Lepigre||}
 \end{center}
-\pagesAfter(2)
-
-(* Abstract / Résumé *)
-\Include{AbstractEn}
 
 (* Table of contents *)
 \begin{minichap}{Table of contents}
 \TableOfContents
+\end{minichap}
+
+(* Remerciements *)
+\begin{minichap}{Remerciements}
+\Include{Remerciements}
 \end{minichap}
 
 (* Chapitres *)
@@ -89,11 +81,20 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \Include{Implementation}
 
 (* Résumé en français *)
+(*
 \begin{minichap}{Résumé « substantiel » en français}
 \Include{Resume}
 \end{minichap}
+*)
 
 (* Bibliographie *)
 \begin{minichap}{References}
 \Include{References}
 \end{minichap}
+
+(* Abstract / Résumé *)
+\pagesBefore(2)
+\Include{AbstractFr}
+\Include{AbstractEn}
+
+
