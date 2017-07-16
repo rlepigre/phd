@@ -356,7 +356,7 @@ defined above is only weakly polymorphic. This means that we will only be
 able to apply it to parsers of one fixed (but yet unknown) type. Of course,
 ##seq any## is not a value, and the value restriction applies. To solve
 this lack of generality, one need to rely on an $η$-expansion as in
-##poly##, which has the expected type ##'a parser -> (char, 'a) parser##.
+##poly##, which has the expected type ##'a gr -> (char, 'a) gr##.
 
 As the definition of ##seq## is probably something like
 ##fun p1 p2 -> body##, the value restriction is actually not required in

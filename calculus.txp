@@ -823,7 +823,7 @@ $\subs("[a≔t]")$.
 \begin{def}
 Let $ρ ∈ \cal{S}$ be a substitution and $ψ$ be a value, term, stack or
 process. We denote $\p("ψρ")$ the value, term, stack or process formed
-by simultaneously substituting (without capture) every variables
+by simultaneously substituting (without capture) every variable
 $χ ∈ FV(ψ)$ with $ρ(χ)$ in $ψ$.
 \end{def}
 \begin{def}

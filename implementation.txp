@@ -239,7 +239,7 @@ def cond<c:τ, e1:τ, e2:τ> : τ =
   case c { Tru[_] → e1 | Fls[_] → e2 }
 ###
 Although such a macro is not typed at the time of its definition (it is
-only given a sort), it is expended and type-checked each time it is used.
+only given a sort), it is expanded and type-checked each time it is used.
 For instance, ##cond## can be used to define the following alternative
 definition of ##cond_fun##.
 ### PML "examples/bool.pml"
@@ -424,7 +424,7 @@ a recursive call. A proof can thus only be correct if it terminates on
 every possible input. Otherwise, obviously invalid proofs would be allowed
 by using a "non decreasing induction hypothesis".
 
-When going toward more complex example, it becomes a necessity to establish
+When going toward more complex examples, it becomes a necessity to establish
 the totality of functions. In other words, it will sometimes be required to
 show that the application of a function to any value produces a value. As an
 example, we will prove the totality of the ##add## function.
@@ -521,7 +521,7 @@ Here, we add type annotations on used lemmas to explicit the properties
 they prove. We also extend the proof with intermediate steps using local
 definitions. They allow us to check that some property can be deduced in
 the current context, while showing more reasoning steps. Note that the
-names chosen for the local definitions is never used, they can hence be
+names chosen for the local definitions are never used, they can hence be
 seen as a form of comments. Only the equations that are transparently
 added to the context matter. Using this discipline, the proofs are not
 only more readable, but also easier to write.
@@ -638,7 +638,7 @@ val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l = fun l 
 ###
 
 We will now show that two successive uses of ##map## on a list, with two
-different function, is the same as applying ##map## once using the
+different functions, is the same as applying ##map## once using the
 composition of the two functions. To do so, we will first need to show
 that the composition of two total functions is itself total.
 ### PML "examples/unat.pml"
@@ -717,7 +717,7 @@ relying on any form of coercion.
 
 We will now consider the insertion sort algorithm, and prove its most
 important property: the fact that it actually produces sorted lists.
-Before going further, we will start by define a type ##ord<a>## that
+Before going further, we will start by defining a type ##ord<a>## that
 will be represent an ordering relation together with its properties.
 ### PML "examples/unat.pml"
 type ord<a:ο> = ∃cmp:ι,

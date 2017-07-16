@@ -53,7 +53,7 @@ that they cannot be used for proving mathematical formulas.
 
 The aim of this work is to provide a uniform environment in which
 programs can be designed, specified and proved. The idea is to combine a
-full-fledged, ML-like programming language with an enriched type system
+full-fledged ML-like programming language with an enriched type system
 allowing the specification of computational behaviours. This language can
 thus be used as ML for type-safe general programming, and as a proof
 assistant for proving properties of ML programs. The uniformity of the
@@ -226,7 +226,7 @@ this property looks similar to ##add_z_n##, the following proof is invalid.
 ###
 Indeed, the equivalence ##add n Zero ≡ n## does not hold when ##n##
 is not a unary natural number. In this case, the computation of
-##add n Zero## will produces a runtime error. As a
+##add n Zero## will produce a runtime error. As a
 consequence, we need to rely on a form of quantification that only ranges
 over unary natural numbers. This can be achieved with the type
 ##∀n∈nat, add n Zero ≡ n##, which corresponds to a (dependent) function

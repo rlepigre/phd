@@ -202,7 +202,7 @@ let typrules () =
 \linesBefore(10)
 \end{center}
 (* *)
-In this chapter, we present a new type system which distinguishing feature
+In this chapter, we present a new type system whose distinguishing feature
 is an embedded notion of program equivalence. It enables the specification
 of equational properties over programs, which can then be proved using
 equational reasoning. Our types are interpreted using standard classical
@@ -361,7 +361,7 @@ However, it is not clear whether that is useful in practice.
 
 Our type system allows universal and existential quantification over
 several sorts of objects. There are first order quantifiers ranging over
-values, terms and stack, as shown in the previous section. And the system
+values, terms and stacks, as shown in the previous section. And the system
 also provides second order quantification (i.e., quantification over types),
 which corresponds to System F polymorphism and type abstraction. All of
 these different forms of quantifiers are handled uniformly in the syntax
@@ -1373,9 +1373,9 @@ variable, and a closed typable term contain neither.
 Using similar techniques, it will be possible to prove a stronger safety
 property in \chapter("subtyping"). In particular, we will show that terms
 of type $A$ reduce to values of $\vs{A}$, provided that $A$ is a //pure
-type//. Roughtly, this will corespond to types that do not contain arrows.
-In particular, we will use the fact that the value interpretation of such
-a type does not depend on the choice of the pole.
+data type//. Roughtly, this will corespond to types that do not contain
+arrows. In particular, we will use the fact that the value interpretation
+of such a type does not depend on the choice of the pole.
 
 \begin{rem}
 We do not prove any type safety result here as our realizability model and

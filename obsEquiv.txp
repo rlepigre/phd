@@ -335,7 +335,7 @@ $\t{(t₁[x≔v₁])ρ}$ and $\t{(t₂[x≔v₂])ρ}$.
 From now on and until the end of the current chapter we will consider
 properties of compatible equivalences in general. In particular, we
 will use the symbol $({≡})$ to denote an arbitrary compatible
-equivalence. Moreover, We will always assume that $({≡})$ is a
+equivalence. Moreover, we will always assume that $({≡})$ is a
 congruence. Although this property is rarely required in this chapter,
 it will be absolutely necessary for using an equivalence relation in
 the definition of our semantics.
@@ -672,7 +672,7 @@ when $I = ∅$). In this case, a possible solution is to use a stack of the
 form $\s{v·π}$ where $v$ is a value such that ${\p{t[x≔v]∗π}} {⇓}_{≻}$
 (obviously, $\p{{(li=vi)i∈I} ∗ v·π}$ is stuck). However, there is no
 guarantee that such a value $v$ exists. If there is none, then it seem to
-be impossible to distinguish $\v{{}}$ form $\v{λx t}$ without relying on
+be impossible to distinguish $\v{{}}$ from $\v{λx t}$ without relying on
 a specific term constructor like $\t{R(v,u)}$. Terms of this form were added
 to the calculus for this very purpose.
 \begin{thm}\label("nequivlamreco")
@@ -778,8 +778,8 @@ $\p{vρ∗π} = \p{vρ∗[{}]ε} ≻ \p{{}∗[vρ]ε} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 
-We will now identify the value that are equivalent to a given variant, and
-those that are equivalent to a given record. In both cases, the equivalent
+We will now characterise the values that are equivalent to a given variant,
+and those that are equivalent to a given record. In both cases, the equivalent
 values have the same structure and equivalent subvalues.
 \begin{thm}\label("canoncons")
 Let $m ∈ \bbN$ be a natural number and $v$, $w₀ ∈ Λ_ι$ be values. The
