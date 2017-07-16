@@ -352,8 +352,8 @@ $$
   \f{Σ_(a∈A) B} ≔ \f{∃a {l₁ : a∈A ; l₂ : B}}
 $$
 \begin{rem}
-Nothing prevents the variable that is quantified over to appear in $A$.
-However, it is not clear whether that is useful in practice.
+Note that these encodings only make sense (i.e., correspond to dependent
+types) if the variable that is quantified over does not appear in $A$.
 \end{rem}
 
 =<
@@ -663,12 +663,6 @@ $$ Φ^⊥ = \{π∈Π^{∗} \| ∀v∈Φ, \p{v ∗ π} ∈ \dbot\} $$
 For every set $Ψ ⊆ Π^{∗}$ we define a set $Ψ^⊥ ⊆ Λ^{∗}$ as follows.
 $$ Ψ^⊥ = \{t∈Λ^{∗} \| ∀π∈Ψ, \p{t ∗ π} ∈ \dbot\} $$
 \end{def}
-\begin{rem}
-In the usual presentation of Krivine's classical realizability, the
-interpretation of types can contain open values, terms and stacks.
-Here, we need to restrict ourselves to closed objects for our model
-to be compatible with our notion of equivalence.
-\end{rem}
 
 We now give several general properties of orthogonality, which hold in
 every call-by-value classical realizability model. They will be useful
