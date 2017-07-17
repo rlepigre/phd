@@ -1,0 +1,68 @@
+== Alexandre ============================================================
+
+== Chapitre 1
+
+Par ailleurs, ton langage n'est pas vraiment un "full-fledged ML-like
+programming language", car il lui manque un truc fondamental: les
+effets de bords, qui sont présents dans SML comme dans Caml.
+
+== Chapitre 2
+
+p.36, Def. 2.5.31: Tu ne dis jamais vraiment ce que sont les "term
+variables", du coup j'ai compris de travers à la première lecture.
+Je crois qu'il faudrait dire que ce sont des variables destinées à
+être substituées par des termes (non évalués), et non par des valeurs
+comme c'est le cas pour les lambda-variables.
+
+p.38, Def. 2.5.39: L'usage de la notation $\rho_1\circ\rho_2$ pour une
+composition définie "à l'envers" est super-maladroite.  Quand on veut
+changer le sens de la composition, on parle de séquence, et on écrit:
+$\rho_1;\rho_2$.  C'est une notation standard chez les programmeurs
+comme chez les catégoriciens.
+
+== Chapitre 4
+
+p.58, après Def. 4.1.2, l.3:
+"we rely on a partial decision procedure that is supposed correct".
+Ici, on ne sait pas très bien ce que veut dire "supposed" (qui fait
+péjoratif dans ce contexte), ni ce que la "decision procedure" est
+censée décider.  Il me semble qu'ici, tu quittes le champ de la
+théorie pour parler d'aspects pratiques liés à l'implémentation.
+Dans ce cas, il vaudrait mieux le dire, car la théorie que tu
+développes ne dépend pas de la correction de ladite procédure.
+
+p.61, Def. 4.3.12. "The set of types (or formulas) ..."
+Vu la richesse de la syntaxe, il n'est pas clair pour le lecteur si ce
+que tu définis sont des "types" ou des "constructeurs" (suivant la
+terminologie des systèmes du cube).  En particulier, le fait que tu
+mélanges, termes, valeurs, piles et formules dans les types n'aide pas!
+
+Plutôt que de dire que "our syntax contains values, terms and
+stacks..." (merci, je l'avais remarqué tout seul!), il vaudrait mieux
+expliquer la sémantique *informelle* de chacune de ces constructions,
+en tant que types, et expliquer ce que les termes et les valeurs font
+dans cette catégorie syntaxique.
+
+== Thierry ==============================================================
+
+il y a très peu d’information sur le termination checker ou la manière dont
+les égalités sont traites (un peu plus dans le papier, mais peut-être j’ai
+manque le passage)
+
+les exemples: il faudrait au moins un autre exemple simple qui illustre mieux
+les possibilités du système. Les exemples: commutativité de la multiplication,
+insertion sort  se représentent très bien en théorie des types dependents (de
+manière en fait assez proche) et sont un peu trop “standard”. Si il y a des
+differences significatives ou des aspects surprenants dans ces exemples il
+faut les expliquer.
+
+Comme un des buts est de combiner side-effects et dependent product, il faut
+donner au moins un autre exemple simple qui illustre ceci. L’exemple avec le
+lookup et exception peut se representer avec une monade?? Si oui ou non, ce
+serait bien d’avoir un commentaire qui dit en quoi la manière dont s’est
+traiter ici diffère d’une telle representation.
+
+== Divers ===============================================================
+
+- Résumé en français
+- Dire que les systèmes avec et sans ε sont équivalents

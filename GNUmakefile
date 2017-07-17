@@ -14,13 +14,10 @@ test:
 manuscript.ps: manuscript.pdf
 	pdftops $^
 
-manuscript_short.ps : manuscript.ps
-	psselect 5- $^ $@
-
-www/manuscript_lepigre.pdf: manuscript_short.ps
+www/manuscript_lepigre.pdf: manuscript.ps
 	ps2pdf $^ $@
 
-www/manuscript_lepigre.ps: manuscript_short.ps
+www/manuscript_lepigre.ps: manuscript.ps
 	cp $^ $@
 
 www/classification.ml: files/classification.ml

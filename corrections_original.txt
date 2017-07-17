@@ -1,0 +1,258 @@
+== Alexandre ============================================================
+
+Dans toute ta thèse, tu écris "realisability" (avec un "s"), alors que
+l'orthographe standard (British & US) est "realizability".  Ceci dit,
+le Collins cite également "realisability" comme orthographe
+alternative, mais dans le sens de "the possibility of being realized",
+ce qui n'est pas le sens ici.
+
+(Évidemment, cette bourde se retrouve *partout* dans la thèse :-)
+
+Chapitre 1
+==========
+p.12, l.5: "a full-fledged," -> retirer la virgule.
+
+Par ailleurs, ton langage n'est pas vraiment un "full-fledged ML-like
+programming language", car il lui manque un truc fondamental: les
+effets de bords, qui sont présents dans SML comme dans Caml.  Donc je
+pense qu'il vaudrait mieux reformuler si tu ne veux pas te faire tuer
+dans une commission par un gourou de Caml.
+
+Note que ce "full-fledged ML-like..." apparaît plusieurs fois dans
+la thèse.
+
+p.15, l.6 avant la fin (code exclu):
+"will produces" -> "... produce".
+
+p.22, par.3. "Another similar work can be found in the work of
+Alexandre Miquel ...".  Comment ça, "the rest of the language remains
+Church-style"???  C'était précisément l'intérêt de mon calcul que
+d'étendre le Curry-style à *tous* les étages de la hiérarchie
+d'univers, je dis bien: *tous*!  Bon sang de bonsoir, tu as sûrement
+dû confondre avec les "Type Assignment Systems", dont je parle au
+chapitre 1 de ma thèse, et tu n'as pas regardé plus loin... :-(
+
+En revanche, je suis parfaitement d'accord avec le fait que mon calcul
+"does not embed a full-fledged ML-style language". Mais le tien non
+plus (cf première remarque). Et toc! :-)
+
+Chapitre 2
+==========
+
+p.36, Def. 2.5.31: Tu ne dis jamais vraiment ce que sont les "term
+variables", du coup j'ai compris de travers à la première lecture.
+Je crois qu'il faudrait dire que ce sont des variables destinées à
+être substituées par des termes (non évalués), et non par des valeurs
+comme c'est le cas pour les lambda-variables.
+
+p.38, Def. 2.5.38: "every variables" -> "... variable".
+"every" et "each" sont singuliers, contrairement à "all".
+
+p.38, Def. 2.5.39: L'usage de la notation $\rho_1\circ\rho_2$ pour une
+composition définie "à l'envers" est super-maladroite.  Quand on veut
+changer le sens de la composition, on parle de séquence, et on écrit:
+$\rho_1;\rho_2$.  C'est une notation standard chez les programmeurs
+comme chez les catégoriciens.
+
+Chapitre 3
+==========
+
+p.44, l.3: "we not only quantify over stacks, but also over..." ->
+"we do not quantify only over stacks, but also over...".
+
+p.48, l.6: "Moreover, We ..." -> "..., we ..."
+
+p.53, Thm. 3.4.33, Proof, avant-dernière ligne: "form" -> "from".
+
+p.56, après Thm 3.5.39: "We will now identify the value" ->
+"We will now characterize the values"...
+(Ici "identify" est ambigü, dans la mesure où il laisse croire que tu
+vas définir une nouvelle relation d'équivalence.)
+
+Chapitre 4
+==========
+
+p.57, l.1: "which distinguishing feature" -> "whose ..."
+Ou bien: "the distinguishing feature of which" (vieillot).
+
+p.58, après Def. 4.1.2, l.3:
+"we rely on a partial decision procedure that is supposed correct".
+Ici, on ne sait pas très bien ce que veut dire "supposed" (qui fait
+péjoratif dans ce contexte), ni ce que la "decision procedure" est
+censée décider.  Il me semble qu'ici, tu quittes le champ de la
+théorie pour parler d'aspects pratiques liés à l'implémentation.
+Dans ce cas, il vaudrait mieux le dire, car la théorie que tu
+développes ne dépend pas de la correction de ladite procédure.
+
+p.58, Def. 4.1.4: "realises" -> "realizes".  Oui, "to realise" existe
+aussi, mais dans le cadre de la réalisabilité, c'est "to realize";
+l'autre orthographe laisse penser que $\rho$ est victime d'une
+soudaine prise de conscience...
+
+p.60, Remark 4.2.7: "Nothing prevents..."  Oui, sauf que ça changerait
+entièrement la signification des constructions en question!  Ce qui
+explique sans doute pourquoi ça n'aurait pas grand intérêt...
+(À mon avis, cette remarque ne sert à rien et pourrait sauter.)
+
+p.60, Sect. 4.3, l.2: "... and stack" -> "... and stacks".
+
+p.61, Def. 4.3.12. "The set of types (or formulas) ..."
+Vu la richesse de la syntaxe, il n'est pas clair pour le lecteur si ce
+que tu définis sont des "types" ou des "constructeurs" (suivant la
+terminologie des systèmes du cube).  En particulier, le fait que tu
+mélanges, termes, valeurs, piles et formules dans les types n'aide pas!
+
+Plutôt que de dire que "our syntax contains values, terms and
+stacks..." (merci, je l'avais remarqué tout seul!), il vaudrait mieux
+expliquer la sémantique *informelle* de chacune de ces constructions,
+en tant que types, et expliquer ce que les termes et les valeurs font
+dans cette catégorie syntaxique.
+
+p.67, Remark 4.5.29: "In the usual presentation of Krivine's classical
+realizability [avec un "z"], the interpretation of types can contain
+open values..."  Non, mais? Où est-ce que tu as vu ça?
+
+Le seul exemple de réalisabilité avec des termes ouverts, c'est les
+candidats de réductibilité (de Tait, de Girard, de Parigot, etc.)  Et
+c'est précisément la raison pour laquelle tous ces auteurs évitent de
+dire qu'ils font de la réalisabilité, mais préfèrent parler
+pudiquement de candidats de réductibilité.
+
+Krivine, lui, c'est un vrai: il n'a pas de termes ouverts.
+
+p.67, Lemmas 4.6.30-4.5.33: J'espère que tu as bien conscience que tu
+redémontres ici un résultat qui a déjà été démontré 25372829 fois par
+les logiciens français...
+
+Il semblerait qu'en France, les logiciens ignorent (1) que cette jolie
+mécanique fonctionne pour *n'importe quel couple d'ensembles* muni de
+*n'importe quelle relation binaire*, et (2) que ça a été démontré une
+bonne fois pour toutes dans le bouquin de Garrett Birkhoff, "Lattice
+theory", 1967.  (Lui parle de "polarity" et non d'"orthogonality",
+mais c'est exactement la même chose.)
+
+(Si je me moque, c'est que j'ai longtemps cru moi-aussi qu'il fallait
+le redémontrer pour chaque calcul.  Je me sens si bête depuis :-)
+
+p.79, premier paragraphe après la fin de la preuve:
+C'est ici que tu parles pour la première fois de la notion de "pure
+type".  La terminologie me semble maladroite, car elle fait penser
+aux "pure type systems", qui n'ont pas grand chose à voir.  Ensuite,
+je pense qu'il existe déjà une terminologie consacrée ("pure data
+type"? "purely algebraic data type"?) qu'il vaudrait mieux utiliser.
+
+À toi de voir ce qu'en dit la littérature...  (Mais si elle dit "pure
+type", alors je m'incline.)
+
+Chapitre 5
+==========
+
+p.86: Fin du 1er paragraphe (après le code).  Apparaît un constructeur
+de type "parser" alors qu'avant, c'était "gr"...
+
+p.92, Sect. 5.4, l.2: "bellow" -> "below".
+
+Chapitre 6
+==========
+
+Ce chapitre, c'est la quand même la jungle pour le lecteur!  Mais bon,
+il est trop tard pour le réorganiser.  Penses-y quand même le jour où
+tu publieras les résultats correspondants...
+
+p.106, ligne avant Remark 6.2.1: "We can then take
+$\eps_{x\in A}(x\notin B)\in A\subset B$
+as a definition of $A\subset B$."
+
+La question que je me pose ici et dans tout le reste du chapitre,
+c'est: pourquoi ne pas prendre plus simplement
+$\eps_{x\in A}(x\notin B)\in B$ comme définition de $A\subset B$?
+(Sémantiquement, c'est correct, non?)
+
+Bref, il y a sans doute une bonne raison de faire plus compliqué quand
+on pourrait faire plus simple, mais il faudrait absolument
+l'expliquer.  Bref, ce serait bien d'avoir ici un petit paragraphe
+explicatif.
+
+p.107, l.2. "for stack" -> "for stacks".  La suite: "will need to
+always be well-defined" n'est ni correct ni clair; merci de
+reformuler.
+
+p.107, 2e paragraphe: "will plays" -> "will play".
+
+p.107, dernier paragraphe, l.2: "one more times" -> "... time".
+
+p.109, 1er par. après Def. 6.3.5: "will contains" -> "... contain".
+
+p.110: Def. 6.4.11: Ici, j'ai un doute scientifique avec la traduction
+des "raw terms" (que j'appelerai plutôt "epsilon-terms") aux termes
+usuels (qui pour moi, sont vraiment les "raw-terms" :-)
+
+Jamais tu ne parles de la relation d'équivalence calculatoire au
+niveau des "raw-terms", alors qu'au niveau de l'implémentation, c'est
+sans doute celle que tu manipules, non?
+
+Mon problème, c'est que l'utilisation d'une fonction de choix dans ta
+traduction [[...]] a de fortes chances de très mal interragir avec
+l'équivalence observationnelle, dans la mesure où les fonctions de
+choix ne sont en générales pas compatibles avec les équivalences que
+tu veux.  (Ceci dit, tu peux prendre une fonction de choix compatible
+avec l'équivalence qui t'intéresse, mais ce n'est jamais dit dans le
+chapitre.)  Il faudrait sans davantage préciser ce point.
+
+p.120, Sect. 6.5:  Ici tu parles de "simple data types", alors que
+précédemment, tu parlais de "pure types", non?  Cf ma remarque
+précédente à ce sujet.
+
+p.129: "Proof. A complete proof is given in [Lepigre...]"
+Triche! :-)
+
+p.132: dernier par.: "the system still not quite ready" ->
+"the system is still not..."
+
+Chapitre 7
+==========
+
+p.137: "expended" -> "expanded".
+
+p.141, dernier paragraphe: "When going toward more complex example" ->
+"... examples".
+
+p.144, l.4 (après le code): "is never used" -> "are never used".
+
+p.146, avant dernier par.: "two different function" ->
+"... functions".
+
+p.148, Sect 7.4: "We will start by define" -> "... defining".
+
+== Thierry ==============================================================
+
+J’ai donc commence a regarder le manuscrit.
+ Pour le moment je comprends en gros jusqu’au chapitre 5 inclus. Très intéressant
+et je suis aide par le papier “A Classical Realizability Model…” (qui semble plus
+clair par endroit que le chapitre 5)
+
+ Quelques courtes remarques si vous avez le temps de faire des corrections:
+
+ -c’est un peu étrange d’attribuer l’interpretation du tiers-exclu en terme de “cheating” a
+Peter Selinger. Cette interpretation était un lieu commun ~1990 (en particulier
+je me souviens d’un expose de Lennart Augustsson 1991 qui présentait cela
+comme quelque chose de standard). Dans le papier de Wadler, l’attribution est
+pour avoir un “histoire” suggestive autour de cette interpretation.
+
+-il y a très peu d’information sur le termination checker ou la manière dont les
+égalités sont traites (un peu plus dans le papier, mais peut-être j’ai manque le passage)
+
+ -Lemme 6.4.5: il y a une variable “libre” \nu et une variable “liée” \nu dans
+la meme phrase.
+
+ -les exemples: il faudrait au moins un autre exemple simple qui illustre mieux
+les possibilités du système. Les exemples:
+commutativité de la multiplication, insertion sort  se représentent très bien en théorie
+des types dependents (de manière en fait assez proche) et sont un peu trop “standard”. Si il
+y a des differences significatives ou des aspects surprenants dans ces exemples il faut les
+expliquer.
+ Comme un des buts est
+de combiner side-effects et dependent product, il faut donner au moins un autre exemple
+simple qui illustre ceci. L’exemple avec le lookup et exception peut se representer
+avec une monade?? Si oui ou non, ce serait bien d’avoir un commentaire qui dit en
+quoi la manière dont s’est traiter ici diffère d’une telle representation.
