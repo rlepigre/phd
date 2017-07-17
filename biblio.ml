@@ -161,6 +161,13 @@ let biblio =
   ; year    = "2001"
   ; url     = "" }; (* FIXME *)
 
+  { key     = "Miquel2007"
+  ; authors = "Alexandre Miquel"
+  ; title   = "Classical Program Extraction in the Calculus of Constructions"
+  ; notes   = "In the proceedings of CSL"
+  ; year    = "2007"
+  ; url     = "" }; (* FIXME *)
+
   { key     = "Miquel2011"
   ; authors = "Alexandre Miquel"
   ; title   = "Existential witness extraction in classical realizability and"

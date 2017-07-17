@@ -578,10 +578,12 @@ explicitly typed) while ours is Curry-style (or implicitly typed). In
 particular, their terms and types are defined simultaneously, while our type
 system is constructed on top of an untyped calculus.
 
-Another similar system can be found in the work of Alexandre Miquel
-\cite("Miquel2001"), where propositions can be classical and Curry-style.
-However the rest of the language remains Church style and does not embed a
-full ML-like language.
+Another similar system can be found in the work of Alexandre Miquel on the
+implicit calculus of inductive constructions \cite("Miquel2001"), in which
+quantifiers are Curry-style. This system has been extended with classical
+logic at the level of propositions \cite("Miquel2007"), but the considered
+language is call-by-name. As a consequence, it does not have to deal with
+the soundness issues that arise in call-by-value.
 
 The PVS system \cite("Owre1996") is similar to ours as it is based on
 classical higher-order logic. However this tool does not seem to be a
