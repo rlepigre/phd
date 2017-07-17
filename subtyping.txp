@@ -438,9 +438,10 @@ replaced by the following typing rule for choice operators.
 $ \axiomR{Ξ ⊢ \t{εx∈A(t∉B)} : A} $
 \end{center}
 Obviously, the same trick can be used for $μ$-variables and
-$μ$-abstractions. As for choice operators for values, choice
-operators for stacks will need to always be well-defined. As
-a consequence, we will need to make sure that the set of stacks
+$μ$-abstractions. As choice operators for values, choice
+operators for stacks will always need to be interpreted
+(even if there is no stack satisfying the property they carry).
+As a consequence, we will need to make sure that the set of stacks
 associated to each type contain at least one element.
 
 The use of choice operators and the elimination of typing contexts
@@ -717,6 +718,17 @@ in such a way that:
 Note that for every sort $s ∈ \cal{S}$ it is easy to see that $⟦s⟧ ≠ ∅$.
 As a consequence, the interpretation of a type is always well-defined.
 \end{def}
+\begin{rem}
+Although this is not explicitly mentioned, the interpretation of our choice
+operators should be compatible with the definition of $({≡})$. For instance,
+if $\t{⟦t⟧} ≡ \t{⟦u⟧}$ then we require $\t{⟦εx∈A(t∉B)⟧} = \t{⟦εx∈A(u∉B)⟧}$
+(and similarly for the other forms of choice operators). This is possible
+since $\t{⟦t[x≔v]⟧} ∈ \ts{B}$ if and only if $\t{⟦u[x≔v]⟧} ∈ \ts{B}$ as the
+interpretation of our types is closed under $({≡})$. Note that this means
+that we will also have $\t{⟦εx∈A(t∉B)⟧} = \t{□}$ if and only if
+$\t{⟦εx∈A(u∉B)⟧} = \t{□}$ since the interpretation of our types is closed
+under $({≡})$.
+\end{rem}
 \begin{def}
 We also extend \defRef("typesem") with an interpretation for the extensible
 product type. It is defined as follows.
@@ -880,19 +892,19 @@ We consider the last rules used in the proof.
   case on the definition of $\s{⟦εα∈A(t∉A)⟧}$. It is either defined
   to be a stack in $π ∈ \ss{A}$ (with some properties) in which case
   we can conclude immediately, or it is defined to be the stack
-  $\s{[□]ε}$. In this second case we take a value $v ∈ \vs{A}$ and
-  we show $\p{v∗[□]ε} ∈ \dbot$. If $v = \v{□}$ then we have
+  $\s{[□]ε}$. In this second case we take $v ∈ \vs{A}$ and show
+  $\p{v∗[□]ε} ∈ \dbot$. If $v = \v{□}$ then we have
   $\p{□∗[□]ε} ↠ \p{□∗ε}$ and otherwise we have $\p{v∗[□]ε} ↠
-  \p{□∗v·ε} ↠ \p{□∗ε}$. In both cases we can conclude since
-  $\dbot$ is $({↠})$-saturated and we have $\p{□∗ε} ∈ \dbot$.
+  \p{□∗v·ε} ↠ \p{□∗ε}$. We can then conclude since
+  $\dbot$ is $({↠})$-saturated and $\p{□∗ε} ∈ \dbot$.
   \begin{center}
     $\id(r_ax_bot)$
   \end{center}
 
 \item In the case of the ($\wc·\wc$) rule, we need to show that
   $\s{v·π} ⊩ C$, which is the same as $\s{⟦v⟧·⟦π⟧} ∈ \ss{C}$.
-  Thanks to \lemmas(["orthoinclstack" ; "subtypingincl"]) and the
-  third induction hypothesis we know that $\ss{A⇒B} ⊆ \ss{C}$. It
+  Using \lemmas(["orthoinclstack" ; "subtypingincl"]) with the
+  third induction hypothesis we have $\ss{A⇒B} ⊆ \ss{C}$. It
   is hence enough to show $\s{⟦v⟧·⟦π⟧} ∈ \ss{A⇒B}$, so we take
   $\v{w} ∈ \vs{A⇒B}$ and show $\p{w ∗ ⟦v⟧·⟦π⟧} ∈ \dbot$.
   If $\v{w} = \v{□}$ then it is enough to show $\p{□ ∗ ⟦π⟧} ∈ \dbot$
