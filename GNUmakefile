@@ -1,4 +1,4 @@
-FLAG := -j 4 --verbose 1 -I lang
+FLAG := -j 4 --verbose 1 -I lang --package Patoline.ProofTree
 
 all: manuscript.pdf
 
