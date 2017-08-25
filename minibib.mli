@@ -10,6 +10,9 @@ type entry =
 (* Abstract bibliography type. *)
 type biblio
 
+(* [key_spacing] adds a space before the forth character to the end of [s]. *)
+val key_spacing : string -> string
+
 (* [create name] creates a new bibliography with the name [name]. The name
    sould be unique for a given document. Unspecified behaviours are to be
    expected otherwise. *)

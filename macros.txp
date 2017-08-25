@@ -358,11 +358,11 @@ let biblio = Minibib.from_name "biblio"
 
 let mcite : string list -> content list = fun l ->
   let act l =
-    let l = List.map (fun k -> emph [tT k]) l in
+    let build k = emph [tT (Minibib.key_spacing k)] in
     let rec generate = function
       | []    -> invalid_arg "mcite"
-      | [k]   -> k
-      | k::ks -> k @ [tT ", "] @ generate ks
+      | [k]   -> build k
+      | k::ks -> build k @ [tT ", "] @ generate ks
     in
     [tT "["] @ generate l @ [tT "]"]
   in

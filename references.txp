@@ -11,7 +11,7 @@ let references bib =
   let refs = entries (from_name bib) in
 
   let format_ref e =
-    let key   = [tT "["] @ emph [tT e.key] @ [tT "] "] in
+    let key   = [tT "["] @ emph [tT (key_spacing e.key)] @ [tT "] "] in
     let key   = if e.url = "" then key else link e.url key in
     let title = emph [tT e.title] @ [tT ", "] in
     let auth  = [tT e.authors; tT ", "] in

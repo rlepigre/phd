@@ -10,6 +10,11 @@ type entry =
 type bibliography =
   (string * (entry * bool ref)) list
 
+let key_spacing : string -> string = fun s ->
+  let name = String.sub s 0 (String.length s - 4) in
+  let year = String.sub s (String.length s - 4) 4 in
+  name ^ " " ^ year
+
 (* Low level storage of the bibliography. *)
 module File =
   struct
