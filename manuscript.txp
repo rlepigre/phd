@@ -26,9 +26,6 @@ let title =
   ; "d'une Extension de ML"
   ; "pour la Preuve de Programmes" ]
 
-
-let johndoe = ("IAmA Nobody", "University of Nowhere")
-
 let cover_data =
   { author     = "Rodolphe Lepigre"
   ; title      = title
@@ -37,8 +34,9 @@ let cover_data =
   ; advisor    = christophe
   ; coadvisor  = Some pierre
   ; advisorhdr = Some karim
+  ; president  = Some laurent
   ; reviewers  = [ thierry ; alexandre ]
-  ; examinors  = [ andreas ; frederic ; laurent ] }
+  ; examinors  = [ andreas ; frederic  ] }
 
 let _ = special_page 1 (cover cover_data defaultEnv)
 )

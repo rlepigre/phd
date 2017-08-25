@@ -4,8 +4,8 @@ all: manuscript.pdf
 
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
-manuscript.pdf: $(SRC)
-	patoline --format FormatManuscrit $(FLAG) manuscript.txp
+manuscript.pdf: manuscript.txp $(SRC)
+	ulimit -s unlimited; patoline --format FormatManuscrit $(FLAG) $<
 
 .PHONY:test
 test:

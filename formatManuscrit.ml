@@ -23,6 +23,7 @@ module Cover = struct
     ; advisor    : person
     ; coadvisor  : person option
     ; advisorhdr : person option
+    ; president  : person option
     ; reviewers  : person list
     ; examinors  : person list }
   
@@ -51,9 +52,14 @@ module Cover = struct
       | None   -> []
       | Some p -> [(p, "directeur de thèse (HDR)")]
     in
+    let president =
+      match data.president with
+      | None   -> []
+      | Some p -> [(p, "président du jury")]
+    in
     let reviewers  = List.map (fun p -> (p, "rapporteur")) data.reviewers in
     let examinors  = List.map (fun p -> (p, "examinateur")) data.examinors in
-    reviewers @ examinors @ advisorhdr @ advisor @ coadvisor
+    president @ reviewers @ examinors @ advisorhdr @ advisor @ coadvisor
   
   (* Construit la couverture dans le style de l'UGA. *)
   let cover data env =
