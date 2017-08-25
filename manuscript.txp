@@ -54,9 +54,9 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \end{center}
 
 (* Table of contents *)
-\begin{minichap}{Table of contents}
+\begin{minichap_no_toc}{Table of contents}
 \TableOfContents
-\end{minichap}
+\end{minichap_no_toc}
 
 (* Remerciements *)
 \begin{minichap}{Remerciements}

@@ -488,6 +488,16 @@ module Format (D:DocumentStructure) = struct
         go_up D.structure
     end
 
+  module Env_minichap_no_toc(M : sig val arg1 : content list end) =
+    struct
+      let do_begin_env () =
+        let extra_tags = [("minichap", "")] in
+        newStruct ~in_toc:false ~numbered:false ~extra_tags D.structure M.arg1
+
+      let do_end_env () =
+        go_up D.structure
+    end
+
   let table_of_contents tree depth =
     let table_of_contents env =
       let margin  = env.size *. phi in
@@ -526,12 +536,15 @@ module Format (D:DocumentStructure) = struct
                try 1 + layout_page (MarkerMap.find (Label labl) ups)
                with Not_found -> 0
              in
-             let env'= add_features [Opentype.oldStyleFigures] env in
-             let fontColor = if level = 1 then Color.red else Color.black in
-             let num = boxify_scoped { env' with fontColor }
-               [tT (String.concat "." (List.map
-                 (fun x->string_of_int (x+1)) count))] in
-             let name = boxify_scoped env' s.displayname in
+             let is_chap = level = 1 && numbered in
+             let fontColor = if is_chap then Color.grey else Color.black in
+             let num = List.map (fun x->string_of_int (x+1)) count in
+             let num = [tT (String.concat "." num)] in
+             let num = if is_chap then bold (size 5.0 num) else num in
+             let num = boxify_scoped { env with fontColor } num in
+             let name = s.displayname in
+             let name = if is_chap then bold name else name in
+             let name = boxify_scoped env name in
              let w=List.fold_left (fun w b->
                let (_,w',_)=box_interval b in w+.w') 0. num in
 
@@ -547,10 +560,8 @@ module Format (D:DocumentStructure) = struct
              in
              let (wpage, page) =
                let page = [tT (string_of_int page)] in
-               let page =
-                 let env' = (* envItalic true *) {env' with fontColor} in
-                 draw_boxes env (boxify_scoped env' page)
-               in
+               let page = if is_chap then bold page else page in
+               let page = draw_boxes env (boxify_scoped env page) in
                let (x1,_,x2,_) = RawContent.bounding_box page in
                let pad = env.normalMeasure +. x1 -. x2 in
                (x2 -. x1, List.map (RawContent.translate pad 0.0) page)
@@ -567,21 +578,28 @@ module Format (D:DocumentStructure) = struct
                let p2 = (0.0, 0.0) in
                let p1 = (env.normalMeasure -. 6.0 -. wcont, 0.0) in
                let path = [[|RawContent.line p1 p2|]] in
+               let e_height =
+                 let e = draw_boxes env (boxify_scoped env [tT "e"]) in
+                 let (_,y1,_,y2) = RawContent.bounding_box e in
+                 abs_float (y1 -. y2)
+               in
                let param =
                  let open RawContent in
                  let (dashPattern, lineWidth) =
-                   if level = 1 then ([0.2; 1.0], 0.2)
+                   if level = 1 then ([], 0.2)
                    else ([0.2; 1.0], 0.2)
                  in
-                 { default_path_param with dashPattern ; lineWidth }
+                 { default_path_param with dashPattern ; lineWidth
+                 ; lineCap = Round_cap ; lineJoin = Round_join }
                in
                let line = [RawContent.Path(param, path)] in
-               let voff = 0.0 in (* Vertical offset of the line. *)
+               (* Vertical offset of the line. *)
+               let voff = RawContent.(e_height -. param.lineWidth) /. 2.0 in
                List.map (RawContent.translate wcont voff) line
              in
              let cont = cont @ page @ line in
              let (a,b,c,d)=RawContent.bounding_box cont in
-             Marker (BeginLink (Intern labl))::
+             let dr =
                Drawing {
                  drawing_min_width=env.normalMeasure;
                  drawing_nominal_width=env.normalMeasure;
@@ -594,7 +612,31 @@ module Format (D:DocumentStructure) = struct
                  drawing_badness=(fun _->0.);
                  drawing_states=[];
                  drawing_contents = (fun _-> cont)
-               }::Marker EndLink::(glue 0. 0. 0.)::chi
+               }
+             in
+             let sp =
+               Drawing {
+                 drawing_min_width=env.normalMeasure;
+                 drawing_nominal_width=env.normalMeasure;
+                 drawing_max_width=env.normalMeasure;
+                 drawing_width_fixed = true;
+                 drawing_adjust_before = false;
+                 drawing_y0=b;
+                 drawing_y1=d;
+                 drawing_break_badness=0.;
+                 drawing_badness=(fun _->0.);
+                 drawing_states=[];
+                 drawing_contents = (fun _-> [])
+               }
+             in
+             let line =
+               Marker (BeginLink (Intern labl))
+                :: dr
+                :: Marker EndLink
+                :: glue 0. 0. 0.
+                :: chi
+             in
+             if level = 1 then sp :: glue 0. 0. 0. :: line else line
            )
            else chi
         | _ -> []
