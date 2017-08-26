@@ -341,7 +341,6 @@ in defining an abstract type ##'a ref## and polymorphic procedures with the
 following signature (given in OCaml syntax).
 ### OCaml
   type 'a ref
-
   val ref  : 'a → 'a ref
   val (:=) : 'a ref → 'a → unit
   val (!)  : 'a ref → 'a
@@ -364,11 +363,12 @@ On the first line, variable ##l## is given the polymorphic type
 ##int list ref## on the second line. This is an obvious violation of
 type safety, which is the very purpose of a type system.
 
-To solve the problem, many alternative type systems were designed (e.g.
-\mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"])). However, they
-all introduced a complexity that contrasted with the elegance and simplicity
-of ML systems (for a detailed account, see \citen("Wright1995")("Section 2")
-and \citen("Garrigue2004")("Section 2")). A simple and elegant solution was
+To solve the problem, alternative type systems such as
+\mcite(["Tofte1990"; "Damas1982"; "Leroy1991"; "Leroy1993"]) were
+designed. However, they all introduced a complexity that contrasted
+with the elegance and simplicity of ML systems (see
+\citen("Wright1995")("Section 2") and \citen("Garrigue2004")("Section 2")
+for a detailed account). A simple and elegant solution was
 finally found by Andrew Wright in the nineties. He suggested restricting
 generalisation (i.e., introduction of polymorphism) to syntactic values
 \mcite(["Wright1994";"Wright1995"]).
@@ -393,7 +393,6 @@ ML with control structures is again to introduce an abstract type equipped
 with polymorphic operations.
 ### OCaml
   type 'a cont
-
   val callcc : ('a cont → 'a) → 'a
   val throw  : 'a cont → 'a → 'b
 ###
@@ -408,9 +407,11 @@ As for references, the addition of control structures breaks the type safety
 of ML in the presence of polymorphism. A complex counterexample was first
 discovered by Robert Harper and Mark Lillibridge \cite("Harper1991").
 ### OCaml
-  let c = callcc (fun k →
-    ((fun x → x), (fun f → throw k (f, (fun _ → ())))))
-  in print_string ((fst c) "Hello world!"); (snd c) (fun x → x+2)
+  let c = callcc
+    (fun k → ((fun x → x), (fun f → throw k (f, (fun _ → ())))))
+  in
+  print_string ((fst c) "Hello world!");
+  (snd c) (fun x → x+2)
 ###
 Intuitively, the program first saves the continuation and builds a pair
 ##c## containing two functions. The first one is simply the identity
@@ -424,11 +425,10 @@ then ##g## becomes the first element of ##c## and the computation restarts.
 This is problematic since the function ##fun x → x+2## is then applied to
 a value of type ##string##, which is thus fed to an integer addition.
 
-During type checking of the let-binding, the type that is inferred for
-the pair ##c## (prior to generalisation) is
-##('_a → '_a) * (('_a → '_a) → unit)##.
-As a consequence, if there is no value restriction, the last line of the
-example is type-checked in a context where ##c## has the polymorphic type
+During type-checking, the type that is inferred for the pair ##c## (prior
+to generalisation) is ##('_a → '_a) * (('_a → '_a) → unit)##. Thus, in
+absence of value restriction, the last two lines of the counterexample are
+type-checked under the assumption that ##c## has the polymorphic type
 ##('a → 'a) * (('a → 'a) → unit)##. In particular, the type ##'a → 'a##
 can be unified with both ##string → string## and ##int → int##.
 As with references, the value restriction forbids such unifications.
@@ -469,11 +469,11 @@ behaviour. We can then relax the restriction to terms that are equivalent
 to some value. In other words, we consider that a term ##u## is a value if
 we can find a value ##v## such that ##u ≡ v##. This idea can be applied
 whenever value restriction was previously required. Moreover, the obtained
-system is conservative over the one with the syntactic restriction. Indeed,
-finding a value that is equivalent to a term that is already a value can
-always be achieved using reflexivity. Although this new idea seems simple,
-establishing the soundness of the obtained system is relatively subtle
-\cite("Lepigre2016").
+system is (strictly) more expressive that the one with the syntactic
+restriction. Indeed, finding a value that is equivalent to a term that is
+already a value can always be achieved using reflexivity. Although this
+new idea seems simple, establishing the soundness of the obtained system
+is relatively subtle \cite("Lepigre2016").
 
 In practice, using a term as a value is not always immediate. For example,
 the system is not able to directly prove that ##add n m## is a value,
@@ -642,19 +642,19 @@ corresponding to equational specifications of programs. It is used in
 conjunction with a type system based on intuitionistic logic. Although
 it is possible to use classical logic to prove that a program meets its
 specification, the underlying programming language is not effectful.
-Similarly, the PAF! system implements a logic supporting proofs of
-programs, but it is restricted to a purely functional subset of ML.
-Another approach for reasoning about purely functional ML programs is
-given in \cite("Régis-Gianas2007"), where Hoare logic is used to specify
-program properties.
-
-Finally, another approach to proving ML programs (including effectful
-ones) consists in compiling a program down to a higher-order formula
-\mcite(["Chargueraud2010" ; "Chargueraud2011"]). Such formulas can
-then be manipulated in an external prover like Coq \cite("CoqTeam2004").
-The user is thus required to master at least two languages, contrary
-to our system in which programming and proving both take place in the
-same language.
+Similarly, the PAF! system \cite("Baro2003") implements a logic
+supporting proofs of programs, but it is restricted to a purely
+functional subset of ML. Another approach for reasoning about purely
+functional ML programs is given in \cite("Régis-Gianas2007"), where
+Hoare logic is used to specify program properties.
+(* *)
+Finally, it is also possible to reason about ML programs (including
+effectful ones) by compiling them down to higher-order formulas
+\mcite(["Chargueraud2010" ; "Chargueraud2011"]), which can then be
+manipulated using an external prover like Coq \cite("CoqTeam2004").
+In this case, the user is required to master at least two languages,
+contrary to our system in which programming and proving take place
+in a uniform framework.
 
 =<
 
@@ -686,11 +686,11 @@ However, value restriction is required on the arguments of dependent
 functions, which makes them practically useless. \chapter("semValRest")
 provides a solution to this problem by proposing a relaxed restriction
 expressed using observational equivalence. The soundness of this new
-approach is established by constructing a somewhat surprising realizability
-model. It relies on a new instruction, that internalises our notion of
-program equivalence into the reduction relation of our abstract machine.
-For the definition of reduction and equivalence not to be circular, we need
-to rely on a stratified construction of these relations.
+approach is established by constructing a novel (and somewhat surprising)
+realizability model. It relies on a new instruction, that internalises our
+notion of program equivalence into the reduction relation of our abstract
+machine. For the definition of reduction and equivalence not to be circular,
+we need to rely on a stratified construction of these relations.
 
 In \chapter("subtyping"), a more practical approach is taken. The system
 is extended with a notion of subtyping, which yields a system that can be

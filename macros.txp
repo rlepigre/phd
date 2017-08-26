@@ -373,7 +373,7 @@ let cite : string -> content list = fun k ->
 
 let citen : string -> string -> content list = fun k n ->
   let act l =
-    let k = List.hd l in
+    let k = Minibib.key_spacing (List.hd l) in
     [tT "["] @ emph [tT (String.concat ", " [k;n])] @ [tT "]"]
   in
   Minibib.cite biblio act [k]
