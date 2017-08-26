@@ -1,12 +1,4 @@
-- Changer le style de citation "[Garrigue1998]" (Tom)
-- Aligner en mode verbatim (unicode)
-- Ajouter les urls de tous les papiers
-- Relire abstract en francais
-- Ecrire résumé substantiel
-
-
-Final checks:
-- Pierce ≔ Peirce
-- "e.i. " ≔ "e.i., "
-- "realiZability" → "realisability" (+ other American stuff)
-- Minimiser les "⋯ to show that we have ⋯"
+- Ajouter des "et al." dans les clés de citation à plusieurs auteurs.
+- Aligner vraiment en mode verbatim (unicode).
+- Ajouter les urls de tous les papiers.
+- Écrire un résumé substantiel en français.

@@ -497,7 +497,8 @@ module PMLVerbatim : sig
     let keywords =
       [ "type" ; "val" ; "def" ; "fun" ; "if" ; "then" ; "else"
       ; "let" ; "in" ; "rec" ; "match" ; "case" ; "with" ; "of"
-      ; "save" ; "restore" ; "deduce" ; "show" ; "using" ; "fix" ]
+      ; "save" ; "restore" ; "deduce" ; "show" ; "using" ; "fix"
+      ; "true" ; "false" ; "include" ]
 
     let separators = ["("; ")"; "["; "]"]
 

@@ -10,7 +10,7 @@
 
 => From Programming to Program Proving \label("intro")
 
-\linesBefore(6)
+\linesBefore(5)
 \begin{epigraph}
   //[In 1949,] as soon as we started programming, we found to our surprise
   that it wasn't as easy to get programs right as we had thought. Debugging
@@ -23,7 +23,7 @@
   \begin{raggedRight}
     Maurice Wilkes (1913-2010)
   \end{raggedRight}
-  \linesAfter(6)
+  \linesAfter(5)
 \end{epigraph}
 (* *)
 Since the apparition of the very first computers, every generation of
@@ -79,26 +79,41 @@ defined and used as follows.
 ### PML "examples/demo.pml"
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
-val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool = fun pred l →
-  case l {
-    | Nil[_]  → false
-    | Cons[c] → if pred c.hd { true } else { exists pred c.tl }
+val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
+  fun pred l {
+    case l {
+      Nil     → false
+      Cons[c] → if pred c.hd { true } else { exists pred c.tl }
+    }
   }
 
-val rec rev_append : ∀a, list<a> ⇒ list<a> ⇒ list<a> = fun l1 l2 →
-  case l1 {
-    | Nil[_]  → l2
-    | Cons[c] → rev_append c.tl Cons[{hd = c.hd; tl = l2}]
+val rec fold_left : ∀a b, (a ⇒ b ⇒ a) ⇒ a ⇒ list<b> ⇒ a =
+  fun f acc l {
+    case l {
+      Nil     → acc
+      Cons[c] → fold_left f (f acc c.hd) c.tl
+    }
   }
 ###
 The ##exists## function takes as input a predicate and a list, and it
 returns a boolean indicating whether there is an element satisfying the
-predicate in the list. The ##rev_append## function takes as input two
-lists ##l1## and ##l2##, and it appends ##l2## to the reversal of ##l1##.
-Note that these two functions are polymorphic, they can hence be applied
-to lists containing elements of an arbitrary type. In our syntax for
-types, polymorphism is explicitly materialised using a universally
-quantified type variable.
+predicate in the list. The ##fold_left## function iterates a function
+on all the elements of a list, gathering the result in an accumulator
+which initial value is given. For example, the ##exists## function can
+be implemented with ##fold_left## as follows, but this version does not
+stop as soon as possible when an element satisfying the predicate is
+found.
+### PML "examples/demo.pml"
+val exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
+  fun pred l {
+    let f = fun acc e { if pred e { true } else { acc } } in
+    fold_left f false l
+  }
+###
+Note that both ##exists## and ##fold_left## are polymorphic, they can for
+instance be applied to lists containing elements of an arbitrary type. In
+our syntax, polymorphism is explicitly materialised using universally
+quantified type variables.
 
 Polymorphism is an important feature as it allows for more generic
 programs. In general, ML-like languages only allow a limited form of
@@ -114,8 +129,9 @@ allowed anywhere in types. Our types thus contain the full power of System
 F \mcite(["Girard1972" ; "Reynolds1974"]). In particular, the equivalent of
 ##silly_ocaml## is accepted by our type-checker.
 ### PML "examples/demo.pml"
-val silly : (∀a, a ⇒ a) ⇒ unit ⇒ option<unit> =
-  fun f u → f Some[f u]
+include lib.option
+val silly : (∀a, a ⇒ a) ⇒ {} ⇒ option<{}> =
+  fun f u { f Some[f u] }
 ###
 In fact, System F polymorphism is not the only form of quantification that
 is supported in our system. It also provides existential types, which are an
@@ -130,18 +146,23 @@ operations, for example references (i.e., mutable variables).
 Our system is no exception as it provides control operators. As first
 discovered by Timothy G. Griffin \cite("Griffin1990"), control operators
 like Lisp's //call/cc// can be used to give a computational interpretation
-to classical logic. On the programming side, they can be used to encode an
-exception mechanism. For example, the following function can be used to
-compute the conjunction of a list of booleans rather efficiently.
+to classical logic. On the programming side, they can be seen as a form of
+exception mechanism. For example, the following definition of ##exists##,
+using ##fold_left##, stops as soon as possible when there is an element
+satisfying the predicate in the list.
 ### PML "examples/demo.pml"
-val rec conjunction : list<bool> ⇒ bool = fun l → save k →
-  case l {
-    | Nil[_]  → true
-    | Cons[c] → if c.hd { conjunction c.tl } else { restore k false }
+val exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
+  fun pred l {
+    save k {
+      let f = fun acc e { if pred e { restore k true } else { acc } } in
+      fold_left f false l
+    }
   }
 ###
-Here, the continuation is saved in a variable ##k## and is restored with
-the value ##false## if the boolean ##false## is encountered in the list.
+Here, the continuation is saved in a variable ##k## before calling the
+##fold_left## function, and it is restored with the value ##true## if an
+element satisfying the predicate is found. In this case, the evaluation
+of ##fold_left## is simply aborted.
 
 Our control operators can also be used to define programs whose types
 correspond to logical formulas that are only valid in classical logic.
@@ -150,18 +171,23 @@ law, the principle of double negation elimination and the law of the
 excluded middle.
 ### PML "examples/demo.pml"
 val peirce : ∀a b, ((a ⇒ b) ⇒ a) ⇒ a =
-  fun x → save k → x (fun y → restore k y)
+  fun x {
+    save k { x (fun y { restore k y }) }
+  }
 
 // Usual definition of logical negation
 type neg<a> = a ⇒ ∀x, x
 
-val dneg_elim : ∀a, neg<neg<a>> ⇒ a = peirce
+val dneg_elim : ∀a, neg<neg<a>> ⇒ a =
+  peirce
 
 // Disjoint sum of two types (logical disjunction)
 type either<a,b> = [InL of a ; InR of b]
 
 val excl_mid : ∀a, {} ⇒ either<a, neg<a>> =
-  fun _ → save k → InR[fun x → restore k InL[x]]
+  fun _ {
+    save k { InR[fun x → restore k InL[x]] }
+  }
 ###
 Note that the definition of ##excl_mid## contains a dummy function
 constructor. Its presence is required for a reason related to value
@@ -204,8 +230,10 @@ using recursion on its first argument.
 ### PML "examples/demo.pml"
 type rec nat = [Zero ; Succ of nat]
 
-val rec add : nat ⇒ nat ⇒ nat = fun n m →
-  case n { Zero[_] → m | Succ[k] → Succ[add k m] }
+val rec add : nat ⇒ nat ⇒ nat =
+  fun n m {
+    case n { Zero → m | Succ[k] → Succ[add k m] }
+  }
 ###
 As a first example, we will show that ##add Zero n ≡ n## for all ##n##.
 To express this property we can use the type ##∀n:ι, add Zero n ≡ n##,
@@ -214,9 +242,9 @@ values. This statement can then be proved as follows.
 ### PML "examples/demo.pml"
 val add_z_n : ∀n:ι, add Zero n ≡ n = {}
 ###
-Here, the proof is immediate (i.e., ##{}##) as have ##add Zero n ≡ n## by
-definition of the ##add## function. Note that this equivalence holds for
-all ##n##, whether it corresponds to an element of ##nat## or not. For
+Here, the proof is immediate (i.e., ##{}##) as we have ##add Zero n ≡ n##
+by definition of the ##add## function. Note that this equivalence holds
+for all ##n##, whether it corresponds to an element of ##nat## or not. For
 instance, it can be used to show ##add Zero true ≡ true##.
 
 Let us now show that for every ##n## we have ##add n Zero ≡ n##. Although
@@ -234,10 +262,12 @@ taking as input a natural number ##n## and returning a proof of
 ##add n Zero ≡ n##. This property can then be proved using induction and
 case analysis as follows.
 ### PML "examples/demo.pml"
-val rec add_n_z : ∀n∈nat, add n Zero ≡ n = fun n →
-  case n {
-    | Zero[_] → {}
-    | Succ[k] → let ih = add_n_z k in {}
+val rec add_n_z : ∀n∈nat, add n Zero ≡ n =
+  fun n {
+    case n {
+      Zero    → {}
+      Succ[k] → let ih = add_n_z k in {}
+    }
   }
 ###
 If ##n## is ##Zero##, then we need to show ##add Zero Zero ≡ Zero##, which
@@ -252,8 +282,8 @@ as a proof needs to go through a termination checker. Indeed, a looping
 program could be used to prove anything otherwise. For example, the following
 proof is rejected.
 ### PML "examples/demo.pml"
-// val rec add_n_z_loop : ∀n∈nat, add n Zero ≡ n = fun n →
-//   let ih = add_n_z_loop n in {}
+// val rec add_n_z_loop : ∀n∈nat, add n Zero ≡ n =
+//   fun n { let ih = add_n_z_loop n in {} }
 ###
 It is however easy to see that ##add_z_n## and ##add_n_z## are terminating,
 and hence valid. In the following, we will always assume that the programs
@@ -267,10 +297,12 @@ other hand, it is possible to invoke a lemma by calling the corresponding
 function. In particular, this must be done to use the induction hypothesis
 in proofs by induction like in ##add_z_n## or the following lemma.
 ### PML "examples/demo.pml"
-val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] = fun n m →
-  case n {
-    | Zero[_] → {}
-    | Succ[k] → let ind_hyp = add_n_s k m in {}
+val rec add_n_s : ∀n m∈nat, add n Succ[m] ≡ Succ[add n m] =
+  fun n m {
+    case n {
+      Zero    → {}
+      Succ[k] → let ind_hyp = add_n_s k m in {}
+    }
   }
 ###
 In this case, the equation corresponding to the conclusion of the used lemma
@@ -279,11 +311,13 @@ obtained by combining more lemmas. For example, the following proves the
 commutativity of addition using a proof by induction with ##add_n_z## and
 ##add_n_s##.
 ### PML "examples/demo.pml"
-val rec add_comm : ∀n m∈nat, add n m ≡ add m n = fun n m →
-  case n {
-    | Zero[_] → let lem = add_n_z m in {}
-    | Succ[k] → let ih  = add_comm k m in
+val rec add_comm : ∀n m∈nat, add n m ≡ add m n =
+  fun n m {
+    case n {
+      Zero    → let lem = add_n_z m in {}
+      Succ[k] → let ih  = add_comm k m in
                  let lem = add_n_s m k in {}
+    }
   }
 ###
 Many more examples of proofs and programs are provided in \chapter("implem")
@@ -446,10 +480,12 @@ the system is not able to directly prove that ##add n m## is a value,
 provided that ##n## and ##m## are two natural numbers. It is however
 possible to establish this fact internally as follows.
 ### PML "examples/demo.pml"
-val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v = fun n m →
-  case n {
-    | Zero[_] → {}
-    | Succ[k] → let ih = add_total k m in {}
+val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v =
+  fun n m {
+    case n {
+      Zero    → {}
+      Succ[k] → let ih = add_total k m in {}
+    }
   }
 ###
 Here, ##add_total## proves that for any values ##n## and ##m## in the type
@@ -459,13 +495,14 @@ usually not necessary in practice. Thanks to ##add_total##, we can give a
 proof of the associativity of our addition function.
 ### PML "examples/demo.pml"
 val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
-  fun n m p →
-    let tot_m_q = add_total m p in
+  fun n m p {
+    let tot_m_p = add_total m p in
     case n {
-      | Zero[_] → {}
-      | Succ[k] → let tot_p_m = add_total k m in
-                   let ih = add_asso k m p in {}
+      Zero    → {}
+      Succ[k] → let tot_k_m = add_total k m in
+                 let ih = add_asso k m p in {}
     }
+  }
 ###
 Note that the proof requires two calls to ##add_total##. The first one is
 used in both the base case and the induction case. It is required so that
@@ -473,7 +510,7 @@ the system can unfold the definition of ##add n (add m p)## according to
 the head constructor of ##n##. As we are in call-by-value, we can only
 reduce the definition of a function when it is applied to values. It is
 the case here as ##n## is a variable and ##add m p## is equivalent to
-some value, as witnessed by ##tot_m_q##. The second call to ##add_total##
+some value, as witnessed by ##tot_m_p##. The second call to ##add_total##
 is required for a similar reason in the successor case.
 
 =<
@@ -494,11 +531,11 @@ our knowledge, such ideas have only be used (and implemented) in some
 unpublished work of Christophe Raffalli \mcite(["Raffalli1998" ;
 "Raffalli1999"]) and in \cite("Lepigre2017").
 
-One of the most important idea that make the system practical and
-possible to implement is to only work with syntax-directed typing
+One of the most important ideas, that makes the system practical and
+possible to implement, is to only work with syntax-directed typing
 and subtyping rules. This means that only one of our typing rules
-can be applied for each different term constructors. Similarly,
-we have only two subtyping rules per type constructors: one where
+can be applied for each different term constructor. Similarly,
+we have only two subtyping rules per type constructor: one where
 it appears on the left of the inclusion, and one where it appears
 on the right. As type-checking can only diverge in subtyping, an
 error message can be built using the last applied typing rule.
@@ -511,15 +548,15 @@ called PML2. The last version of its source code is available
 online (\website("http://lepigre.fr/these/")). Its implementation
 mostly follows the typing and subtyping rules of the system given
 in \chapter("subtyping"). Overall, our system provides a similar
-user experience to statically typed functional language like OCaml
+user experience to statically typed functional languages like OCaml
 or Haskell. In such languages, type annotations are also required
 for advanced features like polymorphic recursion.
 
 =<
 => Related work and similar systems
 
-To our knowledge, combining call-by-value evaluation, side-effects and
-dependent products has never been achieved before. At least not for a
+To our knowledge, the combination of call-by-value evaluation, side-effects
+and dependent products has never been achieved before. At least not for a
 dependent product fully compatible with effects and call-by-value. For
 example, the Aura language \cite("Jia2008") forbids dependency on terms that
 are not values in dependent applications. Similarly, the $F^{★}$ language
@@ -527,7 +564,7 @@ are not values in dependent applications. Similarly, the $F^{★}$ language
 in argument position. Daniel Licata and Robert Harper have defined a notion
 of positively dependent types \cite("Licata2009") which only allow dependency
 over strictly positive types. Finally, in languages like ATS \cite("Xi2004")
-and DML \cite("Xi1999") dependent types are limited to a specific index
+and DML \cite("Xi1999") dependencies are limited to a specific index
 language.
 
 The system that seems the most similar to ours is NuPrl
