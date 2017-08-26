@@ -13,8 +13,12 @@ terminée » depuis bien trop longtemps.
 (* *)
 Je souhaite également adresser mes plus sincères remerciements à Thierry
 Coquand et à Alexandre Miquel, pour m'avoir fait l'honneur de rapporter
-cette thèse. Merci également à Andreas Abel, à Frédéric Blanqui et à Laurent
-Regnier d'avoir accepté de compléter mon jury.
+cette thèse, ainsi que pour leurs nombreuses remarques et suggestions.
+(* *)
+Merci également à Andreas Abel, à Frédéric Blanqui et à Laurent Regnier
+d'avoir accepté de compléter mon jury. En particulier, merci à Andreas et
+à Frédéric pour leurs nombreuses notes et corrections, et merci à Laurent
+d'avoir été un président du jury exemplaire.
 
 Depuis le début de ma thèse, le LAMA m'a offert un environnement de
 travail dans lequel je me suis pleinement épanoui, aussi bien sur le
@@ -66,11 +70,14 @@ Merci également à Boulos El Hilany, Bilal Al Taki, Michel Raibaut et à
 tous les autres.
 (* *)
 J'en profite pour mentionner également quelques thésards de la génération
-précédente. Merci à Florian Hatat pour ses précieux conseils et pour son
-aide avec certaines tâches administratives. Merci à Pierre-Étienne Meunier
-de m'avoir permis de programmer (ma thèse en) Patoline, ce qui à pu
-me faire perdre un peu de temps, occasionnellement. Merci à Thomas Seiller
-pour ses encouragements dans des moments de doute.
+précédente. Merci à Florian Hatat pour ses précieux conseils (notamment
+d'ordre administratifs), pour le champagne, ainsi que pour son aide avec
+les problèmes techniques de dernière minute.
+(* *)
+Merci à Pierre-Étienne Meunier de m'avoir permis de programmer (ma thèse
+en) Patoline, ce qui à pu me faire perdre un peu de temps, occasionnellement.
+Merci également à Thomas Seiller pour ses encouragements dans des moments
+de doute.
 
 Enfin, je voudrai remercier mes parents et mes grand parents, qui ont
 toujours été là pour moi (et en tout cas jamais bien loin). Merci aussi
