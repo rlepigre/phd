@@ -122,7 +122,7 @@ $\t{t[x≔v₁]} ≡_{≻} \t{t[x≔v₂]}$.
 We are going to prove the contrapositive so we suppose $\t{t[x≔v₁]}
 \nequiv_{≻} \t{t[x≔v₂]}$ and we show $v₁ \nequiv_{≻} v₂$. Let us first
 assume that neither $v₁$ nor $v₂$ is equal to $\v{□}$ or to a
-$λ$-variables. By definition, we know that there is a stack $π$ and a
+$λ$-variable. By definition, we know that there is a stack $π$ and a
 substitution $ρ$ such that we have ${\p{(t[x≔v₁])ρ ∗ π}} {⇓}_{≻}$ and
 ${\p{(t[x≔v₂])ρ ∗ π}} {⇑}_{≻}$ (up to symmetry). As $x$ is bound we
 can rename it so that $\t{(t[x≔v₁])ρ} = \t{tρ[x≔v₁ρ]}$ and
@@ -216,7 +216,7 @@ possibilities.
   $\p{u₁ ∗ πi}$. Either $\p{u₁ ∗ πi} ≻^{∗} \p{v ∗ ε}$ for some value
   $v$ and the sequence ends with $n = i$, or $\p{u₁∗πi} ≻^{∗} \p{a∗ξ}$
   for some stack $ξ$ and in this case we take $π_{i+1} = ξ$.
-  
+
   To end the proof, we will now show ${\p{(a ∗ πi)[a≔u₂]}} {⇓}_{≻}$ for all
   $i ≤ n$. For $i = 0$ this will give us ${\p{(a ∗ π₀)[a≔u₂]}} {⇓}_{≻}$
   which is the expected result. For $i = n$ we know that
@@ -280,7 +280,7 @@ An equivalence relation $({≡}) ⊆ Λ×Λ$ is said to be compatible with
 $({≡}_{≻})$, or (simply) compatible, if it satisfies the following
 conditions.
 \begin{itemize}
-\item For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$
+\item For all terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$
       (i.e., $({≡}) ⊆ ({≡}_{≻})$).
 \item Given $t$, $u∈Λ$, if for every stack $π∈Π$ there is a process
       $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
@@ -295,7 +295,9 @@ conditions.
 Note that the second and third conditions require the equivalence to
 include the $({≻})$ reduction relation in some sense. Of course, this
 is only an intuition as the equivalence relation ranges over terms
-while the reduction relation ranges over processes.
+while the reduction relation ranges over processes. In the third
+condition, the role of the term $\t{u}$ is to extract $v$ from
+$\t{t₁[x≔v]}$ and $\t{t₂[x≔v]}$. (* TODO make remark ? *)
 \begin{thm}
 The relation $({≡}_{≻})$ is compatible.
 \begin{proof}
@@ -303,7 +305,7 @@ The first condition is immediate. To prove the second condition let us
 suppose that for all $π∈Π$ we have a $p∈Λ×Π$ such that $\p{t∗π} ≻^{∗} p$
 and $\p{u∗π} ≻^{∗} p$. Let us take $π₀ ∈ Π$, $ρ₀ ∈ \cal{S}$ and show
 that we have ${{\p{tρ₀∗π₀}} {⇓}_{≻}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{≻}}$. As
-we are free to rename the variables of $t$ and $u$ that are bound
+we are free to rename the variables of $t$ and $u$ that are bound in
 $\t{tρ₀}$ and $\t{uρ₀}$, we may assume that $\s{π₀ρ₀} = π₀$.
 By hypothesis, there is $p₀ ∈ Λ×Π$ such that $\p{t∗π₀} ≻^{∗} p₀$
 and $\p{u∗π₀} ≻^{∗} p₀$. We can thus apply \lemRef("redcompatall")
@@ -349,9 +351,9 @@ identify terms with the same computational behaviour. In particular,
 taking reduction steps does not fundamentally change the observable
 computational behaviour of a term. We can thus derive several
 primitive equivalences using the second property of compatible
-equivalences, that is recalled below as a lemma. 
+equivalences (\defRef("defcompat")), that is recalled below as a lemma.
 \begin{lem}\label("redequiv")
-Let $t$, $u ∈ Λ$ be two terms. If for all stack $π∈Π$ there is a
+Let $t$, $u ∈ Λ$ be two terms. If for all stacks $π∈Π$ there is a
 process $p ∈ Λ×Π$ such that $\p{t ∗ π} ≻^{∗} p$ and
 $\p{u ∗ π} ≻^{∗} p$ then $t ≡ u$.
 \begin{proof}
@@ -566,10 +568,10 @@ Using the theorems of the previous section, it is possible to derive
 equivalences in a direct way. However, we will sometimes need to
 reason in an indirect way by exhibiting a contradiction. We will hence
 provide several means of identifying inequivalences. The idea here is
-to rely on the first property of compatible equivalences, which is
-recalled in the following lemma.
+to rely on the first property of compatible equivalences
+(\defRef("defcompat")), which is recalled in the following lemma.
 \begin{lem}\label("equivcounterex_aux")
-For every terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$.
+For all terms $t$, $u∈Λ$ such that $t ≡ u$ we have $t ≡_{≻} u$.
 This exactly means that we have $({≡}) ⊆ ({≡}_{≻})$.
 \begin{proof}
 By definition of a compatible equivalence.
