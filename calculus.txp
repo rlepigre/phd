@@ -750,12 +750,12 @@ construct.
 The value $\v("□")$ and terms of form $\t("R(v,t)")$ or $\t("δ(v,w)")$ are
 only included for technical purposes. In particular, they are not intended
 to be used for programming. The value $\v("□")$ will be used in the
-definition of our semantics in \chapters(["typeSystem"; "subtyping"]).
+definition of our semantics (see \chapters(["typeSystem"; "subtyping"])).
 Terms of the form $\t("R(v,t)")$ will help us to distinguish records from
-other sorts of values in our definition of observational equivalence in
-\chapter("obsEquiv"). Finally, terms of the form $\t("δ(v,w)")$ will be
-used to obtain an essential property of our realizability model in
-\chapter("semValRest") (\thmRef("main")).
+other sorts of values in our definition of observational equivalence (see
+\chapter("obsEquiv")). Finally, terms of the form $\t("δ(v,w)")$ will be
+used to obtain an essential property of our realizability model (see
+\chapter("semValRest"), \thmRef("main")).
 
 A stack can be either the empty stack $\s("ε")$, a stack variable $\s("α")$,
 a value pushed on top of a stack $\s("v·π")$, or a stack frame containing a
