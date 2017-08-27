@@ -605,7 +605,7 @@ $ρ = ρ_{id}$.
 
 We will now start by showing that records with different fields cannot
 be equivalent. Similarly, we will show that variants with different
-constructors are never equivalent. In both case, it is not difficult to
+constructors are never equivalent. In both cases, it is not difficult to
 find a stack distinguishing the two values.
 \begin{thm}\label("consnequiv")
 Let $m$, $n ∈ \bbN$ be two natural numbers and $v$, $w ∈ Λ_ι$ be two values.
