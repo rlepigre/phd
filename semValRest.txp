@@ -1055,9 +1055,9 @@ have $\t{t} ≡ \t{u}$ then $\t{tρ} ≡ \t{uρ}$.
 Let us take $i₀ ∈ \bbN$, $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove
 ${{\p{(tρ)ρ₀ ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{(uρ)ρ₀ ∗ π₀}} {⇓}_{i₀}}$,
 which can be rewritten as
-${{\p{t(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{u(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{i₀}}$.
+${{\p{t(ρ₀ ∘ ρ) ∗ π₀}} {⇓}_{i₀}} ⇔ {{\p{u(ρ₀ ∘ ρ) ∗ π₀}} {⇓}_{i₀}}$.
 We can thus conclude by definition of $t ≡ u$ using $i₀$, the
-substitution $ρ ∘ ρ₀$ and the stack $π₀$.
+substitution $ρ₀ ∘ ρ$ and the stack $π₀$.
 \end{proof}
 \end{thm}
 \begin{thm}\label("fullextval")

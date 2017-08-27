@@ -1,3 +1,4 @@
+- "full-fledged ML-like", pas vraiment car pas de refs (Alex)
 - Ajouter des "et al." dans les clés de citation à plusieurs auteurs.
 - Aligner vraiment en mode verbatim (unicode).
 - Ajouter les urls de tous les papiers.

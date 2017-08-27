@@ -122,7 +122,7 @@ and c2m = function
 
 let rec s2m = function
   | Alp(a)    -> v2m (a, None)
-  | Psh(v,pi) -> let sym = Maths.node (Maths.glyphs "·") in
+  | Psh(v,pi) -> let sym = Maths.node (Maths.glyphs ".") in
                  [bin 2 (Normal(false, sym, false)) (t2m v) (s2m pi)]
   | Frm(t,pi) -> (str "[") @ (t2m t) @ (str "]") @ (s2m pi)
 

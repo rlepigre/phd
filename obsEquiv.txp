@@ -82,9 +82,9 @@ have $\t{t} ≡_{≻} \t{u}$ then $\t{tρ} ≡_{≻} \t{uρ}$.
 \begin{proof}
 Let us take $ρ₀ ∈ \cal{S}$ and $π₀ ∈ Π$ and prove ${{\p{(tρ)ρ₀ ∗ π₀}}
 {⇓}_{≻}} ⇔ {{\p{(uρ)ρ₀ ∗ π₀}} {⇓}_{≻}}$, which can be rewritten as
-${{\p{t(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{≻}} ⇔ {{\p{u(ρ ∘ ρ₀) ∗ π₀}} {⇓}_{≻}}$.
+${{\p{t(ρ₀ ∘ ρ) ∗ π₀}} {⇓}_{≻}} ⇔ {{\p{u(ρ₀ ∘ ρ) ∗ π₀}} {⇓}_{≻}}$.
 We can thus conclude using the definition of $t ≡_{≻} u$ with the
-substitution $ρ ∘ ρ₀$ and the stack $π₀$.
+substitution $ρ₀ ∘ ρ$ and the stack $π₀$.
 \end{proof}
 \end{thm}
 (*
