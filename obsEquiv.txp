@@ -295,9 +295,12 @@ conditions.
 Note that the second and third conditions require the equivalence to
 include the $({≻})$ reduction relation in some sense. Of course, this
 is only an intuition as the equivalence relation ranges over terms
-while the reduction relation ranges over processes. In the third
-condition, the role of the term $\t{u}$ is to extract $v$ from
-$\t{t₁[x≔v]}$ and $\t{t₂[x≔v]}$. (* TODO make remark ? *)
+while the reduction relation ranges over processes.
+\begin{rem}
+In the third condition of \defRef("defcompat"), the role of the term
+$\t{u}$ is to extract (or project out) the value $v$ from $\t{t₁[x≔v]}$
+and $\t{t₂[x≔v]}$, along the relation $({≻})$.
+\end{rem}
 \begin{thm}
 The relation $({≡}_{≻})$ is compatible.
 \begin{proof}
@@ -696,8 +699,8 @@ inequivalence when working with records and variants. Provided that
 two values stored in a given record field or in a constructor are
 not equivalent, it is possible to derive that the two records or the two
 variants are not equivalent. We will here need to rely on the third
-property of compatible equivalences, that is recalled below as a
-lemma.
+property of compatible equivalences (\defRef("defcompat")), that is
+recalled below as a lemma.
 \begin{lem}\label("compatprop3")
 Let $t₁$, $t₂$ be two arbitrary terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$.
 If there is $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
