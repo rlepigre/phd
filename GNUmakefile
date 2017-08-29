@@ -9,7 +9,7 @@ manuscript.pdf: manuscript.txp $(SRC)
 
 .PHONY:test
 test:
-	for f in `find examples -type f`; do pml2 $$f || break; done
+	for f in `find examples -type f -name "*.pml"`; do pml2 $$f || break; done
 
 manuscript.ps: manuscript.pdf
 	pdftops $^
