@@ -166,8 +166,8 @@ $$
 \end{def}
 Of course, we do not need to give additional sorting rules since
 $\f{Π_(x∈A) B}$ and $\f{Π_(a∈A) B}$ are only syntactic sugars.
-However, we can use consider the following typing rules to work
-with dependent functions more easily.
+However, we can use the following typing rules to work with
+dependent functions more easily.
 \begin{center}
 $
 \unaryRN{Π_{ι,i}}{Σ, x : ι \sp Γ, x:A ; Ξ ⊢ t : B[y≔x]}
@@ -355,7 +355,7 @@ to any parser, with any return type. However, the combinator ##mono##
 defined above is only weakly polymorphic. This means that we will only be
 able to apply it to parsers of one fixed (but yet unknown) type. Of course,
 ##seq any## is not a value, and the value restriction applies. To solve
-this lack of generality, one need to rely on an $η$-expansion as in
+this lack of generality, we need to rely on an $η$-expansion as in
 ##poly##, which has the expected type ##'a gr -> (char, 'a) gr##.
 
 As the definition of ##seq## is probably something like
@@ -1000,7 +1000,7 @@ for: an extension of $({≻})$ with a reduction rule for $δ$-like terms
 carrying two non-equivalent values.
 
 \begin{thm}\label("main")
-Let $\dbot ⊆ Λ×Π$ be $↠$-saturated set of processes such that for every
+Let $\dbot ⊆ Λ×Π$ be a $↠$-saturated set of processes such that for every
 $p∈\dbot$ we have $p {⇓_{↠}}$ and $\p{□∗ε} ∈ \dbot$. If $Φ ∈ ⟦ο⟧$ then
 we have the following property.
 $$Φ^{⊥⊥} ∩ Λ_ι ⊆ Φ$$
@@ -1594,8 +1594,8 @@ have $({≡}) ⊇ ({≡}_{↠})$. A counter-example is given by the terms
 $t = \t{δ(λx x, {})}$ and $u = \t{λx x}$ since $t ≡_{↠} u$ but
 $t \nequiv_{≻} u$ (and thus $t \nequiv u$). More generally, if
 $p$, $q ∈ Λ×Π$ are processes, having ${p {⇓}_{↠}} ⇒ {q {⇓}_{↠}}$
-does not imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural number
-$i ∈ \bbN$.
+does not always imply ${p {⇓}_i} ⇒ {q {⇓}_i}$ for every natural
+number $i ∈ \bbN$.
 \end{rem}
 As shown by the \thmRef("eq_incl"), our $({≡})$ relation is more
 fine-grained (i.e., it discriminates more terms than $({≡}_{↠})$).

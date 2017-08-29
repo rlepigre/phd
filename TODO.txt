@@ -5,3 +5,6 @@
 - Écrire un résumé substantiel en français.
 - Algo used to check the correctness of the proofs? (Fred Blanqui)
 - Why is the totality of f and g required in map_map? (Fred Blanqui)
+- Bigger rule name (Fred Blanqui)
+- Say somewhere in chapter 4 that Y is not included in the first type system.
+- In chapter 5, recall what ⇓_i is (Andreas)

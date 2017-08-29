@@ -308,11 +308,11 @@ Terms can contain free variables of several sorts: $λ$-variables (i.e., value
 variables), term variables and $μ$-variables (i.e., stack variables). As open
 terms may appear in types, and in particular in equality types, it is natural
 to allow universal and existential quantification over all three sorts of
-variables. This will enables the specification of properties such as
+variables. This will enable the specification of properties such as
 $\f{∀y (λx x) y ≡ y}$ or $\f{∀x ∀y x ≡ y ⇒ Ck[x] ≡ Ck[y]}$ inside the
 system.
 \begin{rem}
-The forms of quantification described here range over all (closed) values,
+The forms of quantification described here range over all closed values,
 terms or stacks regardless of their types.
 \end{rem}
 \begin{rem}
@@ -320,7 +320,7 @@ It is not clear whether quantification over stacks has a practical use. We
 only include it as it fits well in the framework at no extra cost.
 \end{rem}
 
-Quantifying over all the (closed) values or terms is not always enough.
+Quantifying over all the closed values or terms is not always enough.
 Indeed, we often need to quantify over the values or the terms of a given
 type only. For example if we quantify over a $λ$-variable that is used in
 a case analysis, then a runtime error will be produced for values that do
@@ -360,7 +360,7 @@ types) if the variable that is quantified over does not appear in $A$.
 => Sorts and higher-order types
 
 Our type system allows universal and existential quantification over
-several sorts of objects. There are first order quantifiers ranging over
+several sorts of objects. There are first-order quantifiers ranging over
 values, terms and stacks, as shown in the previous section. And the system
 also provides second order quantification (i.e., quantification over types),
 which corresponds to System F polymorphism and type abstraction. All of
@@ -436,7 +436,7 @@ $\cal{V}_σ$ are contained in values, terms and stacks respectively.
 To track the sort of variables in types we need to introduce a form of
 context. It can then be used to define our notion of well-formed type
 using a deduction rule system. We will then only consider types that can
-be show well-formed in this system.
+be shown well-formed in this system.
 \begin{def}
 A //sorting context// is a finite map $Σ$ over $\cal{V}$ such that for all
 $χ ∈ dom(Σ)$ we have $Σ(χ) ∈ \cal{S}$. For convenience, we will represent
@@ -515,8 +515,8 @@ Our language of types can be seen as an instance of the simply typed
 $λ$-calculus extended with countably many constants. For instance, a
 type of the form $\f{∀χ^s A}$ can be encoded using a constant ${∀_s}$
 of sort $(s→ο)→ο$. Note that an infinite number of constants is
-required to encode product types, sum types, records and pattern
-matchings as they can be indexed by any finite subset of $\bbN$. As a
+required to encode product types, sum types, records and pattern-matchings
+as they can be indexed by any finite subset of $\bbN$. As a
 consequence, the theorem follows from well-known properties of the
 simply typed $λ$-calculus with the subtyping relation induced by the
 axiom $ι ≤ τ$ on base types (see, e.g., \mcite(["Mitchell1996"])).
@@ -524,7 +524,7 @@ axiom $ι ≤ τ$ on base types (see, e.g., \mcite(["Mitchell1996"])).
 \end{thm}
 In the following sections, we will always consider well-formed types. As a
 consequence, we may also assume that a type is in normal form as we can
-alway normalise well-formed types according to the previous theorem.
+always normalise well-formed types according to the previous theorem.
 
 =<
 => Typing judgments for values and terms
@@ -705,7 +705,7 @@ $Ψ^⊥ ∈ Φ^⊥$. We can then conclude using \lemRef("orthoinclterm").
 
 When choosing a pole, it is important to check that it does not yield a
 degenerate model. In particular we need to check that no term is able to
-face every stacks. If it were the case, such a term could be used as a
+face every stack. If it were the case, such a term could be used as a
 proof of $⊥$.
 \begin{def}
 A pole $\dbot ⊆ Λ×Π$ is said to be consistent if for every closed term
@@ -1345,6 +1345,7 @@ Every closed, typed term normalises. More precisely, for all $t∈Λ^{∗}$
 such that $⊢ t : A$ is derivable there is $v ∈ {Λ_ι^{∗} ∖ \{\v{□}\}}$
 such that $\p{t∗ε} ≻^{∗} \p{v∗ε}$.
 \begin{proof}
+(* TODO comment on no type constructor yet. *)
 We consider the pole $\dbot=\{p ∈ Λ∗Π \| ∃v∈Λ_ι, p ≻^{∗} \p{v∗ε}\}$ which is
 trivially saturated. We will first check that it is also $≡_{≻}$-extensional.
 Let us suppose that $t ≡_{≻} u$ and that $\p{t∗π} ∈ \dbot$. By definition of

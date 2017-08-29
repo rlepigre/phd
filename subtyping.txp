@@ -394,7 +394,7 @@ straight-forward implementation following the typing and subtyping rules
 that will be given in the following sections. In particular, the typing
 and subtyping procedures are directed by the syntax of terms and types
 respectively. The ideas presented here were introduced in a joint work
-of Christophe Raffalli and the author \cite("Lepigre2017").
+with Christophe Raffalli \cite("Lepigre2017").
 
 =<
 
@@ -442,7 +442,7 @@ $μ$-abstractions. As choice operators for values, choice
 operators for stacks will always need to be interpreted
 (even if there is no stack satisfying the property they carry).
 As a consequence, we will need to make sure that the set of stacks
-associated to each type contain at least one element.
+associated to each type contains at least one element.
 
 The use of choice operators and the elimination of typing contexts
 will play an essential role in the definition of our type system.
@@ -556,7 +556,7 @@ we could hope for. For instance, if $I₁ ⊆ I₂$ then it is possible to show
 that $\f{[(Ci : Ai) i∈I₁]}$ is a subtype of $\f{[(Ci : Ai) i∈I₂]}$ in
 the system. However, the corresponding relation on product types is
 not satisfied by our semantics. Intuitively, the elements of the type
-$\f{{(li:Ai) i∈I}}$ must of the form $\v{{(li = vi) i∈I}}$. In particular,
+$\f{{(li:Ai) i∈I}}$ must be of the form $\v{{(li = vi) i∈I}}$. In particular,
 they cannot have additional record fields. One solution to this problem
 would be to amend the semantics of product types. Instead, we will keep our
 original, //strict// product type, and introduce another //extensible//
@@ -585,19 +585,19 @@ notation $Ξ ⊢ A ⊂ B$ when the term $t$ is equal to $\v{εx∈A(x∉B)}$.
 \end{def}
 
 To keep track of the special value $\v{□}$ in our judgments, we will
-use inequivalences of the form $v ≠ \v{□}$. They will be defined in
-terms of an usual equivalence, so we do not need to extend our
-definitions formally.
+use inequalities of the form $v ≠ \v{□}$. They will be defined in
+terms of an equivalence, so we do not need to extend our definitions
+formally.
 \begin{def}
 Given a closed value $v ∈ Λ_ι^{∗}$ we will use the notation $v ≠ \v{□}$
 for the syntactic equivalence $\t{(λx {}) v} ≡ \t{{}}$ in equational
 contexts.
 \end{def}
-As show by the following lemma, this notation provides the right
+As shown by the following lemma, this notation provides the right
 intuition as it agrees with the semantics.
 \begin{lem}\label("specialequiv")
 Given a closed value $v ∈ Λ_ι^{∗}$ we have $\t{(λx {}) v} ≡ \t{{}}$
-if and only if $v ≠ \v{□}$.
+if and only if $v$ is different from $\v{□}$.
 \begin{proof}
 Let us first assume that $v ≠ \v{□}$ and show $\t{(λx {}) v} ≡ \t{{}}$.
 Since $v$ is closed, it cannot be a $λ$-variable and so we can conclude
@@ -739,14 +739,14 @@ $\vs{{(li:Ai) i∈I;⋯}} = \{\v{{(li = vi) i∈K}} \| {I ⊆ K}
 \end{center}
 \end{def}
 
-We will now given the interpretation of our different forms of judgments
+We will now give the interpretation of our different forms of judgments
 in the semantics, and prove the adequacy of the semantics with respect to
 the typing rules given in \figRefs(["typrules" ; "subrules"]).
 
 \begin{def}
 Let $t ∈ Λ^{+}$ be a raw term, $π ∈ Π^{+}$ be a raw stack and $A$,
 $B ∈ \cal{F}$ be two types. We will write $t ⊩ A$ if $\t{⟦t⟧} ∈ \ts{A}$,
-$π ⊩ A$ if $\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊆ B$ if $t ⊩ A$ implies $t ⊩ B$.
+$π ⊩ A$ if $\s{⟦π⟧} ∈ \ss{A}$ and $t ⊩ A ⊂ B$ if $t ⊩ A$ implies $t ⊩ B$.
 \end{def}
 
 \begin{lem}\label("subtypingincl")
@@ -765,7 +765,7 @@ $\v{□} ∈ \vs{B}$ so we indeed have $\vs{A} ⊆ \vs{B}$.
 \begin{thm}\label("fulladequacy")
 Let $Ξ$ be an equational context, $A$, $B ∈ \cal{F}$ be closed types and
 $t ∈ Λ^{+}$ be a raw term. If for all $(\t{t₁},\t{t₂}) ∈ Ξ$ the equivalence
-$\t{⟦t₁⟧} ≡ \t{⟦t₁⟧}$ holds then we have the following.
+$\t{⟦t₁⟧} ≡ \t{⟦t₂⟧}$ holds then we have the following.
 \begin{itemize}
 \item If $Ξ ⊢ t : A$ is valid then we have $t ⊩ A$. Moreover, if $t$ is
       a value then $\t{⟦t⟧} ≠ \v{□}$.
@@ -1486,7 +1486,7 @@ extend our system with sized types \mcite(["Hughes1996"; "Abel2008";
 "Lepigre2017"]). In the semantics, syntactic ordinals will be interpreted
 using actual ordinals.
 \begin{def}
-We denote $κ$ the sort of //syntactic ordinals//. From now on, we will
+We denote by $κ$ the sort of //syntactic ordinals//. From now on, we will
 consider that it is contained in our set of atomic sorts $\cal{S}₀$
 and thus $κ ∈ \cal{S}$.
 \end{def}
@@ -1614,7 +1614,7 @@ modified to contain a positivity context. However, there is no
 difficulty in doing so as they only need to transmit this context.
 \end{def}
 
-Intuitively, the ($μ_{r,∞}$) rules allows the unrolling of a least fixpoint
+Intuitively, the ($μ_{r,∞}$) rule allows the unrolling of a least fixpoint
 on the right side of the subtyping relation. This rule can only be applied
 when the limit of the fixpoint has been reached, and it is always the case
 with the ordinal $∞$. When the ordinal is too small to make the fixpoint
@@ -1673,7 +1673,7 @@ to $\f{γ ↪ A}$ but depending on an equivalence instead of a list of
 ordinals. It is in fact included in the implementation of the system.
 \end{rem}
 
-We will now extend our system with a last set of rules typing and local
+We will now extend our system with a last set of typing and local
 subtyping rules for handling recursion. We will then prove that all the
 rules introduced in this section are adequate.
 \begin{def}
@@ -1683,8 +1683,8 @@ We can now put everything together and prove yet another adequacy lemma.
 However, we first need to give the interpretation of ordinal ordering
 judgments.
 \begin{lem}\label("ordord")
-If the judgment $γ ⊢ τ₁ ≤_i τ₂$ is derivable and if for every syntactic
-ordinal $τ ∈ γ$ we have $⟦τ⟧ > 0$ then we have the following.
+If the judgment $γ ⊢ τ₁ ≤_i τ₂$ is derivable and for every syntactic
+ordinal $τ ∈ γ$, we have $⟦τ⟧ > 0$, then the following holds.
 \begin{itemize}
 \item If $i ≥ 0$ then $⟦τ₁⟧ + i ≤ ⟦τ₂⟧$,
 \item if $i ≤ 0$ then $⟦τ₁⟧ ≤ ⟦τ₂⟧ + i$.
@@ -1865,7 +1865,7 @@ presented in the paper requires a very similar construction.
 (* *)
 After obtaining a notion of circular proofs, it would be possible to
 extend \theorem("uselessadequacy") so that it is proved by ordinal
-induction on the circular proofs, provided that they have been show
+induction on the circular proofs, provided that they have been shown
 well-founded. We do not go into the details here for lack of time as
 this is still a work in progress.
 
