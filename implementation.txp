@@ -72,7 +72,7 @@ for the global (fully applied) expression. For example, the expression
 ##rapp## (reversed application) given above has the sort ##τ→τ→τ##, and
 to be used as an element of sort ##τ## it needs to be provided with two
 arguments of sort ##τ## as in the definition of ##omega##. Of course, any
-term of sort ##ι## also has sort ##τ## and the sort of expression can be
+term of sort ##ι## also has sort ##τ## and the sort of expressions can be
 inferred most of the time (i.e., it does not always have to be provided
 by the user).
 
@@ -226,59 +226,68 @@ val true_pair : ∀a b, ∀p∈pair<a,b>, ∃x y:ι, p ≡ {fst = x ; snd = y} =
 =<
 => Booleans and tautologies
 
-After defining the (one element) ##unit## type in the previous section,
-we will now consider the (two elements) type of booleans. It can be encoded
-as usual using a polymorphic variant type as follows.
+After defining the (one element) ##{}## (or ##unit##) type in the previous
+section, we will now consider the (two elements) type of booleans. It can
+be encoded as usual using a polymorphic variant type as follows.
 ### PML "examples/bool.pml"
-type bool = [Fls of unit ; Tru of unit]
-// type bool = [Fls ; Tru]
+type boolean = [False of {}; True of {}]
+// type boolean = [False; True]
 ###
 Note that our variants need to have exactly one argument, which will here
-be ##unit## on both the ##Tru## and ##Fls## constructors. It would be the
-case implicitly if no argument type was provided.
+be ##{}## on both the ##True## and ##False## constructors. However, if
+no argument type is specified, then ##{}## is used implicitly.
 
 In practice, booleans are often used together with conditional structures.
-In our language, there are several (non-equivalent) ways of defining them.
-A first possibility would be to define a condition function with three
-arguments as follows.
+There are several (non-equivalent) ways of defining them in our language.
+A first possibility is to define a condition function with three arguments
+as follows.
 ### PML "examples/bool.pml"
-val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
-  case c { Tru[_] → e1 | Fls[_] → e2 }
+val cond_fun : ∀ a, boolean ⇒ a ⇒ a ⇒ a =
+  fun c e1 e2 { case c { True → e1 | False → e2 } }
 ###
 However, this function leads to both the expressions for the "then" and
-"else" branch to be evaluated, before a choice is made. This is not the
+"else" branches to be evaluated, before a choice is made. This is not the
 semantics that is expected in practice, as it would be rather inefficient.
 
-In our language, we can encode the usual "if ... then ... else ..."
-construct using the definition of a term macro ##cond## with three term
-arguments. This is made possible by the higher-order features of our
-language.
+In our language, we can encode the usual conditional structures using a
+term macro ##cond##, with three term arguments. This is made possible by
+the higher-order features of our language.
 ### PML "examples/bool.pml"
 def cond<c:τ, e1:τ, e2:τ> : τ =
-  case c { Tru[_] → e1 | Fls[_] → e2 }
+  case c { True → e1 | False → e2 }
 ###
 Although such a macro is not typed at the time of its definition (it is
 only given a sort), it is expanded and type-checked each time it is used.
 For instance, ##cond## can be used to define the following alternative
 definition of ##cond_fun##.
 ### PML "examples/bool.pml"
-val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a = fun c e1 e2 →
-  cond<c, e1, e2>
+val cond_fun : ∀ a, boolean ⇒ a ⇒ a ⇒ a =
+  fun c e1 e2 { cond<c, e1, e2> }
 ###
-Note that in the syntax of our prototype, the syntactic sugar
-##if c { e1 } else { e2 }## is immediately translated to
-##cond<c, e1, e2>## according to the definition given above.
-
-Note that the definition of similar macros can be used for defining
-conjunction and disjunction operators having the expected (lazy)
-semantics. This feature is in fact useful in many ways, we will see
-in a further section that it can even be used to encode proof tactics.
+In the following, we will prefer using the built-in ##bool## type, rather
+that the ##boolean## type defined above. Although they are completely
+equivalent, only the ##bool## type will allow us to use the syntax for
+conditional structures. For example, the following definition of
+##cond_fun## can be given for ##bool##.
 ### PML "examples/bool.pml"
-def land<b1:τ,b2:τ> =
-  case b1 { Tru[_] → b2 | Fls[_] → Fls }
+val cond_fun : ∀ a, bool ⇒ a ⇒ a ⇒ a =
+  fun c e1 e2 { if c { e1 } else { e2 } }
+###
+It is exactly equivalent to the one using the ##boolean## type. The only
+difference lies in the name of the constructors, which are hidden to the
+user in the ##bool## type. Only the conditional structures and the usual
+boolean constants can be accessed by the user.
 
-def lor<b1:τ,b2:τ> =
-  case b1 { Tru[_] → Tru | Fls[_] → b2 }
+The definition of higher-order macros similar to ##cond## is also required
+to define conjunction and disjunction operators having the expected (lazy)
+semantics. This feature is in fact useful in many ways, we will see in a
+further section that it can even be used to encode proof tactics.
+### PML "examples/bool.pml"
+def land<b1:τ, b2:τ> =
+  if b1 { b2 } else { false }
+
+def lor<b1:τ, b2:τ> =
+  if b1 { true } else { b2 }
 ###
 
 Before going further, we are going to define a set of usual boolean
@@ -286,27 +295,19 @@ operators. We will then prove that they behave as expected in the
 system.
 ### PML "examples/bool.pml"
 val not : bool ⇒ bool =
-  fun a { case a { Fls[_] → Tru | Tru[_] → Fls } }
+  fun a { if a { false } else { true } }
 
-val or  : bool ⇒ bool ⇒ bool = fun a b → lor <a, b>
-val and : bool ⇒ bool ⇒ bool = fun a b → land<a, b>
-val imp : bool ⇒ bool ⇒ bool = fun a b → lor <not a, b>
-
-val xor : bool ⇒ bool ⇒ bool =
-  fun a b {
-    case a {
-      Fls[_] → case b { Fls[_] → Fls | Tru[_] → Tru }
-      Tru[_] → case b { Fls[_] → Tru | Tru[_] → Fls }
-    }
-  }
-
-val eq : bool ⇒ bool ⇒ bool = fun a b → xor a (not b)
+val or  : bool ⇒ bool ⇒ bool = fun a b { lor<a, b> }
+val and : bool ⇒ bool ⇒ bool = fun a b { land<a, b> }
+val imp : bool ⇒ bool ⇒ bool = fun a b { lor<not a, b> }
+val xor : bool ⇒ bool ⇒ bool = fun a b { if a { not b } else { b } }
+val eq  : bool ⇒ bool ⇒ bool = fun a b { xor a (not b) }
 ###
 We will now consider the law of the excluded middle (on booleans). It can
 be stated and proved as follows in the system.
 ### PML "examples/bool.pml"
-val excl_mid : ∀x∈bool, or x (not x) ≡ Tru =
-  fun b { case b { Fls[_] → {} | Tru[_] → {} } }
+val excl_mid : ∀x∈bool, or x (not x) ≡ true =
+  fun b { if b { {} } else { {} } }
 ###
 \begin{rem}
 The law of the excluded middle on booleans is not to be confused with the
@@ -321,28 +322,23 @@ were only two cases. This will not be the case anymore when considering
 properties with more parameters. For example, let us consider the
 reflexivity, commutativity of the ##eq## function.
 ### PML "examples/bool.pml"
-val eq_refl : ∀a∈bool, eq a a ≡ Tru =
-  fun a { case a { Fls[_] → {} | Tru[_] → {} } }
+val eq_refl : ∀a∈bool, eq a a ≡ true =
+  fun a { if a { {} } else { {} } }
 
 val eq_comm : ∀a b∈bool, eq a b ≡ eq b a =
   fun a b {
-    case a {
-      Fls[_] → case b { Tru[_] → {} | Fls[_] → {} }
-      Tru[_] → case b { Tru[_] → {} | Fls[_] → {} }
-    }
+    if a { if b { {} } else { {} } }
+    else { if b { {} } else { {} } }
   }
 
 val eq_asso : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) =
   fun a b c {
-    case a {
-      Fls[_] → case b {
-                  Tru[_] → case c { Tru[_] → {} | Fls[_] → {} }
-                  Fls[_] → case c { Tru[_] → {} | Fls[_] → {} }
-                }
-      Tru[_] → case b {
-                  Tru[_] → case c { Tru[_] → {} | Fls[_] → {} }
-                  Fls[_] → case c { Tru[_] → {} | Fls[_] → {} }
-                } 
+    if a {
+      if b { if c { {} } else { {} } }
+      else { if c { {} } else { {} } }
+    } else {
+      if b { if c { {} } else { {} } }
+      else { if c { {} } else { {} } }
     }
   }
 ###
@@ -355,12 +351,14 @@ def auto1<a:τ>           : τ = if a { {} } else { {} }
 def auto2<a:τ, b:τ>      : τ = if a { auto1<b> } else { auto1<b> }
 def auto3<a:τ, b:τ, c:τ> : τ = if a { auto2<b,c> } else { auto2<b,c> }
 
-val eq_refl_auto : ∀a∈bool, eq a a ≡ Tru = fun a → auto1<a>
+val eq_refl_auto : ∀a∈bool, eq a a ≡ true =
+  fun a { auto1<a> }
 
-val eq_comm_auto : ∀a b∈bool, eq a b ≡ eq b a = fun a b → auto2<a,b>
+val eq_comm_auto : ∀a b∈bool, eq a b ≡ eq b a =
+  fun a b { auto2<a,b> }
 
 val eq_asso_auto : ∀a b c∈bool, eq (eq a b) c ≡ eq a (eq b c) =
-  fun a b c → auto3<a,b,c>
+  fun a b c { auto3<a,b,c> }
 ###
 
 =<
@@ -377,7 +375,7 @@ type rec nat = [Zero ; Succ of nat]
 val rec add : nat ⇒ nat ⇒ nat =
   fun n m {
     case n {
-      Zero[_] → m
+      Zero    → m
       Succ[k] → Succ[add k m]
     }
   }
@@ -385,7 +383,7 @@ val rec add : nat ⇒ nat ⇒ nat =
 val rec mul : nat ⇒ nat ⇒ nat =
   fun n m {
     case n {
-      Zero[_] → Zero
+      Zero    → Zero
       Succ[k] → add m (mul k m)
     }
   }
@@ -467,8 +465,8 @@ As an example, we will prove the totality of the ##add## function.
 val rec add_total : ∀n m∈nat, ∃v:ι, add n m ≡ v =
   fun n m {
     case n {
-      Zero[_] → {}
-      Succ[k] → let ih = add_total k m in {}
+      Zero    → {}
+      Succ[k] → let ih = add_total k m; {}
     }
   }
 ###
@@ -479,7 +477,7 @@ val rec add_asso : ∀n m p∈nat, add n (add m p) ≡ add (add n m) p =
   fun n m p {
     let tot_m_p = add_total m p;
     case n {
-      Zero[_] → {}
+      Zero    → {}
       Succ[k] → let tot_k_m = add_total k m;
                  let ih = add_asso k m p; {}
     }
@@ -497,7 +495,7 @@ are harder to read.
 val rec mul_n_zero : ∀n∈nat, mul n Zero ≡ Zero =
   fun n {
     case n {
-      Zero[_] → {}
+      Zero    → {}
       Succ[k] → let ih = mul_n_zero k; {}
     }
   }
@@ -506,8 +504,8 @@ val rec mul_total : ∀n m∈nat, ∃v:ι, mul n m ≡ v =
   fun n m {
     case n {
       Zero    → {}
-      Succ[k] → let ih = mul_total k m in
-                 let lem = add_total m (mul k m) in {}
+      Succ[k] → let ih = mul_total k m;
+                 let lem = add_total m (mul k m); {}
     }
   }
 
@@ -515,12 +513,12 @@ val rec mul_succ : ∀n m∈nat, mul n Succ[m] ≡ add (mul n m) n =
   fun n m {
     case n {
       Zero    → {}
-      Succ[k] → let lem = mul_succ k m in
-                 let tot = mul_total k m in
-                 let tot = add_total m (mul k m) in
-                 let lem = add_succ (add m (mul k m)) k in
-                 let lem = add_asso m (mul k m) k in
-                 let tot = mul_total k Succ[m] in {}
+      Succ[k] → let lem = mul_succ k m;
+                 let tot = mul_total k m;
+                 let tot = add_total m (mul k m);
+                 let lem = add_succ (add m (mul k m)) k;
+                 let lem = add_asso m (mul k m) k;
+                 let tot = mul_total k Succ[m]; {}
     }
   }
 ###
@@ -530,11 +528,11 @@ induction, using each of the above lemmas.
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m {
     case n {
-      Zero    → let lem = mul_n_zero m in {}
-      Succ[k] → let ih  = mul_comm m k in
-                 let lem = mul_succ m k in
-                 let tot = mul_total k m in
-                 let lem = add_comm (mul k m) m in {}
+      Zero    → let lem = mul_n_zero m; {}
+      Succ[k] → let ih  = mul_comm m k;
+                 let lem = mul_succ m k;
+                 let tot = mul_total k m;
+                 let lem = add_comm (mul k m) m; {}
     }
   }
 ###
@@ -548,17 +546,16 @@ below another version of ##mul_comm## annotated in this way.
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m {
     case n {
-      Zero    → let ded : mul Zero m ≡ Zero = {} in
-                 let lem : mul m Zero ≡ Zero = mul_n_zero m in {}
-      Succ[k] → let ded : mul Succ[k] m ≡ add m (mul k m) = {} in
-                 let ih  : mul k m ≡ mul m k = mul_comm k m in
+      Zero    → let ded : mul Zero m ≡ Zero = {};
+                 let lem : mul m Zero ≡ Zero = mul_n_zero m; {}
+      Succ[k] → let ded : mul Succ[k] m ≡ add m (mul k m) = {};
+                 let ih  : mul k m ≡ mul m k = mul_comm k m;
                  let lem : mul m Succ[k] ≡ add (mul m k) m =
-                   mul_succ m k
-                 in
-                 let tot : (∃v:ι, mul k m ≡ v) = mul_total k m in
+                   mul_succ m k;
+                 let tot : (∃v:ι, mul k m ≡ v) = mul_total k m;
                  let lem : add (mul k m) m ≡ add m (mul k m) =
-                   add_comm (mul k m) m
-                 in {}
+                   add_comm (mul k m) m;
+                 {}
     }
   }
 ###
@@ -589,7 +586,7 @@ a dummy redex.
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m {
     case n {
-      Zero[_] →
+      Zero    →
         t_deduce<mul Zero m ≡ Zero>;
         t_show<mul m Zero ≡ Zero, mul_n_zero m>
       Succ[k] →
@@ -607,7 +604,7 @@ of our language to obtain the following, very satisfactory proof.
 val rec mul_comm : ∀n m∈nat, mul n m ≡ mul m n =
   fun n m {
     case n {
-      Zero[_] →
+      Zero    →
         deduce mul Zero m ≡ Zero;
         show mul m Zero ≡ Zero using mul_n_zero m
       Succ[k] →
@@ -654,13 +651,13 @@ given below.
 val rec map : ∀a b:ο, (a ⇒ b) ⇒ list<a> ⇒ list<b> =
   fun f l {
     case l {
-      Nil[_]  → Nil
+      Nil     → Nil
       Cons[c] → Cons[{hd = f c.hd; tl = map f c.tl}]
     }
   }
 
-val rec length : ∀a:ο, list<a> ⇒ nat = fun l →
-  case l { Nil[_]  → Zero | Cons[c] → Succ[length c.tl] }
+val rec length : ∀a:ο, list<a> ⇒ nat =
+  fun l { case l { Nil → Zero | Cons[c] → Succ[length c.tl] } }
 ###
 The ##map## function applies the function given as first argument to
 all the elements of the list given as second argument. The ##length##
@@ -677,7 +674,7 @@ val rec map_total : ∀a b:ο, ∀f∈(a ⇒ b), total<f,a>
                     ⇒ ∀l∈list<a>, ∃v:ι, map f l ≡ v =
   fun fn ft ls {
     case ls {
-      Nil[_]  → {}
+      Nil     → {}
       Cons[c] → let lem = ft c.hd;
                  let ih  = map_total fn ft c.tl; {}
     }
@@ -686,7 +683,7 @@ val rec map_total : ∀a b:ο, ∀f∈(a ⇒ b), total<f,a>
 val rec length_total : ∀a:ο, ∀l∈list<a>, ∃v:ι, v ≡ length l =
   fun l {
     case l {
-      Nil[_]  → {}
+      Nil     → {}
       Cons[c] → let ind = length_total c.tl; {}
     }
   }
@@ -698,7 +695,7 @@ composition of the two functions. To do so, we will first need to show
 that the composition of two total functions is itself total.
 ### PML "examples/unat.pml"
 val compose_total : ∀a b c:ο, ∀f∈(a ⇒ b), ∀g∈(b ⇒ c),
-    total<f,a> ⇒ total<g,b> ⇒ total<(fun x → g (f x)), a> =
+    total<f,a> ⇒ total<g,b> ⇒ total<(fun x { g (f x) }), a> =
   fun f g ftot gtot a {
     show ∃v:ι, f a ≡ v using ftot a;
     show ∃w:ι, g (f a) ≡ w using gtot (f a)
@@ -709,12 +706,12 @@ induction together with our different totality results.
 ### PML "examples/unat.pml"
 val map_map : ∀a b c:ο, ∀f∈(a ⇒ b), ∀g∈(b ⇒ c),
     total<f,a> ⇒ total<g,b> ⇒
-    ∀l∈list<a>, map g (map f l) ≡ map (fun x → g (f x)) l =
+    ∀l∈list<a>, map g (map f l) ≡ map (fun x { g (f x) }) l =
   fun f g ftot gtot {
     fix fun map_map ls {
       case ls {
         Nil     → {}
-        Cons[c] → let hd = c.hd in let tl = c.tl;
+        Cons[c] → let hd = c.hd; let tl = c.tl;
                    let tgf = compose_total f g ftot gtot hd;
                    let lem = ftot hd;
                    let lem = map_total f ftot tl;
@@ -805,12 +802,12 @@ list.
 val rec insert : ∀a:ο, ord<a> ⇒ a ⇒ list<a> ⇒ list<a> =
   fun o x l {
     case l {
-      Nil[_]  → Cons[{hd = x; tl = Nil}]
-      Cons[c] → let hd = c.hd in let tl = c.tl in
+      Nil     → Cons[{hd = x; tl = Nil}]
+      Cons[c] → let hd = c.hd; let tl = c.tl;
                  if o.cmp x hd {
                    Cons[{hd = x ; tl = l}]
                  } else {
-                   let tl = insert o x tl in
+                   let tl = insert o x tl;
                    Cons[{hd = hd ; tl = tl}]
                  }
     }
@@ -819,7 +816,7 @@ val rec insert : ∀a:ο, ord<a> ⇒ a ⇒ list<a> ⇒ list<a> =
 val rec isort : ∀a:ο, ord<a> ⇒ list<a> ⇒ list<a> =
   fun o l {
     case l {
-      Nil[_]  → Nil
+      Nil     → Nil
       Cons[c] → insert o c.hd (isort o c.tl)
     }
   }
@@ -835,12 +832,12 @@ ordering relation and a list, and indicating whether the list is sorted.
 val rec sorted : ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>, bool =
   fun o l {
     case l {
-      Nil[_]   → true
+      Nil      → true
       Cons[c1] →
-        let hd = c1.hd in let tl = c1.tl in
+        let hd = c1.hd; let tl = c1.tl;
         case tl {
-          Nil[_]   → true
-          Cons[c2] → let hd2 = c2.hd in
+          Nil      → true
+          Cons[c2] → let hd2 = c2.hd;
                       land<(o.cmp) hd hd2, sorted o tl>
         }
     }
@@ -864,11 +861,11 @@ val rec insert_total : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈list<a>,
                        ∃v:ι, insert o x l ≡ v =
   fun o x l {
     case l {
-      Nil[_]   → {}
-      Cons[c1] → let hd = c1.hd in let tl = c1.tl in
-                  let lem = o.tot x hd in
+      Nil      → {}
+      Cons[c1] → let hd = c1.hd; let tl = c1.tl;
+                  let lem = o.tot x hd;
                   if o.cmp x hd { {} }
-                  else { let ih = insert_total o x tl in {} }
+                  else { let ih = insert_total o x tl; {} }
     }
   }
 
@@ -876,9 +873,9 @@ val rec isort_total :  ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>,
                        ∃v:ι, isort o l ≡ v =
   fun o l {
     case l {
-      Nil[_]  → {}
-      Cons[c] → let ih  = isort_total o c.tl in
-                 let lem = insert_total o c.hd (isort o c.tl) in {}
+      Nil     → {}
+      Cons[c] → let ih  = isort_total o c.tl;
+                 let lem = insert_total o c.hd (isort o c.tl); {}
     }
   }
 ###
@@ -891,21 +888,21 @@ val rec isorted : ∀a:ο, ∀o∈ord<a>, ∀x∈a, ∀l∈slist<a,o>,
                   sorted o (insert o x l) ≡ true =
   fun o x l {
     case l {
-      Nil[_]   → {}
+      Nil      → {}
       Cons[c1] →
-        let lem = o.tot x c1.hd in
+        let lem = o.tot x c1.hd;
         if o.cmp x c1.hd { {} }
         else {
-          let lem = o.tot c1.hd x in
-          let lem = o.dis x c1.hd in
+          let lem = o.tot c1.hd x;
+          let lem = o.dis x c1.hd;
           case c1.tl {
-            Nil[_]   → {}
+            Nil      → {}
             Cons[c2] →
-              let lem = insert_total o x c2.tl in
-              let lem = o.tot c1.hd c2.hd in
-              let lem = o.tot x c2.hd in
+              let lem = insert_total o x c2.tl;
+              let lem = o.tot c1.hd c2.hd;
+              let lem = o.tot x c2.hd;
               if o.cmp c1.hd c2.hd {
-                let lem = isorted o x c1.tl in
+                let lem = isorted o x c1.tl;
                 if o.cmp x c2.hd { {} } else { {} }
               } else { ✂ }
           }
@@ -930,7 +927,7 @@ val rec isort_sorted : ∀a:ο, ∀o∈ord<a>, ∀l∈list<a>,
                        sorted o (isort o l) ≡ true =
   fun o l {
     case l {
-      Nil[_]  → {}
+      Nil     → {}
       Cons[c] → let lem = isort_total o c.tl;
                  let ind = isort_sorted o c.tl;
                  let lem = isorted o c.hd (isort o c.tl); {}
@@ -963,7 +960,7 @@ rely on the ##exists## function (given in \chapter("intro")).
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
   fun pred l {
     case l {
-      Nil[_]  → false
+      Nil     → false
       Cons[c] → if pred c.hd { true } else { exists pred c.tl }
     }
   }
@@ -979,7 +976,7 @@ val rec find : ∀a:ο, ∀pred∈(a ⇒ bool), total<pred,a> ⇒
                ∀l∈list<a>, neg<exists pred l ≡ false> ⇒ a =
   fun pred pred_tot l exc {
     case l {
-      Nil[_]  → exc {}
+      Nil     → exc {}
       Cons[c] → let lem = pred_tot c.hd;
                  if pred c.hd { c.hd }
                  else { find pred pred_tot c.tl exc }
@@ -1011,7 +1008,7 @@ val rec find_list : ∀a:ο, ∀pred∈(a ⇒ bool), total<pred,a> ⇒
                     list<list<a>> ⇒ option<a> =
   fun pred pred_tot l {
     case l {
-      Nil[_]  → none
+      Nil     → none
       Cons[c] →
         save a {
           some (find pred pred_tot c.hd
