@@ -238,10 +238,10 @@ relations are similar to $({≡}_{≻})$, which is itself undecidable.
 Given $t$, $u ∈ Λ$ it is undecidable whether $t ≡_{≻} u$ or
 $t \nequiv_{≻} u$.
 \begin{proof}
-We are going to encode the halting problem $H_t$ using equivalence. In
-our system, $H_t$ can be stated as ${\p{t ∗ ε}} {⇓}_{≻}$ for any closed
-term $\t{t} ∈ Λ^{∗}$. Let us consider a closed term $Ω ∈ Λ^{∗}$ such
-that ${\p{Ω∗π}} {⇑}_{≻}$ for all $π ∈ Π$. For example, we can take
+We are going to encode the halting problem $H_t$ using equivalence. Given a
+closed term $\t{t} ∈ Λ^{∗}$, $H_t$ can be stated as ${\p{t ∗ ε}} {⇓}_{≻}$
+in our system. Let us consider a closed term $Ω ∈ Λ^{∗}$ such that
+${\p{Ω∗π}} {⇑}_{≻}$ for all $π ∈ Π$. For example, we can take
 $Ω = \t{(λx x x) λx x x}$ as $\p{Ω∗π}$ is non-terminating for all $π∈Π$
 since $\p{Ω∗π} ≻^3 \p{Ω∗π}$. We will now show that $H_t$
 is equivalent to ${\t{[ε]t} \nequiv_{≻} \t{Ω}}$. Let us suppose $H_t$ and
@@ -251,8 +251,8 @@ true for all $π$ as ${\p{Ω ∗ π}} {⇑}_{≻}$ by hypothesis and
 ${\p{[ε]t ∗ π}} ≻ {\p{t ∗ ε}} {⇓}_{≻}$ since we supposed $H_t$. We now
 suppose ${\t{[ε]t} \nequiv_{≻} \t{Ω}}$ and show $H_t$. By definition,
 there must be a stack $\s{π₀} ∈ Π$ such that ${\p{[ε]t ∗ π₀}} {⇓}_{≻}$
-since ${\p{Ω ∗ π}} {⇑}_{≻}$ for all $π ∈ Π$. Now since we have
-${\p{[ε]t ∗ π₀}} ≻ {\p{t ∗ ε}}$ we obtain $H_t$.
+since ${\p{Ω ∗ π}} {⇑}_{≻}$ for all $π ∈ Π$. Since
+${\p{[ε]t ∗ π₀}} ≻ {\p{t ∗ ε}}$, we immediately obtain $H_t$.
 \end{proof}
 \end{thm}
 As a consequence, we cannot hope to decide, in general, whether an
@@ -262,7 +262,7 @@ procedure that will only approximate our observational equivalence relation.
 In the system, proving a program equivalence amounts to showing that the
 corresponding equality type is inhabited. However, an equivalence type
 may also be used as an assumption. For example, it is possible to define
-a function which input type is an equivalence. As a consequence, we need
+a function whose input type is an equivalence. As a consequence, we need
 a form of context to store the set of program equivalences that are
 assumed to be true during a proof. This context will also be extended
 automatically during the construction of a proof (e.g., when entering
@@ -398,7 +398,7 @@ $\cal{V}_σ$.
 \end{def}
 \begin{def}
 We require a countable set of variables $\cal{V} = \{χ, ξ, φ...\}$ containing
-the sets $\cal{V}_ι$, $\cal{V}_τ$, $\cal{V}_σ$ and $\cal{V}_ι$. Given a
+the sets $\cal{V}_ι$, $\cal{V}_τ$, $\cal{V}_σ$ and $\cal{V}_ο$. Given a
 variable $χ∈\cal{V}$, we will sometimes write $χ^s$ to mean that $χ$ is to
 be considered as a variable of sort $s$.
 \end{def}
@@ -559,7 +559,7 @@ two forms of contexts.
 \begin{def}
 Given a sorting context $Σ$, we say that a typing context $Γ$ is well-formed
 and write $Σ ⊢ Γ$ if for all $x ∈ dom(Γ) ∩ \cal{V}_ι$ we have $Σ ⊢ Γ(x) : ο$
-and $Σ ⊢ x : ι$, and for all $α ∈ dom(Δ) ∩ \cal{V}_σ$ we have $Σ ⊢ Γ(α) : ο$
+and $Σ ⊢ x : ι$, and for all $α ∈ dom(Γ) ∩ \cal{V}_σ$ we have $Σ ⊢ Γ(α) : ο$
 and $Σ ⊢ α : σ$.
 \end{def}
 \begin{def}
@@ -581,7 +581,7 @@ if and only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ v : ι$ and $Σ ⊢ A :
 \begin{def}
 A term judgement is a tuple of a typing context $Γ$, an equational
 context $Ξ$, a term $t ∈ Λ$ and a type $A ∈ \cal{F}$ that is denoted
-$Γ; Ξ ⊢ t : A; Δ$. We say that such a judgment is well-formed under
+$Γ; Ξ ⊢ t : A$. We say that such a judgment is well-formed under
 the sorting context $Σ$, and we write $Σ \sp Γ; Ξ ⊢ t : A$, if and
 only if we have $Σ ⊢ Γ$, $Σ ⊢ Ξ$, $Σ ⊢ t : τ$ and $Σ ⊢ A : ο$.
 \end{def}
@@ -605,12 +605,12 @@ and $Ξ$ or in $t$. This would prevent the conclusion judgment to be
 well-formed.
 \end{rem}
 
-As our system is call-by-value and has effect, the $∀_i$ rule needs value
+As our system is call-by-value and has effects, the $∀_i$ rule needs value
 restriction to remain sound. In our formalism, this means that the $∀_i$
 rule only applies to value judgments. The $∈_i$ rule requires value
 restriction as well, as otherwise the system cannot be proved sound. As
 the $∈_i$ rule will be involved in the derivation of the typing rule for
-the elimination of the dependent function type at the begining of
+the elimination of the dependent function type at the beginning of
 \chapter("semValRest"), the latter will also need value restriction.
 
 =<
@@ -671,7 +671,7 @@ when proving the soundness of our type system.
 If $Φ ⊆ Λ_ι^{∗}$ is a set of values, then $Φ ⊆ Φ^{⊥⊥}$.
 \begin{proof}
 We take $v ∈ Φ$ and show $v ∈ Φ^{⊥⊥}$. By definition we need to
-show $\p{v∗π} ∈ \dbot$ for all stack $π ∈ Φ^⊥$. This is immediate
+show $\p{v∗π} ∈ \dbot$ for all stacks $π ∈ Φ^⊥$. This is immediate
 by definition of $Φ^⊥$.
 \end{proof}
 \end{lem}
