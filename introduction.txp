@@ -563,7 +563,7 @@ are not values in dependent applications. Similarly, the $F^{★}$ language
 \cite("Swamy2011") relies on (partial) let-normal forms to enforce values
 in argument position. Daniel Licata and Robert Harper have defined a notion
 of positively dependent types \cite("Licata2009") which only allow dependency
-over strictly positive types. Finally, in languages like ATS \cite("Xi2004")
+over strictly positive types. Finally, in languages like ATS \cite("Xi2003")
 and DML \cite("Xi1999") dependencies are limited to a specific index
 language.
 

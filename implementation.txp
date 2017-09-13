@@ -278,10 +278,11 @@ difference lies in the name of the constructors, which are hidden to the
 user in the ##bool## type. Only the conditional structures and the usual
 boolean constants can be accessed by the user.
 
-The definition of higher-order macros similar to ##cond## is also required
-to define conjunction and disjunction operators having the expected (lazy)
-semantics. This feature is in fact useful in many ways, we will see in a
-further section that it can even be used to encode proof tactics.
+Higher-order macros similar to ##cond## can also be used to obtain
+conjunction and disjunction operators having the expected (lazy)
+semantics. This feature is in fact useful in many ways, we will see
+in a further section that it can even be used to encode a form of
+proof tactics.
 ### PML "examples/implem.pml"
 def land<b1:τ, b2:τ> =
   if b1 { b2 } else { false }
@@ -902,7 +903,9 @@ val rec isorted :
               if o.cmp c1.hd c2.hd {
                 let lem = isorted o x c1.tl;
                 if o.cmp x c2.hd { {} } else { {} }
-              } else { ✂ }
+              } else {
+                ✂
+              }
           }
         }
     }
@@ -1025,7 +1028,7 @@ Note that the recursive call of ##find_list## is done inside the
 exception handler provided to ##find##.
 
 =<
-=> Classical infinite tape lemma on streams
+=> An infinite tape lemma on streams
 
 To conclude this chapter, we will consider an example of program that can
 only be written in a classical setting (i.e., with control operators). We
@@ -1128,8 +1131,11 @@ val itl : stream<nat> ⇒ [InL of stream<even>; InR of stream<odd>] =
   }
 ###
 This function starts by saving two continuations, corresponding to
-the ##InL## and ##InR## constructors of the return type, and then
-calls ##itl_aux## on the input stream.
+the constructors ##InL## and ##InR## of the return type, and then
+calls ##itl_aux## on the input stream. The very fact that we can
+write ##itl## proves that it is possible to extract an stream of
+odd numbers or a stream of even numbers from any stream of natural
+number.
 
 =<
 =<

@@ -809,7 +809,7 @@ As a consequence, it must be that $v ≡ w$.
 \begin{thm}\label("canonrecord")
 Let $I$ be a finite set of indices such that $v_i ∈ Λ_ι$ for all $i∈I$,
 and let $w ∈ Λ_ι$ be a value. The equivalence $\v{{(li = vi) i∈I}} ≡ w$
-holds if and only if $w = \v{{(li = wi) i∈I}}$ for some values
+holds if and only if we have $w = \v{{(li = wi) i∈I}}$ for some values
 $\v{wi} ∈ Λ_ι$ such that $\v{wi} ≡ \v{vi}$ for all $i∈I$.
 \begin{proof}
 Let us first assume that $w = \v{{(li = wi) i∈I}}$ with
