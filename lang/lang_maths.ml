@@ -155,6 +155,10 @@ and  subs2m : subs -> Maths.math list =
   in
   function
   | SubCm(s1,s2) -> (str "(") @ (bin' 3 "∘" (subs2m s1, subs2m s2)) @ (str ")")
+  | SubIv(s)     -> let n = Maths.node (Maths.glyphs (fst s)) in
+                    assert (snd s = None);
+                    let superscript_right = str "-1" in
+                    [Maths.Ordinary {n with superscript_right}]
   | SubsV(s,e)   -> (subs2m s) @ aux v2m e
   | SubsT(s,e)   -> (subs2m s) @ aux t2m e
   | SubsS(s,e)   -> (subs2m s) @ aux s2m e

@@ -195,6 +195,7 @@ and equa   =
   | x:posvari                         -> Or(x)
 and        subs =
   | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)
+  | s:subsm "⁻¹"                                        -> SubIv(s)
   | s:subsm                                             -> SubsM(s)
   | s:subs?[NoSub] '[' v:(vsub vvari  (valu VComp)) ']' -> SubsV(s,v)
   | s:subs?[NoSub] '[' t:(vsub tvari  (term TAppl)) ']' -> SubsT(s,t)

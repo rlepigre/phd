@@ -1,7 +1,6 @@
 - "full-fledged ML-like", pas vraiment car pas de refs (Alex)
 - Ajouter des "et al." dans les clés de citation à plusieurs auteurs.
 - Aligner vraiment en mode verbatim (unicode).
-- Ajouter les urls de tous les papiers.
 - Écrire un résumé substantiel en français.
 - Algo used to check the correctness of the proofs? (Fred Blanqui)
 - Why is the totality of f and g required in map_map? (Fred Blanqui)

@@ -71,6 +71,7 @@ and  ctxt =
   | CAppR of term * ctxt               (* t E    *)
 and  subs =
   | SubCm of subs * subs               (* (ρ₁.ρ₂) *)
+  | SubIv of vari                      (* ρ⁻¹     *)
   | SubsV of subs * valu vsub          (* σ[x≔v]  *)
   | SubsT of subs * term vsub          (* σ[a≔t]  *)
   | SubsS of subs * stac vsub          (* σ[α≔π]  *)
