@@ -286,7 +286,7 @@ conditions.
       $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗} p$,
       then $t ≡ u$.
 \item Let $t₁$, $t₂$ be arbitrary terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$.
-      If there is $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+      If there is a closed term $u∈Λ^{∗}$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
       $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$, then
       $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ implies $v₁ ≡ v₂$ for all $v₁$,
       $v₂∈Λ_ι$.
@@ -317,7 +317,6 @@ a common reduct $p₀$ of $\p{t ∗ π₀σ}$ and $\p{u ∗ π₀σ}$. We can th
 use \lemRef("redcompatall") to conclude, since it gives us
 $\p{tρ₀ ∗ π₀} = \p{(t ∗ π₀σ)(ρ₀ ∘ σ⁻¹)} ≻^{∗} \p{p₀(ρ₀ ∘ σ⁻¹)}$ and
 $\p{uρ₀ ∗ π₀} = \p{(u ∗ π₀σ)(ρ₀ ∘ σ⁻¹)} ≻^{∗} \p{p₀(ρ₀ ∘ σ⁻¹)}$.
-
 (*
 == EXAMPLE ===============================
 p =  x[x≔{}]      ∗  x.ε
@@ -329,23 +328,22 @@ tρ₀ ∗ π₀ = (tρ₀ ∗ π₀σ)σ⁻¹ = (t ∗ π₀σ)ρ₀σ⁻¹
 *)
 
 Let us now prove the third condition. We take $t₁$, $t₂∈Λ$ and we suppose
-that we have $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
+that we have $u∈Λ^{∗}$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
 $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$. Let us
 take $v₁$, $v₂∈Λ_ι$ such that $v₁ \nequiv_{≻} v₂$ and show that
 $\t{t₁[x≔v₁]} \nequiv_{≻} \t{t₂[x≔v₂]}$. By definition we know
-that there is $π∈Π$ and $ρ∈\cal{S}$ such that ${\p{v₁ρ∗π}} {⇓}_{≻}$
-and ${\p{v₂ρ∗π}} {⇑}_{≻}$ (up to symmetry). We need to find $π₀∈Π$ and
-$ρ₀∈\cal{S}$ such that ${\p{(t₁[x≔v₁])ρ₀∗π₀}} {⇓}_{≻}$ and
-${\p{(t₂[x≔v₂])ρ₀∗π₀}} {⇑}_{≻}$. We will now show that $π₀ = \s{[u]π}$
-and $ρ₀ = ρ$ are suitable. By hypothesis, we know that
-$\p{t₁[x≔v₁]∗[u]π} ≻^{∗} \p{v₁∗π}$ and that
-$\p{t₂[x≔v₂]∗[u]π} ≻^{∗} \p{v₂∗π}$. We then obtain
-$\p{(t₁[x≔v₁])ρ∗[u]π} = \p{(t₁[x≔v₁]∗[u]π)ρ} ≻^{∗}
-\p{(v₁∗π)ρ} = {\p{v₁ρ∗π}} {⇓}_{≻}$ and $\p{(t₂[x≔v₂])ρ∗[u]π} =
-\p{(t₂[x≔v₂]∗[u]π)ρ} ≻^{∗} \p{(v₂∗π)ρ} = {\p{v₂ρ∗π}} {⇑}_{≻}$
-using \lemRef("redcompatall"). Note that we may assume $\t{uρ} = u$ and
-$\s{πρ} = π$ as we are free to rename the variables bound by $ρ$ in
-$\t{(t₁[x≔v₁])ρ}$ and $\t{(t₂[x≔v₂])ρ}$.
+that there is $π₀∈Π$ and $ρ₀∈\cal{S}$ such that ${\p{v₁ρ₀∗π₀}} {⇓}_{≻}$
+and ${\p{v₂ρ₀∗π₀}} {⇑}_{≻}$ (up to symmetry). We need to find $π₁∈Π$ and
+$ρ₁∈\cal{S}$ such that ${\p{(t₁[x≔v₁])ρ₁∗π₁}} {⇓}_{≻}$ and
+${\p{(t₂[x≔v₂])ρ₁∗π₁}} {⇑}_{≻}$. We consider a renaming substitution $σ$
+mapping the free variable of $π₀$ to distinct fresh variables, and we
+denote $\subs{σ⁻¹}$ its inverse. We will now show that $π₁ = \s{[u]π₀σ}$
+and $ρ₁ = ρ₀ ∘ σ^{-1}$ are suitable. According to our main hypothesis,
+we have $\p{t₁[x≔v₁]∗π₁} ≻^{∗} \p{v₁∗π₀σ}$ and $\p{t₂[x≔v₂]∗π₁} ≻^{∗}
+\p{v₂∗π₀σ}$. We can thus use \lemRef("redcompatall") to conclude with
+$\p{(t₁[x≔v₁])ρ₀∗[u]π₀} = \p{(t₁[x≔v₁]∗π₁)ρ₁} ≻^{∗} \p{(v₁∗π₀σ)ρ₁} =
+{\p{v₁ρ₀∗π₀}} {⇓}_{≻}$, and similarly $\p{(t₂[x≔v₂])ρ₀∗π₀} ≻^{∗}
+{\p{v₂ρ₀∗π₀}} {⇑}_{≻}$.
 \end{proof}
 \end{thm}
 
@@ -714,9 +712,9 @@ variants are not equivalent. We will here need to rely on the third
 property of compatible equivalences (\defRef("defcompat")), that is
 recalled below as a lemma.
 \begin{lem}\label("compatprop3")
-Let $t₁$, $t₂$ be two arbitrary terms such that $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$.
-If there is $u∈Λ$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ and
-$\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$, then
+Let $t₁$, $t₂$ be two arbitrary terms with $x ∈ FV_ι(t₁) ∩ FV_ι(t₂)$. If
+there is a closed term $u∈Λ^{∗}$ such that $\p{t₁[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$
+and $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$ for all $v∈Λ_ι$ and $π∈Π$, then
 $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ implies $v₁ ≡ v₂$ for all $v₁$, $v₂∈Λ_ι$.
 \begin{proof}
 By definition of a compatible equivalence.
