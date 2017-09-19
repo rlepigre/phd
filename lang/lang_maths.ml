@@ -6,7 +6,7 @@ open Lang_ast
 type maths = Maths.math list
 
 let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
-let asana n i = [Maths.Ordinary (Maths.node (MathFonts.asana n i))]
+let asana n i = [Maths.Ordinary (Maths.node (Maths.asana n i))]
 let bin p n (l, r) =
   [bin p (Normal(false, Maths.node n, false)) l r]
 let bin' p n c = bin p (Maths.glyphs n) c
@@ -28,7 +28,7 @@ let vari2m (s, io) =
 
 let subst2bin s (l,r) =
   let b =
-    if s then MathFonts.asana "\\defeq" 798
+    if s then Maths.asana "\\defeq" 798
     else Maths.glyphs "←"
   in
   bin 2 b (l, r)
@@ -63,11 +63,11 @@ let semantic_brackets : Maths.math list -> Maths.math list = fun ms ->
   r @ ms @ r
   *)
   let l =
-    MathFonts.fix_asana_delimiters "\\left_white_square_bracket"
+    Maths.fix_asana_delimiters "\\left_white_square_bracket"
       [3320; 3321; 3322; 3323]
   in
   let r =
-    MathFonts.fix_asana_delimiters "\\left_white_square_bracket"
+    Maths.fix_asana_delimiters "\\left_white_square_bracket"
       [3324; 3325; 3326; 3327]
   in
   [Maths.Decoration (Maths.open_close l r, ms)]
@@ -250,19 +250,19 @@ and f2m : form -> Maths.math list = function
                       begin
                         match a with
                         | None   -> eq
-                        | Some a -> let sep = MathFonts.euler "↾" 248 in
+                        | Some a -> let sep = Maths.euler "↾" 248 in
                                     bin 2 sep (f2m a, eq)
                       end
-  | FRest(a,Or(g))  -> let sep = MathFonts.euler "↾" 248 in
+  | FRest(a,Or(g))  -> let sep = Maths.euler "↾" 248 in
                        begin
                          match a with
                          | None   -> assert false
                          | Some a -> bin 2 sep (f2m a, vari2m g)
                        end
   | FImpl(Eq(t,u),a)-> let eq = bin' 2 "≡" (t2m t, t2m u) in
-                       let sep = MathFonts.euler "↪" 245 in
+                       let sep = Maths.euler "↪" 245 in
                        bin 2 sep (eq, f2m a)
-  | FImpl(Or(g),a)  -> let sep = MathFonts.euler "↪" 245 in
+  | FImpl(Or(g),a)  -> let sep = Maths.euler "↪" 245 in
                        bin 2 sep (vari2m g, f2m a)
   | FASub(s,x)      -> (subs2m s) @ (str "(") @ (vari2m x) @ (str ")")
   | FWitn(x,so,t,m,b) ->
@@ -275,4 +275,3 @@ and f2m : form -> Maths.math list = function
                       let n = [Maths.Ordinary {n with subscript_right}] in
                       let s = if not m then "∈" else "∉" in
                       n @ (str "(") @ (bin' 2 s (t2m t, f2m b)) @ (str ")")
-

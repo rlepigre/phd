@@ -77,7 +77,7 @@ let r91 =
   << $\ternaryR{Σ ⊢ A : ο}{Σ ⊢ t : τ}{Σ ⊢ u : τ}{Σ ⊢ \f{A ∧ t≡u} : ο}$ >>
 
 let rs env =
-  (* let env = resize_env 3.4 env in *)
+  (* let env = envSize 3.4 env in *)
   let rs =
     [ [ r11 ; r12 ; r13 ] ; [ r14 ; r21 ; r22 ] ; [ r23 ; r31 ; r32 ]
     ; [ r33 ; r41 ]       ; [ r42 ; r44 ; r51 ] ; [ r52 ; r53 ; r61 ]
@@ -181,7 +181,7 @@ let r_eq_it =
    {Σ \sp Γ[a≔u₂];Ξ ⊢_\tval \v{v[a≔u₂]} : \f{A[a≔u₂]}}$>
 
 let rs env =
-  let env = resize_env 3.2 env in
+  let env = envSize 3.2 env in
   let rs =
     [ [r_ax;r_arrow_i] ; [r_up;r_arrow_e] ; [r_mu;r_name]
     ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
@@ -985,7 +985,7 @@ $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. If $ρ$ is a valuation over $Σ$ and 
 $v₁ρ ≡ v₂ρ$ then we have $\vs{Aρ[x≔v₁ρ]} = \vs{Aρ[x≔v₂ρ]}$.
 \begin{proof}
 According to \thmRef("sortsem"), we have $⟦v₁ρ⟧ = v₁ρ ∈ ⟦ι⟧$ and
-$⟦v₂ρ⟧ = v₂ρ ∈ ⟦ι⟧$ since we have $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$. 
+$⟦v₂ρ⟧ = v₂ρ ∈ ⟦ι⟧$ since we have $Σ ⊢ v₁ : ι$ and $Σ ⊢ v₂ : ι$.
 As a consequence, $\subs("ρ[x≔v₁ρ]")$ and $\subs("ρ[x≔v₂ρ]")$ are
 both valuations over the sorting context $Σ, x : ι$, and thus we
 obtain $\vs{Aρ[x≔v₁ρ]} ∈ ⟦ο⟧$ and $\vs{Aρ[x≔v₂ρ]} ∈ ⟦ο⟧$ using
@@ -1182,7 +1182,7 @@ corresponding case.
   \bigcup_{\f{Φ}∈⟦s⟧} \vs{Aρ[χ ≔ Φ]}$ and thus there must be $\f{Φ} ∈ ⟦s⟧$
   such that $\v{ρ(x)} ∈ \vs{Aρ[χ≔Φ]}$. We can hence conclude using the
   induction hypothesis with the valuation $ρ[χ≔Φ]$.
- 
+
   \begin{center}
     $ \id(r_exists_e) $
   \end{center}
@@ -1281,7 +1281,7 @@ corresponding case.
   $\subs("ρ[xk≔w]")$ realizes $Γ,x_k:A_k;Ξ,v≡\t{Ck[xk]}$. As $ρ$ realizes
   $Γ; Ξ$ and as $w ∈ {\vs{Akρ} ∖ \{\v{□}\}}$ it only remains to show
   $\v{vρ} ≡ \t{Ck[w]}$, which follows from the reflexivity of $({≡})$.
- 
+
   \begin{center}
     $ \id(r_sum_e) $
   \end{center}
@@ -1514,7 +1514,7 @@ new cases are displayed below.
 
 \item If the last used rule is ($[\wc]\wc$) then we need to show
   $\s{[tρ]πρ} ∈ \ss{Aρ}$. Let us take $v ∈ \vs{Aρ}$ and show
-  $\p{v ∗ [tρ]πρ} ∈ \dbot$. If $v = \v{□}$ then we have 
+  $\p{v ∗ [tρ]πρ} ∈ \dbot$. If $v = \v{□}$ then we have
   $\p{□ ∗ [tρ]πρ} ≻ \p{□ ∗ πρ}$ and since $\dbot$ is saturated it
   is enough to show $\p{□ ∗ πρ} ∈ \dbot$. This is immediate as
   $\v{□} ∈ \vs{Bρ}$ and $\s{πρ} ∈ \ss{Bρ}$ by induction hypothesis.

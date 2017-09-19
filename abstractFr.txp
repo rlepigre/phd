@@ -4,7 +4,7 @@
 \size(6.0){||Résumé||}
 \linesAfter(3)
 \end{center}
-\begin{env}(fun env -> hyphenate_fr (resize_env 3.4 env))
+\begin{env}(fun env -> hyphenate_fr (envSize 3.4 env))
 Au cours des dernières années, les assistants de preuves on fait des progrès
 considérables et ont atteint un grand niveau de maturité. Ils ont permit la
 certification de programmes complexes tels que des compilateurs et même des

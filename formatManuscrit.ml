@@ -2,6 +2,7 @@ open Typography
 open Fonts
 open FTypes
 open Typography.Document
+
 open Util
 open UsualMake
 open Typography.Box
@@ -13,7 +14,7 @@ module Cover = struct
 
   (* (nom, institution) d'un membre du jury. *)
   type person = string * string
-  
+
   (* Métadonnées pour la couverture. *)
   type metadata =
     { author     : string
@@ -26,7 +27,7 @@ module Cover = struct
     ; president  : person option
     ; reviewers  : person list
     ; examinors  : person list }
-  
+
   (* Paramètres de la couverture. *)
   let logo_UG     = "logo_UG.png"
   let logo_header = "logo_header.png"
@@ -38,7 +39,7 @@ module Cover = struct
   let top_span    = 10.
   let logo_span   = 2.
   let text_pad    = 4.
-  
+
   (* Composition du jury à partir des métadonnées. *)
   let build_jury data =
     let advisor    = [(data.advisor, "directeur de thèse")] in
@@ -60,7 +61,7 @@ module Cover = struct
     let reviewers  = List.map (fun p -> (p, "rapporteur")) data.reviewers in
     let examinors  = List.map (fun p -> (p, "examinateur")) data.examinors in
     president @ reviewers @ examinors @ advisorhdr @ advisor @ coadvisor
-  
+
   (* Construit la couverture dans le style de l'UGA. *)
   let cover data env =
     let fill_square (x1, y1) (x2, y2) col =
@@ -79,9 +80,9 @@ module Cover = struct
         }
       in Path (param, lines)
     in
-  
+
     let (w4, h4) = Util.a4 in
-  
+
     (* Grey strip on the left and images *)
     let left_grey = fill_square (0., 0.) (greyw, h4 +. 1.) col in
     let (wlogo, hlogo) = ImageLib.size logo_UG in
@@ -109,30 +110,30 @@ module Cover = struct
       ; image_y            = h4 -. h -. top_span
       ; image_order        = 1 }
     in
-  
+
     (* Text ... *)
     let x_text = greyw +. text_pad in
     let y_text = ref (0.8 *. h4) in
     let text = ref [] in
-  
+
     let add_line ?(off=0.) fsize txt =
       let txt = draw {env with size = fsize} (sc [tT txt]) in
       let f = translate (x_text +. off) !y_text in
       let txt = List.map f txt in
       text := !text @ txt
     in
-  
+
     let hspace sz =
       y_text := !y_text -. sz
     in
-  
+
     let jury_member ((name,inst), func) =
       hspace 6.;
       add_line ~off:8. 4. (Printf.sprintf "%s, %s" name func);
       hspace 4.;
       add_line ~off:16. 4. inst
     in
-  
+
     let add_centered_line fsize txt =
       let txt = draw {env with size = fsize} (sc [tT txt]) in
       let txtw =
@@ -144,7 +145,7 @@ module Cover = struct
       let txt = List.map f txt in
       text := !text @ txt
     in
-  
+
     let title l =
       let title_line i txt =
         if i > 0 then hspace 8.;
@@ -152,7 +153,7 @@ module Cover = struct
       in
       List.iteri title_line l
     in
-  
+
     add_line 7. "Thèse";
     hspace 10.;
     add_line 4. "pour obtenir le grade de";
@@ -177,17 +178,17 @@ module Cover = struct
     add_line 4. ("préparée au sein du " ^ data.lab);
     hspace 4.;
     add_line 4. "et de l'école doctorale MSTII";
-  
+
     hspace 14.;
     title data.title;
     hspace 14.;
-  
+
     add_line 4. ("Thèse soutenue publiquement le " ^ data.def_date);
     hspace 4.;
     add_line 4. "devant un jury composé de";
     hspace 4.;
     List.iter jury_member (build_jury data);
-  
+
     let contents = [left_grey; logo; header] @ !text in
     let contents = List.map (translate (-.35.) (-.248.)) contents in
     let dr =
@@ -280,7 +281,7 @@ module Format (D:DocumentStructure) = struct
               let contents env =
                 let h= -.env.size/.phi in
                 let sz=2.5 in
-  
+
                 let buf=ref [||] in
                 let nbuf=ref 0 in
                 let env'=boxify buf nbuf env n.displayname in
@@ -290,7 +291,7 @@ module Format (D:DocumentStructure) = struct
                       Marker _->true | _->false)
                     boxes
                 in
-  
+
                 let num =
                   if numbered then
                     let nums = get_nums env in
@@ -303,7 +304,7 @@ module Format (D:DocumentStructure) = struct
                     let x0,_,x1,_=RawContent.bounding_box num in x0,x1
                 in
                 let w=if num=[] then 0. else env.size in
-  
+
                 let text=
                   let dr =
                     try
@@ -314,7 +315,7 @@ module Format (D:DocumentStructure) = struct
                             ; normalLeftMargin=0.
                             ; normalMeasure=env.normalMeasure-.(x1-.x0)/.2.-.w
                             ; size=env.size*.sz }
-                            (DefaultFormat.paragraph n.displayname)
+                            (Default.paragraph n.displayname)
                          in d))
                     with Not_found -> empty_drawing_box
                   in
@@ -368,7 +369,7 @@ module Format (D:DocumentStructure) = struct
                   if minichap then sqrt phi *. sqrt phi *. size
                   else size
                 in
-                { (envAlternative feats alt env) with hyphenate
+                { (envAlternative ~features:feats alt env) with hyphenate
                 ; size ; par_indent = [] })
             ; par_post_env = (fun env1 env2 ->
                 { env1 with names = env2.names
@@ -440,9 +441,9 @@ module Format (D:DocumentStructure) = struct
 
   let minipage = OutputDrawing.minipage
   let displayedFormula = Default.displayedFormula
-  let node = DefaultFormat.node
-  let paragraph = DefaultFormat.paragraph
-  let alegreya = DefaultFormat.alegreya
+  let node = Default.node
+  let paragraph = Default.paragraph
+  let alegreya = Default.alegreya
 
   let replace_utf8 x y z=
     Str.global_replace x
@@ -653,4 +654,3 @@ module Format (D:DocumentStructure) = struct
     let do_end_env () = ()
   end
 end
-

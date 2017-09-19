@@ -117,7 +117,7 @@ let r_eq_t =
    {Σ \sp Γ[a≔u₂];Ξ ⊢ \t{t[a≔u₂]} : \f{A[a≔u₂]}}$>
 
 let rs env =
-  let env = resize_env 3.4 env in
+  let env = envSize 3.4 env in
   let rs =
     [ [r_ax;r_arrow_e] ; [r_ax';r_arrow_i] ; [r_mu; r_name] ; [r_push; r_fram]
     ; [r_forall_i;r_exists_e] ; [r_forall_e;r_exists_i] ; [r_memb_e;r_rest_i]
@@ -1311,8 +1311,8 @@ such that $\p{t∗π₀} ≻^{∗} p₀$ and $\p{u∗π₀} ≻^{∗} p₀$. Now
 $\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$. Note that we may assume that $\s{π₀ρ₀} = \s{π₀}$
 since we are free to rename the variables bound by $ρ₀$ in $\t{tρ₀}$ and
 $\t{uρ₀}$. We can hence deduce that ${\p{p₀ρ₀}} {⇓}_{i₀}$ as otherwise
-we could not have ${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Now, since 
-$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ we can conclude that 
+we could not have ${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Now, since
+$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ we can conclude that
 ${\p{uρ₀∗π₀}} {⇓}_{≻}$.
 \end{proof}
 \end{thm}

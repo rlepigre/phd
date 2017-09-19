@@ -87,7 +87,7 @@ let parse_proc s =
   handle_exception parse s
 
 let str s = [Maths.Ordinary (Maths.node (Maths.glyphs s))]
-let asana n i = [Maths.Ordinary (Maths.node (MathFonts.asana n i))]
+let asana n i = [Maths.Ordinary (Maths.node (Maths.asana n i))]
 
 let v2m (s, io) =
   match io with
@@ -105,7 +105,7 @@ let rec t2m = function
   | Sub(t,s) -> let (x, s, u) = s in
                 let sub l r =
                   let b =
-                    if s then MathFonts.asana "\\defeq" 798
+                    if s then Maths.asana "\\defeq" 798
                     else Maths.glyphs "←";
                   in
                   [bin 2 (Normal(false, Maths.node b,false)) l r]

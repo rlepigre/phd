@@ -4,7 +4,7 @@
 \size(6.0){||Abstract||}
 \linesAfter(4)
 \end{center}
-\begin{env}(resize_env 3.4)
+\begin{env}(envSize 3.4)
 In recent years, proof assistant have reached an impressive level of
 maturity. They have led to the certification of complex programs such
 as compilers and operating systems. Yet, using a proof assistant requires

@@ -13,8 +13,8 @@
   let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
 
   let mt = mathsText
-  let wbox = <$\mathsize{3.}{\wbox}$>
-  let bbox = <$\mathsize{3.}{\bbox}$>
+  let wbox = <$\size{3.}{\wbox}$>
+  let bbox = <$\size{3.}{\bbox}$>
 )
 
 \Configure_math_macro{\v}{ syntax = string; }
@@ -82,7 +82,7 @@ to using a standard definition as it is only syntactic sugar. As a
 consequence, the following two definitions of the type of booleans are
 equivalent.
 ### PML "examples/implem.pml"
-type boolean = [True; False] 
+type boolean = [True; False]
 def boolean : ο = [True; False]
 ###
 Type definitions can also have arguments, and the ##rec## or ##corec##
@@ -567,7 +567,7 @@ Another, more satisfactory way of obtaining more readable proofs is to
 use again the higher-order layer of our system to define "tactics". We
 will here use a ##t_deduce## tactic to check that some equation holds in
 the current context, and a ##t_show## tactic to prove a property using
-a given proof. 
+a given proof.
 ### PML "examples/implem.pml"
 def t_deduce<f:ο> : τ = ({} : f)
 def t_show<f:ο, p:τ> : τ = (p : f)

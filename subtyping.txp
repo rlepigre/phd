@@ -13,8 +13,8 @@
   let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
 
   let mt = mathsText
-  let wbox = <$\mathsize{3.}{\wbox}$>
-  let bbox = <$\mathsize{3.}{\bbox}$>
+  let wbox = <$\size{3.}{\wbox}$>
+  let bbox = <$\size{3.}{\bbox}$>
 
   let mif = mathsText ([tT "if"])
 )
@@ -256,7 +256,7 @@ let r_fix =
     {γ; Ξ ⊢ \t{λx Y(λr t,x)} : \f{C}}$>
 
 let typ_rs env =
-  let env = resize_env 3.5 env in
+  let env = envSize 3.5 env in
   let rs =
     [ [ r_arrow_i ]
     ; [ r_ax ]
@@ -271,7 +271,7 @@ let typ_rs env =
   List.map (List.map (fun cs -> draw_boxes env (boxify_scoped env cs))) rs
 
 let sub_rs env =
-  let env = resize_env 3.5 env in
+  let env = envSize 3.5 env in
   let rs =
     [ [ r_arrow ]
     ; [ r_sum ]
@@ -682,7 +682,7 @@ let contents =
   ; spec v "⟦εx∈A(t∉B)⟧"  <$ v∈{\vs{A[x≔v]} ∖ \{\v{□}\}} \st \t{⟦t[x≔v]⟧}∉\ts{B} $>
   ; spec v "⟦εx∈A(t∉B)⟧"  <$ \v{□} \hspace(0.4) otherwise $>
   ; line t "⟦μα t⟧"               "μα ⟦t⟧"
-  ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧" 
+  ; line t "⟦[π]t⟧"               "[⟦π⟧] ⟦t⟧"
   ; line t "⟦[v|(Ci[xi]→ti)i∈I]⟧" "[⟦v⟧|(Ci[xi]→⟦ti⟧)i∈I]"
   ; line t "⟦δ(v,w)⟧"             "δ(⟦v⟧,⟦w⟧)"
   ; line s "⟦ε⟧"                  "ε"
@@ -1075,7 +1075,7 @@ We consider the last rules used in the proof.
 
 \item In the case of the ($×_{ext}$) rule, the proof is similar to the ($×$)
   case. Since we know that $\t{⟦t⟧} ≡ \t{⟦v⟧}$ we can assume $\t{⟦v⟧} ∈
-  \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈ \vs{{(li : Bi) i∈I₂}}$. 
+  \vs{{(li : Ai) i∈I₁}}$ and show that $\t{⟦v⟧} ∈ \vs{{(li : Bi) i∈I₂}}$.
   If $\v{⟦v⟧} = \v{□}$ then the proof is trivial so we may assume that
   $\t{⟦v⟧} = \t{{(li=vi) i∈I}}$ with $I₁ ⊆ I$ and $\v{vi} ∈ \vs{Ai}$ for all
   index $i∈I₁$. As a consequence, we only need to show $\v{vi} ∈ \vs{Bi}$
@@ -1608,7 +1608,7 @@ $γ ⊢ τ < υ$ when $i = 1$.
 \Caml(let _ = ordering_rules ()) (* NOTE can be moved *)
 \Caml(let _ = extra_subrules ()) (* NOTE can be moved *)
 \begin{def}
-We extend our system with the six subtyping rules given in 
+We extend our system with the six subtyping rules given in
 \figRef("extrasubrules"). Note that all the other rules need to be
 modified to contain a positivity context. However, there is no
 difficulty in doing so as they only need to transmit this context.
@@ -1842,7 +1842,7 @@ section.
   $\t{λx Y(λr ⟦t⟧, x)} ∈ \vs{A⇒B}$ according to \theorem("main"). By
   definition, we need to take a value $v ∈ {\vs{A} ∖ \{\v{□}\}}$ and show
   $\t{Y(λr ⟦t⟧, v)} ∈ \ts{B}$. We thus take $π ∈ \ss{B}$ and we
-  prove $\p{Y(λr ⟦t⟧, v) ∗ π} ∈ \dbot$. As $\dbot$ is $({↠})$-saturated 
+  prove $\p{Y(λr ⟦t⟧, v) ∗ π} ∈ \dbot$. As $\dbot$ is $({↠})$-saturated
   and we have $\p{Y(λr ⟦t⟧, v) ∗ π} ↠^{∗} \p{⟦t[r≔λx Y(λr t, x)]⟧ ∗ v·π}$
   we only need to show $\p{⟦t[r≔λx Y(λr t, x)]⟧ ∗ v·π} ∈ \dbot$.
   According to our first induction hypothesis it only remains to show

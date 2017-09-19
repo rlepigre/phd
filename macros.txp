@@ -107,7 +107,7 @@ let tval : Typography.Maths.math list =
   [Maths.bin_invisible 5 (mathSpace (-0.8)) [Maths.Ordinary (Maths.node t)]]
 
 let hyphenate_fr env =
-  let hyphenate = DefaultFormat.hyphenate_dict "hyph-fr.hdict" in
+  let hyphenate = Default.hyphenate_dict "hyph-fr.hdict" in
   {env with hyphenate}
 
 (* Stuff to add side note. *)
@@ -121,7 +121,7 @@ let sidenote text note =
   let contents env =
     let dr env =
       let size_box rs =
-        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in
         (x2 -. x1, y2 -. y1)
       in
       let pagew = env.normalMeasure in
@@ -164,7 +164,7 @@ let reduction_def ?pad:(pad = 6.0) sym lines =
       let pagew = env.normalMeasure in
       let sep = env.normalLead in
       let size_box rs =
-        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in
         (x2 -. x1, y2 -. y1)
       in
       let sym = Document.draw env sym in
@@ -182,7 +182,7 @@ let reduction_def ?pad:(pad = 6.0) sym lines =
         *)
         let (wn,_) = size_box n in
         let l =
-          let y = ((pagew -. wsym) /. 2.0) -. wl -. pad in 
+          let y = ((pagew -. wsym) /. 2.0) -. wl -. pad in
           List.map (RawContent.translate y 0.0) l
         in
         let r =
@@ -228,7 +228,7 @@ let bnfs lines =
       let pagew = env.normalMeasure in
       let sep = env.normalLead in
       let size_box rs =
-        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in
         (x2 -. x1, y2 -. y1)
       in
       let sym = Document.draw env <<$::=$>> in
@@ -299,7 +299,7 @@ let large_bnfs lines =
       let pagew = env.normalMeasure in
       let sep = env.normalLead in
       let size_box rs =
-        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in
         (x2 -. x1, y2 -. y1)
       in
       let sym = Document.draw env <<$::=$>> in
@@ -481,7 +481,7 @@ module OCamlVerbatim : sig
           handle_spaces params build_word l
       in
       line_per_line D.structure build_line lines
-  
+
     let verbatim =
       let open Verbatim in
       verb_text (handle_word {keywords = []; separators; symbols})
@@ -552,7 +552,7 @@ module PMLVerbatim : sig
           handle_spaces params build_word l
       in
       line_per_line D.structure build_line lines
-  
+
     let verbatim =
       let open Verbatim in
       (*
@@ -609,7 +609,7 @@ let dr rs env =
   let rs = rs env in
   let wall = env.normalMeasure -. 6.0 in
   let size_box rs =
-    let (x1, y1, x2, y2) = bounding_box rs in 
+    let (x1, y1, x2, y2) = bounding_box rs in
     (x2 -. x1, y2 -. y1)
   in
   let trs d = RawContent.translate d 0.0 in
@@ -673,7 +673,7 @@ let tabular_layout ratio vsep lines =
       let pad = ((1.0 -. ratio) *. env.normalMeasure) /. 2.0 in
       let sep = env.normalLead +. vsep in
       let size_box rs =
-        let (x1, y1, x2, y2) = RawContent.bounding_box rs in 
+        let (x1, y1, x2, y2) = RawContent.bounding_box rs in
         (x2 -. x1, y2 -. y1)
       in
       let fn e =
