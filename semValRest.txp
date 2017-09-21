@@ -1303,17 +1303,17 @@ $p ∈ Λ×Π$ such that both $\p{t∗π} ≻^{∗} p$ and $\p{u∗π} ≻^{∗}
 then $t ≡ u$.
 \begin{proof}
 By definition, we need to take $i₀ ∈ \bbN$, $π₀ ∈ Π$ and $ρ₀ ∈ \cal{S}$ and
-show that we have ${{\p{tρ₀∗π₀}} {⇓}_{i₀}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{i₀}}$.
-By symmetry, we may assume ${\p{tρ₀∗π₀}} {⇓}_{i₀}$ and show
-${\p{uρ₀∗π₀}} {⇓}_{i₀}$. By hypothesis, we know that there is $p₀ ∈ Λ×Π$
-such that $\p{t∗π₀} ≻^{∗} p₀$ and $\p{u∗π₀} ≻^{∗} p₀$. Now, using
-\thmRef("redcompatall") we obtain $\p{tρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ and
-$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$. Note that we may assume that $\s{π₀ρ₀} = \s{π₀}$
-since we are free to rename the variables bound by $ρ₀$ in $\t{tρ₀}$ and
-$\t{uρ₀}$. We can hence deduce that ${\p{p₀ρ₀}} {⇓}_{i₀}$ as otherwise
-we could not have ${\p{tρ₀∗π₀}} {⇓}_{i₀}$. Now, since
-$\p{uρ₀∗π₀} ≻^{∗} \p{p₀ρ₀}$ we can conclude that
-${\p{uρ₀∗π₀}} {⇓}_{≻}$.
+show that we have ${{\p{tρ₀∗π₀}} {⇓}_{i₀}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{i₀}}$. Since
+$({≻}) ⊆ ({↠}_{i₀})$, it is enough to find a common reduct of $\p{tρ₀∗π₀}$
+and $\p{uρ₀∗π₀}$ using $({≻})$. We consider a renaming substitution $σ$
+mapping the variables of $FV(π₀)$ to distinct fresh variables. Note that
+$σ$ has an inverse $\subs{σ⁻¹}$ mapping $σ(χ)$ to $χ$ for all $χ ∈ dom(τ)$.
+We thus obtain $\p{tρ₀ ∗ π₀} = \p{(tρ₀ ∗ π₀σ)σ⁻¹} = \p{(t ∗ π₀σ)(ρ₀ ∘ σ⁻¹)}$
+and $\p{uρ₀ ∗ π₀} = \p{(u ∗ π₀σ)(ρ₀ ∘ σ⁻¹)}$. By hypothesis, $\p{t ∗ π₀σ}$
+and $\p{u ∗ π₀σ}$ have a common reduct $p₀$. We can thus use
+\lemRef("redcompatall") to obtain
+$\p{tρ₀ ∗ π₀} = \p{(t ∗ π₀σ)(ρ₀ ∘ σ⁻¹)} ≻^{∗} \p{p₀(ρ₀ ∘ σ⁻¹)}$ and
+$\p{uρ₀ ∗ π₀} = \p{(u ∗ π₀σ)(ρ₀ ∘ σ⁻¹)} ≻^{∗} \p{p₀(ρ₀ ∘ σ⁻¹)}$.
 \end{proof}
 \end{thm}
 
@@ -1325,6 +1325,7 @@ $\p{t₂[x≔v]∗[u]π} ≻^{∗} \p{v∗π}$,
 and if $\t{t₁[x≔v₁]} ≡ \t{t₂[x≔v₂]}$ for some values $v₁$, $v₂∈Λ_ι$,
 then we have $v₁ ≡ v₂$.
 \begin{proof}
+(* FIXME FIXME FIXME *)
 Let us take $v₁$, $v₂∈Λ_ι$ such that $v₁ \nequiv v₂$ and show that
 $\t{t₁[x≔v₁]} \nequiv \t{t₂[x≔v₂]}$. By definition there is
 $i∈\bbN$, $π∈Π$ and $ρ∈\cal{S}$ such that ${\p{v₁ρ∗π}} {⇓}_i$ and

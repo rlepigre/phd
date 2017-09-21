@@ -308,7 +308,7 @@ The first condition is immediate. To prove the second condition let us
 suppose that for all $π∈Π$ we have a $p∈Λ×Π$ such that $\p{t∗π} ≻^{∗} p$
 and $\p{u∗π} ≻^{∗} p$. Let us take $π₀ ∈ Π$, $ρ₀ ∈ \cal{S}$ and show
 that we have ${{\p{tρ₀∗π₀}} {⇓}_{≻}} ⇔ {{\p{uρ₀∗π₀}} {⇓}_{≻}}$. We now
-consider a renaming substitution $σ$ mapping every variable of $FV(π)$
+consider a renaming substitution $σ$ mapping every variable of $FV(π₀)$
 to a distinct fresh variable. Note that $σ$ has an inverse $\subs{σ⁻¹}$
 mapping $σ(χ)$ to $χ$ for all $χ ∈ dom(τ)$. We thus obtain
 $\p{tρ₀ ∗ π₀} = \p{(tρ₀ ∗ π₀σ)σ⁻¹} = \p{(t ∗ π₀σ)(ρ₀ ∘ σ⁻¹)}$ and
