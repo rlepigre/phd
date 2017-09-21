@@ -1,11 +1,11 @@
 (* Type of a bibliography entry. *)
 type entry =
-  { key     : string   (* Key used for citation. *)
-  ; authors : string   (* Authors. *)
-  ; title   : string   (* Title. *)
-  ; notes   : string   (* Additional data (e.g. publisher). *)
-  ; year    : string   (* Year. *)
-  ; url     : string } (* URL (usually DOI). *)
+  { key     : string      (* Key used for citation. *)
+  ; authors : string list (* Authors. *)
+  ; title   : string      (* Title. *)
+  ; notes   : string      (* Additional data (e.g. publisher). *)
+  ; year    : string      (* Year. *)
+  ; url     : string }    (* URL (usually DOI). *)
 
 (* Abstract bibliography type. *)
 type biblio

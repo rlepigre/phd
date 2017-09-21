@@ -1,7 +1,7 @@
 (* A very basic datatype for a bibliographic entry. *)
 type entry =
   { key     : string
-  ; authors : string
+  ; authors : string list
   ; title   : string
   ; notes   : string
   ; year    : string

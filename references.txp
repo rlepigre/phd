@@ -14,11 +14,21 @@ let references bib =
     let key   = [tT "["] @ emph [tT (key_spacing e.key)] @ [tT "] "] in
     let key   = if e.url = "" then key else link e.url key in
     let title = emph [tT e.title] @ [tT ", "] in
-    let auth  = [tT e.authors; tT ", "] in
-    let data  =
-      [tT e.notes; tT ", "; tT e.year ; tT "."]
+    let authors =
+      match e.authors with
+      | []          -> assert false
+      | a::[]       -> a
+      | a::b::[]    -> a ^ " and " ^ b
+      | a::b::c::[] -> a ^ ", " ^ b ^ " and " ^ c
+      | a::b::c::ls -> a ^ ", " ^ b ^ ", " ^ c ^ " et al."
     in
-    (* hspace (-2.0) @ *)
+    let auth  = [tT authors] in
+    let data  =
+      (*[tT e.notes; tT ", "; tT e.year ; tT "."]*)
+      match e.notes with
+      | "" -> [tT "."]
+      | s  -> [tT (", " ^ s ^ ".")]
+    in
     (color Color.gray key) @ title @ auth @ data
   in
 
