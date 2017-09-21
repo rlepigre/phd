@@ -92,7 +92,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 \end{minichap}
 
 (* Abstract / Résumé *)
-\pagesBefore(2)
+\pagesBefore(4)
 \Include{AbstractFr}
 \Include{AbstractEn}
 

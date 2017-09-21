@@ -25,10 +25,9 @@ classique et du sous-typage. La combinaison de l'appel par valeurs,
 des fonctions dépendantes et de la logique classique est connu pour
 poser des problèmes de cohérence. Pour s'assurer de la correction du
 système (cohérence logique et sûreté à l'exécution), on propose un
-cadre théorique basé sur la réalisabilité classique de Krivine. La
-construction du modèle repose sur une propriété essentielle qui lie
-les différent niveaux d'interprétation des types d'une manière
-novatrice.
+cadre théorique basé sur la réalisabilité classique de Krivine. Le
+modèle repose sur une propriété essentielle qui lie les différent
+niveaux d'interprétation des types d'une manière novatrice.
 
 On démontre aussi l'expressivité de notre système en se basant sur
 son implantation dans un prototype. Il peut être utilisé pour prouver
