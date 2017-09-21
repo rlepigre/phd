@@ -1033,8 +1033,8 @@ exception handler provided to ##find##.
 To conclude this chapter, we will consider an example of program that can
 only be written in a classical setting (i.e., with control operators). We
 are going to define a function on streams of natural numbers, that extracts
-from its input a of odd numbers, or a stream of even numbers. First, we
-need to define what are odd and even numbers in our language.
+from its input a stream of odd numbers, or a stream of even numbers. First,
+we need to define odd and even numbers in our language.
 ### PML "examples/implem.pml"
 val rec is_odd : nat ⇒ bool =
   fun n {
@@ -1115,8 +1115,14 @@ Intuitively, the ##itl_aux## function looks at the head of its third
 argument (a stream of natural numbers). Depending on whether this
 number is odd or even, the function then calls one of its first two
 arguments, which corresponds to a partially constructed stream of
-even or odd numbers. The read number is then added to this steam, and
-a recursive call is made to continue the construction.
+even or odd numbers. The read number is then added to this stream,
+and a recursive call is made to continue the construction.
+\begin{rem}
+  It is surprising that our prototype implementation is able to establish the
+  termination of ##itl_aux##. Indeed, at each call, an element is added to one
+  of two streams. Moreover, this example does not satisfy the usually required
+  semi-continuity condition (see, for example, \cite("Abel2008")).
+\end{rem}
 
 Using ##itl_aux##, it is then possible to define the ##itl## function
 corresponding to our infinite tape lemma.
@@ -1133,7 +1139,7 @@ val itl : stream<nat> ⇒ [InL of stream<even>; InR of stream<odd>] =
 This function starts by saving two continuations, corresponding to
 the constructors ##InL## and ##InR## of the return type, and then
 calls ##itl_aux## on the input stream. The very fact that we can
-write ##itl## proves that it is possible to extract an stream of
+write ##itl## proves that it is possible to extract a stream of
 odd numbers or a stream of even numbers from any stream of natural
 number.
 

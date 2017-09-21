@@ -49,8 +49,8 @@ let biblio =
 
   { key     = "Parigot1992"
   ; authors = "Michel Parigot"
-  ; title   = "λμ-calculus: an algorithic interpretation of classical "
-              ++ "natural deduction"
+  ; title   = "Lambda-Mu-calculus: an algorithmic interpretation of classical"
+              ++ " natural deduction"
   ; notes   = "in the proceedings of LPAR"
   ; year    = "1992"
   ; url     = "https://doi.org/10.1007/BFb0013061" };
