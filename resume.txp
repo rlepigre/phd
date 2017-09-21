@@ -14,41 +14,178 @@ requiert des compétences techniques très particulières, qui sont très
 éloignées de celles requises pour programmer de manière usuelle. Pour combler
 cet écart, nous entendons concevoir un langage de programmation de style ML
 supportant la preuve de programmes. Il combine au sein d'un même outil la
-flexibilité de ML et le fin niveau de spécification offert par un assistant
-de preuve. Autrement dit, le système peut être utilisé pour programmer de
-manière fonctionnelle et fortement typée tout en autorisant l'obtention de
-nouvelles garanties au besoin.
+flexibilité de ML et le fin niveau de spécification offert par un assistant de
+preuve. Autrement dit, le système peut être utilisé pour programmer de manière
+fonctionnelle et fortement typée tout en autorisant l'obtention de nouvelles
+garanties au besoin.
 
-On étudie donc un langage en appel par valeurs dont le système de type
-étend une logique d'ordre supérieur. Il comprend un type égalité entre
-les programmes non typés, un type de fonction dépendant, la logique
-classique et du sous-typage. La combinaison de l'appel par valeurs,
-des fonctions dépendantes et de la logique classique est connu pour
-poser des problèmes de cohérence. Pour s'assurer de la correction du
-système (cohérence logique et sûreté à l'exécution), on propose un
-cadre théorique basé sur la réalisabilité classique de Krivine. La
-construction du modèle repose sur une propriété essentielle qui lie
-les différent niveaux d'interprétation des types d'une manière
-novatrice.
+On étudie donc un langage en appel par valeurs dont le système de type étend
+une logique d'ordre supérieur. Il comprend un type égalité entre les
+programmes non typés, un type de fonction dépendant, la logique classique et
+du sous-typage. La combinaison de l'appel par valeurs, des fonctions
+dépendantes et de la logique classique est connu pour poser des problèmes de
+cohérence. Pour s'assurer de la correction du système (cohérence logique et
+sûreté à l'exécution), on propose un cadre théorique basé sur la réalisabilité
+classique de Krivine. Le modèle repose sur une propriété essentielle qui lie
+les différent niveaux d'interprétation des types d'une manière novatrice.
 
-On démontre aussi l'expressivité de notre système en se basant sur
-son implantation dans un prototype. Il peut être utilisé pour prouver
-des propriétés de programmes standards tels que la fonction « map »
-sur les listes ou le tri par insertion.
+On démontre aussi l'expressivité de notre système en se basant sur son
+implantation dans un prototype. Il peut être utilisé pour prouver des
+propriétés de programmes standards tels que la fonction « map » sur les listes
+ou le tri par insertion.
 \end{env}
 
 -> Chapitre 1, introduction
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Depuis l'apparition des premiers ordinateurs, chaque génération de
+programmeurs à du faire face au problème de la fiabilité du code. Les langages
+statiquement typés tels que Java, Haskell, OCaml, Rust ou Scala ont attaqué ce
+problème avec des vérifications statiques, au moment de la compilation, pour
+détecter des programmes incorrects. Leur typage fort est particulièrement
+utile quand plusieurs objets incompatibles doivent être manipulés au même
+moment. Par exemple, un programme qui calcule une addition sur un booléen (ou
+d'une fonction) est immédiatement rejeté. Durant les dernières années, les
+avantages du typage statique ont même été reconnus au sein de la communauté
+des langages dynamiquement typés. Des systèmes de vérification statique du
+typage sont dorénavant disponibles pour Javascript \mcite(["Microsoft2012";
+"Facebook2014"]) ou Python \cite("Lehtosalo2014").
+
+Dans les trente dernières années, des progrès significatifs ont été fait
+dans l'application de la théorie des types aux langages de programmation. La
+correspondance de Curry-Howard, qui lie les systèmes de types des langages de
+programmation fonctionnels à la logique mathématique, a été explorée dans deux
+directions principales. D'un côté, les assistants à la preuve comme Coq ou
+Agda sont basés sur des logiques très expressives. Pour montrer leur cohérence
+logique, les langages de programmation sous-jacents doivent être restreints
+aux programmes qui peuvent être montrés terminant. Ils interdisent donc les
+formes de récursion les plus générales. De l'autre côté, les langages de
+programmation fonctionnelle comme OCaml ou Haskell sont adaptés à la
+programmation, car ils n'imposent pas de restriction sur la récursion.
+Cependant, ils sont basés sur des logiques qui ne sont pas cohérentes, ce qui
+implique qu'ils ne peuvent pas être utilisés pour démontrer des formules
+mathématiques.
+
+Le but de ce travail est de fournir un environnement uniforme au sein duquel
+des programmes peuvent être écrits, spécifiés, et prouvés. L'idée est de
+combiner un langage de programmation à la ML complet avec un système de type
+enrichi pour permettre la spécification de comportements calculatoires. Ce
+langage peut donc être utilisé comme ML pour programmer en tirant profit d'un
+typage statique fort, mais aussi comme un assistant à la preuve pour démontrer
+des propriétés de programmes ML. L'uniformité du système permet, en outre, de
+raffiner les programmes petit à petit, pour obtenir de plus en plus de
+garanties. En particulier, il n'y a pas de distinction syntaxique entre les
+programmes et les preuves dans le système. On peut donc mélanger preuves et
+programmes durant la construction de preuves ou de programmes. Par exemples,
+on peut utiliser des mécanismes de preuve au sein de programmes afin qu'ils
+puissent porter des propriétés (par exemple, l'addition avec sa
+commutativité). Les programmes peuvent aussi utiliser des mécanismes de preuve
+pour éliminer du code mort (une portion de programme qui ne peut pas être
+atteinte durant l'exécution).
+
+Dans cette thèse, notre but premier est de mettre au point un système de type
+pour un langage de programmation fonctionnelle, utilisable en pratique. Parmi
+les nombreux choix techniques possibles, nous avons décidé de considérer un
+langage en appel par valeur similaire à OCaml ou SML, ces derniers ayant fait
+leurs preuves en terme d'efficacité et d'utilisation. Notre langage comporte
+des variants polymorphes \cite("Garrigue1998") et des types enregistrements à
+la SML, qui sont très pratiques pour encoder des types de données. Par
+exemple, le type des listes peut être défini et utilisé de la manière
+suivante.
+### PML
+type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
+
+val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
+  fun pred l {
+    case l {
+      Nil     → false
+      Cons[c] → if pred c.hd { true } else { exists pred c.tl }
+    }
+  }
+###
 \end{env}
+Ici, la fonction polymorphe ##exists## prend comme paramètre un prédicat et
+un liste, et elle indique si (au moins) un élément de la liste satisfait le
+prédicat.
+
+Le système présenté ici n'est pas seulement un langage de programmation, mais
+aussi un assistant à la preuve, et en particulier à la preuve de programmes.
+Son mécanisme de preuve est basé sur des types égalités de la forme ##t ≡ u##,
+où ##t## et ##u## sont des programmes arbitraires du langage. Un tel type
+égalité est habité par (ou contient) ##{}## (c'est à dire l'enregistrement
+vide) si l'équivalence dénotée est vraie, et il est vide sinon. Les
+équivalences sont gérées en utilisant une procédure partielle de décision, qui
+est conduite par la construction de programmes. Un contexte d'équations est
+maintenu par l'algorithme de typage, afin de stocker les équivalences
+supposées correctes durant la construction de la preuve de typage. Ce contexte
+est étendu quand une nouvelle équation est apprise (par exemple, quand un
+lemme est appliqué), et une équation est prouvée en cherchant une
+contradiction (par exemple, quand deux variants différents sont supposés
+égaux).
+
+Pour illustrer le fonctionnement des preuves, nous allons considérer l'exemple
+très simple des entiers naturels en représentation unaire (les nombres de
+Peano). Leur type est donné ci-dessous, avec la fonction d'addition
+correspondante, définie par récurrence sur son premier argument.
+### PML
+type rec nat = [Zero ; Succ of nat]
+
+val rec add : nat ⇒ nat ⇒ nat =
+  fun n m {
+    case n { Zero → m | Succ[k] → Succ[add k m] }
+  }
+###
+Comme premier exemple, nous allons montrer ##add Zero n ≡ n## pour tout ##n##.
+Pour exprimer cette propriété, on utilise le type ##∀n:ι, add Zero n ≡ n##,
+où ##ι## peut être vu comme l'ensemble de tous les programmes complètement
+évalués. Cette énoncé peut ensuite être démontré comme suit.
+### PML "examples/demo.pml"
+val add_z_n : ∀n:ι, add Zero n ≡ n = {}
+###
+Ici, la preuve est immédiate (c'est à dire, ##{}##) comme ##add Zero n ≡ n##
+se déduit directement de la définition de la fonction ##add##. Notez que cette
+équivalence est vraie pour tout ##n##, qu'il corresponde à un élément de
+##nat## ou pas. Par exemple, on peut montrer sans problème l'équivalence
+##add Zero true ≡ true##.
+
+Regardons maintenant l'énoncé ##∀n:ι, add n Zero ≡ n##. Bien qu'il soit très
+similaire à ##add_z_n## en apparence, la preuve suivante est invalide.
+### PML "examples/demo.pml"
+// val add_n_z : ∀n:ι, add n Zero ≡ n = {}
+###
+En effet, la relation ##add n Zero ≡ n## n'est pas vraie quand ##n## n'est pas
+un entier unaire. Dans ce cas, l'évaluation de ##add n Zero## produira une
+erreur à l'exécution. En conséquence, on devra se reposer sur une forme de
+quantification dont le domaine se limite aux entiers unaires. Ceci peut être
+réalisé avec le type ##∀n∈nat, add n Zero ≡ n##, qui corresponds à une
+fonction (dépendante) prenant en entrée un entier ##n##, et retournant une
+preuve de ##add n Zero ≡ n##. Cette propriété peut ensuite être prouvée en
+utilisant de l'induction (programme récursif) et une analyse par cas.
+### PML
+val rec add_n_z : ∀n∈nat, add n Zero ≡ n =
+  fun n {
+    case n {
+      Zero    → {}
+      Succ[k] → let ih = add_n_z k; {}
+    }
+  }
+###
+Si ##n## est ##Zero##, alors on doit montrer ##add Zero Zero ≡ Zero##, qui
+est immédiat par définition de ##add##. Dans le cas où ##n## est ##Succ[k]##
+on doit montrer ##add Succ[k] Zero ≡ Succ[k]##. Par définition de ##add##,
+cette équation se réduit en ##Succ[add k Zero] ≡ Succ[k]##. Il suffit donc de
+montrer ##add k Zero ≡ k## en utilisant l'hypothèse d'induction
+(##add_n_z k##).
 
 -<
 
 -> Chapitre 2, calcul non typé
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce chapitre, on introduit le langage de programmation qui sera utilisé
+dans toute la suite de cette thèse. Sa sémantique opérationnelle est exprimée
+à l'aide d'une machine abstraite, qui nous permettra de considérer des
+opérations produisant des effets de bord.
 \end{env}
 
 -<
@@ -56,7 +193,14 @@ sur les listes ou le tri par insertion.
 -> Chapitre 3, équivalence observationnelle
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce chapitre, on introduit une relation d'équivalence sur les programmes.
+Deux programmes sont considérés équivalent si et seulement si ils ont le même
+comportement observable en terme de calcul. De propriétés générales sont
+ensuite obtenues pour toute relation d'équivalence satisfaisant certaines
+contraintes. Ces propriétés seront essentielles pour la définition de notre
+sémantique de réalisabilité dans les prochains chapitres. De plus, elles nous
+permettront d'implanter une procédure partielle de décision pour l'équivalence
+de programmes.
 \end{env}
 
 -<
@@ -64,7 +208,13 @@ sur les listes ou le tri par insertion.
 -> Chapitre 4, système de type et sémantique
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce chapitre, on présente un nouveau système de type, qui se distingue
+grâce à une notion d'équivalence de programme embarquée. Elle permet de
+spécifier des propriétés équationnelles de programmes, qui sont ensuite
+prouvées en utilisant du raisonnement équationel sur les programmes. Nos types
+sont interprétés en utilisant des techniques standard de la réalisabilité
+classique, qui nous permettent de donner une justification sémantique à nos
+règles de typage.
 \end{env}
 
 -<
@@ -72,7 +222,14 @@ sur les listes ou le tri par insertion.
 -> Chapitre 5, restriction aux valuers
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce chapitre, nous considérons l'encodage des types dépendants, qui sont
+une forme de quantification typée, dans notre système. Cependant,
+l'expressivité de ces derniers est considérablement limitée par la restriction
+aux valeurs. Pour résoudre ce problème, on introduit dans le système la notion
+de //restriction aux valeurs sémantique//, qui permet au système d'accepter
+bien plus de programmes. Obtenir un modèle justifiant la //restriction aux
+valeurs sémantique// nécessite de changer la la sémantique opérationnelle et
+la définition de l'équivalence de programmes.
 \end{env}
 
 -<
@@ -80,7 +237,11 @@ sur les listes ou le tri par insertion.
 -> Chapitre 6, sous-typage
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce chapitre, on reformule la définition de notre système de type pour
+inclure du sous-typage. L'idée principale est de transformer les règles de
+typage qui n'ont pas de contenu algorithmique en règles de sous-typage. En
+particulier, les quantificateurs, points fixes, appartenance et égalités
+seront gérés au sein du sous-typage.
 \end{env}
 
 -<
@@ -88,60 +249,16 @@ sur les listes ou le tri par insertion.
 -> Chapitre 7, programmes et preuves
 
 \begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
+Dans ce dernier chapitre, nous considérons des exemples de programmes et de
+preuves qui peuvent être écrits et manipulés par le prototype que nous avons
+implanté. Cet ensemble restreint d'exemples n'a pas pour but de présenter le
+système de manière exhaustive. Leur seul but est de démontrer l'expressivité
+du système à travers une sélection d'exemples.
 \end{env}
 
 -<
 
 (*
--> Chapitre 1 - Calcul non typé
-
-\begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
-\end{env}
-
--<
-
-
-
-
-
--> Programmation et preuve de programmes
-
-\begin{env}(fun env -> hyphenate_fr env)
-Notre nouveau langage de programmation s'inspire largement des langages
-de la famille ML (comme OCaml ou SML) et de leurs systèmes de types. Il
-permet donc un style de programmation fonctionnelle standard, autorisant
-l'usage de types de données inductifs et polymorphes, construit à partir
-de types produits (ou types enregistrements) et de types sommes (variants
-ou constructeurs). On pourra, par exemple, définir de la manière suivante
-la fonction d'addition sur les entiers unaires, et la fonction « map »
-standard sur les listes.
-### PML "examples/demo_resume.pml"
-type rec nat = [Zero ; Succ of nat]
-
-val rec add : nat ⇒ nat ⇒ nat = fun n m →
-  case n { Zero[_] → m | Succ[k] → Succ[add k m] }
-
-type rec list<a> = [Nil ; Cons of {hd : a; tl : list}]
-
-val rec map : ∀a b, (a ⇒ b) ⇒ list<a> ⇒ list<b> = fun f l →
-  case l {
-    Nil[_]  → Nil
-    Cons[c] → let hd = f c.hd in
-               let tl = map f c.tl in
-               Cons[{hd = hd ; tl = tl}]
-  }
-###
-
-... (* TODO *)
-\end{env}
-
--<
-
--> Les limitations de la restriction aux valeurs
-
-\begin{env}(fun env -> hyphenate_fr env)
 Du fait de la présence d'opérateurs de contrôle, et donc d'effets de
 bord, il est nécessaire de fixer une stratégie d'évaluation. Comme la
 plupart des langages de la famille ML, nous opterons pour l'appel par
@@ -170,29 +287,8 @@ produit dépendant en utilisant ces nouveaux constructeurs.
 
 Globalement, programmer avec notre langage devrait être
 une expérience relativement similaire à programmer en \sc{ml}.
-\end{env}
 
--<
 
--> Sémantique et modèle de réalisabilité classique
-
-\begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
-\end{env}
-
--<
-
--> Sous-typage et implémentation
-
-\begin{env}(fun env -> hyphenate_fr env)
-... (* TODO *)
-\end{env}
-
--<
-
--> Organisation du manuscrit
-
-\begin{env}(fun env -> hyphenate_fr env)
 Ce manuscrit, rédigé en grande partie en anglais, présente notre nouveau
 langage et son système de type de manière incrémentale. Après avoir
 donné les objectifs généraux (et divers travaux liés) dans le
@@ -262,7 +358,4 @@ standard sont également fournis pour donner au lecteur une idée de
 l'expressivité du système en pratique. Les exemples sont également
 distribués avec le code source du prototype, afin que le lecteur puisse
 s'essayer à les utiliser et à les modifier.
-\end{env}
-
--<
 *)
