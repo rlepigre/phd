@@ -1074,16 +1074,14 @@ val rec odd_total : ∀n∈nat, ∃v:ι, is_odd n ≡ v =
     }
   }
 ###
-We also need to define the type of streams, together with related
-types corresponding to streams with an explicit size annotation
-(or ordinal) ##o##, and unfolded streams with a size annotation on
-their tail.
+We also need to define the type of streams, together a related type
+corresponding to streams with an explicit size annotation (or ordinal)
+##o##. Intuitively, this size annotation indicates the number of
+elements that are available in the stream.
 ### PML "examples/implem.pml"
 type corec stream<a> = {} ⇒ {hd : a; tl : stream}
 type sized_stream<o,a> = νo stream {} ⇒ {hd : a; tl : stream}
-type unfolded_stream<o,a> = {hd : a; tl : sized_stream<o,a>}
 ###
-
 We can now defined the ##itl_aux## function, which will be used
 to build our main infinite tape lemma function. Note that this
 function uses ##abort##, which logically amounts to the //ex
@@ -1094,20 +1092,22 @@ prove its termination.
 val abort : ∀y, empty ⇒ y = fun x { x }
 
 val rec itl_aux :
-    ∀a b, neg<unfolded_stream<a,even>> ⇒
-    neg<unfolded_stream<b,odd>> ⇒ neg<stream<nat>> =
+    ∀a b, neg<sized_stream<a,even>> ⇒
+    neg<sized_stream<b,odd>> ⇒ neg<stream<nat>> =
   fun fe fo s {
     let hd = (s {}).hd;
     let tl = (s {}).tl;
     use odd_total hd;
     if is_odd hd {
-      fo {hd = hd; tl = fun _ { save o {
-        abort (itl_aux fe (fun x { restore o x }) tl)
-      } }}
+      fo (fun _ {
+        {hd = hd; tl = save o {
+          abort (itl_aux fe (fun x { restore o x }) tl)}}
+      })
     } else {
-      fe {hd = hd; tl = fun _ { save e {
-        abort (itl_aux (fun x { restore e x }) fo tl)
-      } }}
+      fe (fun _ {
+        {hd = hd; tl = save e {
+          abort (itl_aux (fun x { restore e x }) fo tl)}}
+      })
     }
   }
 ###
@@ -1130,9 +1130,9 @@ corresponding to our infinite tape lemma.
 val itl : stream<nat> ⇒ [InL of stream<even>; InR of stream<odd>] =
   fun s {
     save a {
-      InL[fun _ { save e { restore a InR[fun _ { save o {
+      InL[save e { restore a InR[save o {
         abort (itl_aux (fun x { restore e x}) (fun x { restore o x }) s)
-      } }] } }]
+      } ] } ]
     }
   }
 ###
@@ -1141,7 +1141,7 @@ the constructors ##InL## and ##InR## of the return type, and then
 calls ##itl_aux## on the input stream. The very fact that we can
 write ##itl## proves that it is possible to extract a stream of
 odd numbers or a stream of even numbers from any stream of natural
-number.
+numbers.
 
 =<
 =<
