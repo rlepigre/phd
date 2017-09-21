@@ -36,7 +36,7 @@ let biblio =
   { key     = "Krivine2009"
   ; authors = ["Jean-Louis Krivine"]
   ; title   = "Realizability in Classical Logic"
-  ; notes   = "Panoramas et Synthèses (Volume 27)"
+  ; notes   = "Panoramas et Synthèses, Volume 27"
   ; year    = "2009"
   ; url     = "https://hal.archives-ouvertes.fr/hal-00154500" };
 
@@ -102,14 +102,14 @@ let biblio =
   { key     = "Wright1994"
   ; authors = ["A. K. Wright"; "M. Felleisen"]
   ; title   = "A Syntactic Approach to Type Soundness"
-  ; notes   = "Information and Computation (Volume 15, Issue 1)"
+  ; notes   = "Information and Computation, Volume 15, Issue 1"
   ; year    = "1994"
   ; url     = "https://doi.org/10.1006/inco.1994.1093" };
 
   { key     = "Wright1995"
   ; authors = ["Andrew K. Wright"]
   ; title   = "Simple Imperative Polymorphism"
-  ; notes   = "Lisp and Symbolic Computation (Volume 8, Number 4)"
+  ; notes   = "Lisp and Symbolic Computation, Volume 8, Number 4"
   ; year    = "1995"
   ; url     = "https://link.springer.com/article/10.1007/BF01018828" };
 
@@ -123,7 +123,7 @@ let biblio =
   { key     = "Tofte1990"
   ; authors = ["Mads Tofte"]
   ; title   = "Type Inference for Polymorphic References"
-  ; notes   = "Information and Computation (Volume 89, Issue 1)"
+  ; notes   = "Information and Computation, Volume 89, Issue 1"
   ; year    = "1990"
   ; url     = "https://doi.org/10.1016/0890-5401(90)90018-D" };
 
@@ -151,7 +151,7 @@ let biblio =
   { key     = "Leroy1993"
   ; authors = ["Xavier Leroy"]
   ; title   = "Polymorphism by Name for References and Continuations"
-  ; notes   = "proceedings of POPL"
+  ; notes   = "in the proceedings of POPL"
   ; year    = "1993"
   ; url     = "http://doi.acm.org/10.1145/158511.158632" };
 
@@ -194,7 +194,7 @@ let biblio =
   { key     = "Licata2009"
   ; authors = ["Daniel Licata"; "Robert Harper"]
   ; title   = "Positively Dependent Types"
-  ; notes   = "proceedings of PLPV"
+  ; notes   = "in the proceedings of PLPV"
   ; year    = "2009"
   ; url     = "http://doi.acm.org/10.1145/1481848.1481851" };
 
@@ -249,14 +249,14 @@ let biblio =
   { key     = "Coquand1988"
   ; authors = ["Thierry Coquand"; "Gérard Huet"]
   ; title   = "The Calculus of Constructions"
-  ; notes   = "Information and Computation (Volume 76, Issue 2-3)"
+  ; notes   = "Information and Computation, Volume 76, Issue 2-3"
   ; year    = "1988"
   ; url     = "https://doi.org/10.1016/0890-5401(88)90005-3" };
 
   { key     = "Martin-Löf1982"
   ; authors = ["Per Martin-Löf"]
   ; title   = "Constructive Mathematics and Computer Programming"
-  ; notes   = "Studies in Logic the Foundations of Mathematics (Volume 104)"
+  ; notes   = "Studies in Logic the Foundations of Mathematics, Volume 104"
   ; year    = "1982"
   ; url     = "http://rsta.royalsocietypublishing.org/content/312/1522/501" };
 
@@ -303,7 +303,7 @@ let biblio =
   { key     = "Huet1997"
   ; authors = ["Gérard Huet"]
   ; title   = "The Zipper"
-  ; notes   = "Journal of Functional Programming, Volume 7, Number 5"
+  ; notes   = "Journal of Functional Programming, Volume 7"
   ; year    = "1997"
   ; url     = "http://journals.cambridge.org/action/displayAbstract?aid=44121" };
 
