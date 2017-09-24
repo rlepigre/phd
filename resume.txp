@@ -4,6 +4,12 @@
   open PMLVerbatim
   open Lang
 )
+\Configure_math_macro{\v}{ syntax = string; }
+\Configure_math_macro{\t}{ syntax = string; }
+\Configure_math_macro{\s}{ syntax = string; }
+\Configure_math_macro{\p}{ syntax = string; }
+\Configure_math_macro{\subs}{ syntax = string; }
+
 
 \begin{env}(fun env -> hyphenate_fr env)
 Au cours des dernières années, les assistants de preuves on fait des progrès
@@ -115,7 +121,7 @@ où ##t## et ##u## sont des programmes arbitraires du langage. Un tel type
 égalité est habité par (ou contient) ##{}## (c'est à dire l'enregistrement
 vide) si l'équivalence dénotée est vraie, et il est vide sinon. Les
 équivalences sont gérées en utilisant une procédure partielle de décision, qui
-est conduite par la construction de programmes. Un contexte d'équations est
+est dirigée par la construction de programmes. Un contexte d'équations est
 maintenu par l'algorithme de typage, afin de stocker les équivalences
 supposées correctes durant la construction de la preuve de typage. Ce contexte
 est étendu quand une nouvelle équation est apprise (par exemple, quand un
@@ -185,7 +191,101 @@ montrer ##add k Zero ≡ k## en utilisant l'hypothèse d'induction
 Dans ce chapitre, on introduit le langage de programmation qui sera utilisé
 dans toute la suite de cette thèse. Sa sémantique opérationnelle est exprimée
 à l'aide d'une machine abstraite, qui nous permettra de considérer des
-opérations produisant des effets de bord.
+opérations produisant des effets de bord. Comme tout langage de programmation
+fonctionnelle, notre système est base sur le $λ$-calcul. Créé par Alonzo
+Church dans les années trente, le $λ$-calcul \cite("Church1941") est un
+formalisme permettant la représentation de fonctions calculables, et en
+particulier de fonctions récursives. Comme l'a démontré Alan Turing, le
+$λ$-calcul est un //modèle de calcul universel// \cite("Turing1937").
+
+Les termes du $λ$-calcul (appelés $λ$-termes) sont construits à partir d'un
+alphabet dénombrable de variables (appelées $λ$-variables) $\cal{V}_ι =
+\{x,y,z...\}$. L'ensemble de tous les $λ$-termes est généré par la grammaire
+||bnf|| suivante.
+\Caml(
+let _ = sidenote
+  << $t,u ::= x \| \t("λx t") \| \t("t u")$ >>
+  << $x ∈ \cal{V}_ι$ >>
+)
+Un terme de la forme $\t("λx t")$ est appelé abstraction (ou $λ$-abstractions)
+et un terme de la forme $\t("t u")$ est appelé application. Le langage que
+nous considérons dans cette thèse est en fait exprimé sous la forme d'une
+machine abstraite comprenant quatre catégories syntaxiques (valeurs, termes,
+piles et processus) générées par la grammaire ||bnf|| suivante.
+\Caml(
+let _ = large_bnfs
+  [ ( << $(Λ_ι)$ >>
+    , << $v, w$ >>
+    , << $\v("x") \| \v("λx t") \| \v("Ck[v]") \|
+          \v("{(li = vi) i∈I}") \| \v("□")$ >> )
+  ; ( << $(Λ)$ >>
+    , << $t, u$ >>
+    , << $\t("a") \| \t("v") \| \t("t u") \| \t("μα t") \| \t("[π]t")
+         \| \t("v.lk") \| \t("[v | (Ci[xi] → ti) i∈I]") \| \t("Y(t, v)")
+         \| \t("R(v,t)") \| \t("δ(v,w)") $ >> )
+  ; ( << $(Π)$ >>
+    , << $π, ρ$ >>
+    , << $\s("ε") \| \s("α") \| \s("v·π") \| \s("[t]π")$ >> )
+  ; ( << $(Λ × Π)$ >>
+    , << $p, q$ >>
+    , << $\p("t ∗ π")$ >> ) ]
+)
+Let termes et valeurs forment une variante du \lmcalc \cite("Parigot1992"),
+enrichit avec des éléments des langages à la ML (enregistrements et variants).
+Les valeurs de la forme $\v("Ck[v]")$ (avec $k ∈ \bbN$) correspondent à des
+variants (ou constructeurs). Un analyse par cas sur les variants peut être
+effectuée en utilisant la syntaxe $\t("[v | (Ci[xi] → ti) i∈I]")$, où le
+schémas $\v("Ci[xi]")$ est associés au terme $t_i$ pour tout $i$ dans
+$I ⊆_{fin} \bbN$. D'une manière similaire, les valeurs de la forme
+$\v("{(li = vi) i∈I}")$ correspondent à des enregistrements, qui sont des
+n-uplets avec des composantes nommées. L'opération de projection $\t("v.lk")$
+peut être utilisée pour accéder à la valeur stockées sous le label $l_k$ dans
+$v$.
+
+Les processus forment l'état interne de notre machine abstraite. On peut en
+fait voir un processus comme un terme, placé dans un contexte d'évaluation
+représenté par une pile. Intuitivement, la pile $π$ du processus $\p("t ∗ π")$
+contient les paramètres qui seront fournit à $t$. Comme on est en appel par
+valeur, les piles stockent également les fonctions durant l'évaluation de
+leurs arguments. C'est pourquoi on a besoin de piles de la forme $\s("[t]π")$.
+La sémantique opérationnelle de notre langage est donnée par la relation
+$({≻})$ définie sur les processus comme suit.
+\Caml(
+  let _ =
+    let line p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, []) in
+    let linec p1 p2 =
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $v ∉ \cal{V}_ι ∪ \{\v("□")\}$>>)
+    in
+    let linek p1 p2 =
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $k∈I$>>)
+    in
+    reduction_def <<$≻$>>
+      [ line  "t u ∗ π"                         "u ∗ [t]π"
+      ; linec "v ∗ [t]π"                        "t ∗ v·π"
+      ; line  "λx t ∗ v·π"                      "t[x ≔ v] ∗ π"
+      ; line  "μα t ∗ π"                        "t[α ≔ π] ∗ π"
+      ; line  "[ξ]t ∗ π"                        "t ∗ ξ"
+      ; linek "{(li = vi) i∈I}.lk ∗ π"          "vk ∗ π"
+      ; linek "[Ck[v] | (Ci[xi] → ti) i∈I] ∗ π" "ti[xi≔v] ∗ π"
+      ; line  "Y(t,v) ∗ π"                      "t (λx Y(t,x)) v ∗ π"
+      ; line  "R({(li = vi) i∈I}, u) ∗ π"       "u ∗ π"
+      ; line  "□ ∗ [t]π"                        "□ ∗ π"
+      ; line  "□ ∗ v·π"                         "□ ∗ π"
+      ; line  "[□ | (Ci[xi] → ti) i∈I] ∗ π"     "□ ∗ π"
+      ; line  "□.lk ∗ π"                        "□ ∗ π" ]
+)
+Les trois premières règles sont celles qui prennent en charge la
+$β$-réduction, c'est à dire l'évaluation standard des termes du $λ$-calcul.
+Quand la machine abstraite rencontre une application, la fonction est
+stockée sur la pile jusqu'à ce que son argument ait été complètement évalué.
+Une fois l'argument calculé, un valeur fait face à la pile contenant la
+fonction, on peut donc utiliser la second règle pour mettre la fonction en
+position d'évaluation et son argument en position d'argument, prêt à être
+consommé dés que la fonction se sera évalué en une $λ$-abstraction. À ce
+moment là, on pourra réaliser une substitution (sans capture) pour que
+l'application prenne effet. Le but des règle suivant est de prendre en
+charge l'évaluation des programmes formés en utilisant les autres
+constructeurs du langage (effets, enregistrements, variants, récursion).
 \end{env}
 
 -<
@@ -193,14 +293,25 @@ opérations produisant des effets de bord.
 -> Chapitre 3, équivalence observationnelle
 
 \begin{env}(fun env -> hyphenate_fr env)
-Dans ce chapitre, on introduit une relation d'équivalence sur les programmes.
-Deux programmes sont considérés équivalent si et seulement si ils ont le même
-comportement observable en terme de calcul. De propriétés générales sont
+Dans ce chapitre, on introduit une relation d'équivalence sur les termes du
+langage. Deux termes sont considérés équivalent si et seulement si ils ont le
+même comportement observable en terme de calcul. De propriétés générales sont
 ensuite obtenues pour toute relation d'équivalence satisfaisant certaines
 contraintes. Ces propriétés seront essentielles pour la définition de notre
 sémantique de réalisabilité dans les prochains chapitres. De plus, elles nous
 permettront d'implanter une procédure partielle de décision pour l'équivalence
 de programmes.
+
+L'idée principale de ce chapitre est de considérer une forme d'équivalence
+observationnelle. En d'autre termes, deux termes seront considérés comme
+équivalent dés lors qu'ils ont le même comportement observable dans tous
+les contextes d'évaluation. Ici, on observera simplement, pour chaque pile,
+si le processus formé calcule une valeur ou produit une erreur (ou ne termine
+pas). On ajoutera quantifiera également sur toutes les substitutions pour
+les variables, de manière à pouvoir comparer des termes ouverts. La relation
+$({≡}_{≻}) ⊆ {Λ×Λ}$ est donc définie comme suit.
+$$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
+     {{\p{tρ∗π}} {⇓}_{≻}} ⇔ {{\p{uρ∗π}} {⇓}_{≻}}\} $$
 \end{env}
 
 -<
@@ -219,7 +330,7 @@ règles de typage.
 
 -<
 
--> Chapitre 5, restriction aux valuers
+-> Chapitre 5, restriction aux valeurs
 
 \begin{env}(fun env -> hyphenate_fr env)
 Dans ce chapitre, nous considérons l'encodage des types dépendants, qui sont
