@@ -19,7 +19,7 @@
 
 
 \begin{env}(fun env -> hyphenate_fr env)
-Au cours des dernières années, les assistants de preuves on fait des progrès
+Au cours des dernières années, les assistants à la preuves on fait des progrès
 considérables et ont atteint un grand niveau de maturité. Ils ont permit la
 certification de programmes complexes tels que des compilateurs et même des
 systèmes d'exploitation. Néanmoins, l'utilisation d'un assistant de preuve
@@ -34,13 +34,13 @@ garanties au besoin.
 
 On étudie donc un langage en appel par valeurs dont le système de type étend
 une logique d'ordre supérieur. Il comprend un type égalité entre les
-programmes non typés, un type de fonction dépendant, la logique classique et
-du sous-typage. La combinaison de l'appel par valeurs, des fonctions
+programmes non typés, un type de fonctions dépendantes, la logique classique
+et du sous-typage. La combinaison de l'appel par valeurs, des fonctions
 dépendantes et de la logique classique est connu pour poser des problèmes de
 cohérence. Pour s'assurer de la correction du système (cohérence logique et
 sûreté à l'exécution), on propose un cadre théorique basé sur la réalisabilité
 classique de Krivine. Le modèle repose sur une propriété essentielle qui lie
-les différent niveaux d'interprétation des types d'une manière novatrice.
+les différents niveaux d'interprétation des types d'une manière novatrice.
 
 On démontre aussi l'expressivité de notre système en se basant sur son
 implantation dans un prototype. Il peut être utilisé pour prouver des
@@ -64,20 +64,20 @@ des langages dynamiquement typés. Des systèmes de vérification statique du
 typage sont dorénavant disponibles pour Javascript \mcite(["Microsoft2012";
 "Facebook2014"]) ou Python \cite("Lehtosalo2014").
 
-Dans les trente dernières années, des progrès significatifs ont été fait
-dans l'application de la théorie des types aux langages de programmation. La
+Dans les trente dernières années, des progrès significatifs ont été fait dans
+l'application de la théorie des types aux langages de programmation. La
 correspondance de Curry-Howard, qui lie les systèmes de types des langages de
 programmation fonctionnels à la logique mathématique, a été explorée dans deux
 directions principales. D'un côté, les assistants à la preuve comme Coq ou
-Agda sont basés sur des logiques très expressives. Pour montrer leur cohérence
-logique, les langages de programmation sous-jacents doivent être restreints
-aux programmes qui peuvent être montrés terminant. Ils interdisent donc les
-formes de récursion les plus générales. De l'autre côté, les langages de
-programmation fonctionnelle comme OCaml ou Haskell sont adaptés à la
-programmation, car ils n'imposent pas de restriction sur la récursion.
-Cependant, ils sont basés sur des logiques qui ne sont pas cohérentes, ce qui
-implique qu'ils ne peuvent pas être utilisés pour démontrer des formules
-mathématiques.
+Agda sont basés sur des logiques très expressives \mcite(["Coquand1988";
+"Martin-Löf1982"]). Pour montrer leur cohérence logique, les langages de
+programmation sous-jacents doivent être restreints aux programmes qui peuvent
+être montrés terminant. Ils interdisent donc les formes de récursion les plus
+générales. De l'autre côté, les langages de programmation fonctionnelle comme
+OCaml ou Haskell sont adaptés à la programmation, car ils n'imposent pas de
+restriction sur la récursion.  Cependant, ils sont basés sur des logiques qui
+ne sont pas cohérentes, ce qui implique qu'ils ne peuvent pas être utilisés
+pour démontrer des formules mathématiques.
 
 Le but de ce travail est de fournir un environnement uniforme au sein duquel
 des programmes peuvent être écrits, spécifiés, et prouvés. L'idée est de
