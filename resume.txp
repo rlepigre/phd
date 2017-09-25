@@ -3,12 +3,19 @@
   open ProofTree
   open PMLVerbatim
   open Lang
+
+  let vs a = <$ ⟦\f(a)⟧ $>
+  let ss a = <$ ⟦\f(a)⟧^⊥ $>
+  let ts a = <$ ⟦\f(a)⟧^{⊥⊥} $>
 )
 \Configure_math_macro{\v}{ syntax = string; }
 \Configure_math_macro{\t}{ syntax = string; }
 \Configure_math_macro{\s}{ syntax = string; }
 \Configure_math_macro{\p}{ syntax = string; }
 \Configure_math_macro{\subs}{ syntax = string; }
+\Configure_math_macro{\vs}{ syntax = string; }
+\Configure_math_macro{\ss}{ syntax = string; }
+\Configure_math_macro{\ts}{ syntax = string; }
 
 
 \begin{env}(fun env -> hyphenate_fr env)
@@ -326,6 +333,25 @@ prouvées en utilisant du raisonnement équationel sur les programmes. Nos types
 sont interprétés en utilisant des techniques standard de la réalisabilité
 classique, qui nous permettent de donner une justification sémantique à nos
 règles de typage.
+
+L'interprétation des types est définie inductivement, de manière usuelle. Il
+faut quand même remarquer que l'interprétation du type des fonctions nécessite
+trois niveaux d'interprétation (valeurs, piles, termes) liés par
+orthogonalité. Plus précisément, on définira l'interprétation $\vs{A}$ d'un
+type comme l'ensemble de ses valeurs, et on obtiendra ensuite par
+orthogonalité un ensemble de piles $\ss{A}$, puis un ensemble de termes
+$\ts{A}$.
+$$
+  \ss{A} = \{π∈Π \| ∀v∈\vs{A}, \p{v ∗ π} {⇓}_{≻}\}
+  \hspace(2.0)
+  \ts{A} = \{t∈Λ \| ∀π∈\ss{A}, \p{t ∗ π} {⇓}_{≻}\}
+$$
+
+En particulier, le type appartenance, dénotant une restriction sémantique
+sans contenu algorithmique, sera interprété comme $\vs{A∧t≡u} = \vs{A}$ si
+on a $t ≡ u$ en accord avec la section précédente. Sinon, on prendra
+$\vs{A∧t≡u} = ⟦⊥⟧$, c'est à dire la même interprétation que le type vide
+$⊥$.
 \end{env}
 
 -<
@@ -341,6 +367,24 @@ de //restriction aux valeurs sémantique//, qui permet au système d'accepter
 bien plus de programmes. Obtenir un modèle justifiant la //restriction aux
 valeurs sémantique// nécessite de changer la la sémantique opérationnelle et
 la définition de l'équivalence de programmes.
+
+L'idée ici est de considérer qu'un terme $t$ est une valeur, si il existe
+une valeur $v$ telle que $t ≡ v$. On pourra donc donner des règles de typage
+relâchées, plus générales, qui auront une prémisse de la forme $Ξ ⊢ t ≡ v$.
+Pour rendre notre modèle de réalisabilité compatible avec cette idée, il est
+nécessaire que les différents niveaux d'interprétation des types satisfassent
+la relation suivante.
+$$ {v ∈ \ts{A}} ⇒ {v ∈ \vs{A}} $$
+En d'autre termes, si une valeur est présente dans l'interprétation d'un type
+au niveau des termes, alors elle était déjà présente au niveau des valeurs.
+Plus précisément, on demandera à ce que l'opération de complétion
+$\vs{A} ↦ \ts{A}$ n'ajoute pas de nouvelles valeurs.
+
+Bien que cette propriété soit naturelle, elle n'est pas satisfaite en général
+dans les modèles de réalisabilité classique de Krivine (en appel par valeurs).
+Obtenir un modèle ayant cette propriété est le résultat central de cette
+thèse. Il est obtenu en étendant la syntaxe des termes avec une opération
+permettant de tester des équivalences durant la réduction.
 \end{env}
 
 -<
@@ -353,6 +397,21 @@ inclure du sous-typage. L'idée principale est de transformer les règles de
 typage qui n'ont pas de contenu algorithmique en règles de sous-typage. En
 particulier, les quantificateurs, points fixes, appartenance et égalités
 seront gérés au sein du sous-typage.
+
+Dans le cadre de cette thèse, le sous-typage à deux intérêts principaux. En
+premier lieux, il permet de donner un formulation du système qui est dirigée
+par la syntaxe. En d'autre termes, une et une seule règle de typage peut
+être appliquée pour un terme donné (peu importe le type correspondant), et
+une et une seule règle de sous-typage peut être appliquée étant donné deux
+types (modulo quelque détails). Il est en fait surprenant qu'on puisse
+obtenir un ensemble de règles aussi satisfaisant pour une implantation,
+malgré la très probable non décidabilité du typage et du sous-typage dans
+notre système (c'est une extension de System F \cite("Wells1999")).
+
+Sur le plan technique, nous considérons une notion de sous-typage bien
+particulière (appelé sous-typage pointé) de la forme $t ∈ A ⊂ B$, et nous
+faisons appel à des opérateurs de choix inspirés des travaux de Hilbert
+(voir \cite("Lepigre2017")).
 \end{env}
 
 -<
@@ -364,109 +423,24 @@ Dans ce dernier chapitre, nous considérons des exemples de programmes et de
 preuves qui peuvent être écrits et manipulés par le prototype que nous avons
 implanté. Cet ensemble restreint d'exemples n'a pas pour but de présenter le
 système de manière exhaustive. Leur seul but est de démontrer l'expressivité
-du système à travers une sélection d'exemples.
+du système à travers une sélection d'exemples. Tous les exemples données dans
+ce chapitre ont été vérifiés par notre prototype à la production de ce
+document. Ils sont donc acceptés par notre implémentation sans qu'aucune
+modification soit nécessaire.
+
+Une partie des exemples considérés concernent les listes, avec certains de
+leurs sous-types. En particulier, on considère le type des vecteurs (listes
+de taille fixée) et les listes triées. On démontre ainsi, par exemple, qu'il
+est possible de refléter par le typage qu'une fonction de tri (ici le tri par
+insertion) transforme une liste en une liste triée.
+
+Pour finir le chapitre, on considère quelque exemples utilisant la logique
+classique. En particulier, on définit un programme qui est en fait extrait
+d'une preuve classique d'une lemme sur les listes infinies d'entiers (ou
+« stream »). On définit ainsi une fonction qui, étant donné une liste
+infinie d'entiers, retourne une sous-liste infinie de nombre pairs, ou une
+sous-liste infinie de nombres impairs. Il n'est évidemment pas possible
+d'écrire un tel programme hors d'un cadre classique.
 \end{env}
 
 -<
-
-(*
-Du fait de la présence d'opérateurs de contrôle, et donc d'effets de
-bord, il est nécessaire de fixer une stratégie d'évaluation. Comme la
-plupart des langages de la famille ML, nous opterons pour l'appel par
-valeur. De ce fait, on doit prendre garde aux problèmes de correction
-liés à la combinaison de l'appel par valeur, des effets de bord et du
-polymorphisme à la ML. Une solution classique à ce problème est d'opter
-pour la bien connue « value restriction » : certaines règles de typage
-sont restreintes et ne peuvent être appliquées qu'aux valeurs syntaxiques
-(et non plus aux termes arbitraires).
-
-Bien qu'étant une solution simple et élégante, la « value restriction »
-n'est pas satisfaisante quand on étend le système avec une forme de
-produit dépendant. En effet, l'argument d'une fonction dépendante ne
-peut être qu'une valeur. Dans ce travail, nous relaxons la restriction
-syntaxique, et la remplaçons par un restriction sémantique exprimée en
-terme d'équivalence observationnelle. Pour montrer la correction de cette
-nouvelle approche, nous construisons un modèle de réalisabilité surprenant,
-qui nécessite l'ajout d'une instruction à la machine de calcul.
-
-Un des points essentiels pour autoriser la relaxation de la « value
-restriction » est d'intégrer une théorie équationnelle du langage au sein
-de son système de type. On peut de ce fait ajouter des constructeurs de
-types pour tirer parti de cet ajout, ce qui augmente l'expressivité des
-spécifications significativement. En particulier, on pourra encoder le
-produit dépendant en utilisant ces nouveaux constructeurs.
-
-Globalement, programmer avec notre langage devrait être
-une expérience relativement similaire à programmer en \sc{ml}.
-
-
-Ce manuscrit, rédigé en grande partie en anglais, présente notre nouveau
-langage et son système de type de manière incrémentale. Après avoir
-donné les objectifs généraux (et divers travaux liés) dans le
-\chapitre("intro"), la présentation formelle du langage commence aux
-\chapitre("calculus"). Le point de départ est une extension du $λ$-calcul
-(ou plutôt du $λμ$-calcul) pur, présentée sous la forme d'une machine
-abstraite en appel par valeur, dérivée de la machine de Krivine. Ce
-formalisme permet, en outre, la définition d'une notion d'équivalence
-observationnelle sur les programmes dans le \chapitre("obsEquiv"). Dans
-ce même chapitre, une axiomatisation partielle est proposée pour la
-relation d'équivalence, ainsi que pour toute relation compatible en un
-certain sens. On pourra utiliser ces relations pour implanter une
-procédure de décision partielle pour l'équivalence de programmes. En
-particulier, cette procédure sera correcte, c'est à dire qu'il ne sera
-pas possible dériver une équivalence entre deux termes qui ne le sont
-pas. Par contre, elle ne sera pas complète, et ne pourra donc pas montrer
-toutes les équivalences valides.
-
-La construction du système de type de notre langage commence au
-\chapitre("typeSystem"). Le point de départ est un système d'ordre
-supérieur standard (connu sous le nom de \sc{hol}) enrichit avec des
-types somme et produit (correspondant aux enregistrements et aux
-variants). Le système est complété avec des types permettant la
-spécification de propriétés équationnelles entre les programmes
-(type restriction) et une forme de quantification typée (type
-appartenance). Leur combinaison permet d'exprimer des propriétés
-des programmes au sein du système de type. On peut donc prouver une
-telle propriété (c'est à dire un type) en construisant un programme
-habitant le type correspondant (à la manière de la correspondance
-de Curry-Howard). On notera ici qu'on ne considère pas les preuve
-comme des programmes, mais bien les programmes comme de preuves.
-Nous prenons donc à contre-pied l'usuelle correspondance
-« proof-as-program » de la logique classique.
-(* *)
-Le \chapitre("typeSystem") contient également la construction d'un
-modèle de réalisabilité classique pour notre système de type. Bien
-entendu, la relation d'équivalence du \chapitre("obsEquiv") est
-utilisée pour interpréter les types restriction et appartenance.
-
-Bien que le système présenté au \chapitre("typeSystem") contienne tous
-les ingrédients nécessaires à la preuve de programmes, une difficulté
-importante demeure. La restriction syntactique usuelle, qui est utilisée
-pour s'assurer de la correction de certaines règles de typage, pose un
-problème d'expressivité majeur en ce qui concerne la quantification
-typée (c'est à dire le type appartenance). En effet, le restriction
-limite l'élimination de cette quantification aux valeurs. Une solution
-à ce problème est présentée au \chapitre("semValRest"), qui constitue
-la partie centrale de ce manuscrit. L'idée principale consiste à
-utiliser notre relation d'équivalence pour proposer une relaxation de
-la « value restriction ». On ne se limitera donc plus aux valeurs
-syntactiques, mais à tous les termes qui leurs sont équivalent.
-
-À partir du chapitre du \chapitre("subtyping"), le système est modifié
-de manière à ce qu'il puisse être implanté. En particulier, une notion
-de sous-typage est incorporée au système pour prendre en charge les
-connecteurs logiques qui n'ont pas de contenu algorithmique (restriction,
-appartenance, quantification, ...). En particulier, tout l'indécidabilité
-du typage de notre système sera contenue dans le sous-typage, qui devra
-faire appel à la procédure de décision pour l'équivalence. Dans notre
-cadre, le sous-typage peut également être utilisé pour définir plus
-petits et plus grands points fixes de types. Ceci nous permet donc
-d'obtenir types récursifs et types co-récursifs de manière élégante.
-
-Finalement, le \chapitre("implem") contient une description de certaines
-parties de notre implantation. Des exemples de programmes standard et moins
-standard sont également fournis pour donner au lecteur une idée de
-l'expressivité du système en pratique. Les exemples sont également
-distribués avec le code source du prototype, afin que le lecteur puisse
-s'essayer à les utiliser et à les modifier.
-*)
