@@ -29,23 +29,23 @@ cet écart, nous entendons concevoir un langage de programmation de style ML
 supportant la preuve de programmes. Il combine au sein d'un même outil la
 flexibilité de ML et le fin niveau de spécification offert par un assistant de
 preuve. Autrement dit, le système peut être utilisé pour programmer de manière
-fonctionnelle et fortement typée tout en autorisant l'obtention de nouvelles
+fonctionnelle et fortement typée, tout en permettant l'obtention de nouvelles
 garanties au besoin.
 
 On étudie donc un langage en appel par valeurs dont le système de type étend
-une logique d'ordre supérieur. Il comprend un type égalité entre les
-programmes non typés, un type de fonctions dépendantes, la logique classique
-et du sous-typage. La combinaison de l'appel par valeurs, des fonctions
-dépendantes et de la logique classique est connu pour poser des problèmes de
-cohérence. Pour s'assurer de la correction du système (cohérence logique et
-sûreté à l'exécution), on propose un cadre théorique basé sur la réalisabilité
+une logique d'ordre supérieur. Il comprend un type égalité (entre programmes
+non typés), un type de fonctions dépendantes, la logique classique et du
+sous-typage. La combinaison de l'appel par valeurs, des fonctions dépendantes
+et de la logique classique est connu pour poser des problèmes de cohérence.
+Pour s'assurer de la correction du système (cohérence logique et sûreté à
+l'exécution), on propose un cadre théorique basé sur la réalisabilité
 classique de Krivine. Le modèle repose sur une propriété essentielle qui lie
 les différents niveaux d'interprétation des types d'une manière novatrice.
 
 On démontre aussi l'expressivité de notre système en se basant sur son
 implantation dans un prototype. Il peut être utilisé pour prouver des
 propriétés de programmes standards tels que la fonction « map » sur les listes
-ou le tri par insertion.
+,ou le tri par insertion.
 \end{env}
 
 -> Chapitre 1, introduction
@@ -58,7 +58,7 @@ problème avec des vérifications statiques, au moment de la compilation, pour
 détecter des programmes incorrects. Leur typage fort est particulièrement
 utile quand plusieurs objets incompatibles doivent être manipulés au même
 moment. Par exemple, un programme qui calcule une addition sur un booléen (ou
-d'une fonction) est immédiatement rejeté. Durant les dernières années, les
+une fonction) est immédiatement rejeté. Durant les dernières années, les
 avantages du typage statique ont même été reconnus au sein de la communauté
 des langages dynamiquement typés. Des systèmes de vérification statique du
 typage sont dorénavant disponibles pour Javascript \mcite(["Microsoft2012";
@@ -81,7 +81,7 @@ pour démontrer des formules mathématiques.
 
 Le but de ce travail est de fournir un environnement uniforme au sein duquel
 des programmes peuvent être écrits, spécifiés, et prouvés. L'idée est de
-combiner un langage de programmation à la ML complet avec un système de type
+combiner un langage de programmation à la ML complet, avec un système de type
 enrichi pour permettre la spécification de comportements calculatoires. Ce
 langage peut donc être utilisé comme ML pour programmer en tirant profit d'un
 typage statique fort, mais aussi comme un assistant à la preuve pour démontrer
@@ -106,6 +106,8 @@ la SML, qui sont très pratiques pour encoder des types de données. Par
 exemple, le type des listes peut être défini et utilisé de la manière
 suivante.
 ### PML
+   
+   
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
@@ -116,9 +118,8 @@ val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
     }
   }
 ###
-\end{env}
 Ici, la fonction polymorphe ##exists## prend comme paramètre un prédicat et
-un liste, et elle indique si (au moins) un élément de la liste satisfait le
+une liste, et elle indique si (au moins) un élément de la liste satisfait le
 prédicat.
 
 Le système présenté ici n'est pas seulement un langage de programmation, mais
@@ -162,19 +163,18 @@ se déduit directement de la définition de la fonction ##add##. Notez que cette
 ##add Zero true ≡ true##.
 
 Regardons maintenant l'énoncé ##∀n:ι, add n Zero ≡ n##. Bien qu'il soit très
-similaire à ##add_z_n## en apparence, la preuve suivante est invalide.
-### PML "examples/demo.pml"
-// val add_n_z : ∀n:ι, add n Zero ≡ n = {}
-###
+similaire à ##add_z_n## en apparence, il ne peut pas être démontré.
 En effet, la relation ##add n Zero ≡ n## n'est pas vraie quand ##n## n'est pas
-un entier unaire. Dans ce cas, l'évaluation de ##add n Zero## produira une
+un entier unaire. Dans ce cas, l'évaluation de ##add n Zero## produit une
 erreur à l'exécution. En conséquence, on devra se reposer sur une forme de
 quantification dont le domaine se limite aux entiers unaires. Ceci peut être
 réalisé avec le type ##∀n∈nat, add n Zero ≡ n##, qui corresponds à une
 fonction (dépendante) prenant en entrée un entier ##n##, et retournant une
 preuve de ##add n Zero ≡ n##. Cette propriété peut ensuite être prouvée en
-utilisant de l'induction (programme récursif) et une analyse par cas.
+utilisant de l'induction (programme récursif) et une analyse par cas (filtrage
+par motif).
 ### PML
+
 val rec add_n_z : ∀n∈nat, add n Zero ≡ n =
   fun n {
     case n {
@@ -189,6 +189,7 @@ on doit montrer ##add Succ[k] Zero ≡ Succ[k]##. Par définition de ##add##,
 cette équation se réduit en ##Succ[add k Zero] ≡ Succ[k]##. Il suffit donc de
 montrer ##add k Zero ≡ k## en utilisant l'hypothèse d'induction
 (##add_n_z k##).
+\end{env}
 
 -<
 
@@ -240,9 +241,9 @@ let _ = large_bnfs
 Let termes et valeurs forment une variante du \lmcalc \cite("Parigot1992"),
 enrichit avec des éléments des langages à la ML (enregistrements et variants).
 Les valeurs de la forme $\v("Ck[v]")$ (avec $k ∈ \bbN$) correspondent à des
-variants (ou constructeurs). Un analyse par cas sur les variants peut être
-effectuée en utilisant la syntaxe $\t("[v | (Ci[xi] → ti) i∈I]")$, où le
-schémas $\v("Ci[xi]")$ est associés au terme $t_i$ pour tout $i$ dans
+variants (ou constructeurs). Un filtrage par motif peut être effectué sur les
+variants avec la syntaxe $\t("[v | (Ci[xi] → ti) i∈I]")$, où le motif
+$\v("Ci[xi]")$ est associés au terme $t_i$ pour tout $i$ dans
 $I ⊆_{fin} \bbN$. D'une manière similaire, les valeurs de la forme
 $\v("{(li = vi) i∈I}")$ correspondent à des enregistrements, qui sont des
 n-uplets avec des composantes nommées. L'opération de projection $\t("v.lk")$
@@ -256,15 +257,16 @@ contient les paramètres qui seront fournit à $t$. Comme on est en appel par
 valeur, les piles stockent également les fonctions durant l'évaluation de
 leurs arguments. C'est pourquoi on a besoin de piles de la forme $\s("[t]π")$.
 La sémantique opérationnelle de notre langage est donnée par la relation
-$({≻})$ définie sur les processus comme suit.
+$({≻})$ définie sur les processus en utilisant les règles de réduction
+suivantes.
 \Caml(
   let _ =
     let line p1 p2 = (<<$\p(p1)$>>, <<$\p(p2)$>>, []) in
     let linec p1 p2 =
-      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $v ∉ \cal{V}_ι ∪ \{\v("□")\}$>>)
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<si $v ∉ \cal{V}_ι ∪ \{\v("□")\}$>>)
     in
     let linek p1 p2 =
-      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<when $k∈I$>>)
+      (<<$\p(p1)$>>, <<$\p(p2)$>>, <<si $k∈I$>>)
     in
     reduction_def <<$≻$>>
       [ line  "t u ∗ π"                         "u ∗ [t]π"
@@ -289,10 +291,11 @@ Une fois l'argument calculé, un valeur fait face à la pile contenant la
 fonction, on peut donc utiliser la second règle pour mettre la fonction en
 position d'évaluation et son argument en position d'argument, prêt à être
 consommé dés que la fonction se sera évalué en une $λ$-abstraction. À ce
-moment là, on pourra réaliser une substitution (sans capture) pour que
-l'application prenne effet. Le but des règle suivant est de prendre en
-charge l'évaluation des programmes formés en utilisant les autres
-constructeurs du langage (effets, enregistrements, variants, récursion).
+moment là, on pourra réaliser une substitution sans capture en utilisant la
+troisième règle, pour que l'application prenne effet. Le but des règles
+suivantes est de prendre en charge l'évaluation des programmes formés avec
+les autres constructeurs du langage (effets, enregistrements, variants,
+récursion).
 \end{env}
 
 -<
@@ -302,20 +305,20 @@ constructeurs du langage (effets, enregistrements, variants, récursion).
 \begin{env}(fun env -> hyphenate_fr env)
 Dans ce chapitre, on introduit une relation d'équivalence sur les termes du
 langage. Deux termes sont considérés équivalent si et seulement si ils ont le
-même comportement observable en terme de calcul. De propriétés générales sont
+même comportement observable en terme de calcul. Des propriétés générales sont
 ensuite obtenues pour toute relation d'équivalence satisfaisant certaines
-contraintes. Ces propriétés seront essentielles pour la définition de notre
-sémantique de réalisabilité dans les prochains chapitres. De plus, elles nous
-permettront d'implanter une procédure partielle de décision pour l'équivalence
+contraintes. Ces propriétés sont essentielles pour la définition de la
+sémantique de réalisabilité dans les chapitres suivants. De plus, elles nous
+permettent d'implanter une procédure partielle de décision pour l'équivalence
 de programmes.
 
 L'idée principale de ce chapitre est de considérer une forme d'équivalence
-observationnelle. En d'autre termes, deux termes seront considérés comme
+observationnelle. En d'autre termes, deux programmes seront considérés
 équivalent dés lors qu'ils ont le même comportement observable dans tous
 les contextes d'évaluation. Ici, on observera simplement, pour chaque pile,
 si le processus formé calcule une valeur ou produit une erreur (ou ne termine
-pas). On ajoutera quantifiera également sur toutes les substitutions pour
-les variables, de manière à pouvoir comparer des termes ouverts. La relation
+pas). On quantifiera également sur toutes les substitutions pour les variables
+libres, de manière à pouvoir comparer des termes ouverts. La relation
 $({≡}_{≻}) ⊆ {Λ×Λ}$ est donc définie comme suit.
 $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
      {{\p{tρ∗π}} {⇓}_{≻}} ⇔ {{\p{uρ∗π}} {⇓}_{≻}}\} $$
@@ -329,25 +332,25 @@ $$ ({≡}_{≻}) = \{(t, u) \| ∀{π∈Π}, ∀{ρ∈\cal{S}},
 Dans ce chapitre, on présente un nouveau système de type, qui se distingue
 grâce à une notion d'équivalence de programme embarquée. Elle permet de
 spécifier des propriétés équationnelles de programmes, qui sont ensuite
-prouvées en utilisant du raisonnement équationel sur les programmes. Nos types
+prouvées par des raisonnements équationnels sur les programmes. Nos types
 sont interprétés en utilisant des techniques standard de la réalisabilité
 classique, qui nous permettent de donner une justification sémantique à nos
 règles de typage.
 
 L'interprétation des types est définie inductivement, de manière usuelle. Il
-faut quand même remarquer que l'interprétation du type des fonctions nécessite
-trois niveaux d'interprétation (valeurs, piles, termes) liés par
-orthogonalité. Plus précisément, on définira l'interprétation $\vs{A}$ d'un
-type comme l'ensemble de ses valeurs, et on obtiendra ensuite par
-orthogonalité un ensemble de piles $\ss{A}$, puis un ensemble de termes
-$\ts{A}$.
+faut quand même remarquer que, du fait de l'appel par valeur, l'interprétation
+du type des fonctions requiert trois niveaux d'interprétation (valeurs, piles,
+termes) liés par orthogonalité. Plus précisément, on définira l'interprétation
+$\vs{A}$ d'un type comme l'ensemble de ses valeurs, et on obtiendra ensuite
+par orthogonalité un ensemble de piles $\ss{A}$, puis un ensemble de termes
+$\ts{A}$ de la manière suivante.
 $$
   \ss{A} = \{π∈Π \| ∀v∈\vs{A}, \p{v ∗ π} {⇓}_{≻}\}
   \hspace(2.0)
   \ts{A} = \{t∈Λ \| ∀π∈\ss{A}, \p{t ∗ π} {⇓}_{≻}\}
 $$
 
-En particulier, le type appartenance, dénotant une restriction sémantique
+En particulier, le type restriction, dénotant une conjonction sémantique
 sans contenu algorithmique, sera interprété comme $\vs{A∧t≡u} = \vs{A}$ si
 on a $t ≡ u$ en accord avec la section précédente. Sinon, on prendra
 $\vs{A∧t≡u} = ⟦⊥⟧$, c'est à dire la même interprétation que le type vide
@@ -360,31 +363,33 @@ $⊥$.
 
 \begin{env}(fun env -> hyphenate_fr env)
 Dans ce chapitre, nous considérons l'encodage des types dépendants, qui sont
-une forme de quantification typée, dans notre système. Cependant,
+une forme de quantification typée dans notre système. Cependant,
 l'expressivité de ces derniers est considérablement limitée par la restriction
 aux valeurs. Pour résoudre ce problème, on introduit dans le système la notion
 de //restriction aux valeurs sémantique//, qui permet au système d'accepter
 bien plus de programmes. Obtenir un modèle justifiant la //restriction aux
-valeurs sémantique// nécessite de changer la la sémantique opérationnelle et
-la définition de l'équivalence de programmes.
+valeurs sémantique// nécessite de changer à la fois la sémantique
+opérationnelle et la définition de l'équivalence de programmes.
 
 L'idée ici est de considérer qu'un terme $t$ est une valeur, si il existe
 une valeur $v$ telle que $t ≡ v$. On pourra donc donner des règles de typage
 relâchées, plus générales, qui auront une prémisse de la forme $Ξ ⊢ t ≡ v$.
 Pour rendre notre modèle de réalisabilité compatible avec cette idée, il est
-nécessaire que les différents niveaux d'interprétation des types satisfassent
-la relation suivante.
+absolument nécessaire que les différents niveaux d'interprétation des types
+satisfassent la relation suivante.
 $$ {v ∈ \ts{A}} ⇒ {v ∈ \vs{A}} $$
 En d'autre termes, si une valeur est présente dans l'interprétation d'un type
 au niveau des termes, alors elle était déjà présente au niveau des valeurs.
-Plus précisément, on demandera à ce que l'opération de complétion
-$\vs{A} ↦ \ts{A}$ n'ajoute pas de nouvelles valeurs.
+Plus précisément, on demandera à ce que l'opération $\vs{A} ↦ \ts{A}$, qui
+peut être vue comme une forme de complétion, n'introduise pas de nouvelles
+valeurs.
 
 Bien que cette propriété soit naturelle, elle n'est pas satisfaite en général
-dans les modèles de réalisabilité classique de Krivine (en appel par valeurs).
-Obtenir un modèle ayant cette propriété est le résultat central de cette
-thèse. Il est obtenu en étendant la syntaxe des termes avec une opération
-permettant de tester des équivalences durant la réduction.
+dans les modèles de réalisabilité classique (en appel par valeurs). La
+définition d'un modèle ayant cette propriété est le résultat central de cette
+thèse \cite("Lepigre2016"). Il est obtenu en étendant la syntaxe des termes
+avec une opération permettant de tester des équivalences durant la réduction
+de la machine abstraite.
 \end{env}
 
 -<
@@ -403,7 +408,7 @@ premier lieux, il permet de donner un formulation du système qui est dirigée
 par la syntaxe. En d'autre termes, une et une seule règle de typage peut
 être appliquée pour un terme donné (peu importe le type correspondant), et
 une et une seule règle de sous-typage peut être appliquée étant donné deux
-types (modulo quelque détails). Il est en fait surprenant qu'on puisse
+types (modulo quelques subtilités). Il est en fait surprenant qu'on puisse
 obtenir un ensemble de règles aussi satisfaisant pour une implantation,
 malgré la très probable non décidabilité du typage et du sous-typage dans
 notre système (c'est une extension de System F \cite("Wells1999")).
@@ -422,8 +427,8 @@ faisons appel à des opérateurs de choix inspirés des travaux de Hilbert
 Dans ce dernier chapitre, nous considérons des exemples de programmes et de
 preuves qui peuvent être écrits et manipulés par le prototype que nous avons
 implanté. Cet ensemble restreint d'exemples n'a pas pour but de présenter le
-système de manière exhaustive. Leur seul but est de démontrer l'expressivité
-du système à travers une sélection d'exemples. Tous les exemples données dans
+système de manière exhaustive. Ils visent seulement à démontrer l'expressivité
+du système, à travers une sélection d'exemples. Tous les exemples données dans
 ce chapitre ont été vérifiés par notre prototype à la production de ce
 document. Ils sont donc acceptés par notre implémentation sans qu'aucune
 modification soit nécessaire.
@@ -436,7 +441,7 @@ insertion) transforme une liste en une liste triée.
 
 Pour finir le chapitre, on considère quelque exemples utilisant la logique
 classique. En particulier, on définit un programme qui est en fait extrait
-d'une preuve classique d'une lemme sur les listes infinies d'entiers (ou
+de la preuve classique d'un lemme sur les listes infinies d'entiers (ou
 « stream »). On définit ainsi une fonction qui, étant donné une liste
 infinie d'entiers, retourne une sous-liste infinie de nombre pairs, ou une
 sous-liste infinie de nombres impairs. Il n'est évidemment pas possible
