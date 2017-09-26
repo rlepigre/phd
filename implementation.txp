@@ -1085,7 +1085,7 @@ falso quodlibet// principle. Size annotations are also required
 on the type of ##itl_aux##, for our type-checking algorithm to
 prove its termination.
 ### PML "examples/implem.pml"
-val abort : ∀y, empty ⇒ y = fun x { x }
+val abort : ∀y, (∀x,x) ⇒ y = fun x { x }
 
 val rec itl_aux :
     ∀a b, neg<sized_stream<a,even>> ⇒
