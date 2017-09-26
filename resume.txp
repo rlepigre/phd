@@ -91,10 +91,9 @@ garanties. En particulier, il n'y a pas de distinction syntaxique entre les
 programmes et les preuves dans le système. On peut donc mélanger preuves et
 programmes durant la construction de preuves ou de programmes. Par exemples,
 on peut utiliser des mécanismes de preuve au sein de programmes afin qu'ils
-puissent porter des propriétés (par exemple, l'addition avec sa
-commutativité). Les programmes peuvent aussi utiliser des mécanismes de preuve
-pour éliminer du code mort (une portion de programme qui ne peut pas être
-atteinte durant l'exécution).
+portent des propriétés (par exemple, l'addition avec sa commutativité). Les
+programmes peuvent utiliser des mécanismes de preuve pour éliminer du code
+mort (ne pouvant pas être atteint à l'exécution).
 
 Dans cette thèse, notre but premier est de mettre au point un système de type
 pour un langage de programmation fonctionnelle, utilisable en pratique. Parmi
