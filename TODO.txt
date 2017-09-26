@@ -1,9 +1,8 @@
-- "full-fledged ML-like", pas vraiment car pas de refs (Alex)
-- Ajouter des "et al." dans les clés de citation à plusieurs auteurs.
+- "full-fledged ML-like", pas vraiment car pas de refs (AM)
+- Ajouter des "et al." dans les clés de citation à plusieurs auteurs (AA).
 - Aligner vraiment en mode verbatim (unicode).
-- Écrire un résumé substantiel en français.
-- Algo used to check the correctness of the proofs? (Fred Blanqui)
-- Why is the totality of f and g required in map_map? (Fred Blanqui)
-- Bigger rule name (Fred Blanqui)
+- Algo used to check the correctness of the proofs? (FB)
+- Why is the totality of f and g required in map_map? (FB)
+- Bigger rule name (FB)
 - Say somewhere in chapter 4 that Y is not included in the first type system.
-- In chapter 5, recall what ⇓_i is (Andreas)
+- In chapter 5, recall what ⇓_i is (AA)
