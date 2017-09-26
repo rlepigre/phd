@@ -12,7 +12,10 @@ test:
 	for f in `find examples -type f -name "*.pml"`; do pml2 $$f || break; done
 
 manuscript.ps: manuscript.pdf
-	pdftops $^
+	pdftops $^ $@
+
+manuscript_print.pdf: manuscript.ps
+	ps2pdf $^ $@
 
 www/manuscript_lepigre.pdf: manuscript.ps
 	ps2pdf $^ $@
@@ -49,8 +52,3 @@ upload: www/index.html $(DOCS)
 	rm -f www/*~
 	scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
 	scp -r www/* rodolphe@lepigre.fr:www/these
-
-upload_redirect: www_redirect/index.html
-	rm -f www_redirect/*~
-	lftp -u lepigre ftp://ftp.lepigre.fr -e \
-		"mirror -R www_redirect www/these; quit"
