@@ -106,8 +106,6 @@ la SML, qui sont très pratiques pour encoder des types de données. Par
 exemple, le type des listes peut être défini et utilisé de la manière
 suivante.
 ### PML
-   
-   
 type rec list<a> = [Nil ; Cons of {hd : a ; tl : list}]
 
 val rec exists : ∀a, (a ⇒ bool) ⇒ list<a> ⇒ bool =
@@ -174,7 +172,6 @@ preuve de ##add n Zero ≡ n##. Cette propriété peut ensuite être prouvée en
 utilisant de l'induction (programme récursif) et une analyse par cas (filtrage
 par motif).
 ### PML
-
 val rec add_n_z : ∀n∈nat, add n Zero ≡ n =
   fun n {
     case n {

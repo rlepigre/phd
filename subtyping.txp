@@ -568,7 +568,6 @@ a new sorting rule.
 \begin{center}
 $\unaryR{\{Σ ⊢ A_i : ο\}_{i∈I}}{Σ ⊢ \f{{(li:Ai)i∈I;⋯}} : ο}$
 \end{center}
-\linesAfter(0) (* FIXME hack. *)
 \end{def}
 
 We will now give the new typing and subtyping rules of our system, which
