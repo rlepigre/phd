@@ -17,8 +17,8 @@ manuscript.ps: manuscript.pdf
 manuscript_print.pdf: manuscript.ps
 	ps2pdf $^ $@
 
-www/manuscript_lepigre.pdf: manuscript.ps
-	ps2pdf $^ $@
+www/manuscript_lepigre.pdf: manuscript_print.pdf
+	cp $^ $@
 
 www/manuscript_lepigre.ps: manuscript.ps
 	cp $^ $@
@@ -46,7 +46,6 @@ DOCS=\
 	www/cbvMachine.v \
 	www/classification.ml
 
-upload: www/index.html $(DOCS)
-	rm -f www/*~
+upload: www/index.html $(DOCS) clean
 	scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
 	scp -r www/* rodolphe@lepigre.fr:www/these
