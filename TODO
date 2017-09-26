@@ -4,5 +4,5 @@
 - Algo used to check the correctness of the proofs? (FB)
 - Why is the totality of f and g required in map_map? (FB)
 - Bigger rule name (FB)
-- Say somewhere in chapter 4 that Y is not included in the first type system.
+- Say in chapter 4 that Y is not included in the first type system. (FB + AA)
 - In chapter 5, recall what ⇓_i is (AA)
