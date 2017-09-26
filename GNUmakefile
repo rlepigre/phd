@@ -31,16 +31,14 @@ www/cbvMachine.v: files/cbvMachine.v
 
 clean:
 	patoline --clean $(FLAG)
-	rm -f *~
+	find -type f -name "*~" -exec rm {} \;
 
 distclean: clean
-	rm -f manuscript.pdf manuscript.ps manuscript_short.ps
 	rm -f www/manuscript_lepigre.pdf
 	rm -f www/manuscript_lepigre.ps
 	rm -f www/classification.ml
 	rm -f www/cbvMachine.v
 	rm -f examples/*
-	rm -f **/*~
 
 DOCS=\
 	www/manuscript_lepigre.ps \
