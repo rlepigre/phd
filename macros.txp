@@ -580,7 +580,7 @@ let verbs_OCaml fn lines =
   in
   line_per_line D.structure build_line lines
 
-let lmcalc =
+let lmcalc _ =
   let lm = [Maths.Ordinary (Maths.node (Maths.glyphs "λμ"))] in
   << $\lm$-calculus >>
 

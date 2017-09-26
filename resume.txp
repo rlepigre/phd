@@ -235,7 +235,7 @@ let _ = large_bnfs
     , << $p, q$ >>
     , << $\p("t ∗ π")$ >> ) ]
 )
-Let termes et valeurs forment une variante du \lmcalc \cite("Parigot1992"),
+Let termes et valeurs forment une variante du \lmcalc() \cite("Parigot1992"),
 enrichit avec des éléments des langages à la ML (enregistrements et variants).
 Les valeurs de la forme $\v("Ck[v]")$ (avec $k ∈ \bbN$) correspondent à des
 variants (ou constructeurs). Un filtrage par motif peut être effectué sur les

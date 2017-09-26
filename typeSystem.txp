@@ -1383,7 +1383,7 @@ particular, the reduction relation $({↠})$ that will be introduced in
 
 => Typing stacks
 
-In our system, the typing rule for the named terms of the \lmcalc is
+In our system, the typing rule for the named terms of the \lmcalc() is
 limited to stack variables. As a consequence, terms can only contain
 terms of the form $\t{[π]t}$ when $π$ is a stack variable.
 \begin{center}

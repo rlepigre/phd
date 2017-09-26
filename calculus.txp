@@ -554,7 +554,7 @@ reduction rules produce computational effects.
 
 =<
 
-=> Computational effects and \lmcalc
+=> Computational effects and \lmcalc()
 
 In the programming languages community, computational effects (a.k.a.
 side-effects) refer to modifications made by a program to its environment
@@ -571,7 +571,7 @@ operations allowing the manipulation of the stack. More precisely, we
 will provide a way to save the stack (i.e., the evaluation context), so
 that it can be restored at a later stage. A natural way to extend our
 language is to use the syntax of (Philippe de Groote's variant of) Michel
-Parigot's \lmcalc \mcite(["Parigot1992"; "de Groote1994"]). We hence
+Parigot's \lmcalc() \mcite(["Parigot1992"; "de Groote1994"]). We hence
 introduce a new binder $\t("μα t")$ capturing the current stack in the
 $μ$-variable $α$. The stack can then be restored in $t$ using the syntax
 $\t("[α]u")$.
@@ -666,7 +666,7 @@ let _ =
 for every possible stack $π$.
 
 The abstract machine defined in this section can be used for evaluating
-terms of the \lmcalc. Although this language is very elegant and concise,
+terms of the \lmcalc(). Although this language is very elegant and concise,
 it is not suitable for practical programming. In the following section,
 our language will be extended with records (i.e., tuples with named fields)
 and variants (i.e., constructors and pattern-matching). We will thus obtain
@@ -723,7 +723,7 @@ let _ = large_bnfs
     , << $\p("t ∗ π")$ >> ) ]
 )
 \end{def}
-Terms and values form a variation of the \lmcalc \cite("Parigot1992"),
+Terms and values form a variation of the \lmcalc() \cite("Parigot1992"),
 enriched with ML-like constructs (i.e., records and variants). Values of
 the form $\v("Ck[v]")$ (where $k ∈ \bbN$) correspond to variants, or
 constructors. Note that they always have exactly one argument in our

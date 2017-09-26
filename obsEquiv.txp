@@ -455,7 +455,7 @@ The reduction rule for processes of the form $\p{μα t ∗ π}$ is inherently
 non-local. Indeed, the bound $μ$-variable can be substituted anywhere in $t$
 and any reduction rule may apply afterwards (depending on the form of $t$
 and $π$). However, we can still derive equivalences corresponding
-to the usual reduction rules of the \lmcalc \cite("Parigot1992"). In
+to the usual reduction rules of the \lmcalc() \cite("Parigot1992"). In
 particular, we can obtain two equivalences corresponding to call-by-value
 //structural reductions//.
 \begin{thm}
@@ -484,7 +484,7 @@ Similarly, the following theorem provides an equivalence corresponding to
 //renaming//. Note that our version of renaming is more general than the
 one found in \cite("Parigot1992") as our formalism includes stacks. Indeed,
 only $μ$-variables can be used in named terms in the original version of
-the \lmcalc.
+the \lmcalc().
 \begin{thm}
 For every $ξ∈Π$, $β ∈ \cal{V}_σ$ and $t ∈ Λ$ we have
 $\t{[ξ]μβ t} ≡ \t{[ξ]t[β≔ξ]}$.
