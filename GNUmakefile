@@ -5,6 +5,7 @@ all: manuscript.pdf
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
 manuscript.pdf: manuscript.txp $(SRC)
+	mkdir -p examples
 	ulimit -s unlimited; patoline --format FormatManuscrit $(FLAG) $<
 
 .PHONY:test
@@ -38,7 +39,7 @@ distclean: clean
 	rm -f www/manuscript_lepigre.ps
 	rm -f www/classification.ml
 	rm -f www/cbvMachine.v
-	rm -f examples/*
+	rm -rf examples
 
 DOCS=\
 	www/manuscript_lepigre.ps \
