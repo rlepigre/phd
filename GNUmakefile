@@ -1,5 +1,7 @@
 VERBOSE := 1
-FLAG := -j 4 --verbose $(VERBOSE) -I lang --package Patoline.ProofTree
+J       := 4
+
+FLAG := -j $(J) --verbose $(VERBOSE) -I lang --package Patoline.ProofTree
 
 all: manuscript.pdf
 
