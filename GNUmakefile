@@ -51,5 +51,5 @@ DOCS=\
 	www/classification.ml
 
 upload: www/index.html $(DOCS) clean
-	scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
+	#scp -r www/* rlepi@lama.univ-savoie.fr:WWW/these
 	scp -r www/* rodolphe@lepigre.fr:www/these

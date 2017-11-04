@@ -42,9 +42,9 @@ let parser lterm prio =
   | t:(lterm Subs) ts:(lterm Subs)*$   when prio = Appl -> build_app t ts
   | t:(lterm Atom) s:{'[' subst ']'}?$ when prio = Subs -> build_sub t s
   | e:(lctxt Atom) '[' t:(lterm Appl) ']' when prio = Atom -> Ctx(e,t)
-and subst =
+and parser subst =
   | x:lvar s:{"←" -> false | "≔" -> true} u:(lterm Appl)
-and lctxt prio =
+and parser lctxt prio =
   | "[]"                          when prio = Atom -> Hole(None)
   | e:cvar                        when prio = Atom -> Hole(Some e)
   | '(' e:(lctxt Appl) ')'        when prio = Atom -> CPar(e)

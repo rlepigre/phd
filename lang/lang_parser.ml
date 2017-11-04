@@ -94,10 +94,10 @@ let parser vaux (sa,prio) =
   | "ε" x:vvari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
       when prio = VSimp -> VWitn(x,a,t,b)
   | "□"                                       when prio = VSimp -> VWBox
-and field sa = l:label "=" v:(vaux (true,VComp))
-and valu prio = v:(vaux (true,prio))
-and valu_ns prio = v:(vaux (false,prio))
-and        term prio =
+and parser field sa = l:label "=" v:(vaux (true,VComp))
+and parser valu prio = v:(vaux (true,prio))
+and parser valu_ns prio = v:(vaux (false,prio))
+and parser term prio =
   | a:tvari                                   when prio = TAtom -> TVari(a)
   | t:tmeta                                   when prio = TAtom -> TMeta(t)
   | "⟦" t:(term TAppl) "⟧"                    when prio = TAtom -> TSema(t)
@@ -115,8 +115,8 @@ and        term prio =
   | '[' v:(valu VComp) '|' ps:(fset patt "|") ']'
                                               when prio = TAtom -> TCase(v,ps)
   | t:(term TAtom)                            when prio = TSubs -> t
-and patt = c:const '[' x:vvari ']' "→" t:(term TAppl)
-and        ctxt prio =
+and parser patt = c:const '[' x:vvari ']' "→" t:(term TAppl)
+and parser ctxt prio =
   | "[]"                                      when prio = TAtom -> CHole
   | e:(ctxt TAtom) '[' f:(ctxt TAppl) ']'     when prio = TAtom -> CPlug(e,f)
   | e:cmeta                                   when prio = TAtom -> CMeta(e)
@@ -126,7 +126,7 @@ and        ctxt prio =
   | t:(term TAtom) e:(ctxt TSubs)             when prio = TAppl -> CAppR(t,e)
   | e:(ctxt TAtom)                            when prio = TSubs -> e
   | e:(ctxt TSubs)                            when prio = TAppl -> e
-and        stac prio =
+and parser stac prio =
   | a:svari                                   when prio = SAtom -> SVari(a)
   | s:smeta                                   when prio = SAtom -> SMeta(s)
   | "⟦" s:(stac SFull) "⟧"                    when prio = SAtom -> SSema(s)
@@ -138,13 +138,13 @@ and        stac prio =
   | s:subs '(' a:svari ')'                    when prio = SAtom -> SASub(s,a)
   | "ε" al:svari "∈" a:(form FFull) '(' t:(term TAppl) "∉" b:(form FFull) ')'
       when prio = SAtom -> SWitn(al,a,t,b)
-and        proc prio =
+and parser proc prio =
   | p:pmeta                                   when prio = PAtom -> PMeta(p)
   | t:(term TAppl) "∗" s:(stac SFull)         when prio = PFull -> PProc(t,s)
   | '(' p:(proc PFull) ')'                    when prio = PAtom -> PGrou(p)
   | p:(proc PAtom) g:subs                     when prio = PAtom -> PSubs(p,g)
   | p:(proc PAtom)                            when prio = PFull -> p
-and        ordi =
+and parser ordi =
   | x:vordi     -> OVari(x)
   | x:ometa     -> OMeta(x)
   | "∞"         -> OInfi
@@ -152,7 +152,7 @@ and        ordi =
   | "ε" x:vordi '<' o:ordi '(' t:(term TAppl)
     b:{"∈" -> true | "∉" → false} a:(form FFull) ')'
                 -> OWitn(x,o,t,b,a)
-and        form prio =
+and parser form prio =
   | t:(term TAppl) u:{"≡" u:(term TAppl)}?$   when prio = FAtom ->
       (match u with None -> FTerm(t) | Some u -> FRest(None,Eq (t,u)))
   | s:(stac SFull)                            when prio = FAtom -> FStac(s)
@@ -188,12 +188,12 @@ and        form prio =
   | "ε" x:qvari s:{"∈" stvar}? '(' t:(term TAppl)
       m:{"∉" -> true | "∈" -> false} b:(form FFull) ')'
       when prio = FAtom -> FWitn(x,s,t,m,b)
-and ffield = l:label ':' a:(form FFull)$
-and fpatt  = c:const ':' a:(form FFull)$
-and equa   =
+and parser ffield = l:label ':' a:(form FFull)$
+and parser fpatt  = c:const ':' a:(form FFull)$
+and parser equa   =
   | t:(term TAppl) "≡" u:(term TAppl) -> Eq(t,u)
   | x:posvari                         -> Or(x)
-and        subs =
+and parser subs =
   | '(' s1:subs "∘" s2:subs ')'                         -> SubCm(s1,s2)
   | s:subsm "⁻¹"                                        -> SubIv(s)
   | s:subsm                                             -> SubsM(s)
