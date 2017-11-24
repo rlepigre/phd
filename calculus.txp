@@ -1045,7 +1045,7 @@ $\p("□ ∗ vρ·πρ") ≻ \p("□ ∗ πρ")$,
 $\p("[□ | (Ci[xi] → tiρ) i∈I] ∗ π") ≻ \p("□ ∗ πρ")$ and
 $\p("□ ∗ [tρ]πρ") ≻ \p("□ ∗ πρ")$.
 (* *)
-For a process of the form $\p("R(x,u) ∗ π")$ we take can
+For a process of the form $\p("R(x,u) ∗ π")$ we can take
 $ρ = \subs("[x ≔ {}]")$ as $\p("R({},uρ) ∗ πρ") ≻ \p("uρ ∗ πρ")$.
 (* *)
 For a process of the form $\p("a ∗ π")$ we can take
