@@ -9,8 +9,7 @@ let total_height = 317.46 (* mm *)
 let slice_width  = 13.80  (* mm *)
 let slice_offset = 231.75 (* mm *)
 
-let back_color   = colorHex "#242D6E"
-let front_color  = colorHex "#121B37"
+let background_color = colorHex "#121B37"
 
 let title_offset = total_width -. slice_offset +. 20.0
 
@@ -50,11 +49,8 @@ open Typography.Document
 
 (* Contents. *)
 let contents (env : Typography.Document.environment) =
-  let back =
-    fill_square (0.0, 0.0) (slice_offset +. 1.0, total_height) back_color
-  in
-  let front =
-    fill_square (slice_offset, 0.0) (total_width, total_height) front_color
+  let background =
+    fill_square (0.0, 0.0) (total_width, total_height) background_color
   in
   let sc x = x in
   let text size color txt =
@@ -89,7 +85,7 @@ let contents (env : Typography.Document.environment) =
     fill_square (slice_width, slice_width)
       (total_width -. slice_width, total_height -. slice_width) green
   in
-  front :: back (*:: real*) :: title @ author @ side (*@ [sep]*)
+  background (*:: real*) :: title @ author @ side (*@ [sep]*)
 
 
 (* Actually creating the page. *)
