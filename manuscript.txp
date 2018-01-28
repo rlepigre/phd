@@ -37,22 +37,7 @@ let cover_data =
   ; president  = Some laurent
   ; reviewers  = [ thierry ; alexandre ]
   ; examinors  = [ andreas ; frederic  ] }
-
-let _ = special_page 1 (cover cover_data defaultEnv)
 )
-
-(* Titre en anglais. *)
-\pagesBefore(4)
-\begin{center}
-\size(10.0){||Semantics and Implementation||}
-
-\size(10.0){||of an Extension of ML for||}
-
-\size(10.0){||Proving Programs||}
-
-\linesBefore(34)
-\size(6.0){||Rodolphe Lepigre||}
-\end{center}
 
 (* Table of contents *)
 \begin{minichap_no_toc}{Table of contents}
@@ -79,19 +64,7 @@ let _ = special_page 1 (cover cover_data defaultEnv)
 
 \Include{Implementation}
 
-(* Résumé en français *)
-\begin{minichap}{« Résumé substantiel » (en français)}
-\Include{Resume}
-\end{minichap}
-
 (* Bibliographie *)
 \begin{minichap}{References}
 \Include{References}
 \end{minichap}
-
-(* Abstract / Résumé *)
-\pagesBefore(4)
-\Include{AbstractFr}
-\Include{AbstractEn}
-
-

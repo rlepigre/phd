@@ -8,6 +8,8 @@ open UsualMake
 open Typography.Box
 open Printf
 
+let page_format = (209.55, 273.1)
+
 module Cover = struct
   open Driver
   open RawContent
@@ -81,7 +83,8 @@ module Cover = struct
       in Path (param, lines)
     in
 
-    let (w4, h4) = Util.a4 in
+    (*let (w4, h4) = Util.a4 in*)
+    let (w4, h4) = page_format in
 
     (* Grey strip on the left and images *)
     let left_grey = fill_square (0., 0.) (greyw, h4 +. 1.) col in
@@ -452,9 +455,27 @@ module Format (D:DocumentStructure) = struct
   let defaultEnv =
     let env = envFamily alegreya Default.defaultEnv in
     let (size, lead) = (env.size, env.lead) in
+    let new_page =
+      let open PageLayout in
+      let (a4w,a4h) = Util.a4 in
+      let a4_text_w = 2.0 *. a4w /. 3.0 in
+      let a4_text_h = 2.0 *. a4h /. 3.0 in
+      let (w,h) = page_format in
+      let h_margin = (h -. a4_text_h) /. 2.0 in
+      let w_margin = (w -. a4_text_w) /. 2.0 in
+      new_page
+      { paperWidth = w
+      ; paperHeight = h
+      ; marginTop = h_margin
+      ; marginBottom = h_margin
+      ; marginLeft = w_margin
+      ; marginRight = w_margin }
+    in
     (* let (size, lead) = (3.5, 5.0) in (* 10pt *) *)
     { env with size ; lead
     ; show_boxes = false
+    ; normalPageFormat = page_format
+    ; new_page
     ; word_substitutions=
         (fun x->List.fold_left (fun y f->f y) x
            [

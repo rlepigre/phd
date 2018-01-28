@@ -3,7 +3,7 @@ J       := 4
 
 FLAG := -j $(J) --verbose $(VERBOSE) -I lang --package Patoline.ProofTree
 
-all: manuscript.pdf
+all: manuscript.pdf cover.pdf
 
 SRC=$(wildcard *.txp) $(wildcard *.ml) $(wildcard lang/*.ml)
 
@@ -19,6 +19,15 @@ manuscript.ps: manuscript.pdf
 	pdftops $^ $@
 
 manuscript_print.pdf: manuscript.ps
+	ps2pdf $^ $@
+
+cover.pdf: cover.txp formatManuscrit.ml
+	patoline $<
+
+cover.ps: cover.pdf
+	pdftops $^ $@
+
+cover_print.pdf: cover.ps
 	ps2pdf $^ $@
 
 www/manuscript_lepigre.pdf: manuscript_print.pdf

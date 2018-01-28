@@ -1,0 +1,152 @@
+(* #FORMAT FormatManuscrit *)
+
+\Caml(
+open FormatManuscrit.Cover
+
+(* Size data. *)
+let total_width  = 477.29 (* mm *)
+let total_height = 317.46 (* mm *)
+let slice_width  = 13.80  (* mm *)
+let slice_offset = 231.75 (* mm *)
+
+let back_color   = colorHex "#242D6E"
+let front_color  = colorHex "#121B37"
+
+let title_offset = total_width -. slice_offset +. 20.0
+
+let abstract_margin = 26.0
+
+(* Page format specification. *)
+let new_page =
+  let open PageLayout in
+  let config =
+    { paperWidth   = total_width
+    ; paperHeight  = total_height
+    ; marginTop    = 0.0
+    ; marginBottom = 0.0
+    ; marginLeft   = 0.0
+    ; marginRight  = 0.0 }
+  in 
+  new_page config
+
+(* Draw a raw square. *)
+let fill_square (x1, y1) (x2, y2) col =
+  let xm = (x1 +. x2) /. 2. in
+  let w  = Pervasives.abs_float (x2 -. x1) in
+  let lines = [ [| [| xm ; xm |] , [| y1; y2 |] |] ] in
+  let param =
+    { path_order    = -1
+    ; close         = false
+    ; strokingColor = Some col
+    ; fillColor     = Some col
+    ; lineCap       = Butt_cap
+    ; lineJoin      = Miter_join
+    ; lineWidth     = w
+    ; dashPattern   = []
+    }
+  in Path (param, lines)
+
+open Typography.Document
+
+(* Contents. *)
+let contents (env : Typography.Document.environment) =
+  let back =
+    fill_square (0.0, 0.0) (slice_offset +. 1.0, total_height) back_color
+  in
+  let front =
+    fill_square (slice_offset, 0.0) (total_width, total_height) front_color
+  in
+  let sc x = x in
+  let text size color txt =
+    draw {env with size ; fontColor = color} (sc [tT txt])
+  in
+  let title1 = text 12.0 white "Semantics and Implementation of" in
+  let title2 = text 9.0 white "an Extension of ML for Proving Programs" in
+  let title =
+    List.map (translate title_offset 260.0) title1
+    @ List.map (translate title_offset 246.0) title2
+  in
+  let author =
+    let author = text 9.0 white "Rodolphe Lepigre" in
+    List.map (translate (title_offset +. 110.0) 40.0) author
+  in
+  let side =
+    let author = text 7.0 white "Rodolphe Lepigre" in
+    let title  = text 6.0 white
+      ("Semantics and Implementation of "
+      ^ "an Extension of ML for Proving Programs")
+    in
+    let title = List.map (translate 72.0 0.0) title in
+    let author = author @ title in
+    let author = [rotate (pi /. 2.0) author] in
+    List.map (translate (slice_offset +. 10.0) 24.0) author
+  in
+  let sep =
+    fill_square (total_width -. slice_offset, 0.0)
+      (total_width -. slice_offset +. 0.2, total_height) red
+  in
+  let real =
+    fill_square (slice_width, slice_width)
+      (total_width -. slice_width, total_height -. slice_width) green
+  in
+  front :: back (*:: real*) :: title @ author @ side (*@ [sep]*)
+
+
+(* Actually creating the page. *)
+let _ =
+  DefaultFormat.sprint_page_number := (fun _ -> "");
+  let environment env = {env with new_page; par_indent = []} in
+  let drawing env _ =
+    List.map (translate 0.0 (-.total_height)) (contents env)
+  in
+  let dr env =
+    { drawing_min_width     = 0.0
+    ; drawing_nominal_width = 0.0
+    ; drawing_max_width     = 0.0
+    ; drawing_width_fixed   = true
+    ; drawing_adjust_before = false
+    ; drawing_y0            = 0.0
+    ; drawing_y1            = 0.0
+    ; drawing_badness       = (fun _ -> 0.0)
+    ; drawing_contents      = drawing env
+    ; drawing_break_badness = 0.0
+    ; drawing_states        = []}
+  in
+  let contents = [bB (fun env -> [Drawing (dr env)])] in
+  newPar ~environment D.structure Complete.normal Default.parameters contents
+
+let abstract_env _ =
+  let normalMeasure = slice_offset -. abstract_margin *. 2.0 in
+  let normalLeftMargin =
+    (slice_offset -. slice_width -. normalMeasure) /. 2.0 +. slice_width
+  in
+  let fontColor = white in
+  envSize 6.0 {defaultEnv with normalLeftMargin ; normalMeasure ; fontColor}
+)
+
+\linesBefore(8)
+\begin{env}(abstract_env)
+
+In recent years, proof assistants have reached an impressive level of
+maturity. They have led to the certification of complex programs such
+as compilers and operating systems. Yet, using a proof assistant requires
+highly specialised skills, and it remains very different from standard
+programming. To bridge this gap, we aim at designing an ML-style
+programming language with support for proofs of programs, combining in a
+single tool the flexibility of ML and the fine specification features of
+a proof assistant.
+
+We thus define and study a call-by-value language whose type system extends
+higher-order logic with an equality type over untyped programs, a dependent
+function type, classical logic and subtyping. The combination of
+call-by-value evaluation, dependent functions and classical logic is known
+to raise consistency issues. To ensure the correctness of the system (logical
+consistency and runtime safety), we design a theoretical framework based
+on Krivine's classical realizability. The construction of the model relies
+on an essential property linking the different levels of interpretation of
+types in a novel way.
+
+We finally demonstrate the expressive power of our system using our prototype
+implementation, by proving properties of standard programs like the map
+function on lists or insertion sort.
+\end{env}
