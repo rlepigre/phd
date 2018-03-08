@@ -4,7 +4,7 @@ open FTypes
 open Typography.Document
 
 open Util
-open UsualMake
+open Extra
 open Typography.Box
 open Printf
 
@@ -257,7 +257,8 @@ module Format (D:DocumentStructure) = struct
       }
     in
     let environment env = {env with par_indent = []} in
-    newPar ~environment D.structure Complete.normal param contents
+    D.structure :=
+      newPar ~environment !D.structure Complete.normal param contents
 
   module Output (M:Driver.OutputDriver) = struct
     include Default.Output(M)
@@ -271,7 +272,7 @@ module Format (D:DocumentStructure) = struct
               with Not_found -> (-1,[0])
             in
             let to_str x = string_of_int (x + 1) in
-            String.concat "." (List.rev_map to_str (drop 1 l))
+            String.concat "." (List.rev_map to_str (List.drop 1 l))
           in
           let minichap = List.mem_assoc "minichap" n.node_tags in
           let section_name =
@@ -463,13 +464,13 @@ module Format (D:DocumentStructure) = struct
       let (w,h) = page_format in
       let h_margin = (h -. a4_text_h) /. 2.0 in
       let w_margin = (w -. a4_text_w) /. 2.0 in
-      new_page
-      { paperWidth = w
-      ; paperHeight = h
-      ; marginTop = h_margin
+      lr_new_page
+      { paperWidth   = w
+      ; paperHeight  = h
+      ; marginTop    = h_margin
       ; marginBottom = h_margin
-      ; marginLeft = w_margin
-      ; marginRight = w_margin }
+      ; marginLeft   = 1.25 *. w_margin
+      ; marginRight  = 0.75 *. w_margin }
     in
     (* let (size, lead) = (3.5, 5.0) in (* 10pt *) *)
     { env with size ; lead
@@ -504,7 +505,8 @@ module Format (D:DocumentStructure) = struct
     struct
       let do_begin_env () =
         let extra_tags = [("minichap", "")] in
-        newStruct ~numbered:false ~extra_tags D.structure M.arg1
+        D.structure :=
+          newStruct ~numbered:false ~extra_tags !D.structure M.arg1
 
       let do_end_env () =
         go_up D.structure
@@ -514,7 +516,9 @@ module Format (D:DocumentStructure) = struct
     struct
       let do_begin_env () =
         let extra_tags = [("minichap", "")] in
-        newStruct ~in_toc:false ~numbered:false ~extra_tags D.structure M.arg1
+        D.structure :=
+          newStruct ~in_toc:false ~numbered:false ~extra_tags
+          !D.structure M.arg1
 
       let do_end_env () =
         go_up D.structure
@@ -549,7 +553,7 @@ module Format (D:DocumentStructure) = struct
              let (_,l) =
                try StrMap.find "_structure" (env0.counters)
                with Not_found -> (-1,[0])
-             in List.rev (drop 1 l)
+             in List.rev (List.drop 1 l)
            in
            if (* numbered && *) count <> [] then (
              let labl=String.concat "_" ("_"::List.map string_of_int path) in
@@ -668,7 +672,7 @@ module Format (D:DocumentStructure) = struct
     in
     let env x = { x with par_indent = [] } in
     let toc = [bB table_of_contents] in
-    newPar tree ~environment:env Complete.normal Default.center toc
+    tree := newPar !tree ~environment:env Complete.normal Default.center toc
 
   module TableOfContents = struct
     let do_begin_env () = table_of_contents D.structure 3

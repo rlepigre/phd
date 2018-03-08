@@ -2,6 +2,7 @@
 
 \Caml(
 open FormatManuscrit.Cover
+open Extra
 
 (* Size data. *)
 let total_width  = 477.29 (* mm *)
@@ -109,7 +110,9 @@ let _ =
     ; drawing_states        = []}
   in
   let contents = [bB (fun env -> [Drawing (dr env)])] in
-  newPar ~environment D.structure Complete.normal Default.parameters contents
+  D.structure :=
+    newPar ~environment !D.structure Complete.normal
+    Default.parameters contents
 
 let abstract_env _ =
   let normalMeasure = slice_offset -. abstract_margin *. 2.0 in

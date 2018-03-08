@@ -38,7 +38,8 @@ let references bib =
     let environment : Document.environment -> Document.environment =
       fun env -> { env with par_indent = [] ; size = coef *. env.size }
     in
-    newPar D.structure ~environment Complete.normal
+    D.structure :=
+      newPar !D.structure ~environment Complete.normal
       Patoline_Format.parameters c
   in
   List.iter line (List.map format_ref refs); []
