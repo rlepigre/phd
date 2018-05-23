@@ -118,7 +118,9 @@ let sidenote text note =
     let pars = Patoline_Format.parameters a b c d e f g h in
     {pars with min_lines_before = 2 ; min_lines_after = 2}
   in
-  let np = newPar !D.structure ~environment Complete.normal pars in
+  let np c =
+    D.structure := newPar !D.structure ~environment Complete.normal pars c
+  in
   let contents env =
     let dr env =
       let size_box rs =
@@ -159,7 +161,9 @@ let reduction_def ?pad:(pad = 6.0) sym lines =
     let pars = Patoline_Format.parameters a b c d e f g h in
     {pars with min_lines_before = lbef ; min_lines_after = laft}
   in
-  let np = newPar !D.structure ~environment Complete.normal pars in
+  let np c =
+    D.structure := newPar !D.structure ~environment Complete.normal pars c
+  in
   let contents env =
     let dr env =
       let pagew = env.normalMeasure in
@@ -223,7 +227,9 @@ let bnfs lines =
     let pars = Patoline_Format.parameters a b c d e f g h in
     {pars with min_lines_before = lbef ; min_lines_after = laft}
   in
-  let np = newPar !D.structure ~environment Complete.normal pars in
+  let np c =
+    D.structure := newPar !D.structure ~environment Complete.normal pars c
+  in
   let contents env =
     let dr env =
       let pagew = env.normalMeasure in
@@ -294,7 +300,9 @@ let large_bnfs lines =
     let pars = Patoline_Format.parameters a b c d e f g h in
     {pars with min_lines_before = lbef ; min_lines_after = laft}
   in
-  let np = newPar !D.structure ~environment Complete.normal pars in
+  let np c =
+    D.structure := newPar !D.structure ~environment Complete.normal pars c
+  in
   let contents env =
     let dr env =
       let pagew = env.normalMeasure in
@@ -667,7 +675,9 @@ let tabular_layout ratio vsep lines =
     let pars = Patoline_Format.parameters a b c d e f g h in
     {pars with min_lines_before = lbef ; min_lines_after = laft}
   in
-  let np = newPar !D.structure ~environment Complete.normal pars in
+  let np c =
+    D.structure := newPar !D.structure ~environment Complete.normal pars c
+  in
   let contents env =
     let dr env =
       let pagew = env.normalMeasure in
