@@ -1,6 +1,7 @@
 open Typography
 open DefaultFormat
 open Maths
+open Earley_core
 open Earley
 
 type vari = string * int option
@@ -68,7 +69,7 @@ let parser proc =
 let lterm = lterm Appl
 let lctxt = lctxt Appl
 
-let blank = EarleyStr.blank_regexp ''[ ]*''
+let blank = Earley_str.blank_regexp ''[ ]*''
 
 let parse_term s =
   let parse = parse_string ~filename:s lterm blank in

@@ -1,5 +1,6 @@
 This repository contains the source files of my PhD manuscript. It was
-written using the Patoline typesetting system.
+written using the Patoline typesetting system, and the currecnt version
+builds with `patoline.0.2`.
 
 Related links:
  - https://lepigre.fr/these/

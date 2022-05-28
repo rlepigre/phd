@@ -34,15 +34,15 @@ let references bib =
 
   let coef = 1.0 in
  
-  let line c =
+  let line structure c =
     let environment : Document.environment -> Document.environment =
       fun env -> { env with par_indent = [] ; size = coef *. env.size }
     in
-    newPar D.structure ~environment Complete.normal
+    newPar structure ~environment Complete.normal
       Patoline_Format.parameters c
   in
-  List.iter line (List.map format_ref refs); []
-
+  let refs = List.map format_ref refs in
+  D.structure := List.fold_left line !D.structure refs; []
 )
 
 \references("biblio")

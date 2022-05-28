@@ -1,3 +1,4 @@
+open Earley_core
 open Lang_ast
 
 (* Parser for symbols allowed as index. *)
@@ -40,7 +41,7 @@ let parser fovari = fvari | ovari
 
 let parser posvari = (vari ["γ"])
 
-let blank = EarleyStr.blank_regexp ''[ ]*''
+let blank = Earley_str.blank_regexp ''[ ]*''
 
 (* Generic parsing function with exception handling. *)
 let parse name g =

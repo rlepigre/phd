@@ -1,5 +1,6 @@
 open Lang_maths
 open Lang_parser
+open Typography
 
 type maths = Maths.math list
 
